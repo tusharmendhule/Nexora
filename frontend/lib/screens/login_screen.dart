@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
 import 'main_nav.dart';
 import 'signup_screen.dart';
 
@@ -15,12 +16,63 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
+  bool isLoading = false;
+
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    final identifier = emailController.text.trim();
+    final password = passwordController.text;
+
+    if (identifier.isEmpty || password.isEmpty) {
+      _showError('Please enter your email/username and password');
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    try {
+      await _authService.login(
+        identifier: identifier,
+        password: password,
+      );
+
+      if (!mounted) return;
+
+      // Navigate to main app
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+        (route) => false,
+      );
+    } on AuthException catch (e) {
+      _showError(e.message);
+    } catch (e) {
+      _showError('Login failed. Please try again.');
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   @override
@@ -279,13 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const MainNavigation()),
-              (route) => false,
-            );
-          },
+          onPressed: isLoading ? null : _handleLogin,
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
@@ -293,14 +339,23 @@ class _LoginScreenState extends State<LoginScreen> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: const Text(
-            'Sign In',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          child: isLoading
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
+                )
+              : const Text(
+                  'Sign In',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
         ),
       ),
     );

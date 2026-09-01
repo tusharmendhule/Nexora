@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
+import 'login_screen.dart';
 import 'language_screen.dart';
 import 'about_nexora_screen.dart';
 import 'help_support_screen.dart';
@@ -165,6 +167,92 @@ class SettingsScreen extends StatelessWidget {
                 ),
               );
             },
+          ),
+
+          const SizedBox(height: 24),
+
+          _sectionTitle('Session'),
+
+          Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF211724),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.redAccent.withOpacity(0.12)),
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+              leading: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.redAccent.withOpacity(0.12),
+                ),
+                child: Icon(Icons.logout, color: Colors.redAccent.withOpacity(0.85)),
+              ),
+              title: const Text(
+                'Log Out',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              subtitle: const Padding(
+                padding: EdgeInsets.only(top: 3),
+                child: Text(
+                  'Sign out of your Nexora account',
+                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ),
+              trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    backgroundColor: const Color(0xFF171D35),
+                    title: const Text(
+                      'Log Out?',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    content: const Text(
+                      'You will be signed out of your Nexora account.',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          final authService = AuthService();
+                          await authService.logout();
+                          if (context.mounted) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LoginScreen(),
+                              ),
+                              (route) => false,
+                            );
+                          }
+                        },
+                        child: const Text(
+                          'Log Out',
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
 
           const SizedBox(height: 30),

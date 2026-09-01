@@ -10,6 +10,7 @@ import '../models/post.dart';
 import '../services/clip_service.dart';
 import '../services/moment_service.dart';
 import '../services/post_service.dart';
+import '../services/upload_service.dart';
 
 enum CreationType { post, moment, clip }
 
@@ -32,10 +33,12 @@ class _PostScreenState extends State<PostScreen> {
   final PostService _postService = PostService();
   final MomentService _momentService = MomentService();
   final ClipService _clipService = ClipService();
+  final UploadService _uploadService = UploadService();
 
   late CreationType _type;
   XFile? _media;
   bool _publishing = false;
+  double _uploadProgress = 0.0;
 
   @override
   void initState() {
@@ -57,6 +60,15 @@ class _PostScreenState extends State<PostScreen> {
         path.endsWith('.webm') ||
         path.endsWith('.avi') ||
         path.endsWith('.mkv');
+  }
+
+  bool get _isAudio {
+    final path = _media?.path.toLowerCase() ?? '';
+    return path.endsWith('.mp3') ||
+        path.endsWith('.wav') ||
+        path.endsWith('.aac') ||
+        path.endsWith('.ogg') ||
+        path.endsWith('.flac');
   }
 
   bool get _canPublish {
@@ -121,23 +133,77 @@ class _PostScreenState extends State<PostScreen> {
     try {
       switch (_type) {
         case CreationType.post:
-          final post = Post(
-            id: 'post_${now.microsecondsSinceEpoch}',
-            authorId: currentUserId,
-            authorUsername: currentUsername,
-            text: text.isEmpty ? null : text,
-            mediaUrl: _media?.path,
-            contentType: _media == null
-                ? 'text'
-                : (_isVideo ? 'video' : 'image'),
-            label: NexoraLabel.editedContent,
-            createdAt: now,
+          // Determine content type
+          String contentType = 'text';
+          if (_media != null) {
+            if (_isVideo) {
+              contentType = 'video';
+            } else if (_isAudio) {
+              contentType = 'audio';
+            } else {
+              contentType = 'image';
+            }
+          }
+
+          // Upload media to Cloudinary via backend if a file is attached
+          List<Map<String, dynamic>>? mediaItems;
+          if (_media != null) {
+            try {
+              setState(() {
+                _uploadProgress = 0.0;
+              });
+
+              final file = File(_media!.path);
+              final uploadResult = await _uploadService.uploadFile(
+                file: file,
+                onProgress: (bytesSent, totalBytes) {
+                  if (mounted) {
+                    setState(() {
+                      _uploadProgress = totalBytes > 0 ? bytesSent / totalBytes : 0.0;
+                    });
+                  }
+                },
+              );
+
+              mediaItems = [uploadResult.toMediaItem()];
+              // Use the uploaded type as the content type
+              contentType = uploadResult.type;
+            } on UploadError catch (e) {
+              if (!mounted) return;
+              setState(() {
+                _publishing = false;
+                _uploadProgress = 0.0;
+              });
+              _showMessage(e.message);
+              return;
+            }
+          }
+
+          // Create post via backend API
+          final createdPost = await _postService.createPost(
+            text: text.isEmpty ? '' : text,
+            contentType: contentType,
+            media: mediaItems,
           );
 
-          await _postService.createPost(post);
-
           if (!mounted) return;
-          Navigator.pop(context, post);
+
+          if (createdPost != null) {
+            Navigator.pop(context, createdPost);
+          } else {
+            // API call failed — fall back to local post
+            final fallbackPost = Post(
+              id: 'post_${now.microsecondsSinceEpoch}',
+              authorId: currentUserId,
+              authorUsername: currentUsername,
+              text: text.isEmpty ? null : text,
+              mediaUrl: _media?.path,
+              contentType: contentType,
+              label: NexoraLabel.editedContent,
+              createdAt: now,
+            );
+            Navigator.pop(context, fallbackPost);
+          }
           return;
 
         case CreationType.moment:
@@ -241,6 +307,10 @@ class _PostScreenState extends State<PostScreen> {
                     const SizedBox(height: 20),
                     if (_media != null) ...[
                       _mediaPreview(),
+                      const SizedBox(height: 16),
+                    ],
+                    if (_publishing && _uploadProgress > 0) ...[
+                      _uploadProgressIndicator(),
                       const SizedBox(height: 16),
                     ],
                     Container(
@@ -493,6 +563,53 @@ class _PostScreenState extends State<PostScreen> {
           borderRadius: BorderRadius.circular(14),
         ),
         child: Icon(icon, color: Colors.white70, size: 23),
+      ),
+    );
+  }
+
+  Widget _uploadProgressIndicator() {
+    final percent = (_uploadProgress * 100).clamp(0, 100).toStringAsFixed(0);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF151A2E),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFF3157D5),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'Uploading media... $percent%',
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: _uploadProgress,
+              backgroundColor: const Color(0xFF242A46),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF3157D5)),
+              minHeight: 4,
+            ),
+          ),
+        ],
       ),
     );
   }

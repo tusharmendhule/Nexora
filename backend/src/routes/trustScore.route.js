@@ -3,42 +3,8 @@ const router = express.Router();
 const TrustScore = require('../models/trust-score.model');
 const Post = require('../models/post.model');
 const { protect } = require('../middleware/auth.middleware');
-
-// Helper function to calculate Trust Score based on Synopsis Formula
-const calculateTrustScore = (A, F, S, K, isConfirmedFalse = false, isDisclosedAI = false, isSatire = false) => {
-  // Formula: 100 * [0.35*A + 0.35*F + 0.20*S + 0.10*K]
-  let finalScore = Math.round(100 * (0.35 * A + 0.35 * F + 0.20 * S + 0.10 * K));
-  let label = 'Orange';
-  let isOverrideApplied = false;
-  let explanation = '';
-
-  // Rule-based overrides
-  if (isConfirmedFalse) {
-    label = 'Red';
-    isOverrideApplied = true;
-    explanation = 'Flagged as Red due to confirmed false fact-check result.';
-  } else if (isSatire) {
-    label = 'Purple';
-    isOverrideApplied = true;
-    explanation = 'Tagged as Purple: Disclosed satire, opinion, or edited content.';
-  } else if (finalScore >= 70) {
-    if (isDisclosedAI) {
-      label = 'Blue';
-      explanation = 'Tagged as Blue: Disclosed AI-generated content that is factually supported.';
-    } else {
-      label = 'Green';
-      explanation = 'Tagged as Green: High-trust content with strong verification signals.';
-    }
-  } else if (finalScore < 40) {
-    label = 'Red';
-    explanation = 'Tagged as Red due to low credibility signals and potential manipulation.';
-  } else {
-    label = 'Orange';
-    explanation = 'Tagged as Orange: Content is partially verified or has uncertain signals.';
-  }
-
-  return { finalScore, label, explanation, isOverrideApplied };
-};
+const { getFactCheckResultsByPost } = require('../services/fact-check.service');
+const trustScoreService = require('../services/trust-score.service');
 
 // ==========================================
 // 1. GENERATE / CALCULATE TRUST SCORE FOR A POST
@@ -48,36 +14,76 @@ const calculateTrustScore = (A, F, S, K, isConfirmedFalse = false, isDisclosedAI
 router.post('/:postId', protect, async (req, res) => {
   try {
     const { postId } = req.params;
-    const { authenticityScore, factualVerificationScore, sourceCredibilityScore, modelConfidenceScore, isConfirmedFalse, isDisclosedAI, isSatire } = req.body;
+    const {
+      authenticityScore,
+      factualVerificationScore: explicitF,
+      sourceCredibilityScore,
+      modelConfidenceScore,
+      isConfirmedFalse: explicitConfirmedFalse,
+      isDisclosedAI,
+      isSatire,
+      contentType,
+      manipulationProbability,
+    } = req.body;
 
     const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({ success: false, message: 'Post not found' });
     }
 
+    // Attempt to pull fact-check evidence from Module 13 if not explicitly provided
+    let factCheckEvidence = null;
+
+    try {
+      factCheckEvidence = await getFactCheckResultsByPost(postId);
+    } catch {
+      // Fact-check lookup failed — fall back to defaults
+    }
+
     const A = authenticityScore ?? 0.8;
-    const F = factualVerificationScore ?? 0.8;
+    const F = explicitF ?? factCheckEvidence?.factualVerificationScore ?? 0.8;
     const S = sourceCredibilityScore ?? 0.9;
     const K = modelConfidenceScore ?? 0.85;
+    const confirmedFalse = explicitConfirmedFalse ?? factCheckEvidence?.confirmedFalse ?? false;
 
-    const calculation = calculateTrustScore(A, F, S, K, isConfirmedFalse, isDisclosedAI, isSatire);
+    // Determine content type for rule evaluation
+    const resolvedContentType = contentType || (isSatire ? 'satire' : post.contentType || '');
+
+    const result = trustScoreService.computeTrustScore({
+      authenticityScore: A,
+      factualVerificationScore: F,
+      sourceCredibilityScore: S,
+      modelConfidenceScore: K,
+      isConfirmedFalse: confirmedFalse,
+      isDisclosedAI: !!isDisclosedAI,
+      contentType: resolvedContentType,
+      manipulationProbability: manipulationProbability || 0,
+      evidence: [],
+    });
+
+    const explanation = result.reasoning.join('\n');
 
     const trustScore = await TrustScore.findOneAndUpdate(
       { post: postId },
       {
         post: postId,
-        authenticityScore: A,
-        factualVerificationScore: F,
-        sourceCredibilityScore: S,
-        modelConfidenceScore: K,
-        ...calculation
+        score: result.trustScore,
+        authenticity: result.componentScores.authenticity,
+        factualVerification: result.componentScores.factualVerification,
+        sourceCredibility: result.componentScores.sourceCredibility,
+        modelConfidence: result.componentScores.modelConfidence,
+        label: result.label,
+        explanation,
+        modelVersion: result.modelVersion,
+        ruleVersion: result.ruleVersion,
+        isOverrideApplied: result.isOverrideApplied,
       },
       { upsert: true, new: true }
     );
 
     res.status(200).json({
       success: true,
-      trustScore
+      trustScore,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -91,7 +97,9 @@ router.post('/:postId', protect, async (req, res) => {
 // @access  Private
 router.get('/:postId', protect, async (req, res) => {
   try {
-    const trustScore = await TrustScore.findOne({ post: req.params.postId }).populate('post', 'caption mediaUrl user');
+    const trustScore = await TrustScore.findOne({ post: req.params.postId })
+      .populate('post', 'caption mediaUrl user')
+      .populate('evidenceRefs');
 
     if (!trustScore) {
       return res.status(404).json({ success: false, message: 'Trust Score not found for this post' });
@@ -99,7 +107,7 @@ router.get('/:postId', protect, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      trustScore
+      trustScore,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

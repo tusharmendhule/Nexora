@@ -32,6 +32,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _loadUser() async {
+    // Try fetching by username via API search
     final loadedUser = await _userService.getUserByUsername(widget.username);
 
     if (!mounted) return;
@@ -57,21 +58,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       loadedUser.id,
     );
 
-    final updatedUser = User(
-      id: loadedUser.id,
-      username: loadedUser.username,
-      displayName: loadedUser.displayName,
-      bio: loadedUser.bio,
-      profileImageUrl: loadedUser.profileImageUrl,
-      followersCount: followerCount,
-      followingCount: followingCount,
-      isFollowing: following,
-      isFollowedBy: loadedUser.isFollowedBy,
-      isVerified: loadedUser.isVerified,
-    );
-
     setState(() {
-      user = updatedUser;
+      user = User(
+        id: loadedUser.id,
+        username: loadedUser.username,
+        displayName: loadedUser.displayName,
+        bio: loadedUser.bio,
+        profileImageUrl: loadedUser.profileImageUrl,
+        followersCount: followerCount,
+        followingCount: followingCount,
+        isFollowing: following,
+        isFollowedBy: loadedUser.isFollowedBy,
+        isVerified: loadedUser.isVerified,
+        website: loadedUser.website,
+        email: loadedUser.email,
+        reputationBadge: loadedUser.reputationBadge,
+        overallTrustRating: loadedUser.overallTrustRating,
+        createdAt: loadedUser.createdAt,
+      );
       isFollowing = following;
       isLoading = false;
     });
@@ -116,6 +120,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         isFollowing: following,
         isFollowedBy: target.isFollowedBy,
         isVerified: target.isVerified,
+        website: target.website,
+        email: target.email,
+        reputationBadge: target.reputationBadge,
+        overallTrustRating: target.overallTrustRating,
+        createdAt: target.createdAt,
       );
     });
   }

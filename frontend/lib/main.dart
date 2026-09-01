@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'config/firebase_options.dart';
+import 'services/auth_service.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/main_nav.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const NexoraApp());
 }
 
@@ -35,15 +45,35 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _initialize();
+  }
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
+  Future<void> _initialize() async {
+    // Wait for splash display
+    await Future.delayed(const Duration(seconds: 2));
 
+    if (!mounted) return;
+
+    final authService = AuthService();
+
+    // Attempt to restore session
+    final userProfile = await authService.restoreSession();
+
+    if (!mounted) return;
+
+    if (userProfile != null && authService.isSignedIn) {
+      // User has a valid session → go to main app
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+      );
+    } else {
+      // No valid session → show onboarding
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const OnboardingScreen()),
       );
-    });
+    }
   }
 
   @override

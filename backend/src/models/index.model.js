@@ -14,6 +14,7 @@ const TrustScore = require('./trust-score.model');
 const FactCheckCache = require('./fact-check-cache.model');
 const Moderation = require('./moderation.model');
 const Report = require('./report.model');
+const ClaimEntity = require('./claim-entity.model');
 
 module.exports = {
   User,
@@ -31,5 +32,6 @@ module.exports = {
   TrustScore,
   FactCheckCache,
   Moderation,
-  Report
+  Report,
+  ClaimEntity,
 };

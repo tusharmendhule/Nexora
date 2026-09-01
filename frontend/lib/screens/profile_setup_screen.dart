@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'interests_screen.dart';
+import '../services/user_service.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -13,12 +18,98 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
 
+  final UserService _userService = UserService();
+  final ImagePicker _picker = ImagePicker();
+
+  String? _profileImagePath;
+  bool _isSaving = false;
+
   @override
   void dispose() {
     _nameController.dispose();
     _usernameController.dispose();
     _bioController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickProfileImage() async {
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (picked == null) return;
+
+    setState(() {
+      _profileImagePath = picked.path;
+    });
+  }
+
+  Future<void> _saveAndContinue() async {
+    final name = _nameController.text.trim();
+    final username = _usernameController.text.trim().replaceFirst('@', '');
+
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your display name'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    if (username.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a username'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      // Save profile fields to the backend
+      final updatedUser = await _userService.updateMyProfile(
+        name: name,
+        username: username,
+        bio: _bioController.text.trim(),
+      );
+
+      // Upload avatar if selected
+      if (_profileImagePath != null && updatedUser != null) {
+        await _userService.uploadAvatar(File(_profileImagePath!));
+      }
+
+      if (!mounted) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const InterestsScreen(),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save profile. Please try again.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
@@ -72,51 +163,73 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               const SizedBox(height: 22),
 
               // Profile photo
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  Container(
-                    width: 78,
-                    height: 78,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFF242A43),
+              GestureDetector(
+                onTap: _pickProfileImage,
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Container(
+                      width: 78,
+                      height: 78,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF242A43),
+                      ),
+                      child: _profileImagePath != null
+                          ? ClipOval(
+                              child: _profileImagePath!.startsWith('http')
+                                  ? Image.network(
+                                      _profileImagePath!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          const Icon(Icons.person, color: Colors.white54, size: 42),
+                                    )
+                                  : Image.file(
+                                      File(_profileImagePath!),
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          const Icon(Icons.person, color: Colors.white54, size: 42),
+                                    ),
+                            )
+                          : const Icon(
+                              Icons.person,
+                              color: Colors.white54,
+                              size: 42,
+                            ),
                     ),
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.white54,
-                      size: 42,
-                    ),
-                  ),
 
-                  Container(
-                    width: 25,
-                    height: 25,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF171D35),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white54,
-                        width: 1,
+                    Container(
+                      width: 25,
+                      height: 25,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF171D35),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white54,
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 17,
                       ),
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 17,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
               const SizedBox(height: 8),
 
-              const Text(
-                'Add profile photo',
-                style: TextStyle(
-                  color: Color(0xFF6C8CFF),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+              GestureDetector(
+                onTap: _pickProfileImage,
+                child: const Text(
+                  'Add profile photo',
+                  style: TextStyle(
+                    color: Color(0xFF6C8CFF),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
 
@@ -160,14 +273,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   borderRadius: BorderRadius.circular(28),
                 ),
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const InterestsScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: _isSaving ? null : _saveAndContinue,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
@@ -176,14 +282,23 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Continue',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
 

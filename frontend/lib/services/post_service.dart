@@ -1,121 +1,216 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:http/http.dart' as http;
 
-import 'package:shared_preferences/shared_preferences.dart';
-
+import '../config/api_config.dart';
 import '../models/post.dart';
-import '../models/nexora_label.dart';
 
+/// Backend-connected post service.
+///
+/// All reads/writes go through the Nexora v1 API backed by MongoDB.
 class PostService {
-  static const String _storageKey = 'nexora_posts';
+  PostService._internal();
 
-  final List<Post> _posts = [];
-  bool _loaded = false;
+  static final PostService _instance = PostService._internal();
+  factory PostService() => _instance;
 
-  List<Post> get posts => List.unmodifiable(_posts);
+  // ─── Token helper ────────────────────────────────────
 
-  Future<void> _ensureLoaded() async {
-    if (_loaded) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final savedPosts = prefs.getStringList(_storageKey) ?? [];
-
-    _posts.clear();
-
-    for (final jsonString in savedPosts) {
-      try {
-        final map = jsonDecode(jsonString) as Map<String, dynamic>;
-
-        _posts.add(
-          Post(
-            id: map['id'] as String,
-            authorId: map['authorId'] as String,
-            authorUsername: map['authorUsername'] as String,
-            text: map['text'] as String?,
-            mediaUrl: map['mediaUrl'] as String?,
-            contentType: map['contentType'] as String,
-            label: NexoraLabel.editedContent,
-            likeCount: map['likeCount'] as int? ?? 0,
-            commentCount: map['commentCount'] as int? ?? 0,
-            repostCount: map['repostCount'] as int? ?? 0,
-            isLiked: map['isLiked'] as bool? ?? false,
-            isSaved: map['isSaved'] as bool? ?? false,
-            isReposted: map['isReposted'] as bool? ?? false,
-            createdAt: DateTime.parse(map['createdAt'] as String),
-          ),
-        );
-      } catch (_) {
-        // Ignore malformed saved posts.
-      }
+  Future<String?> _getIdToken() async {
+    try {
+      final user = fb.FirebaseAuth.instance.currentUser;
+      if (user == null) return null;
+      return await user.getIdToken(true);
+    } catch (_) {
+      return null;
     }
-
-    _loaded = true;
   }
 
-  Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final savedPosts = _posts.map((post) {
-      return jsonEncode({
-        'id': post.id,
-        'authorId': post.authorId,
-        'authorUsername': post.authorUsername,
-        'text': post.text,
-        'mediaUrl': post.mediaUrl,
-        'contentType': post.contentType,
-        'label': post.label.name,
-        'likeCount': post.likeCount,
-        'commentCount': post.commentCount,
-        'repostCount': post.repostCount,
-        'isLiked': post.isLiked,
-        'isSaved': post.isSaved,
-        'isReposted': post.isReposted,
-        'createdAt': post.createdAt.toIso8601String(),
-      });
-    }).toList();
-
-    await prefs.setStringList(_storageKey, savedPosts);
+  Future<Map<String, String>> _headers() async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    final token = await _getIdToken();
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
   }
 
-  Future<List<Post>> fetchPosts() async {
-    await _ensureLoaded();
-    return List.unmodifiable(_posts);
+  // ─── GET /api/v1/posts ──────────────────────────────
+
+  /// Fetch posts with pagination.
+  ///
+  /// [page] starts at 1, [limit] defaults to 20.
+  /// Returns a map with `posts` list and `pagination` info.
+  Future<Map<String, dynamic>> fetchPosts({int page = 1, int limit = 20}) async {
+    try {
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}/posts?page=$page&limit=$limit',
+      );
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true) {
+          final postsList = (body['posts'] as List?) ?? [];
+          final posts = postsList
+              .map((p) => Post.fromJson(p as Map<String, dynamic>))
+              .toList();
+          final pagination = body['pagination'] as Map<String, dynamic>? ?? {};
+          return {
+            'posts': posts,
+            'pagination': pagination,
+          };
+        }
+      }
+    } catch (_) {}
+
+    return {'posts': <Post>[], 'pagination': <String, dynamic>{}};
   }
 
+  // ─── GET /api/v1/posts/:id ──────────────────────────
+
+  /// Fetch a single post by its ID.
   Future<Post?> getPostById(String postId) async {
-    await _ensureLoaded();
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/posts/$postId');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
 
-    for (final post in _posts) {
-      if (post.id == postId) {
-        return post;
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['post'] != null) {
+          return Post.fromJson(body['post'] as Map<String, dynamic>);
+        }
       }
-    }
+    } catch (_) {}
 
     return null;
   }
 
-  Future<void> createPost(Post post) async {
-    await _ensureLoaded();
+  // ─── POST /api/v1/posts ─────────────────────────────
 
-    _posts.insert(0, post);
-    await _save();
+  /// Create a new post via the backend.
+  ///
+  /// [text] is the post content.
+  /// [contentType] should be one of: text, image, video, audio, link.
+  /// [media] is an optional list of media items with url/type/thumbnailUrl.
+  /// [tags] are user-defined tags.
+  /// [hashtags] are extracted hashtags.
+  Future<Post?> createPost({
+    required String text,
+    String contentType = 'text',
+    List<Map<String, dynamic>>? media,
+    List<String>? tags,
+    List<String>? hashtags,
+    String? linkUrl,
+    String? linkTitle,
+    String? linkDescription,
+    String? visibility,
+  }) async {
+    try {
+      final body = <String, dynamic>{
+        'text': text,
+        'contentType': contentType,
+      };
+
+      if (media != null && media.isNotEmpty) body['media'] = media;
+      if (tags != null && tags.isNotEmpty) body['tags'] = tags;
+      if (hashtags != null && hashtags.isNotEmpty) body['hashtags'] = hashtags;
+      if (linkUrl != null) body['linkUrl'] = linkUrl;
+      if (linkTitle != null) body['linkTitle'] = linkTitle;
+      if (linkDescription != null) body['linkDescription'] = linkDescription;
+      if (visibility != null) body['visibility'] = visibility;
+
+      final url = Uri.parse('${ApiConfig.baseUrl}/posts');
+      final response = await http
+          .post(url, headers: await _headers(), body: jsonEncode(body))
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 201) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        if (json['success'] == true && json['post'] != null) {
+          return Post.fromJson(json['post'] as Map<String, dynamic>);
+        }
+      }
+    } catch (_) {}
+
+    return null;
   }
 
-  Future<void> updatePost(Post updatedPost) async {
-    await _ensureLoaded();
+  // ─── PATCH /api/v1/posts/:id ────────────────────────
 
-    final index = _posts.indexWhere((post) => post.id == updatedPost.id);
+  /// Update a post via the backend.
+  ///
+  /// Only the post owner can update their post.
+  Future<Post?> updatePost({
+    required String postId,
+    String? text,
+    String? contentType,
+    List<Map<String, dynamic>>? media,
+    List<String>? tags,
+    List<String>? hashtags,
+    String? visibility,
+  }) async {
+    try {
+      final body = <String, dynamic>{};
+      if (text != null) body['text'] = text;
+      if (contentType != null) body['contentType'] = contentType;
+      if (media != null) body['media'] = media;
+      if (tags != null) body['tags'] = tags;
+      if (hashtags != null) body['hashtags'] = hashtags;
+      if (visibility != null) body['visibility'] = visibility;
 
-    if (index == -1) return;
+      if (body.isEmpty) return null;
 
-    _posts[index] = updatedPost;
-    await _save();
+      final url = Uri.parse('${ApiConfig.baseUrl}/posts/$postId');
+      final response = await http
+          .patch(url, headers: await _headers(), body: jsonEncode(body))
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        if (json['success'] == true && json['post'] != null) {
+          return Post.fromJson(json['post'] as Map<String, dynamic>);
+        }
+      }
+    } catch (_) {}
+
+    return null;
   }
 
-  Future<void> deletePost(String postId) async {
-    await _ensureLoaded();
+  // ─── DELETE /api/v1/posts/:id ───────────────────────
 
-    _posts.removeWhere((post) => post.id == postId);
+  /// Delete a post via the backend.
+  ///
+  /// Only the post owner, moderators, or admins can delete.
+  Future<bool> deletePost(String postId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/posts/$postId');
+      final response = await http
+          .delete(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
 
-    await _save();
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return json['success'] == true;
+      }
+    } catch (_) {}
+
+    return false;
+  }
+
+  // ─── Legacy Compatibility ───────────────────────────
+
+  /// Legacy helper that returns all posts (ignores pagination).
+  /// Used by screens that haven't been updated to use fetchPosts() yet.
+  Future<List<Post>> fetchPostsList() async {
+    final result = await fetchPosts(page: 1, limit: 100);
+    return result['posts'] as List<Post>;
   }
 }

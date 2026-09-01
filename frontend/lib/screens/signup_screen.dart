@@ -1,10 +1,91 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
 import 'login_screen.dart';
-import 'profile_setup_screen.dart';
+import 'main_nav.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+
+  final AuthService _authService = AuthService();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRegister() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      _showError('All fields are required');
+      return;
+    }
+
+    if (password.length < 6) {
+      _showError('Password must be at least 6 characters');
+      return;
+    }
+
+    // Derive a username from email (part before @)
+    final username = email.split('@').first.toLowerCase();
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.register(
+        email: email,
+        password: password,
+        name: name,
+        username: username,
+      );
+
+      if (!mounted) return;
+
+      // Navigate directly to main app
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+        (route) => false,
+      );
+    } on AuthException catch (e) {
+      _showError(e.message);
+    } catch (e) {
+      _showError('Registration failed. Please try again.');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +121,7 @@ class SignUpScreen extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              _field('Enter your name'),
+              _field('Enter your name', controller: _nameController),
 
               const SizedBox(height: 20),
 
@@ -48,7 +129,11 @@ class SignUpScreen extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              _field('Enter your email'),
+              _field(
+                'Enter your email',
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+              ),
 
               const SizedBox(height: 20),
 
@@ -56,7 +141,11 @@ class SignUpScreen extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              _field('Create a password', obscureText: true),
+              _field(
+                'Create a password',
+                controller: _passwordController,
+                obscureText: true,
+              ),
 
               const SizedBox(height: 35),
 
@@ -64,14 +153,7 @@ class SignUpScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProfileSetupScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: _isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6C63FF),
                     foregroundColor: Colors.white,
@@ -79,10 +161,22 @@ class SignUpScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'Create Account',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          'Create Account',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
 
@@ -127,9 +221,16 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 
-  static Widget _field(String hint, {bool obscureText = false}) {
+  Widget _field(
+    String hint, {
+    bool obscureText = false,
+    TextEditingController? controller,
+    TextInputType? keyboardType,
+  }) {
     return TextField(
+      controller: controller,
       obscureText: obscureText,
+      keyboardType: keyboardType,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: hint,

@@ -1,0 +1,382 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+
+import '../config/api_config.dart';
+
+/// Result of a successful media upload.
+class UploadResult {
+  final String url;
+  final String type;
+  final String mimeType;
+  final int fileSize;
+  final String? thumbnailUrl;
+
+  const UploadResult({
+    required this.url,
+    required this.type,
+    required this.mimeType,
+    required this.fileSize,
+    this.thumbnailUrl,
+  });
+
+  factory UploadResult.fromJson(Map<String, dynamic> json) {
+    return UploadResult(
+      url: json['url'] as String? ?? '',
+      type: json['type'] as String? ?? 'image',
+      mimeType: json['mimeType'] as String? ?? 'application/octet-stream',
+      fileSize: json['fileSize'] as int? ?? 0,
+      thumbnailUrl: json['thumbnailUrl'] as String?,
+    );
+  }
+
+  /// Convert to a media item map suitable for the post creation API.
+  Map<String, dynamic> toMediaItem() {
+    return {
+      'url': url,
+      'type': type,
+      'mimeType': mimeType,
+      'fileSize': fileSize,
+      if (thumbnailUrl != null) 'thumbnailUrl': thumbnailUrl,
+    };
+  }
+}
+
+/// Upload progress callback.
+/// [bytesSent] is the number of bytes sent so far.
+/// [totalBytes] is the total file size in bytes.
+typedef UploadProgressCallback = void Function(int bytesSent, int totalBytes);
+
+/// Upload error details.
+class UploadError {
+  final int? statusCode;
+  final String message;
+
+  const UploadError({
+    this.statusCode,
+    required this.message,
+  });
+
+  @override
+  String toString() => 'UploadError($statusCode: $message)';
+}
+
+/// Service for uploading media files (images, videos, audio) to the backend.
+///
+/// Files are uploaded as multipart form data to the backend,
+/// which then uploads them to Cloudinary and returns a secure URL.
+/// Cloudinary secrets are never exposed to the Flutter client.
+class UploadService {
+  UploadService._internal();
+
+  static final UploadService _instance = UploadService._internal();
+  factory UploadService() => _instance;
+
+  // ─── Size limits (matching backend) ──────────────────────
+  static const int maxImageSize = 10 * 1024 * 1024; // 10 MB
+  static const int maxVideoSize = 100 * 1024 * 1024; // 100 MB
+  static const int maxAudioSize = 20 * 1024 * 1024; // 20 MB
+
+  // ─── Supported MIME types ──────────────────────────────
+  static const Set<String> supportedImageTypes = {
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+  };
+
+  static const Set<String> supportedVideoTypes = {
+    'video/mp4',
+    'video/quicktime',
+    'video/webm',
+    'video/x-msvideo',
+    'video/x-matroska',
+  };
+
+  static const Set<String> supportedAudioTypes = {
+    'audio/mpeg',
+    'audio/wav',
+    'audio/ogg',
+    'audio/aac',
+    'audio/flac',
+    'audio/x-m4a',
+  };
+
+  // ─── Token helper ────────────────────────────────────
+
+  Future<String?> _getIdToken() async {
+    try {
+      final user = fb.FirebaseAuth.instance.currentUser;
+      if (user == null) return null;
+      return await user.getIdToken(true);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ─── Validation ─────────────────────────────────────
+
+  /// Determine the media category from a file path or MIME type.
+  String? getMediaType(String? filePath, String? mimeType) {
+    if (mimeType != null) {
+      if (supportedImageTypes.contains(mimeType)) return 'image';
+      if (supportedVideoTypes.contains(mimeType)) return 'video';
+      if (supportedAudioTypes.contains(mimeType)) return 'audio';
+    }
+
+    if (filePath != null) {
+      final ext = filePath.toLowerCase().split('.').last;
+      switch (ext) {
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+        case 'gif':
+        case 'webp':
+          return 'image';
+        case 'mp4':
+        case 'mov':
+        case 'm4v':
+        case 'webm':
+        case 'avi':
+        case 'mkv':
+          return 'video';
+        case 'mp3':
+        case 'wav':
+        case 'ogg':
+        case 'aac':
+        case 'flac':
+          return 'audio';
+      }
+    }
+
+    return null;
+  }
+
+  /// Get MIME type from file extension.
+  String getMimeType(String filePath) {
+    final ext = filePath.toLowerCase().split('.').last;
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'gif':
+        return 'image/gif';
+      case 'webp':
+        return 'image/webp';
+      case 'mp4':
+        return 'video/mp4';
+      case 'mov':
+        return 'video/quicktime';
+      case 'webm':
+        return 'video/webm';
+      case 'avi':
+        return 'video/x-msvideo';
+      case 'mkv':
+        return 'video/x-matroska';
+      case 'mp3':
+        return 'audio/mpeg';
+      case 'wav':
+        return 'audio/wav';
+      case 'ogg':
+        return 'audio/ogg';
+      case 'aac':
+        return 'audio/aac';
+      case 'flac':
+        return 'audio/flac';
+      default:
+        return 'application/octet-stream';
+    }
+  }
+
+  /// Validate a file before upload. Returns null if valid, error message if invalid.
+  String? validateFile(File file, String? mimeType) {
+    final filePath = file.path;
+    final mediaType = getMediaType(filePath, mimeType);
+
+    if (mediaType == null) {
+      return 'Unsupported file type. Allowed: images (JPEG, PNG, GIF, WebP), videos (MP4, MOV, WebM), audio (MP3, WAV, OGG, AAC, FLAC).';
+    }
+
+    final fileLength = file.lengthSync();
+    int maxSize;
+    switch (mediaType) {
+      case 'image':
+        maxSize = maxImageSize;
+        break;
+      case 'video':
+        maxSize = maxVideoSize;
+        break;
+      case 'audio':
+        maxSize = maxAudioSize;
+        break;
+      default:
+        maxSize = maxImageSize;
+    }
+
+    if (fileLength > maxSize) {
+      final maxMB = (maxSize / (1024 * 1024)).round();
+      final fileMB = (fileLength / (1024 * 1024)).round();
+      return 'File too large: ${fileMB}MB. Maximum allowed for $mediaType: ${maxMB}MB.';
+    }
+
+    return null;
+  }
+
+  // ─── Upload ──────────────────────────────────────────
+
+  /// Upload a single media file to the backend.
+  ///
+  /// [file] is the local file to upload.
+  /// [onProgress] is an optional callback for tracking upload progress.
+  ///
+  /// Returns an [UploadResult] on success, throws [UploadError] on failure.
+  Future<UploadResult> uploadFile({
+    required File file,
+    UploadProgressCallback? onProgress,
+  }) async {
+    // Validate file
+    final mimeType = getMimeType(file.path);
+    final validationError = validateFile(file, mimeType);
+    if (validationError != null) {
+      throw UploadError(message: validationError);
+    }
+
+    // Get auth token
+    final token = await _getIdToken();
+    if (token == null) {
+      throw UploadError(
+        statusCode: 401,
+        message: 'Not authenticated. Please log in again.',
+      );
+    }
+
+    final fileLength = await file.length();
+
+    // Build multipart request
+    final url = Uri.parse('${ApiConfig.baseUrl}/posts/upload');
+    final request = http.MultipartRequest('POST', url);
+
+    // Add auth header
+    request.headers['Authorization'] = 'Bearer $token';
+
+    // Add the file with progress tracking
+    final fileStream = http.ByteStream(file.openRead().transform(
+      StreamTransformer<List<int>, List<int>>.fromHandlers(
+        handleData: (data, sink) {
+          onProgress?.call(0, fileLength); // Initial call
+          sink.add(data);
+        },
+      ),
+    ));
+
+    final multipartFile = http.MultipartFile(
+      'file',
+      fileStream,
+      fileLength,
+      filename: file.path.split(Platform.pathSeparator).last,
+      contentType: MediaType.parse(mimeType),
+    );
+
+    request.files.add(multipartFile);
+
+    try {
+      final streamedResponse = await request.send().timeout(
+        const Duration(seconds: 120),
+        onTimeout: () => throw UploadError(
+          message: 'Upload timed out. Please check your connection and try again.',
+        ),
+      );
+
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+
+        if (body['success'] == true && body['media'] != null) {
+          return UploadResult.fromJson(
+            body['media'] as Map<String, dynamic>,
+          );
+        }
+
+        throw UploadError(
+          statusCode: response.statusCode,
+          message: body['message'] as String? ?? 'Upload failed',
+        );
+      }
+
+      // Handle specific error codes
+      String errorMessage;
+      switch (response.statusCode) {
+        case 400:
+          errorMessage = _parseErrorMessage(response.body) ?? 'Invalid file. Please check the file type and size.';
+          break;
+        case 401:
+          errorMessage = 'Not authenticated. Please log in again.';
+          break;
+        case 413:
+          errorMessage = 'File too large. Please choose a smaller file.';
+          break;
+        case 500:
+          errorMessage = 'Server error. Please try again later.';
+          break;
+        default:
+          errorMessage = _parseErrorMessage(response.body) ?? 'Upload failed (HTTP ${response.statusCode})';
+      }
+
+      throw UploadError(
+        statusCode: response.statusCode,
+        message: errorMessage,
+      );
+    } on SocketException {
+      throw UploadError(
+        message: 'No internet connection. Please check your network and try again.',
+      );
+    } on TimeoutException {
+      throw UploadError(
+        message: 'Upload timed out. Please check your connection and try again.',
+      );
+    } on UploadError {
+      rethrow;
+    } catch (e) {
+      throw UploadError(
+        message: 'Unexpected error during upload: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Upload multiple files sequentially.
+  ///
+  /// Returns a list of [UploadResult] for each successfully uploaded file.
+  /// Throws [UploadError] on the first failure.
+  Future<List<UploadResult>> uploadFiles({
+    required List<File> files,
+    UploadProgressCallback? onProgress,
+  }) async {
+    final results = <UploadResult>[];
+
+    for (final file in files) {
+      final result = await uploadFile(file: file, onProgress: onProgress);
+      results.add(result);
+    }
+
+    return results;
+  }
+
+  // ─── Helpers ─────────────────────────────────────────
+
+  String? _parseErrorMessage(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is Map && decoded.containsKey('message')) {
+        return decoded['message'] as String?;
+      }
+    } catch (_) {}
+    return null;
+  }
+}

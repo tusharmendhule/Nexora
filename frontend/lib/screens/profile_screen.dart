@@ -40,7 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadProfile() async {
-    final loadedUser = await _userService.getUserByUsername('Username_');
+    final loadedUser = await _userService.getMyProfile();
 
     if (!mounted) return;
 
@@ -70,20 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           decoration: const BoxDecoration(
                             color: Color(0xFF171D35),
                           ),
-                          child:
-                              user?.profileImageUrl != null &&
-                                  user!.profileImageUrl!.isNotEmpty
-                              ? Image.file(
-                                  File(user!.profileImageUrl!),
-                                  fit: BoxFit.cover,
-                                )
-                              : const Center(
-                                  child: Icon(
-                                    Icons.person,
-                                    color: Colors.white24,
-                                    size: 120,
-                                  ),
-                                ),
+                          child: _buildHeroImage(),
                         ),
 
                         Positioned(
@@ -154,14 +141,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     size: 18,
                                   ),
                                   const SizedBox(width: 6),
-                                  const Text(
-                                    'Nexora Hero',
-                                    style: TextStyle(
+                                  Text(
+                                    user?.reputationBadge ?? 'Nexora Hero',
+                                    style: const TextStyle(
                                       color: Color(0xFFB7A8FF),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                  if (user?.isVerified == true) ...[
+                                    const SizedBox(width: 6),
+                                    const Icon(
+                                      Icons.verified,
+                                      color: Color(0xFF6C8CFF),
+                                      size: 16,
+                                    ),
+                                  ],
                                 ],
                               ),
 
@@ -222,66 +217,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             MaterialPageRoute(
                                               builder: (_) => EditProfileScreen(
                                                 user: user!,
-                                                onSave:
-                                                    ({
-                                                      required String
-                                                      displayName,
-                                                      required String username,
-                                                      required String bio,
-                                                      String? profileImagePath,
-                                                    }) async {
-                                                      await _userService.updateUser(
-                                                        User(
-                                                          id: user!.id,
-                                                          username: username,
-                                                          displayName:
-                                                              displayName,
-                                                          bio: bio,
-                                                          profileImageUrl:
-                                                              profileImagePath,
-                                                          followersCount: user!
-                                                              .followersCount,
-                                                          followingCount: user!
-                                                              .followingCount,
-                                                          isFollowing:
-                                                              user!.isFollowing,
-                                                          isFollowedBy: user!
-                                                              .isFollowedBy,
-                                                          isVerified:
-                                                              user!.isVerified,
-                                                        ),
-                                                      );
-                                                    },
+                                                onSave: ({
+                                                  required String displayName,
+                                                  required String username,
+                                                  required String bio,
+                                                  String? profileImagePath,
+                                                }) async {
+                                                  // Update profile fields via API
+                                                  final updated = await _userService.updateMyProfile(
+                                                    name: displayName,
+                                                    username: username,
+                                                    bio: bio,
+                                                  );
+
+                                                  // Upload avatar if a new local file was selected
+                                                  if (profileImagePath != null &&
+                                                      !profileImagePath.startsWith('http') &&
+                                                      updated != null) {
+                                                    final file = File(profileImagePath);
+                                                    await _userService.uploadAvatar(file);
+                                                  }
+
+                                                  // Reload fresh profile from backend
+                                                  await _loadProfile();
+                                                },
                                               ),
                                             ),
                                           );
 
                                           if (!mounted ||
                                               result == null ||
-                                              user == null)
+                                              user == null) {
                                             return;
+                                          }
 
-                                          setState(() {
-                                            user = User(
-                                              id: user!.id,
-                                              username:
-                                                  result['username'] as String,
-                                              displayName:
-                                                  result['displayName']
-                                                      as String,
-                                              bio: result['bio'] as String,
-                                              profileImageUrl:
-                                                  result['profileImagePath']
-                                                      as String?,
-                                              followersCount:
-                                                  user!.followersCount,
-                                              followingCount:
-                                                  user!.followingCount,
-                                              isFollowing: user!.isFollowing,
-                                              isFollowedBy: user!.isFollowedBy,
-                                              isVerified: user!.isVerified,
-                                            );
-                                          });
+                                          // Reload profile from backend after edit
+                                          await _loadProfile();
                                         },
                                   child: _profileButton(
                                     text: 'Edit Profile',
@@ -361,6 +332,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           const SizedBox(height: 24),
 
+                          // Account metadata — created timestamp
+                          if (user?.createdAt != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today_outlined,
+                                    color: Colors.white38,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Joined ${_formatDate(user!.createdAt!)}',
+                                    style: const TextStyle(
+                                      color: Colors.white38,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
                           SizedBox(
                             height: 48,
                             child: ListView.separated(
@@ -439,6 +433,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildHeroImage() {
+    final url = user?.profileImageUrl;
+    if (url != null && url.isNotEmpty) {
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return Image.network(
+          url,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Center(
+            child: Icon(Icons.person, color: Colors.white24, size: 120),
+          ),
+        );
+      }
+      return Image.file(
+        File(url),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const Center(
+          child: Icon(Icons.person, color: Colors.white24, size: 120),
+        ),
+      );
+    }
+
+    return const Center(
+      child: Icon(Icons.person, color: Colors.white24, size: 120),
+    );
+  }
+
   String _formatCount(int count) {
     if (count >= 1000) {
       final value = count / 1000;
@@ -451,6 +471,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return count.toString();
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${months[date.month - 1]} ${date.year}';
   }
 
   Widget _profileButton({required String text, required bool filled}) {

@@ -16,6 +16,13 @@ const postSchema = new mongoose.Schema(
       default: ''
     },
 
+    // Primary content type for the post (text, image, video, audio, link)
+    contentType: {
+      type: String,
+      enum: ['text', 'image', 'video', 'audio', 'link'],
+      default: 'text'
+    },
+
     // Post Content Format (Standard, Reel, Article, Poll)
     postType: {
       type: String,
@@ -37,9 +44,33 @@ const postSchema = new mongoose.Schema(
         },
         thumbnailUrl: {
           type: String
+        },
+        altText: {
+          type: String,
+          default: ''
+        },
+        fileSize: {
+          type: Number
+        },
+        mimeType: {
+          type: String
         }
       }
     ],
+
+    // External link URL (for contentType === 'link')
+    linkUrl: {
+      type: String,
+      trim: true
+    },
+    linkTitle: {
+      type: String,
+      trim: true
+    },
+    linkDescription: {
+      type: String,
+      trim: true
+    },
 
     // Interactive Poll Option
     pollOptions: [
@@ -67,6 +98,15 @@ const postSchema = new mongoose.Schema(
       }
     ],
 
+    // Tags — user-defined content tags
+    tags: [
+      {
+        type: String,
+        trim: true,
+        lowercase: true
+      }
+    ],
+
     // Location Tagging
     location: {
       name: { type: String },
@@ -89,6 +129,10 @@ const postSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    viewsCount: {
+      type: Number,
+      default: 0
+    },
 
     // ==========================================
     // AI Trust Score & Verification Fields
@@ -99,7 +143,7 @@ const postSchema = new mongoose.Schema(
     },
     trustBadge: {
       type: String,
-      enum: ['Green', 'Blue', 'Yellow', 'Red'],
+      enum: ['Green', 'Blue', 'Purple', 'Orange', 'Red'],
       default: 'Blue'
     },
     trustBreakdown: {
@@ -107,6 +151,51 @@ const postSchema = new mongoose.Schema(
       authenticity: { type: Number, default: 0 },
       sourceCredibility: { type: Number, default: 0 },
       modelConfidence: { type: Number, default: 0 }
+    },
+
+    // Content verification status — full pipeline lifecycle
+    verificationStatus: {
+      type: String,
+      enum: [
+        'PENDING_VERIFICATION',
+        'VERIFYING',
+        'VERIFIED',
+        'REVIEW_REQUIRED',
+        'PUBLISHED',
+        'REJECTED',
+        'FAILED',
+        // Legacy values (backward compatibility)
+        'unverified',
+        'pending',
+        'processing',
+        'verified',
+        'failed',
+      ],
+      default: 'PENDING_VERIFICATION'
+    },
+
+    // Moderation status — content moderation workflow
+    moderationStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected', 'flagged', 'under_review'],
+      default: 'pending'
+    },
+
+    // Reference to the active pipeline stage tracking document
+    pipelineStageRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'PipelineStage',
+      default: null
+    },
+
+    // Overall pipeline completion metadata
+    pipelineCompletedAt: {
+      type: Date,
+      default: null
+    },
+    pipelineError: {
+      message: { type: String, default: null },
+      stage: { type: String, default: null }
     },
 
     // Visibility Settings
@@ -133,7 +222,11 @@ const postSchema = new mongoose.Schema(
 // DATABASE INDEXES
 // ==========================================
 postSchema.index({ user: 1, createdAt: -1 });
-postSchema.index({ text: 'text', hashtags: 'text' });
+postSchema.index({ text: 'text', hashtags: 'text', tags: 'text' });
 postSchema.index({ trustScore: -1 });
+postSchema.index({ contentType: 1 });
+postSchema.index({ moderationStatus: 1 });
+postSchema.index({ verificationStatus: 1 });
+postSchema.index({ pipelineStageRef: 1 });
 
 module.exports = mongoose.model('Post', postSchema);

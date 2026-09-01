@@ -143,16 +143,17 @@ class ShareProfileScreen extends StatelessWidget {
       ),
       child: ClipOval(
         child: user.profileImageUrl != null && user.profileImageUrl!.isNotEmpty
-            ? Image.file(
-                // The selected profile photo is currently stored
-                // as a local path by the frontend.
-                // Backend image URLs will be handled later.
-                File(user.profileImageUrl!),
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) {
-                  return _avatarPlaceholder();
-                },
-              )
+            ? (user.profileImageUrl!.startsWith('http')
+                ? Image.network(
+                    user.profileImageUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _avatarPlaceholder(),
+                  )
+                : Image.file(
+                    File(user.profileImageUrl!),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _avatarPlaceholder(),
+                  ))
             : _avatarPlaceholder(),
       ),
     );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/auth_service.dart';
+import 'login_screen.dart';
 import 'settings_detail_screen.dart';
 
 class AccountData {
@@ -191,6 +193,17 @@ class _AccountScreenState extends State<AccountScreen> {
             title: 'Delete Account',
             subtitle: 'Permanently delete your Nexora account',
             onTap: () => _showDeleteDialog(context),
+          ),
+
+          const SizedBox(height: 24),
+
+          _sectionTitle('Session'),
+
+          _dangerTile(
+            icon: Icons.logout,
+            title: 'Log Out',
+            subtitle: 'Sign out of your Nexora account',
+            onTap: () => _showLogoutDialog(context),
           ),
 
           const SizedBox(height: 30),
@@ -887,6 +900,52 @@ class _AccountScreenState extends State<AccountScreen> {
             },
             child: const Text(
               'Delete',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF171D35),
+        title: const Text(
+          'Log Out?',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'You will be signed out of your Nexora account.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // close dialog
+              final authService = AuthService();
+              await authService.logout();
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LoginScreen(),
+                  ),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text(
+              'Log Out',
               style: TextStyle(color: Colors.redAccent),
             ),
           ),
