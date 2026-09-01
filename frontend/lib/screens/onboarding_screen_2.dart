@@ -1,33 +1,40 @@
 import 'package:flutter/material.dart';
-import 'onboardind_screen2.dart';
+import 'onboarding_screen_3.dart';
 
-class OnboardingScreen extends StatelessWidget {
-  const OnboardingScreen({super.key});
+class OnboardingScreen2 extends StatelessWidget {
+  const OnboardingScreen2({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B1020),
+      backgroundColor: const Color(0xFF0B0B1A),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              const SizedBox(height: 60),
+              const Spacer(),
 
               // Illustration placeholder
               Container(
-                height: 280,
-                width: double.infinity,
+                width: 220,
+                height: 220,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF171D35),
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(30),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF2563EB),
+                      Color(0xFF7C3AED),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.people_alt_outlined,
-                    size: 100,
-                    color: Colors.white70,
+                    Icons.people_alt_rounded,
+                    color: Colors.white,
+                    size: 90,
                   ),
                 ),
               ),
@@ -35,20 +42,20 @@ class OnboardingScreen extends StatelessWidget {
               const SizedBox(height: 45),
 
               const Text(
-                'Share Your Moments',
+                'Build Your Community',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               const Text(
-                'Connect with people, share your moments, '
-                'and express yourself freely.',
+                'Connect with people, discover new communities, '
+                'and share what matters to you.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white70,
@@ -63,15 +70,14 @@ class OnboardingScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _dot(true),
                   _dot(false),
+                  _dot(true),
                   _dot(false),
                 ],
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 25),
 
-              // Next button
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -80,12 +86,12 @@ class OnboardingScreen extends StatelessWidget {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => const OnboardingScreen2(),
+      builder: (context) => const OnboardingScreen3(),
     ),
   );
 },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6C63FF),
+                    backgroundColor: const Color(0xFFF6C63F),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -115,7 +121,9 @@ class OnboardingScreen extends StatelessWidget {
       height: 8,
       width: active ? 24 : 8,
       decoration: BoxDecoration(
-        color: active ? const Color(0xFF6C63FF) : Colors.white30,
+        color: active
+            ? const Color(0xFFF6C63F)
+            : Colors.white30,
         borderRadius: BorderRadius.circular(10),
       ),
     );

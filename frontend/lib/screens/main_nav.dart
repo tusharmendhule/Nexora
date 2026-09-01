@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'home_screen.dart';
 import 'msg_screen.dart';
-import 'explore.dart';
+import 'explore_screen.dart';
 import 'clips_screen.dart';
-import 'profile.dart';
+import 'profile_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   final bool startWithEmptyHome;

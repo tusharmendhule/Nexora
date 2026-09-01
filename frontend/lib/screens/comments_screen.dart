@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'userprofile.dart';
+import 'user_profile_screen.dart';
 import '../models/comment.dart';
 import '../services/comment_service.dart';
 import '../services/like_service.dart';

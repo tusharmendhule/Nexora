@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'userprofile.dart';
+import 'user_profile_screen.dart';
 
 class ContentViewerScreen extends StatelessWidget {
   final String title;

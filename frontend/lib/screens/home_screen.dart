@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 import 'findpeople_screen.dart';
 import 'post_screen.dart';
-import 'notifications.dart';
+import 'notifications_screen.dart';
 import 'moments_screen.dart';
 import 'share_screen.dart';
 import 'comments_screen.dart';
-import 'userprofile.dart';
+import 'user_profile_screen.dart';
 import '../services/moment_service.dart';
 import '../models/moment.dart';
 import '../models/post.dart';

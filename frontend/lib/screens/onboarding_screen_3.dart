@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'onboardind_screen3.dart';
 
-class OnboardingScreen2 extends StatelessWidget {
-  const OnboardingScreen2({super.key});
+import 'login_screen.dart';
+
+class OnboardingScreen3 extends StatelessWidget {
+  const OnboardingScreen3({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,24 +16,18 @@ class OnboardingScreen2 extends StatelessWidget {
             children: [
               const Spacer(),
 
-              // Illustration placeholder
               Container(
                 width: 220,
                 height: 220,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF2563EB),
-                      Color(0xFF7C3AED),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
                   ),
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.people_alt_rounded,
+                    Icons.verified_user_outlined,
                     color: Colors.white,
                     size: 90,
                   ),
@@ -42,7 +37,7 @@ class OnboardingScreen2 extends StatelessWidget {
               const SizedBox(height: 45),
 
               const Text(
-                'Build Your Community',
+                'Connect With Confidence',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -54,8 +49,8 @@ class OnboardingScreen2 extends StatelessWidget {
               const SizedBox(height: 14),
 
               const Text(
-                'Connect with people, discover new communities, '
-                'and share what matters to you.',
+                'A safer and smarter social experience '
+                'designed with privacy in mind.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white70,
@@ -66,14 +61,9 @@ class OnboardingScreen2 extends StatelessWidget {
 
               const Spacer(),
 
-              // Page indicators
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _dot(false),
-                  _dot(true),
-                  _dot(false),
-                ],
+                children: [_dot(false), _dot(false), _dot(true)],
               ),
 
               const SizedBox(height: 25),
@@ -83,26 +73,23 @@ class OnboardingScreen2 extends StatelessWidget {
                 height: 54,
                 child: ElevatedButton(
                   onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const OnboardingScreen3(),
-    ),
-  );
-},
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF6C63F),
+                    backgroundColor: const Color(0xFF6C63FF),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: const Text(
-                    'Next',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    'Get Started',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -121,9 +108,7 @@ class OnboardingScreen2 extends StatelessWidget {
       height: 8,
       width: active ? 24 : 8,
       decoration: BoxDecoration(
-        color: active
-            ? const Color(0xFFF6C63F)
-            : Colors.white30,
+        color: active ? const Color(0xFF6C63FF) : Colors.white30,
         borderRadius: BorderRadius.circular(10),
       ),
     );

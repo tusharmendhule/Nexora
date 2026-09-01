@@ -1,35 +1,33 @@
 import 'package:flutter/material.dart';
+import 'onboarding_screen_2.dart';
 
-import 'login.dart';
-
-class OnboardingScreen3 extends StatelessWidget {
-  const OnboardingScreen3({super.key});
+class OnboardingScreen extends StatelessWidget {
+  const OnboardingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: const Color(0xFF0B1020),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              const Spacer(),
+              const SizedBox(height: 60),
 
+              // Illustration placeholder
               Container(
-                width: 220,
-                height: 220,
+                height: 280,
+                width: double.infinity,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
-                  ),
+                  color: const Color(0xFF171D35),
+                  borderRadius: BorderRadius.circular(24),
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.verified_user_outlined,
-                    color: Colors.white,
-                    size: 90,
+                    Icons.people_alt_outlined,
+                    size: 100,
+                    color: Colors.white70,
                   ),
                 ),
               ),
@@ -37,20 +35,20 @@ class OnboardingScreen3 extends StatelessWidget {
               const SizedBox(height: 45),
 
               const Text(
-                'Connect With Confidence',
+                'Share Your Moments',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
 
               const Text(
-                'A safer and smarter social experience '
-                'designed with privacy in mind.',
+                'Connect with people, share your moments, '
+                'and express yourself freely.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white70,
@@ -61,25 +59,31 @@ class OnboardingScreen3 extends StatelessWidget {
 
               const Spacer(),
 
+              // Page indicators
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [_dot(false), _dot(false), _dot(true)],
+                children: [
+                  _dot(true),
+                  _dot(false),
+                  _dot(false),
+                ],
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 30),
 
+              // Next button
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
-                      ),
-                    );
-                  },
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const OnboardingScreen2(),
+    ),
+  );
+},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6C63FF),
                     foregroundColor: Colors.white,
@@ -88,8 +92,11 @@ class OnboardingScreen3 extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Get Started',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    'Next',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),

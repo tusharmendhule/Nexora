@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'userprofile.dart';
+import 'user_profile_screen.dart';
 import '../models/user.dart';
 import '../services/follow_service.dart';
 

@@ -5,7 +5,7 @@ import 'package:video_player/video_player.dart';
 
 import 'comments_screen.dart';
 import 'share_screen.dart';
-import 'userprofile.dart';
+import 'user_profile_screen.dart';
 import '../models/clip.dart';
 import '../services/clip_service.dart';
 import '../services/like_service.dart';
