@@ -1,0 +1,63 @@
+const mongoose = require('mongoose');
+
+const storySchema = new mongoose.Schema(
+  {
+    // Author of the story
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+
+    // Media file path/URL
+    mediaUrl: {
+      type: String,
+      required: true
+    },
+
+    // Type of media (Image or Video)
+    mediaType: {
+      type: String,
+      enum: ['image', 'video'],
+      default: 'image'
+    },
+
+    // Story text caption or overlay
+    caption: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+
+    // Audience viewers tracking array
+    views: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        viewedAt: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ],
+
+    // Story creation timestamp
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }
+);
+
+// ==========================================
+// ⚡ AUTOMATED EXPIRATION (TTL INDEX)
+// ==========================================
+// Automatically deletes the story document from MongoDB 24 hours (86400 seconds) after creation
+storySchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
+
+// Compound Index for fetching active stories per user fast
+storySchema.index({ user: 1, createdAt: -1 });
+
+module.exports = mongoose.model('Story', storySchema);

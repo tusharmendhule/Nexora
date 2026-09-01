@@ -1,0 +1,56 @@
+$kind: http-request
+name: Register User
+method: POST
+url: '{{baseUrl}}/api/users/register'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "testuser",
+      "email": "testuser@example.com",
+      "password": "Test@1234"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      // Happy Path Tests
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("Response has success: true", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.success).to.eql(true);
+      });
+
+      pm.test("Response has a message field equal to 'User Registered Successfully'", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.message).to.eql("User Registered Successfully");
+      });
+
+      pm.test("Response body contains a user object", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("user");
+          pm.expect(jsonData.user).to.be.an("object");
+      });
+
+      pm.test("Response time is less than 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+      // Edge Cases / Validation Tests
+      pm.test("Response body is valid JSON", function () {
+          pm.response.to.be.json;
+      });
+
+      pm.test("user object has expected fields", function () {
+          const jsonData = pm.response.json();
+          const user = jsonData.user;
+          const hasExpectedField = user.hasOwnProperty("_id") || user.hasOwnProperty("username") || user.hasOwnProperty("email");
+          pm.expect(hasExpectedField).to.be.true;
+      });

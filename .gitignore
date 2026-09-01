@@ -1,12 +1,23 @@
-.dart_tool/
-build/
+# IDE and editor files
 .idea/
 .vscode/
+*.iml
+
+# Flutter-specific
+.dart_tool/
+build/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
 .pub-cache/
 coverage/
-/*
-!/.gitignore
-!/frontend/
+
+# Node modules (root level)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files at root
+.env
