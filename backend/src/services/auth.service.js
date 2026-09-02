@@ -1,6 +1,8 @@
 const firebaseAdmin = require('../config/firebase');
 const User = require('../models/user.model');
 const { ApiError } = require('../middleware/error.middleware');
+const ageVerificationService = require('./age-verification/age-verification.service');
+const auditService = require('./audit.service');
 
 class AuthService {
   /**
@@ -54,6 +56,26 @@ class AuthService {
       role: 'USER',
     });
 
+    // ── Initiate age verification (PENDING) ──────────────
+    let ageVerificationStatus = null;
+    try {
+      await ageVerificationService.initiate({ userId: user._id });
+      ageVerificationStatus = 'PENDING';
+    } catch (err) {
+      // Age verification failure should not block account creation;
+      // the user can retry later. Log and continue.
+      console.error('[AuthService] Age verification initiation failed:', err.message);
+    }
+
+    // Audit: log successful registration (non-critical)
+    try {
+      await auditService.logAuthEvent({
+        eventType: 'REGISTER_SUCCESS',
+        user: { _id: user._id, username: user.username },
+        outcome: 'SUCCESS',
+      });
+    } catch (_) { /* audit logging is non-critical */ }
+
     return {
       user: {
         _id: user._id,
@@ -65,6 +87,7 @@ class AuthService {
         isVerified: user.isVerified,
         reputationBadge: user.reputationBadge,
         overallTrustRating: user.overallTrustRating,
+        ageVerificationStatus,
       },
     };
   }
@@ -103,6 +126,14 @@ class AuthService {
     }
 
     if (firebaseUser && firebaseUser.disabled) {
+      try {
+        await auditService.logAuthEvent({
+          eventType: 'LOGIN_FAILURE',
+          user: { _id: null, username: decoded.email || 'unknown' },
+          outcome: 'FAILURE',
+          reason: 'Account has been disabled in Firebase',
+        });
+      } catch (_) { /* audit logging is non-critical */ }
       throw new ApiError(401, 'Account has been disabled');
     }
 
@@ -110,6 +141,14 @@ class AuthService {
     const user = await User.findOne({ firebaseUid: decoded.uid }).select('-password');
 
     if (!user) {
+      try {
+        await auditService.logAuthEvent({
+          eventType: 'LOGIN_FAILURE',
+          user: { _id: null, username: decoded.email || 'unknown' },
+          outcome: 'FAILURE',
+          reason: 'User profile not found in MongoDB',
+        });
+      } catch (_) { /* audit logging is non-critical */ }
       throw new ApiError(
         404,
         'User profile not found — please register first'
@@ -117,8 +156,25 @@ class AuthService {
     }
 
     if (user.isDisabled) {
+      try {
+        await auditService.logAuthEvent({
+          eventType: 'LOGIN_FAILURE',
+          user: { _id: user._id, username: user.username },
+          outcome: 'FAILURE',
+          reason: 'Account is disabled',
+        });
+      } catch (_) { /* audit logging is non-critical */ }
       throw new ApiError(401, 'Account has been disabled');
     }
+
+    // Audit: log successful login (non-critical)
+    try {
+      await auditService.logAuthEvent({
+        eventType: 'LOGIN_SUCCESS',
+        user: { _id: user._id, username: user.username },
+        outcome: 'SUCCESS',
+      });
+    } catch (_) { /* audit logging is non-critical */ }
 
     return {
       user: {
@@ -134,6 +190,8 @@ class AuthService {
         overallTrustRating: user.overallTrustRating,
         followersCount: user.followersCount,
         followingCount: user.followingCount,
+        ageVerificationStatus: user.ageVerificationStatus || null,
+        ageCategory: user.ageCategory || null,
       },
     };
   }

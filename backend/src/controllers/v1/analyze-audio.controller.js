@@ -171,15 +171,15 @@ async function processAudioInBackground(jobId, analysisId, mediaUrl, postId) {
           { post: postId },
           {
             post: postId,
-            authenticityScore: Math.max(0, Math.min(1, authenticityScore)),
-            factualVerificationScore: 0.5,
-            sourceCredibilityScore: 0.5,
-            modelConfidenceScore: confidenceFactor,
-            finalScore: Math.max(0, Math.min(100, finalScore)),
+            authenticity: Math.max(0, Math.min(1, authenticityScore)),
+            factualVerification: 0.5,
+            sourceCredibility: 0.5,
+            modelConfidence: confidenceFactor,
+            score: Math.max(0, Math.min(100, finalScore)),
             label: tsLabel,
             explanation: tsExplanation,
             isOverrideApplied: false,
-            modelAndRuleVersion: ai.modelVersion || 'nexora-audio-v1.0.0',
+            modelVersion: ai.modelVersion || 'nexora-audio-v1.0.0',
           },
           { upsert: true, new: true }
         );

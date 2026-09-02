@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const generateToken = (userId) => {
   return jwt.sign(
     { id: userId },
-    process.env.JWT_SECRET || 'nexora_fallback_secret_key_2026',
+    process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
 };
@@ -20,7 +20,7 @@ const generateToken = (userId) => {
  * @throws {Error} If token is invalid or expired
  */
 const verifyToken = (token) => {
-  return jwt.verify(token, process.env.JWT_SECRET || 'nexora_fallback_secret_key_2026');
+  return jwt.verify(token, process.env.JWT_SECRET);
 };
 
 module.exports = { generateToken, verifyToken };

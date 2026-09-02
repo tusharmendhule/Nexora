@@ -55,4 +55,34 @@ const sanitizeBody = (fields) => {
   };
 };
 
-module.exports = { requireFields, validateObjectId, sanitizeBody };
+/**
+ * Sanitize string inputs to prevent stored XSS.
+ * Removes HTML tags and dangerous characters from user-provided strings.
+ */
+const sanitizeInput = (fields) => {
+  return (req, _res, next) => {
+    if (req.body && typeof req.body === 'object') {
+      for (const field of fields) {
+        if (typeof req.body[field] === 'string') {
+          // Remove HTML tags, script content, and event handlers
+          req.body[field] = req.body[field]
+            .replace(/<[^>]*>/g, '') // Remove HTML tags
+            .replace(/javascript:/gi, '') // Remove javascript: protocol
+            .replace(/on\w+\s*=/gi, '') // Remove event handlers
+            .trim();
+        }
+      }
+    }
+    next();
+  };
+};
+
+/**
+ * Escape regex special characters to prevent NoSQL injection.
+ */
+const escapeRegex = (str) => {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+module.exports = { requireFields, validateObjectId, sanitizeBody, sanitizeInput, escapeRegex };

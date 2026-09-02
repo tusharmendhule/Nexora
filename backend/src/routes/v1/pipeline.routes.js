@@ -22,8 +22,8 @@ const {
 } = require('../../controllers/v1/pipeline.controller');
 
 // GET /api/v1/pipeline/stages
-// List all pipeline stages (no auth required — documentation endpoint)
-router.get('/stages', getPipelineStages);
+// List all pipeline stages (requires auth)
+router.get('/stages', protect, getPipelineStages);
 
 // GET /api/v1/pipeline/stats
 // Pipeline statistics (admin monitoring)

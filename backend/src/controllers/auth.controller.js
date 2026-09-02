@@ -7,7 +7,7 @@ const OTP = require('../models/otp.model');
 const generateToken = (userId) => {
   return jwt.sign(
     { id: userId },
-    process.env.JWT_SECRET || 'nexora_fallback_secret_key_2026',
+    process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
 };
@@ -64,7 +64,7 @@ const register = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 };
@@ -123,7 +123,7 @@ const login = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 };
@@ -146,7 +146,7 @@ const getMe = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 };

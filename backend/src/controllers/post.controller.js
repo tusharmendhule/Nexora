@@ -83,7 +83,7 @@ const createPost = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 };
@@ -120,7 +120,7 @@ const getAllPosts = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 };
@@ -152,7 +152,7 @@ const getPostById = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 };
@@ -189,7 +189,7 @@ const deletePost = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: 'Internal server error'
     });
   }
 };

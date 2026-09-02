@@ -24,7 +24,7 @@ router.get('/', protect, async (req, res) => {
       settings
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -57,7 +57,7 @@ router.put('/', protect, async (req, res) => {
       settings
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

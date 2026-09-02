@@ -37,7 +37,7 @@ exports.createComment = async (req, res, next) => {
 exports.getComments = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 50;
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
 
     const result = await commentService.getByPost(req.params.id, page, limit);
 

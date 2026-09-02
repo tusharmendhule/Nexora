@@ -155,6 +155,7 @@ const videoAnalysisSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    suppressReservedKeysWarning: true,
   }
 );
 

@@ -32,7 +32,7 @@ router.post('/', protect, async (req, res) => {
       highlight: newHighlight
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -53,7 +53,7 @@ router.get('/user/:userId', protect, async (req, res) => {
       highlights
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -90,7 +90,7 @@ router.put('/:id', protect, async (req, res) => {
       highlight
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -120,7 +120,7 @@ router.delete('/:id', protect, async (req, res) => {
       message: 'Highlight deleted successfully'
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

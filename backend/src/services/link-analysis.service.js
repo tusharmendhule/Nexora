@@ -1108,15 +1108,15 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
         { post: postId },
         {
           post: postId,
-          authenticityScore: Math.max(0, Math.min(1, sourceCredibility)),
-          factualVerificationScore: Math.max(0, Math.min(1, factCheckScore)),
-          sourceCredibilityScore: Math.max(0, Math.min(1, sourceCredibility)),
-          modelConfidenceScore: Math.max(0, Math.min(1, confidence)),
-          finalScore: Math.max(0, Math.min(100, finalScore)),
+          authenticity: Math.max(0, Math.min(1, sourceCredibility)),
+          factualVerification: Math.max(0, Math.min(1, factCheckScore)),
+          sourceCredibility: Math.max(0, Math.min(1, sourceCredibility)),
+          modelConfidence: Math.max(0, Math.min(1, confidence)),
+          score: Math.max(0, Math.min(100, finalScore)),
           label: tsLabel,
           explanation: tsExplanation,
           isOverrideApplied: false,
-          modelAndRuleVersion: MODEL_VERSION,
+          modelVersion: MODEL_VERSION,
         },
         { upsert: true, new: true }
       );

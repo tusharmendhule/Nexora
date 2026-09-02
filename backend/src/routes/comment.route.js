@@ -28,7 +28,7 @@ router.post('/:postId', protect, async (req, res) => {
 
     res.status(201).json({ success: true, comment });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -41,7 +41,7 @@ router.get('/:postId', protect, async (req, res) => {
 
     res.status(200).json({ success: true, count: comments.length, comments });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -62,7 +62,7 @@ router.delete('/:id', protect, async (req, res) => {
     await comment.deleteOne();
     res.status(200).json({ success: true, message: 'Comment deleted successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

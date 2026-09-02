@@ -167,6 +167,7 @@ const audioAnalysisSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    suppressReservedKeysWarning: true,
   }
 );
 

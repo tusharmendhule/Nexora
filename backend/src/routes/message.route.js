@@ -51,7 +51,7 @@ router.get('/inbox', protect, async (req, res) => {
       inbox
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -77,7 +77,7 @@ router.post('/', protect, async (req, res) => {
 
     res.status(201).json({ success: true, message: newMessage });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -100,7 +100,7 @@ router.get('/:userId', protect, async (req, res) => {
 
     res.status(200).json({ success: true, count: chatHistory.length, chatHistory });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -121,7 +121,7 @@ router.put('/:senderId/read', protect, async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Messages marked as read' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -147,7 +147,7 @@ router.delete('/:messageId', protect, async (req, res) => {
     await message.deleteOne();
     res.status(200).json({ success: true, message: 'Message deleted successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -171,7 +171,7 @@ router.delete('/thread/:userId', protect, async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Conversation thread cleared successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

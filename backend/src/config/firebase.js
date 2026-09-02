@@ -12,7 +12,7 @@ const admin = require('firebase-admin');
  */
 
 function initializeFirebase() {
-  if (admin.apps.length > 0) return admin;
+  if (admin.apps && admin.apps.length > 0) return admin;
 
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
 

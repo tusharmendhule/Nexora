@@ -5,27 +5,43 @@ const cors = require('cors');
 const connectDB = require('./config/database');
 const logger = require('./middleware/logger.middleware');
 const { errorHandler } = require('./middleware/error.middleware');
+const securityHeaders = require('./middleware/security.middleware');
 
 // Connect to MongoDB
 connectDB();
 
 const app = express();
 
+// ─── Security Headers (must be first) ───────────────────
+app.use(securityHeaders);
+
 // ─── Global Middleware ──────────────────────────────────
 
-// CORS — allow all origins in development, configurable in production
+// CORS — restrict to configured origins (never wildcard with credentials)
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+  : ['http://localhost:3000', 'http://localhost:5000'];
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
+    maxAge: 86400, // Preflight cache: 24 hours
   })
 );
 
-// Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Body parsing with size limits
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Request logging
 app.use(logger);
@@ -53,6 +69,10 @@ app.use('/api/v1/content', require('./routes/v1/content.routes'));
 app.use('/api/v1/analyze', require('./routes/v1/analyze.routes'));
 app.use('/api/v1/verification', require('./routes/v1/verification.routes'));
 app.use('/api/v1/pipeline', require('./routes/v1/pipeline.routes'));
+app.use('/api/v1/age-verification', require('./routes/v1/age-verification.routes'));
+app.use('/api/v1/moderation', require('./routes/v1/moderation.routes'));
+app.use('/api/v1/audit', require('./routes/v1/audit.routes'));
+app.use('/api/v1/notifications', require('./routes/v1/notification.routes'));
 
 // ─── Legacy Routes (backward compatibility) ─────────────
 // Keep old endpoints working so the existing Flutter frontend doesn't break.

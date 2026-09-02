@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 const { ApiError } = require('../middleware/error.middleware');
+const auditService = require('./audit.service');
 
 class UserService {
   /**
@@ -59,6 +60,19 @@ class UserService {
       throw new ApiError(404, 'User not found');
     }
 
+    // Audit: log account changes (non-critical)
+    const changedFields = Object.keys(filtered);
+    if (changedFields.length > 0) {
+      try {
+        await auditService.logAccountEvent({
+          eventType: changedFields.includes('username') ? 'USERNAME_CHANGED' : 'PROFILE_UPDATED',
+          actor: { _id: userId, role: user.role },
+          target: { _id: userId, username: user.username },
+          changes: changedFields,
+        });
+      } catch (_) { /* audit logging is non-critical */ }
+    }
+
     return user;
   }
 
@@ -76,6 +90,16 @@ class UserService {
       throw new ApiError(404, 'User not found');
     }
 
+    // Audit: log avatar change (non-critical)
+    try {
+      await auditService.logAccountEvent({
+        eventType: 'AVATAR_CHANGED',
+        actor: { _id: userId, role: user.role },
+        target: { _id: userId, username: user.username },
+        changes: ['avatar'],
+      });
+    } catch (_) { /* audit logging is non-critical */ }
+
     return user;
   }
 
@@ -87,14 +111,16 @@ class UserService {
       return [];
     }
 
+    // Escape regex special characters to prevent NoSQL injection
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const users = await User.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { username: { $regex: query, $options: 'i' } },
+        { name: { $regex: escaped, $options: 'i' } },
+        { username: { $regex: escaped, $options: 'i' } },
       ],
     })
       .select('name username avatar bio isVerified reputationBadge')
-      .limit(limit);
+      .limit(Math.min(limit, 50));
 
     return users;
   }

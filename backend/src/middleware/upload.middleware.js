@@ -176,7 +176,7 @@ const uploadMedia = async (req, _res, next) => {
 
     next();
   } catch (error) {
-    next(new ApiError(500, `Media upload failed: ${error.message}`));
+    next(new ApiError(500, 'Media upload failed'));
   }
 };
 
@@ -216,7 +216,7 @@ const uploadAvatar = async (req, _res, next) => {
     req.fileUrl = result.secure_url;
     next();
   } catch (error) {
-    next(new ApiError(500, `Avatar upload failed: ${error.message}`));
+    next(new ApiError(500, 'Avatar upload failed'));
   }
 };
 
@@ -253,7 +253,7 @@ const uploadImage = async (req, _res, next) => {
     req.fileUrl = result.secure_url;
     next();
   } catch (error) {
-    next(new ApiError(500, `Image upload failed: ${error.message}`));
+    next(new ApiError(500, 'Image upload failed'));
   }
 };
 

@@ -94,8 +94,10 @@ const errorHandler = (err, req, res, _next) => {
     response.errors = error.details;
   }
 
-  if (process.env.NODE_ENV !== 'production' && err.stack) {
-    response.stack = err.stack;
+  // NEVER expose stack traces or internal error details to clients
+  // Internal errors are logged server-side only
+  if (statusCode === 500 && !error.isOperational) {
+    response.message = 'Internal server error';
   }
 
   res.status(statusCode).json(response);

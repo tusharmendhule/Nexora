@@ -84,6 +84,20 @@ const userSchema = new mongoose.Schema(
       max: 100,
     },
 
+    // ─── Age Verification (Module 18) ───────────────────
+    // Only the result category is stored — never DOB, government IDs,
+    // or biometric data.
+    ageVerificationStatus: {
+      type: String,
+      enum: ['PENDING', 'VERIFIED', 'FAILED', 'REQUIRES_REVIEW', null],
+      default: null,
+    },
+    ageCategory: {
+      type: String,
+      enum: ['ADULT', 'TEEN', 'MINOR', 'UNKNOWN', null],
+      default: null,
+    },
+
     // Account Metrics
     followersCount: {
       type: Number,

@@ -21,7 +21,7 @@ router.get('/trending', protect, async (req, res) => {
       hashtags: trending
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -49,7 +49,7 @@ router.get('/search', protect, async (req, res) => {
       hashtags
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -73,7 +73,7 @@ router.get('/:tag/posts', protect, async (req, res) => {
       posts
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

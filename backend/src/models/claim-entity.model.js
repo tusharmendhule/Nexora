@@ -141,6 +141,7 @@ const claimEntitySchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    suppressReservedKeysWarning: true,
   }
 );
 

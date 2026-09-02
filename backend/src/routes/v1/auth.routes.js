@@ -8,20 +8,21 @@ const {
   logout,
 } = require('../../controllers/v1/auth.controller');
 const { protect } = require('../../middleware/auth.middleware');
+const { authRateLimit } = require('../../middleware/rate-limit.middleware');
 
-// ─── Public Routes (no auth required) ──────────────────
+// ─── Public Routes (no auth required, rate limited) ─────
 
 // POST /api/v1/auth/register
 // Register a new user via Firebase Auth
-router.post('/register', register);
+router.post('/register', authRateLimit, register);
 
 // POST /api/v1/auth/login
 // Login via Firebase Auth
-router.post('/login', login);
+router.post('/login', authRateLimit, login);
 
 // POST /api/v1/auth/lookup-email
 // Resolve username → email for the Firebase login flow
-router.post('/lookup-email', lookupEmail);
+router.post('/lookup-email', authRateLimit, lookupEmail);
 
 // ─── Protected Routes (auth required) ──────────────────
 

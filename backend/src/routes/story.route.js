@@ -22,7 +22,7 @@ router.post('/', protect, async (req, res) => {
 
     res.status(201).json({ success: true, story: newStory });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -37,7 +37,7 @@ router.get('/', protect, async (req, res) => {
 
     res.status(200).json({ success: true, count: stories.length, stories });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -66,7 +66,7 @@ router.post('/:id/like', protect, async (req, res) => {
     await story.save();
     res.status(200).json({ success: true, likesCount: story.likes.length, isLiked: !isLiked });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -101,7 +101,7 @@ router.post('/:id/poll/vote', protect, async (req, res) => {
 
     res.status(200).json({ success: true, poll: story.poll });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -133,7 +133,7 @@ router.post('/:id/comment', protect, async (req, res) => {
 
     res.status(201).json({ success: true, message: 'Comment added successfully', comments: story.comments });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -158,7 +158,7 @@ router.delete('/:id/comment/:commentId', protect, async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Comment removed successfully', comments: story.comments });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -185,7 +185,7 @@ router.post('/:id/comment/:commentId/reply', protect, async (req, res) => {
 
     res.status(201).json({ success: true, message: 'Reply added successfully', comments: story.comments });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -213,7 +213,7 @@ router.delete('/:id/comment/:commentId/reply/:replyId', protect, async (req, res
 
     res.status(200).json({ success: true, message: 'Reply removed successfully', comments: story.comments });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

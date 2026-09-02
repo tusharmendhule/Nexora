@@ -1,5 +1,7 @@
 const User = require('../../models/user.model');
 const { ApiError } = require('../../middleware/error.middleware');
+const auditService = require('../../services/audit.service');
+const notificationService = require('../../services/notification.service');
 
 class AdminController {
   /**
@@ -9,16 +11,18 @@ class AdminController {
   async listUsers(req, res, next) {
     try {
       const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 50;
+      const limit = Math.min(parseInt(req.query.limit) || 50, 100);
       const search = req.query.search || '';
       const skip = (page - 1) * limit;
 
       const filter = {};
-      if (search) {
+      if (search && typeof search === 'string') {
+        // Escape regex special characters to prevent NoSQL injection
+        const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         filter.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { username: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
+          { name: { $regex: escaped, $options: 'i' } },
+          { username: { $regex: escaped, $options: 'i' } },
+          { email: { $regex: escaped, $options: 'i' } },
         ];
       }
 
@@ -74,6 +78,27 @@ class AdminController {
         throw new ApiError(404, 'User not found');
       }
 
+      // Audit: log role change (non-critical)
+      try {
+        await auditService.logAdminEvent({
+          eventType: 'USER_ROLE_CHANGED',
+          admin: { _id: req.user._id, username: req.user.username },
+          target: { _id: user._id, username: user.username },
+          details: { newRole: role },
+          request: req.auditContext || null,
+        });
+      } catch (_) { /* audit logging is non-critical */ }
+
+      // Notify affected user (non-critical)
+      try {
+        await notificationService.notifyAccountSecurity({
+          userId: user._id,
+          adminId: req.user._id,
+          eventType: 'USER_ROLE_CHANGED',
+          details: { newRole: role },
+        });
+      } catch (_) { /* notification is non-critical */ }
+
       res.status(200).json({
         success: true,
         message: `User role updated to ${role}`,
@@ -104,6 +129,25 @@ class AdminController {
         throw new ApiError(404, 'User not found');
       }
 
+      // Audit: log user disable (non-critical)
+      try {
+        await auditService.logAdminEvent({
+          eventType: 'USER_DISABLED',
+          admin: { _id: req.user._id, username: req.user.username },
+          target: { _id: user._id, username: user.username },
+          request: req.auditContext || null,
+        });
+      } catch (_) { /* audit logging is non-critical */ }
+
+      // Notify affected user (non-critical)
+      try {
+        await notificationService.notifyAccountSecurity({
+          userId: user._id,
+          adminId: req.user._id,
+          eventType: 'USER_DISABLED',
+        });
+      } catch (_) { /* notification is non-critical */ }
+
       res.status(200).json({
         success: true,
         message: 'User account has been disabled',
@@ -129,6 +173,25 @@ class AdminController {
       if (!user) {
         throw new ApiError(404, 'User not found');
       }
+
+      // Audit: log user enable (non-critical)
+      try {
+        await auditService.logAdminEvent({
+          eventType: 'USER_ENABLED',
+          admin: { _id: req.user._id, username: req.user.username },
+          target: { _id: user._id, username: user.username },
+          request: req.auditContext || null,
+        });
+      } catch (_) { /* audit logging is non-critical */ }
+
+      // Notify affected user (non-critical)
+      try {
+        await notificationService.notifyAccountSecurity({
+          userId: user._id,
+          adminId: req.user._id,
+          eventType: 'USER_ENABLED',
+        });
+      } catch (_) { /* notification is non-critical */ }
 
       res.status(200).json({
         success: true,

@@ -29,6 +29,8 @@
 const { v4: uuidv4 } = require('uuid');
 const PipelineStage = require('../models/pipeline-stage.model');
 const Post = require('../models/post.model');
+const auditService = require('./audit.service');
+const notificationService = require('./notification.service');
 
 // ─── Pipeline Stage Definitions ───────────────────────────────────────
 
@@ -897,6 +899,15 @@ async function executePipeline(post, job) {
     pipeline = await initializePipeline(post, job.contentType);
     console.log(`[Pipeline] Starting pipeline ${pipeline.pipelineId} for post ${post._id} (${job.contentType})`);
 
+    // Audit: log pipeline start (non-critical)
+    try {
+      await auditService.logAIProcessingEvent({
+        eventType: 'PIPELINE_STARTED',
+        target: { postId: post._id, pipelineId: pipeline.pipelineId },
+        metadata: { contentType: job.contentType },
+      });
+    } catch (_) { /* audit logging is non-critical */ }
+
     const stageResults = {};
 
     // ── Stage: CONTENT_TYPE_ROUTING ──────────────────────────────────
@@ -904,7 +915,6 @@ async function executePipeline(post, job) {
     stageResults.routing = routingResult;
 
     // ── Stage: PREPROCESSING ─────────────────────────────────────────
-    await startStage(pipeline.pipelineId, 'PREPROCESSING');
     const preprocessingResult = await executePreprocessing(pipeline, post, job.contentType);
     stageResults.preprocessing = preprocessingResult;
 
@@ -914,6 +924,15 @@ async function executePipeline(post, job) {
       aiResult = await executeAIAnalysis(pipeline, post, job.contentType, job);
       stageResults.aiAnalysis = aiResult;
     } catch (err) {
+      // Audit: log AI analysis failure (non-critical)
+      try {
+        await auditService.logAIProcessingEvent({
+          eventType: 'AI_ANALYSIS_FAILED',
+          target: { postId: post._id, pipelineId: pipeline.pipelineId },
+          error: { code: 'AI_ANALYSIS_FAILED', message: err.message },
+          metadata: { contentType: job.contentType, stage: 'AI_ANALYSIS' },
+        });
+      } catch (_) { /* audit logging is non-critical */ }
       const failedPipeline = await failStage(pipeline.pipelineId, 'AI_ANALYSIS', err);
 
       // If critical stage failed and retries exhausted, fail the pipeline
@@ -1025,6 +1044,25 @@ async function executePipeline(post, job) {
       `[Pipeline] Pipeline ${pipeline.pipelineId} completed in ${totalDuration}ms — status: ${verificationStatus}`
     );
 
+    // Audit: log pipeline completion (non-critical)
+    try {
+      await auditService.logAIProcessingEvent({
+        eventType: 'PIPELINE_COMPLETED',
+        target: { postId: post._id, pipelineId: pipeline.pipelineId },
+        metadata: { status: verificationStatus, durationMs: totalDuration },
+      });
+    } catch (_) { /* audit logging is non-critical */ }
+
+    // Notify post owner (non-critical)
+    try {
+      await notificationService.notifyVerificationComplete({
+        postOwnerId: post.user,
+        postId: post._id,
+        status: verificationStatus,
+        trustScoreResult,
+      });
+    } catch (_) { /* notification is non-critical */ }
+
     return {
       pipelineId: pipeline.pipelineId,
       status: 'COMPLETED',
@@ -1049,6 +1087,16 @@ async function executePipeline(post, job) {
         stage: 'PIPELINE',
       },
     });
+
+    // Audit: log pipeline failure (non-critical)
+    try {
+      await auditService.logAIProcessingEvent({
+        eventType: 'PIPELINE_FAILED',
+        target: { postId: post._id, pipelineId: pipeline?.pipelineId },
+        error: { code: 'PIPELINE_FAILED', message: err.message },
+        metadata: { stage: pipeline?.currentStage || 'UNKNOWN' },
+      });
+    } catch (_) { /* audit logging is non-critical */ }
 
     return {
       pipelineId: pipeline ? pipeline.pipelineId : null,

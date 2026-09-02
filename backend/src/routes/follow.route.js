@@ -30,7 +30,7 @@ router.post('/:id/follow', protect, async (req, res) => {
 
     res.status(200).json({ success: true, message: 'User followed successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -52,7 +52,7 @@ router.post('/:id/unfollow', protect, async (req, res) => {
 
     res.status(200).json({ success: true, message: 'User unfollowed successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -66,7 +66,7 @@ router.get('/:id/followers', protect, async (req, res) => {
     const followers = await Follower.find({ following: req.params.id }).populate('follower', 'username name avatar');
     res.status(200).json({ success: true, count: followers.length, followers });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -80,7 +80,7 @@ router.get('/:id/following', protect, async (req, res) => {
     const following = await Follower.find({ follower: req.params.id }).populate('following', 'username name avatar');
     res.status(200).json({ success: true, count: following.length, following });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

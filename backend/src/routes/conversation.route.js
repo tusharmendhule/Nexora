@@ -35,7 +35,7 @@ router.post('/', protect, async (req, res) => {
 
     res.status(200).json({ success: true, conversation });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -57,7 +57,7 @@ router.get('/', protect, async (req, res) => {
 
     res.status(200).json({ success: true, count: conversations.length, conversations });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

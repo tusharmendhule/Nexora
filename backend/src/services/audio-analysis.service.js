@@ -146,15 +146,15 @@ async function analyzeAudio(job) {
       { post: job.post },
       {
         post: job.post,
-        authenticityScore: Math.max(0, Math.min(1, authenticityScore)),
-        factualVerificationScore: factualScore,
-        sourceCredibilityScore: sourceScore,
-        modelConfidenceScore: confidenceScore,
-        finalScore: Math.max(0, Math.min(100, finalScore)),
+        authenticity: Math.max(0, Math.min(1, authenticityScore)),
+        factualVerification: factualScore,
+        sourceCredibility: sourceScore,
+        modelConfidence: confidenceScore,
+        score: Math.max(0, Math.min(100, finalScore)),
         label: tsLabel,
         explanation: tsExplanation,
         isOverrideApplied: false,
-        modelAndRuleVersion: ai.modelVersion || 'nexora-audio-v1.0.0',
+        modelVersion: ai.modelVersion || 'nexora-audio-v1.0.0',
       },
       { upsert: true, new: true }
     );

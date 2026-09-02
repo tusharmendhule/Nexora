@@ -4,13 +4,14 @@ const Moderation = require('../models/moderation.model');
 const TrustScore = require('../models/trust-score.model');
 const Post = require('../models/post.model');
 const { protect } = require('../middleware/auth.middleware');
+const { requireRole } = require('../middleware/authorize.middleware');
 
 // ==========================================
 // 1. MODERATOR OVERRIDE / LOG DECISION
 // ==========================================
 // @route   POST /api/moderation/override
 // @access  Private (Moderator / Admin)
-router.post('/override', protect, async (req, res) => {
+router.post('/override', protect, requireRole('MODERATOR', 'ADMIN'), async (req, res) => {
   try {
     const { postId, newLabel, reason, action } = req.body;
 
@@ -73,7 +74,7 @@ router.post('/override', protect, async (req, res) => {
       trustScore
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -94,7 +95,7 @@ router.get('/history/:postId', protect, async (req, res) => {
       logs
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

@@ -36,7 +36,7 @@ router.get('/', protect, async (req, res) => {
       posts
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -121,7 +121,7 @@ router.post('/', protect, async (req, res) => {
       aiAnalysis: trustData
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -148,7 +148,7 @@ router.get('/saved', protect, async (req, res) => {
       savedPosts
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -172,7 +172,7 @@ router.get('/:id', protect, async (req, res) => {
       post
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -217,7 +217,7 @@ router.post('/:id/like', protect, async (req, res) => {
       isLiked: !isLiked
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -256,7 +256,7 @@ router.post('/:id/comment', protect, async (req, res) => {
       comments: post.comments
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -293,7 +293,7 @@ router.post('/:id/save', protect, async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -323,7 +323,7 @@ router.delete('/:id', protect, async (req, res) => {
       message: 'Post deleted successfully'
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

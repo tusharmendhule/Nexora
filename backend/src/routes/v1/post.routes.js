@@ -29,6 +29,7 @@ const {
 
 // Report controllers
 const { createReport } = require('../../controllers/v1/report.controller');
+const { reportRateLimit } = require('../../middleware/rate-limit.middleware');
 
 // ─── Upload routes ─────────────────────────────────────
 
@@ -72,6 +73,6 @@ router.get('/:id/comments', protect, validateObjectId('id'), getComments);
 // ─── Report routes ─────────────────────────────────────
 
 // POST /api/v1/posts/:id/report
-router.post('/:id/report', protect, validateObjectId('id'), sanitizeBody(['reason']), createReport);
+router.post('/:id/report', protect, validateObjectId('id'), reportRateLimit, sanitizeBody(['description']), createReport);
 
 module.exports = router;

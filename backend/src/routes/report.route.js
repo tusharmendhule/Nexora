@@ -10,7 +10,7 @@ const { protect } = require('../middleware/auth.middleware');
 // @access  Private
 router.post('/', protect, async (req, res) => {
   try {
-    const { targetType, targetId, reason } = req.body;
+    const { targetType, targetId, reason, description } = req.body;
     const currentUserId = req.user?._id || req.user?.id || req.user?._doc?._id || req.userId;
 
     if (!targetType || !targetId || !reason) {
@@ -31,7 +31,8 @@ router.post('/', protect, async (req, res) => {
       reporter: currentUserId,
       targetType,
       targetId,
-      reason: reason.trim()
+      reason,
+      description: (description || '').trim().substring(0, 1000),
     });
 
     res.status(201).json({
@@ -40,7 +41,14 @@ router.post('/', protect, async (req, res) => {
       report
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    // Handle duplicate report
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: 'You have already reported this content'
+      });
+    }
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -51,7 +59,11 @@ router.post('/', protect, async (req, res) => {
 // @access  Private
 router.get('/', protect, async (req, res) => {
   try {
-    const reports = await Report.find()
+    const { status } = req.query;
+    const filter = {};
+    if (status) filter.status = status;
+
+    const reports = await Report.find(filter)
       .populate('reporter', 'name avatar email')
       .populate('targetId')
       .sort({ createdAt: -1 });
@@ -62,7 +74,7 @@ router.get('/', protect, async (req, res) => {
       reports
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

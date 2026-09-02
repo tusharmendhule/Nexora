@@ -2,13 +2,30 @@ const express = require('express');
 const router = express.Router();
 const OTP = require('../models/otp.model');
 const User = require('../models/user.model');
+const { createRateLimiter } = require('../middleware/rate-limit.middleware');
+
+// Rate limit: 3 OTP sends per 15 minutes per IP
+const otpSendRateLimit = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  keyPrefix: 'rl:otp:send',
+  message: 'Too many OTP requests. Please wait before trying again.',
+});
+
+// Rate limit: 5 OTP verify attempts per 15 minutes per IP
+const otpVerifyRateLimit = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  keyPrefix: 'rl:otp:verify',
+  message: 'Too many verification attempts. Please wait before trying again.',
+});
 
 // ==========================================
 // 1. SEND / GENERATE OTP
 // ==========================================
 // @route   POST /api/otp/send
 // @access  Public
-router.post('/send', async (req, res) => {
+router.post('/send', otpSendRateLimit, async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -29,14 +46,13 @@ router.post('/send', async (req, res) => {
     });
 
     // NOTE: Here you can integrate Nodemailer or SendGrid to send actual emails.
-    // For local testing, we return the OTP in the response body.
+    // OTP is never returned in the response — it must be delivered via email/SMS.
     res.status(200).json({
       success: true,
       message: 'OTP sent successfully (expires in 5 minutes)',
-      otp: generatedOtp // Remove this field in production!
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -45,7 +61,7 @@ router.post('/send', async (req, res) => {
 // ==========================================
 // @route   POST /api/otp/verify
 // @access  Public
-router.post('/verify', async (req, res) => {
+router.post('/verify', otpVerifyRateLimit, async (req, res) => {
   try {
     const { email, otp } = req.body;
 
@@ -67,7 +83,7 @@ router.post('/verify', async (req, res) => {
       message: 'OTP verified successfully!'
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

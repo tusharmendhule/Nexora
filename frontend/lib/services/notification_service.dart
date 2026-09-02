@@ -1,95 +1,152 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/notification.dart';
+import '../config/api_config.dart';
 
 class NotificationService {
-  static final List<AppNotification> _notifications = [
-    AppNotification(
-      id: 'notification_001',
-      recipientId: 'user_you',
-      actorId: 'user2',
-      name: 'User2',
-      text: 'liked your post',
-      icon: Icons.favorite,
-      createdAt: DateTime(2026, 8, 30, 19, 45),
-    ),
-    AppNotification(
-      id: 'notification_002',
-      recipientId: 'user_you',
-      actorId: 'user3',
-      name: 'User3',
-      text: 'started following you',
-      icon: Icons.person_add,
-      createdAt: DateTime(2026, 8, 30, 19, 32),
-    ),
-    AppNotification(
-      id: 'notification_003',
-      recipientId: 'user_you',
-      actorId: 'user4',
-      name: 'User4',
-      text: 'commented on your post',
-      icon: Icons.chat_bubble,
-      createdAt: DateTime(2026, 8, 30, 18, 50),
-    ),
-    AppNotification(
-      id: 'notification_004',
-      recipientId: 'user_you',
-      name: 'Nexora Community',
-      text: 'shared something new',
-      icon: Icons.groups,
-      createdAt: DateTime(2026, 8, 30, 16, 00),
-    ),
-    AppNotification(
-      id: 'notification_005',
-      recipientId: 'user_you',
-      actorId: 'user5',
-      name: 'User5',
-      text: 'liked your profile',
-      icon: Icons.auto_awesome,
-      createdAt: DateTime(2026, 8, 29, 20, 00),
-    ),
-  ];
-
+  /// Fetch notifications from the backend API.
   Future<List<AppNotification>> fetchNotifications(String recipientId) async {
-    return _notifications
-        .where((notification) => notification.recipientId == recipientId)
-        .toList();
-  }
+    try {
+      final headers = await ApiConfig.headers;
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/notifications?limit=50'),
+        headers: headers,
+      );
 
-  Future<int> getUnreadCount(String recipientId) async {
-    return _notifications
-        .where(
-          (notification) =>
-              notification.recipientId == recipientId && !notification.isRead,
-        )
-        .length;
-  }
-
-  Future<void> markAsRead(String notificationId) async {
-    final index = _notifications.indexWhere(
-      (notification) => notification.id == notificationId,
-    );
-
-    if (index == -1) return;
-
-    _notifications[index] = _notifications[index].copyWith(isRead: true);
-  }
-
-  Future<void> markAllAsRead(String recipientId) async {
-    for (var i = 0; i < _notifications.length; i++) {
-      if (_notifications[i].recipientId == recipientId) {
-        _notifications[i] = _notifications[i].copyWith(isRead: true);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List notifications = data['notifications'] ?? [];
+        return notifications.map((n) => _parseNotification(n)).toList();
       }
+    } catch (_) {
+      // Fall through to empty list on network error
+    }
+    return [];
+  }
+
+  /// Get unread notification count from the backend API.
+  Future<int> getUnreadCount(String recipientId) async {
+    try {
+      final headers = await ApiConfig.headers;
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/notifications/unread-count'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['unreadCount'] ?? 0;
+      }
+    } catch (_) {
+      // Fall through to 0 on network error
+    }
+    return 0;
+  }
+
+  /// Mark a single notification as read.
+  Future<void> markAsRead(String notificationId) async {
+    try {
+      final headers = await ApiConfig.headers;
+      await http.patch(
+        Uri.parse('${ApiConfig.baseUrl}/notifications/$notificationId/read'),
+        headers: headers,
+      );
+    } catch (_) {
+      // Non-critical — ignore failure
     }
   }
 
+  /// Mark all notifications as read for the user.
+  Future<void> markAllAsRead(String recipientId) async {
+    try {
+      final headers = await ApiConfig.headers;
+      await http.patch(
+        Uri.parse('${ApiConfig.baseUrl}/notifications/read-all'),
+        headers: headers,
+      );
+    } catch (_) {
+      // Non-critical — ignore failure
+    }
+  }
+
+  /// Delete all notifications for the user.
   Future<void> deleteAll(String recipientId) async {
-    _notifications.removeWhere(
-      (notification) => notification.recipientId == recipientId,
+    try {
+      final headers = await ApiConfig.headers;
+      await http.delete(
+        Uri.parse('${ApiConfig.baseUrl}/notifications'),
+        headers: headers,
+      );
+    } catch (_) {
+      // Non-critical — ignore failure
+    }
+  }
+
+  /// Create a local notification (used by follow_service, etc.).
+  /// This stores the notification in memory; in production this would
+  /// POST to the backend notifications API.
+  Future<void> createNotification(AppNotification notification) async {
+    // For now, this is a local no-op. In production, it would call:
+    // POST /api/v1/notifications
+    try {
+      final headers = await ApiConfig.headers;
+      await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/notifications'),
+        headers: headers,
+        body: jsonEncode({
+          'recipient': notification.recipientId,
+          'type': notification.icon == Icons.person_add
+              ? 'FOLLOW'
+              : 'SYSTEM',
+          'body': notification.text,
+        }),
+      );
+    } catch (_) {
+      // Non-critical — local fallback
+    }
+  }
+
+  /// Parse a backend notification JSON into an AppNotification.
+  AppNotification _parseNotification(Map<String, dynamic> json) {
+    return AppNotification(
+      id: json['_id'] ?? json['id'] ?? '',
+      recipientId: json['recipient'] ?? '',
+      actorId: json['sender'] is Map ? json['sender']['_id'] : json['sender'],
+      name: json['sender'] is Map
+          ? (json['sender']['name'] ?? json['sender']['username'] ?? 'System')
+          : 'System',
+      text: json['body'] ?? '',
+      icon: _typeToIcon(json['type']),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      isRead: json['isRead'] ?? false,
     );
   }
 
-  Future<void> createNotification(AppNotification notification) async {
-    _notifications.insert(0, notification);
+  /// Map notification type to an icon.
+  IconData _typeToIcon(String? type) {
+    switch (type) {
+      case 'POST_VERIFIED':
+        return Icons.verified;
+      case 'POST_REQUIRES_MODERATION':
+        return Icons.rate_review;
+      case 'POST_APPROVED':
+        return Icons.check_circle;
+      case 'POST_REJECTED':
+        return Icons.cancel;
+      case 'LABEL_OVERRIDE':
+        return Icons.label;
+      case 'REPORT_RESOLVED':
+        return Icons.flag;
+      case 'REPORT_DISMISSED':
+        return Icons.outlined_flag;
+      case 'ACCOUNT_SECURITY':
+        return Icons.security;
+      case 'SYSTEM':
+        return Icons.notifications;
+      default:
+        return Icons.notifications;
+    }
   }
 }

@@ -16,16 +16,18 @@ router.get('/search', protect, async (req, res) => {
       return res.status(200).json({ success: true, users: [] });
     }
 
+    // Escape regex special characters to prevent NoSQL injection
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const users = await User.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { handle: { $regex: query, $options: 'i' } }
+        { name: { $regex: escaped, $options: 'i' } },
+        { handle: { $regex: escaped, $options: 'i' } }
       ]
     }).select('name avatar handle status badge followers following');
 
     res.status(200).json({ success: true, count: users.length, users });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -45,7 +47,7 @@ router.get('/me', protect, async (req, res) => {
 
     res.status(200).json({ success: true, user });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -67,7 +69,7 @@ router.get('/:id', protect, async (req, res) => {
 
     res.status(200).json({ success: true, user });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -100,7 +102,7 @@ router.put('/profile', protect, async (req, res) => {
     await user.save();
     res.status(200).json({ success: true, message: 'Profile updated successfully', user });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -164,7 +166,7 @@ router.post('/:id/follow', protect, async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -191,7 +193,7 @@ router.get('/:id/network', protect, async (req, res) => {
       following: user.following
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

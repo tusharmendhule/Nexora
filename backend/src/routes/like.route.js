@@ -25,7 +25,7 @@ router.post('/:postId/toggle', protect, async (req, res) => {
       return res.status(200).json({ success: true, isLiked: true, message: 'Post liked' });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -35,7 +35,7 @@ router.get('/:postId', protect, async (req, res) => {
     const likes = await Like.find({ post: req.params.postId }).populate('user', 'username name avatar');
     res.status(200).json({ success: true, count: likes.length, likes });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

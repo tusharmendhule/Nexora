@@ -29,7 +29,8 @@ exports.uploadMedia = async (req, res, next) => {
       },
     });
   } catch (error) {
-    next(new ApiError(500, `Upload failed: ${error.message}`));
+    console.error('[Upload] Media upload failed:', error.message);
+    next(new ApiError(500, 'Upload failed'));
   }
 };
 
@@ -64,6 +65,7 @@ exports.uploadMultipleMedia = async (req, res, next) => {
       media: results,
     });
   } catch (error) {
-    next(new ApiError(500, `Multiple upload failed: ${error.message}`));
+    console.error('[Upload] Multiple upload failed:', error.message);
+    next(new ApiError(500, 'Multiple upload failed'));
   }
 };

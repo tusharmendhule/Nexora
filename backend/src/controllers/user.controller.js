@@ -57,7 +57,7 @@ const toggleFollowUser = async (req, res) => {
       return res.status(200).json({ success: true, message: "Followed successfully" });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -77,7 +77,7 @@ const getUserProfile = async (req, res) => {
 
     res.status(200).json({ success: true, user });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
