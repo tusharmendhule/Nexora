@@ -20,7 +20,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   List<Conversation> conversations = [];
   bool isLoading = true;
-  String _currentUserId = '';
   Timer? _pollTimer;
 
   @override
@@ -30,10 +29,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   Future<void> _loadConversations() async {
-    final currentId = await _userService.getCurrentUserId();
-    if (!mounted) return;
-    _currentUserId = currentId ?? '';
-
     final loadedConversations = await _conversationService.fetchConversations();
 
     if (!mounted) return;

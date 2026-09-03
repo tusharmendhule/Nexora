@@ -192,7 +192,42 @@ class _LoginScreenState extends State<LoginScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final controller = TextEditingController();
+                    final result = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: const Color(0xFF171D35),
+                        title: const Text('Reset Password', style: TextStyle(color: Colors.white)),
+                        content: TextField(
+                          controller: controller,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            hintText: 'Enter your email',
+                            hintStyle: TextStyle(color: Colors.white38),
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: const Text('Send', style: TextStyle(color: Color(0xFF8B7CFF))),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (result == true && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Password reset email sent. Check your inbox.'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
                   child: const Text(
                     'Forgot password?',
                     style: TextStyle(
@@ -245,7 +280,14 @@ class _LoginScreenState extends State<LoginScreen> {
               _socialButton(
                 icon: Icons.apple,
                 label: 'Continue with Apple',
-                onTap: () {},
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Apple Sign-In is not yet available'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 32),

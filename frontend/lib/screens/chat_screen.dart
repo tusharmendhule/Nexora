@@ -227,7 +227,61 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+          IconButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: const Color(0xFF11162B),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (ctx) => SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.block_outlined, color: Color(0xFFE74C3C), size: 22),
+                          title: const Text('Block user', style: TextStyle(color: Colors.white, fontSize: 15)),
+                          onTap: () {
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('User blocked')),
+                            );
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.delete_outline, color: Color(0xFFF39C12), size: 22),
+                          title: const Text('Clear conversation', style: TextStyle(color: Colors.white, fontSize: 15)),
+                          onTap: () async {
+                            Navigator.pop(ctx);
+                            await _messageService.clearThread(_targetUserId);
+                            if (mounted) {
+                              setState(() => messages.clear());
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Conversation cleared')),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.more_vert),
+          ),
         ],
       ),
       body: Column(
@@ -242,7 +296,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final message = messages[index];
-                      final bool isMine = message.senderId == 'You';
+                      final bool isMine = message.senderId == _currentUserId;
 
                       return _messageBubble(message.text, isMine);
                     },
@@ -256,7 +310,11 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('File sharing coming soon')),
+                      );
+                    },
                     icon: const Icon(
                       Icons.add_circle_outline,
                       color: Colors.white70,

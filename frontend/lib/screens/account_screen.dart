@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
+import '../services/user_service.dart';
 import 'login_screen.dart';
 import 'settings_detail_screen.dart';
 
@@ -31,6 +32,28 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
+  final UserService _userService = UserService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final user = await _userService.getMyProfile();
+    if (!mounted) return;
+    if (user != null) {
+      setState(() {
+        accountData.name = user.displayName ?? user.username;
+        accountData.username = '@${user.username}';
+        accountData.email = user.email ?? 'No email';
+        accountData.accounts.first['name'] = accountData.name;
+        accountData.accounts.first['username'] = accountData.username;
+      });
+    }
+  }
+
   void _open(
     BuildContext context, {
     required String title,
@@ -234,11 +257,16 @@ class _AccountScreenState extends State<AccountScreen> {
           label: 'Display Name',
           initialValue: accountData.name,
           controller: controller,
-          onSave: (value) {
+          onSave: (value) async {
             if (value.trim().isEmpty) return;
 
             accountData.name = value.trim();
+            accountData.accounts.first['name'] = value.trim();
             accountData.addHistory('Name changed');
+
+            // Persist to backend
+            await _userService.updateMyProfile(name: value.trim());
+            await _loadProfile();
           },
         ),
       ),
@@ -248,7 +276,7 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   void _editUsername(BuildContext context) {
-    final controller = TextEditingController(text: accountData.username);
+    final controller = TextEditingController(text: accountData.username.replaceFirst('@', ''));
 
     Navigator.push(
       context,
@@ -257,9 +285,9 @@ class _AccountScreenState extends State<AccountScreen> {
           title: 'Username',
           description: 'Update your Nexora username.',
           label: 'Username',
-          initialValue: accountData.username,
+          initialValue: accountData.username.replaceFirst('@', ''),
           controller: controller,
-          onSave: (value) {
+          onSave: (value) async {
             if (value.trim().isEmpty) return;
 
             String username = value.trim();
@@ -271,6 +299,10 @@ class _AccountScreenState extends State<AccountScreen> {
             accountData.username = username;
             accountData.accounts.first['username'] = username;
             accountData.addHistory('Username changed');
+
+            // Persist to backend
+            await _userService.updateMyProfile(username: value.trim());
+            await _loadProfile();
           },
         ),
       ),
@@ -344,38 +376,48 @@ class _AccountScreenState extends State<AccountScreen> {
                   ],
                 );
               },
-            ),
-            SettingsItem(
-              icon: Icons.edit_outlined,
-              title: 'Change Email',
-              subtitle: 'Update your connected email address',
-              type: SettingsItemType.navigation,
-              onTap: () {
-                final controller = TextEditingController(
-                  text: accountData.email,
-                );
+            ),                      SettingsItem(
+                        icon: Icons.edit_outlined,
+                        title: 'Change Email',
+                        subtitle: 'Update your connected email address',
+                        type: SettingsItemType.navigation,
+                        onTap: () {
+                          final controller = TextEditingController(
+                            text: accountData.email,
+                          );
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => _InputScreen(
-                      title: 'Change Email',
-                      description:
-                          'Update the email address connected to your account.',
-                      label: 'Email Address',
-                      initialValue: accountData.email,
-                      controller: controller,
-                      keyboardType: TextInputType.emailAddress,
-                      onSave: (value) {
-                        if (value.trim().isEmpty) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => _InputScreen(
+                                title: 'Change Email',
+                                description:
+                                    'Update the email address connected to your account.',
+                                label: 'Email Address',
+                                initialValue: accountData.email,
+                                controller: controller,
+                                keyboardType: TextInputType.emailAddress,
+                                onSave: (value) async {
+                                  if (value.trim().isEmpty) return;
 
-                        accountData.email = value.trim();
-                        accountData.addHistory('Email address changed');
-                      },
-                    ),
-                  ),
-                );
-              },
+                                  accountData.email = value.trim();
+                                  accountData.addHistory('Email address changed');
+
+                                  // Email change requires backend support
+                                  // (currently not exposed via API)
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Email update requires re-authentication. Please contact support.'),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          );
+                        },
             ),
           ],
         ),

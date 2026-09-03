@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 import 'findpeople_screen.dart';
@@ -196,6 +196,21 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _savedPosts[post.id] = result['isSaved'] as bool;
     });
+  }
+
+  void _sharePost(BuildContext context, Post post) {
+    final text = post.text ?? '';
+    final author = post.authorUsername;
+    final shareText = text.isNotEmpty ? '$author: $text' : 'Check out this post by $author on Nexora';
+
+    Clipboard.setData(ClipboardData(text: shareText));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Post text copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   bool _isPostOwner(Post post) {
@@ -1261,7 +1276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () => _sharePost(context, post),
                   icon: const Icon(Icons.repeat, color: Colors.white),
                 ),
 

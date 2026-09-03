@@ -1,9 +1,16 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config/api_config.dart';
 import '../models/moment.dart';
 
+/// Backend-connected moment (story) service.
+///
+/// All read/write operations go through the Nexora v1 API backed by MongoDB.
+/// Stories are ephemeral 24-hour media items.
 class MomentService {
   MomentService._internal();
 
@@ -11,191 +18,190 @@ class MomentService {
 
   factory MomentService() => _instance;
 
-  static const String _storageKey = 'nexora_moments';
+  // ─── Token helpers ───────────────────────────────────
 
-  final List<Moment> _moments = [
-    Moment(
-      id: 'moment_001',
-      creatorId: 'user_you',
-      creatorUsername: 'You',
-      mediaUrl: 'demo://moment_001',
-      mediaType: 'image',
-      label: null,
-      createdAt: DateTime(2026, 8, 29),
-      expiresAt: DateTime(2026, 8, 30),
-    ),
-    Moment(
-      id: 'moment_002',
-      creatorId: 'aarav',
-      creatorUsername: 'Aarav',
-      mediaUrl: 'demo://moment_002',
-      mediaType: 'image',
-      label: null,
-      createdAt: DateTime(2026, 8, 29),
-      expiresAt: DateTime(2026, 8, 30),
-    ),
-    Moment(
-      id: 'moment_003',
-      creatorId: 'maya',
-      creatorUsername: 'Maya',
-      mediaUrl: 'demo://moment_003',
-      mediaType: 'image',
-      label: null,
-      createdAt: DateTime(2026, 8, 29),
-      expiresAt: DateTime(2026, 8, 30),
-    ),
-    Moment(
-      id: 'moment_004',
-      creatorId: 'arjun',
-      creatorUsername: 'Arjun',
-      mediaUrl: 'demo://moment_004',
-      mediaType: 'image',
-      label: null,
-      createdAt: DateTime(2026, 8, 29),
-      expiresAt: DateTime(2026, 8, 30),
-    ),
-    Moment(
-      id: 'moment_005',
-      creatorId: 'ananya',
-      creatorUsername: 'Ananya',
-      mediaUrl: 'demo://moment_005',
-      mediaType: 'image',
-      label: null,
-      createdAt: DateTime(2026, 8, 29),
-      expiresAt: DateTime(2026, 8, 30),
-    ),
-  ];
-
-  bool _loaded = false;
-
-  List<Moment> get moments => List.unmodifiable(_moments);
-
-  Future<void> _ensureLoaded() async {
-    if (_loaded) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final savedMoments = prefs.getStringList(_storageKey) ?? [];
-
-    for (final jsonString in savedMoments) {
-      try {
-        final map = jsonDecode(jsonString) as Map<String, dynamic>;
-
-        final id = map['id'] as String;
-
-        // Don't duplicate a saved Moment.
-        if (_moments.any((moment) => moment.id == id)) {
-          continue;
-        }
-
-        _moments.insert(
-          0,
-          Moment(
-            id: id,
-            creatorId: map['creatorId'] as String,
-            creatorUsername: map['creatorUsername'] as String,
-            mediaUrl: map['mediaUrl'] as String,
-            mediaType: map['mediaType'] as String,
-            label: null,
-            createdAt: DateTime.parse(map['createdAt'] as String),
-            expiresAt: DateTime.parse(map['expiresAt'] as String),
-            isViewed: map['isViewed'] as bool? ?? false,
-          ),
-        );
-      } catch (_) {
-        // Ignore malformed saved Moments.
-      }
+  Future<String?> _getFirebaseToken() async {
+    try {
+      final user = fb.FirebaseAuth.instance.currentUser;
+      if (user == null) return null;
+      return await user.getIdToken(true);
+    } catch (_) {
+      return null;
     }
-
-    _loaded = true;
   }
 
-  Future<void> _save() async {
+  Future<String?> _getJwtToken() async {
     final prefs = await SharedPreferences.getInstance();
-
-    final savedMoments = _moments
-        .where((moment) => !moment.mediaUrl.startsWith('demo://'))
-        .map(
-          (moment) => jsonEncode({
-            'id': moment.id,
-            'creatorId': moment.creatorId,
-            'creatorUsername': moment.creatorUsername,
-            'mediaUrl': moment.mediaUrl,
-            'mediaType': moment.mediaType,
-            'createdAt': moment.createdAt.toIso8601String(),
-            'expiresAt': moment.expiresAt.toIso8601String(),
-            'isViewed': moment.isViewed,
-          }),
-        )
-        .toList();
-
-    await prefs.setStringList(_storageKey, savedMoments);
+    return prefs.getString('auth_token');
   }
 
+  Future<Map<String, String>> _headers() async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    String? token = await _getFirebaseToken();
+    if (token == null || token.isEmpty) {
+      token = await _getJwtToken();
+    }
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
+
+  // ─── GET /api/v1/stories ──────────────────────────────
+
+  /// Fetch all active moments (stories) from the backend.
   Future<List<Moment>> fetchMoments() async {
-    await _ensureLoaded();
-    return List.unmodifiable(_moments);
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['stories'] != null) {
+          final storiesList = body['stories'] as List;
+          return storiesList.map((s) {
+            final map = s as Map<String, dynamic>;
+            return Moment(
+              id: map['_id']?.toString() ?? '',
+              creatorId: map['userId']?.toString() ?? '',
+              creatorUsername: map['displayName']?.toString() ?? map['username']?.toString() ?? '',
+              mediaUrl: map['mediaUrl']?.toString() ?? '',
+              mediaType: map['mediaType']?.toString() ?? 'image',
+              label: null,
+              createdAt: map['createdAt'] != null
+                  ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
+                  : DateTime.now(),
+              expiresAt: map['expiresAt'] != null
+                  ? DateTime.tryParse(map['expiresAt'].toString()) ?? DateTime.now().add(const Duration(hours: 24))
+                  : DateTime.now().add(const Duration(hours: 24)),
+              isViewed: map['isViewed'] as bool? ?? false,
+            );
+          }).toList();
+        }
+      }
+    } catch (_) {
+      // Fall through to empty list
+    }
+
+    return [];
   }
 
-  Future<Moment?> getMomentById(String momentId) async {
-    await _ensureLoaded();
+  // ─── GET /api/v1/stories/:id ──────────────────────────
 
-    for (final moment in _moments) {
-      if (moment.id == momentId) {
-        return moment;
+  /// Get a specific moment by ID.
+  Future<Moment?> getMomentById(String momentId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$momentId');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['story'] != null) {
+          final map = body['story'] as Map<String, dynamic>;
+          return Moment(
+            id: map['_id']?.toString() ?? '',
+            creatorId: map['userId']?.toString() ?? '',
+            creatorUsername: map['displayName']?.toString() ?? '',
+            mediaUrl: map['mediaUrl']?.toString() ?? '',
+            mediaType: map['mediaType']?.toString() ?? 'image',
+            label: null,
+            createdAt: map['createdAt'] != null
+                ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
+                : DateTime.now(),
+            expiresAt: map['expiresAt'] != null
+                ? DateTime.tryParse(map['expiresAt'].toString()) ?? DateTime.now().add(const Duration(hours: 24))
+                : DateTime.now().add(const Duration(hours: 24)),
+          );
+        }
       }
-    }
+    } catch (_) {}
 
     return null;
   }
 
+  // ─── POST /api/v1/stories ──────────────────────────────
+
+  /// Create a new moment (story) on the backend.
   Future<void> createMoment(Moment moment) async {
-    await _ensureLoaded();
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories');
+      final response = await http
+          .post(
+            url,
+            headers: await _headers(),
+            body: jsonEncode({
+              'mediaUrl': moment.mediaUrl,
+              'mediaType': moment.mediaType,
+              'caption': moment.creatorUsername,
+            }),
+          )
+          .timeout(ApiConfig.timeout);
 
-    _moments.insert(0, moment);
-    await _save();
+      // The backend stores it — no local state needed
+      if (response.statusCode == 201) {
+        return;
+      }
+    } catch (_) {}
   }
 
-  Future<void> updateMoment(Moment updatedMoment) async {
-    await _ensureLoaded();
+  // ─── DELETE /api/v1/stories/:id ────────────────────────
 
-    final index = _moments.indexWhere(
-      (moment) => moment.id == updatedMoment.id,
-    );
-
-    if (index == -1) return;
-
-    _moments[index] = updatedMoment;
-    await _save();
-  }
-
+  /// Delete a moment (story) from the backend.
   Future<void> deleteMoment(String momentId) async {
-    await _ensureLoaded();
-
-    _moments.removeWhere((moment) => moment.id == momentId);
-    await _save();
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$momentId');
+      await http
+          .delete(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+    } catch (_) {}
   }
 
+  // ─── POST /api/v1/stories/:id/view ─────────────────────
+
+  /// Mark a moment as viewed.
   Future<void> markAsViewed(String momentId) async {
-    await _ensureLoaded();
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$momentId/view');
+      await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+    } catch (_) {}
+  }
 
-    final index = _moments.indexWhere((moment) => moment.id == momentId);
+  // ─── POST /api/v1/stories/:id/like ─────────────────────
 
-    if (index == -1) return;
+  /// Toggle like on a moment (story).
+  Future<Map<String, dynamic>> toggleLike(String momentId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$momentId/like');
+      final response = await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
 
-    final moment = _moments[index];
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        return {
+          'isLiked': body['isLiked'] as bool? ?? false,
+          'likesCount': body['likesCount'] as int? ?? 0,
+        };
+      }
+    } catch (_) {}
 
-    _moments[index] = Moment(
-      id: moment.id,
-      creatorId: moment.creatorId,
-      creatorUsername: moment.creatorUsername,
-      mediaUrl: moment.mediaUrl,
-      mediaType: moment.mediaType,
-      label: moment.label,
-      createdAt: moment.createdAt,
-      expiresAt: moment.expiresAt,
-      isViewed: true,
-    );
+    return {'isLiked': false, 'likesCount': 0};
+  }
 
-    await _save();
+  // ─── Legacy compatibility ────────────────────────────
+
+  /// Legacy: update moment (not supported by backend — kept for API compat).
+  Future<void> updateMoment(Moment updatedMoment) async {
+    // Backend doesn't have a PATCH endpoint for stories.
+    // Stories are ephemeral and immutable once created.
   }
 }

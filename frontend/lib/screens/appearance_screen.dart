@@ -310,7 +310,13 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                                     subtitle: 'Use smaller text throughout Nexora',
                                     type: SettingsItemType.selection,
                                     valueText: '',
-                                    onTap: () {},
+                                    onTap: () {
+                                      _settingsService.updateSettings({'textSize': 'small'});
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Text size set to Small'), behavior: SnackBarBehavior.floating),
+                                      );
+                                      Navigator.pop(context);
+                                    },
                                   ),
                                   SettingsItem(
                                     icon: Icons.text_fields_outlined,
@@ -318,7 +324,13 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                                     subtitle: 'Use the default text size',
                                     type: SettingsItemType.selection,
                                     valueText: 'Selected',
-                                    onTap: () {},
+                                    onTap: () {
+                                      _settingsService.updateSettings({'textSize': 'medium'});
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Text size set to Medium'), behavior: SnackBarBehavior.floating),
+                                      );
+                                      Navigator.pop(context);
+                                    },
                                   ),
                                   SettingsItem(
                                     icon: Icons.text_fields_outlined,
@@ -326,7 +338,13 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                                     subtitle: 'Use larger text throughout Nexora',
                                     type: SettingsItemType.selection,
                                     valueText: '',
-                                    onTap: () {},
+                                    onTap: () {
+                                      _settingsService.updateSettings({'textSize': 'large'});
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Text size set to Large'), behavior: SnackBarBehavior.floating),
+                                      );
+                                      Navigator.pop(context);
+                                    },
                                   ),
                                 ],
                               ),

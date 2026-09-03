@@ -83,6 +83,7 @@ app.use('/api/v1/moderation', require('./routes/v1/moderation.routes'));
 app.use('/api/v1/audit', require('./routes/v1/audit.routes'));
 app.use('/api/v1/notifications', require('./routes/v1/notification.routes'));
 app.use('/api/v1/settings', require('./routes/v1/settings.routes'));
+app.use('/api/v1/stories', require('./routes/v1/story.routes'));
 
 // ─── Legacy Routes (backward compatibility) ─────────────
 // Keep old endpoints working so the existing Flutter frontend doesn't break.

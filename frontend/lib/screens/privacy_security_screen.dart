@@ -612,7 +612,6 @@ class _BlockedAccountsScreen extends StatefulWidget {
 }
 
 class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
-  final UserService _userService = UserService();
   List<String> _blockedUsernames = [];
   bool _isLoading = true;
 

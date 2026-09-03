@@ -380,7 +380,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           MaterialPageRoute(
             builder: (_) => ContentViewerScreen(
               title: text.length > 50 ? '${text.substring(0, 50)}...' : text,
-              category: post.contentType ?? 'post',
+              category: post.contentType,
             ),
           ),
         );

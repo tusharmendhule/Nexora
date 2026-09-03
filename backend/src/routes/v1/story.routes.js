@@ -1,0 +1,163 @@
+/**
+ * Story / Moment Routes (v1)
+ *
+ * Manages ephemeral 24-hour stories (called "Moments" in the Flutter UI).
+ * Reuses the existing Story model with automatic TTL expiration.
+ *
+ * GET    /api/v1/stories           — List all active stories (feed)
+ * POST   /api/v1/stories           — Create a new story/moment
+ * DELETE /api/v1/stories/:id       — Delete a story (owner only)
+ * POST   /api/v1/stories/:id/view  — Mark story as viewed
+ * POST   /api/v1/stories/:id/like  — Toggle like on a story
+ */
+
+const express = require('express');
+const router = express.Router();
+const { protect } = require('../../middleware/auth.middleware');
+const { validateObjectId } = require('../../middleware/validate.middleware');
+const Story = require('../../models/story.model');
+
+// ─── GET /api/v1/stories — list all active stories ──────
+router.get('/', protect, async (req, res) => {
+  try {
+    const stories = await Story.find()
+      .populate('user', 'username name avatar isVerified')
+      .sort({ createdAt: -1 });
+
+    // Map to the shape the Flutter MomentService expects
+    const mapped = stories.map((s) => {
+      const userObj = s.user;
+      return {
+        _id: s._id,
+        userId: userObj?._id?.toString() ?? s.user?.toString() ?? '',
+        username: userObj?.username ?? '',
+        displayName: userObj?.name ?? '',
+        avatar: userObj?.avatar ?? '',
+        mediaUrl: s.mediaUrl,
+        mediaType: s.mediaType,
+        caption: s.caption,
+        createdAt: s.createdAt,
+        expiresAt: new Date(new Date(s.createdAt).getTime() + 24 * 60 * 60 * 1000),
+        viewCount: s.views?.length ?? 0,
+      };
+    });
+
+    res.status(200).json({ success: true, stories: mapped });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ─── POST /api/v1/stories — create a new story/moment ───
+router.post('/', protect, async (req, res) => {
+  try {
+    const { mediaUrl, mediaType, caption } = req.body;
+    const currentUserId = req.user._id;
+
+    if (!mediaUrl) {
+      return res.status(400).json({ success: false, message: 'Media URL is required' });
+    }
+
+    const story = await Story.create({
+      user: currentUserId,
+      mediaUrl,
+      mediaType: mediaType || 'image',
+      caption: caption || '',
+    });
+
+    // Populate user info for the response
+    await story.populate('user', 'username name avatar isVerified');
+
+    const userObj = story.user;
+    res.status(201).json({
+      success: true,
+      story: {
+        _id: story._id,
+        userId: userObj?._id?.toString() ?? currentUserId.toString(),
+        username: userObj?.username ?? '',
+        displayName: userObj?.name ?? '',
+        avatar: userObj?.avatar ?? '',
+        mediaUrl: story.mediaUrl,
+        mediaType: story.mediaType,
+        caption: story.caption,
+        createdAt: story.createdAt,
+        expiresAt: new Date(new Date(story.createdAt).getTime() + 24 * 60 * 60 * 1000),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ─── DELETE /api/v1/stories/:id — delete a story ────────
+router.delete('/:id', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const story = await Story.findById(req.params.id);
+    if (!story) {
+      return res.status(404).json({ success: false, message: 'Story not found' });
+    }
+
+    if (story.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this story' });
+    }
+
+    await Story.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, message: 'Story deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ─── POST /api/v1/stories/:id/view — mark as viewed ─────
+router.post('/:id/view', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const story = await Story.findById(req.params.id);
+    if (!story) {
+      return res.status(404).json({ success: false, message: 'Story not found' });
+    }
+
+    const alreadyViewed = story.views.some(
+      (v) => v.user?.toString() === req.user._id.toString()
+    );
+
+    if (!alreadyViewed) {
+      story.views.push({ user: req.user._id });
+      await story.save();
+    }
+
+    res.status(200).json({ success: true, viewed: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ─── POST /api/v1/stories/:id/like — toggle like ────────
+router.post('/:id/like', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const story = await Story.findById(req.params.id);
+    if (!story) {
+      return res.status(404).json({ success: false, message: 'Story not found' });
+    }
+
+    if (!story.likes) story.likes = [];
+
+    const isLiked = story.likes.includes(req.user._id);
+    if (isLiked) {
+      story.likes = story.likes.filter((id) => id.toString() !== req.user._id.toString());
+    } else {
+      story.likes.push(req.user._id);
+    }
+
+    await story.save();
+
+    res.status(200).json({
+      success: true,
+      isLiked: !isLiked,
+      likesCount: story.likes.length,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+module.exports = router;

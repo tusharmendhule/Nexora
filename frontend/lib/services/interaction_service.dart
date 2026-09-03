@@ -1,78 +1,61 @@
+import 'like_service.dart';
+import 'post_service.dart';
+import 'user_service.dart';
+
+/// Service that aggregates like/save/repost/follow interactions.
+///
+/// Delegates all operations to the real backend services instead of
+/// maintaining in-memory state. Use this as a convenience wrapper
+/// when multiple interaction types are needed in one screen.
 class InteractionService {
-  final Set<String> _likedContentIds = {};
-  final Set<String> _savedContentIds = {};
-  final Set<String> _repostedContentIds = {};
-  final Set<String> _followedUserIds = {};
+  final LikeService _likeService = LikeService();
+  final PostService _postService = PostService();
+  final UserService _userService = UserService();
 
   // ─────────────────────────────────────────────
   // LIKE
   // ─────────────────────────────────────────────
 
-  Future<void> like(String contentId) async {
-    _likedContentIds.add(contentId);
+  /// Toggle like on a post. Returns { isLiked, likesCount }.
+  Future<Map<String, dynamic>> like(String postId) async {
+    return await _likeService.toggleLike(postId: postId);
   }
 
-  Future<void> unlike(String contentId) async {
-    _likedContentIds.remove(contentId);
-  }
-
-  bool isLiked(String contentId) {
-    return _likedContentIds.contains(contentId);
-  }
-
-  // ─────────────────────────────────────────────
-  // SAVE
-  // ─────────────────────────────────────────────
-
-  Future<void> save(String contentId) async {
-    _savedContentIds.add(contentId);
-  }
-
-  Future<void> unsave(String contentId) async {
-    _savedContentIds.remove(contentId);
-  }
-
-  bool isSaved(String contentId) {
-    return _savedContentIds.contains(contentId);
-  }
-
-  List<String> get savedContentIds {
-    return List.unmodifiable(_savedContentIds);
+  /// Unlike a post.
+  Future<Map<String, dynamic>> unlike(String postId) async {
+    return await _likeService.removeLike(postId: postId);
   }
 
   // ─────────────────────────────────────────────
-  // REPOST
+  // SAVE / BOOKMARK
   // ─────────────────────────────────────────────
 
-  Future<void> repost(String contentId) async {
-    _repostedContentIds.add(contentId);
+  /// Toggle save/bookmark on a post.
+  Future<Map<String, dynamic>> save(String postId) async {
+    return await _postService.toggleSave(postId: postId);
   }
 
-  Future<void> undoRepost(String contentId) async {
-    _repostedContentIds.remove(contentId);
-  }
-
-  bool isReposted(String contentId) {
-    return _repostedContentIds.contains(contentId);
+  /// Unsave a post.
+  Future<Map<String, dynamic>> unsave(String postId) async {
+    return await _postService.toggleSave(postId: postId);
   }
 
   // ─────────────────────────────────────────────
   // FOLLOW
   // ─────────────────────────────────────────────
 
-  Future<void> follow(String userId) async {
-    _followedUserIds.add(userId);
+  /// Follow a user via the backend API.
+  Future<bool> follow(String userId) async {
+    return await _userService.followUser(userId);
   }
 
-  Future<void> unfollow(String userId) async {
-    _followedUserIds.remove(userId);
+  /// Unfollow a user via the backend API.
+  Future<bool> unfollow(String userId) async {
+    return await _userService.unfollowUser(userId);
   }
 
-  bool isFollowing(String userId) {
-    return _followedUserIds.contains(userId);
-  }
-
-  List<String> get followedUserIds {
-    return List.unmodifiable(_followedUserIds);
+  /// Check if the current user is following a target user.
+  Future<bool> isFollowing(String userId) async {
+    return await _userService.isFollowingUser(userId);
   }
 }

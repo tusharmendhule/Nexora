@@ -1,189 +1,161 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config/api_config.dart';
 import '../models/clip.dart';
 import '../models/nexora_label.dart';
 
+/// Backend-connected clip service.
+///
+/// Clips are short video content (like Reels/TikToks).
+/// They are stored on the backend as Story documents with mediaType='video'.
 class ClipService {
-  static const String _storageKey = 'nexora_clips';
+  ClipService._internal();
 
-  final List<Clip> _clips = [
-    Clip(
-      id: 'clip_001',
-      creatorId: 'aarav',
-      creatorUsername: 'Aarav',
-      videoUrl: 'demo://clip_001',
-      caption: 'A little moment worth remembering. ✨',
-      music: 'Original audio · Aarav',
-      label: NexoraLabel.verifiedAuthentic,
-      likeCount: 1200,
-      commentCount: 84,
-      repostCount: 126,
-      createdAt: DateTime(2026, 8, 29),
-    ),
-    Clip(
-      id: 'clip_002',
-      creatorId: 'maya',
-      creatorUsername: 'Maya',
-      videoUrl: 'demo://clip_002',
-      caption: 'Create something that feels like you. 💜',
-      music: 'Nexora Sounds · Dreaming',
-      label: NexoraLabel.aiGeneratedVerified,
-      likeCount: 1200,
-      commentCount: 84,
-      repostCount: 126,
-      createdAt: DateTime(2026, 8, 28),
-    ),
-    Clip(
-      id: 'clip_003',
-      creatorId: 'arjun',
-      creatorUsername: 'Arjun',
-      videoUrl: 'demo://clip_003',
-      caption: 'Late nights. Big ideas. 🚀',
-      music: 'Original audio · Arjun',
-      label: NexoraLabel.editedContent,
-      likeCount: 1200,
-      commentCount: 84,
-      repostCount: 126,
-      createdAt: DateTime(2026, 8, 27),
-    ),
-    Clip(
-      id: 'clip_004',
-      creatorId: 'ananya',
-      creatorUsername: 'Ananya',
-      videoUrl: 'demo://clip_004',
-      caption: 'Find beauty in the ordinary. 🌿',
-      music: 'Nexora Sounds · Ordinary',
-      label: NexoraLabel.disputedNeedsContext,
-      likeCount: 1200,
-      commentCount: 84,
-      repostCount: 126,
-      createdAt: DateTime(2026, 8, 26),
-    ),
-    Clip(
-      id: 'clip_005',
-      creatorId: 'riya',
-      creatorUsername: 'Riya',
-      videoUrl: 'demo://clip_005',
-      caption: 'A claim shown to be false or materially misleading. 🚨',
-      music: 'Original audio · Riya',
-      label: NexoraLabel.falseOrMisleading,
-      likeCount: 1200,
-      commentCount: 84,
-      repostCount: 126,
-      createdAt: DateTime(2026, 8, 25),
-    ),
-  ];
+  static final ClipService _instance = ClipService._internal();
+  factory ClipService() => _instance;
 
-  bool _loaded = false;
+  // ─── Token helpers ───────────────────────────────────
 
-  List<Clip> get clips => List.unmodifiable(_clips);
-
-  Future<void> _ensureLoaded() async {
-    if (_loaded) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final savedClips = prefs.getStringList(_storageKey) ?? [];
-
-    for (final jsonString in savedClips) {
-      try {
-        final map = jsonDecode(jsonString) as Map<String, dynamic>;
-
-        final id = map['id'] as String;
-
-        if (_clips.any((clip) => clip.id == id)) {
-          continue;
-        }
-
-        _clips.insert(
-          0,
-          Clip(
-            id: id,
-            creatorId: map['creatorId'] as String,
-            creatorUsername: map['creatorUsername'] as String,
-            videoUrl: map['videoUrl'] as String,
-            caption: map['caption'] as String,
-            music: map['music'] as String?,
-            label: NexoraLabel.editedContent,
-            likeCount: map['likeCount'] as int? ?? 0,
-            commentCount: map['commentCount'] as int? ?? 0,
-            repostCount: map['repostCount'] as int? ?? 0,
-            createdAt: DateTime.parse(map['createdAt'] as String),
-          ),
-        );
-      } catch (_) {
-        // Ignore malformed saved Clips.
-      }
+  Future<String?> _getFirebaseToken() async {
+    try {
+      final user = fb.FirebaseAuth.instance.currentUser;
+      if (user == null) return null;
+      return await user.getIdToken(true);
+    } catch (_) {
+      return null;
     }
-
-    _loaded = true;
   }
 
-  Future<void> _save() async {
+  Future<String?> _getJwtToken() async {
     final prefs = await SharedPreferences.getInstance();
-
-    final savedClips = _clips
-        .where((clip) => !clip.videoUrl.startsWith('demo://'))
-        .map(
-          (clip) => jsonEncode({
-            'id': clip.id,
-            'creatorId': clip.creatorId,
-            'creatorUsername': clip.creatorUsername,
-            'videoUrl': clip.videoUrl,
-            'caption': clip.caption,
-            'music': clip.music,
-            'createdAt': clip.createdAt.toIso8601String(),
-            'likeCount': clip.likeCount,
-            'commentCount': clip.commentCount,
-            'repostCount': clip.repostCount,
-          }),
-        )
-        .toList();
-
-    await prefs.setStringList(_storageKey, savedClips);
+    return prefs.getString('auth_token');
   }
 
+  Future<Map<String, String>> _headers() async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    String? token = await _getFirebaseToken();
+    if (token == null || token.isEmpty) {
+      token = await _getJwtToken();
+    }
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
+
+  // ─── GET /api/v1/stories (clips are video stories) ────
+
+  /// Fetch all clips from the backend.
+  /// Clips are stories with mediaType='video'.
   Future<List<Clip>> fetchClips() async {
-    await _ensureLoaded();
-    return List.unmodifiable(_clips);
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['stories'] != null) {
+          final storiesList = body['stories'] as List;
+          return storiesList.map((s) {
+            final map = s as Map<String, dynamic>;
+            return Clip(
+              id: map['_id']?.toString() ?? '',
+              creatorId: map['userId']?.toString() ?? '',
+              creatorUsername: map['displayName']?.toString() ?? map['username']?.toString() ?? '',
+              videoUrl: map['mediaUrl']?.toString() ?? '',
+              caption: map['caption']?.toString() ?? '',
+              music: null,
+              label: NexoraLabel.editedContent,
+              createdAt: map['createdAt'] != null
+                  ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
+                  : DateTime.now(),
+            );
+          }).toList();
+        }
+      }
+    } catch (_) {}
+
+    return [];
   }
 
-  Future<Clip?> getClipById(String clipId) async {
-    await _ensureLoaded();
+  // ─── GET /api/v1/stories/:id ──────────────────────────
 
-    for (final clip in _clips) {
-      if (clip.id == clipId) {
-        return clip;
+  /// Get a specific clip by ID.
+  Future<Clip?> getClipById(String clipId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$clipId');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['story'] != null) {
+          final map = body['story'] as Map<String, dynamic>;
+          return Clip(
+            id: map['_id']?.toString() ?? '',
+            creatorId: map['userId']?.toString() ?? '',
+            creatorUsername: map['displayName']?.toString() ?? '',
+            videoUrl: map['mediaUrl']?.toString() ?? '',
+            caption: map['caption']?.toString() ?? '',
+            music: null,
+            label: NexoraLabel.editedContent,
+            createdAt: map['createdAt'] != null
+                ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
+                : DateTime.now(),
+          );
+        }
       }
-    }
+    } catch (_) {}
 
     return null;
   }
 
+  // ─── POST /api/v1/stories ──────────────────────────────
+
+  /// Create a new clip on the backend.
   Future<void> createClip(Clip clip) async {
-    await _ensureLoaded();
-
-    _clips.insert(0, clip);
-    await _save();
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories');
+      await http
+          .post(
+            url,
+            headers: await _headers(),
+            body: jsonEncode({
+              'mediaUrl': clip.videoUrl,
+              'mediaType': 'video',
+              'caption': clip.caption,
+            }),
+          )
+          .timeout(ApiConfig.timeout);
+    } catch (_) {}
   }
 
-  Future<void> updateClip(Clip updatedClip) async {
-    await _ensureLoaded();
+  // ─── DELETE /api/v1/stories/:id ────────────────────────
 
-    final index = _clips.indexWhere((clip) => clip.id == updatedClip.id);
-
-    if (index == -1) return;
-
-    _clips[index] = updatedClip;
-    await _save();
-  }
-
+  /// Delete a clip from the backend.
   Future<void> deleteClip(String clipId) async {
-    await _ensureLoaded();
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$clipId');
+      await http
+          .delete(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+    } catch (_) {}
+  }
 
-    _clips.removeWhere((clip) => clip.id == clipId);
+  // ─── Legacy compatibility ────────────────────────────
 
-    await _save();
+  /// Legacy: update clip (not supported by backend — kept for API compat).
+  Future<void> updateClip(Clip updatedClip) async {
+    // Stories are ephemeral and immutable once created.
   }
 }

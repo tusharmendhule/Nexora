@@ -6,6 +6,7 @@ import 'user_profile_screen.dart';
 import '../models/moment.dart';
 import '../services/moment_service.dart';
 import '../services/like_service.dart';
+import '../services/user_service.dart';
 
 class MomentsScreen extends StatefulWidget {
   final int initialIndex;
@@ -19,8 +20,10 @@ class MomentsScreen extends StatefulWidget {
 class _MomentsScreenState extends State<MomentsScreen> {
   final MomentService _momentService = MomentService();
   final LikeService _likeService = LikeService();
+  final UserService _userService = UserService();
 
-  static const String currentUserId = 'user_you';
+  String _currentUserId = '';
+  bool _isLoadingUser = true;
 
   final Map<String, bool> _likedMoments = {};
   final Map<String, int> _momentLikeCounts = {};
@@ -29,16 +32,6 @@ class _MomentsScreenState extends State<MomentsScreen> {
 
   List<Moment> moments = [];
   late int currentMoment;
-
-  final List<String> times = const ['Now', '12m', '28m', '41m', '1h'];
-
-  final List<String> captions = const [
-    'Your latest Moment. ✨',
-    'A little moment worth remembering. ✨',
-    'Just enjoying the moment. 💜',
-    'Late nights. Big ideas. 🚀',
-    'Find beauty in the ordinary. 🌿',
-  ];
 
   final List<List<Color>> gradients = const [
     [Color(0xFF3157D5), Color(0xFF7C3AED)],
@@ -51,6 +44,18 @@ class _MomentsScreenState extends State<MomentsScreen> {
   @override
   void initState() {
     super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    // Load current user ID
+    final userId = await _userService.getCurrentUserId();
+    if (mounted) {
+      setState(() {
+        _currentUserId = userId ?? '';
+        _isLoadingUser = false;
+      });
+    }
     _loadMoments();
   }
 
@@ -80,38 +85,26 @@ class _MomentsScreenState extends State<MomentsScreen> {
     super.dispose();
   }
 
-  Future<void> _toggleLike(Moment moment) async {
-    final currentlyLiked = await _likeService.isLiked(
-      userId: currentUserId,
-      contentId: moment.id,
-      contentType: 'moment',
-    );
+  String _timeAgo(DateTime date) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    if (diff.inDays < 7) return '${diff.inDays}d';
+    return '${(diff.inDays / 7).floor()}w';
+  }
 
-    if (currentlyLiked) {
-      await _likeService.unlike(
-        userId: currentUserId,
-        contentId: moment.id,
-        contentType: 'moment',
-      );
-    } else {
-      await _likeService.like(
-        userId: currentUserId,
-        contentId: moment.id,
-        contentType: 'moment',
-      );
-    }
+  Future<void> _toggleLike(Moment moment) async {
+    final result = await _likeService.toggleLike(postId: moment.id);
 
     if (!mounted) return;
 
+    final isLiked = result['isLiked'] as bool? ?? false;
+    final likesCount = result['likesCount'] as int? ?? 0;
+
     setState(() {
-      final newLikedState = !currentlyLiked;
-      _likedMoments[moment.id] = newLikedState;
-
-      final currentCount = _momentLikeCounts[moment.id] ?? 0;
-
-      _momentLikeCounts[moment.id] = newLikedState
-          ? currentCount + 1
-          : (currentCount > 0 ? currentCount - 1 : 0);
+      _likedMoments[moment.id] = isLiked;
+      _momentLikeCounts[moment.id] = likesCount;
     });
   }
 
@@ -122,8 +115,19 @@ class _MomentsScreenState extends State<MomentsScreen> {
     );
   }
 
+  bool _isNetworkUrl(String url) {
+    return url.startsWith('http://') || url.startsWith('https://');
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingUser) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: moments.isEmpty
@@ -157,6 +161,8 @@ class _MomentsScreenState extends State<MomentsScreen> {
     final List<Color> gradient = gradients[index % gradients.length];
 
     final String creator = moment.creatorUsername;
+    final String caption = 'Moment by @$creator';
+    final String time = _timeAgo(moment.createdAt);
 
     return Container(
       decoration: BoxDecoration(
@@ -168,11 +174,35 @@ class _MomentsScreenState extends State<MomentsScreen> {
       ),
       child: Stack(
         children: [
-          if (moment.mediaType == 'image' &&
-              !moment.mediaUrl.startsWith('demo://'))
+          // Network image
+          if (moment.mediaType == 'image' && _isNetworkUrl(moment.mediaUrl))
+            Positioned.fill(
+              child: Image.network(
+                moment.mediaUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+            ),
+
+          // Local file image (fallback)
+          if (moment.mediaType == 'image' && !_isNetworkUrl(moment.mediaUrl))
             Positioned.fill(
               child: Image.file(File(moment.mediaUrl), fit: BoxFit.cover),
             ),
+
+          // Network video
+          if (moment.mediaType == 'video' && _isNetworkUrl(moment.mediaUrl))
+            Positioned.fill(
+              child: Center(
+                child: Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.white.withOpacity(0.7),
+                  size: 64,
+                ),
+              ),
+            ),
+
+          // Gradient overlay
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -195,8 +225,8 @@ class _MomentsScreenState extends State<MomentsScreen> {
             bottom: 30,
             child: _momentInformation(
               creator: creator,
-              time: index < times.length ? times[index] : '',
-              caption: index < captions.length ? captions[index] : '',
+              time: time,
+              caption: caption,
             ),
           ),
         ],
@@ -358,7 +388,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
             return Expanded(
               child: Container(
                 height: 3,
-                margin: const EdgeInsets.symmetric(horizontal: 2),
+                margin: const.symmetric(horizontal: 2),
                 decoration: BoxDecoration(
                   color: selected
                       ? Colors.white

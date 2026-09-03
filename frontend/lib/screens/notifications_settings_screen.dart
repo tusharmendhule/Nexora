@@ -247,7 +247,15 @@ class _NotificationsSettingsScreenState
                     icon: Icons.do_not_disturb_on_outlined,
                     title: 'Quiet Mode',
                     subtitle: 'Temporarily pause notifications',
-                    onTap: () {},
+                    onTap: () {
+                      _settingsService.updateSettings({'notificationsEnabled': false});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Quiet mode enabled. Notifications paused.'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],

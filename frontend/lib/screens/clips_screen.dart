@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import 'comments_screen.dart';
+import 'post_screen.dart';
 import 'share_screen.dart';
 import 'user_profile_screen.dart';
 import '../models/clip.dart';
@@ -23,8 +24,6 @@ class _ClipsScreenState extends State<ClipsScreen> {
   final LikeService _likeService = LikeService();
   final PostService _postService = PostService();
   final PageController _pageController = PageController();
-
-  static const String currentUserId = 'user_you';
 
   final Map<String, bool> _likedClips = {};
   final Map<String, int> _clipLikeCounts = {};
@@ -56,6 +55,12 @@ class _ClipsScreenState extends State<ClipsScreen> {
       clips = loadedClips;
       isLoading = false;
     });
+
+    // Initialize like counts from fetched clips
+    for (final clip in clips) {
+      _likedClips[clip.id] = false;
+      _clipLikeCounts[clip.id] = clip.likeCount;
+    }
   }
 
   @override
@@ -65,38 +70,35 @@ class _ClipsScreenState extends State<ClipsScreen> {
   }
 
   Future<void> _toggleLike(Clip clip) async {
-    final currentlyLiked = await _likeService.isLiked(
-      userId: currentUserId,
-      contentId: clip.id,
-      contentType: 'clip',
-    );
+    final previousLiked = _likedClips[clip.id] ?? false;
+    final previousCount = _clipLikeCounts[clip.id] ?? clip.likeCount;
 
-    if (currentlyLiked) {
-      await _likeService.unlike(
-        userId: currentUserId,
-        contentId: clip.id,
-        contentType: 'clip',
-      );
-    } else {
-      await _likeService.like(
-        userId: currentUserId,
-        contentId: clip.id,
-        contentType: 'clip',
-      );
-    }
+    // Optimistic update
+    setState(() {
+      _likedClips[clip.id] = !previousLiked;
+      _clipLikeCounts[clip.id] = previousLiked
+          ? (previousCount > 0 ? previousCount - 1 : 0)
+          : previousCount + 1;
+    });
+
+    // Call backend
+    final result = await _likeService.toggleLike(postId: clip.id);
 
     if (!mounted) return;
 
-    setState(() {
-      final newLikedState = !currentlyLiked;
-      _likedClips[clip.id] = newLikedState;
-
-      final currentCount = _clipLikeCounts[clip.id] ?? clip.likeCount;
-
-      _clipLikeCounts[clip.id] = newLikedState
-          ? currentCount + 1
-          : (currentCount > 0 ? currentCount - 1 : 0);
-    });
+    // Trust backend response if it returned valid data
+    if (result['likesCount'] != 0 || result['isLiked'] != false || !previousLiked) {
+      setState(() {
+        _likedClips[clip.id] = result['isLiked'] as bool;
+        _clipLikeCounts[clip.id] = result['likesCount'] as int;
+      });
+    } else {
+      // Rollback on failure
+      setState(() {
+        _likedClips[clip.id] = previousLiked;
+        _clipLikeCounts[clip.id] = previousCount;
+      });
+    }
   }
 
   Future<void> _toggleSaveClip(Clip clip) async {
@@ -540,7 +542,14 @@ class _ClipsScreenState extends State<ClipsScreen> {
             const Spacer(),
 
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PostScreen(initialType: CreationType.clip),
+                  ),
+                ).then((_) => _loadClips());
+              },
               icon: const Icon(
                 Icons.camera_alt_outlined,
                 color: Colors.white,
@@ -597,15 +606,26 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   void initState() {
     super.initState();
 
-    _controller = VideoPlayerController.file(File(widget.videoUrl))
-      ..initialize().then((_) {
-        if (!mounted) return;
-
-        setState(() {});
-        _controller
-          ..setLooping(true)
-          ..play();
-      });
+    final url = widget.videoUrl;
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      _controller = VideoPlayerController.networkUrl(Uri.parse(url))
+        ..initialize().then((_) {
+          if (!mounted) return;
+          setState(() {});
+          _controller
+            ..setLooping(true)
+            ..play();
+        });
+    } else {
+      _controller = VideoPlayerController.file(File(url))
+        ..initialize().then((_) {
+          if (!mounted) return;
+          setState(() {});
+          _controller
+            ..setLooping(true)
+            ..play();
+        });
+    }
   }
 
   @override

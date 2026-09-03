@@ -4,7 +4,6 @@ import '../models/notification.dart';
 import '../services/notification_service.dart';
 import '../services/user_service.dart';
 import 'chat_screen.dart';
-import 'post_screen.dart';
 import 'user_profile_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {

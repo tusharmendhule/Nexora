@@ -134,7 +134,7 @@ class CommentService {
   /// Legacy: delete comment.
   Future<void> deleteComment(String commentId) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/comments/$commentId');
+      final url = Uri.parse('${ApiConfig.baseUrl}/../api/v1/comments/$commentId');
       await http
           .delete(url, headers: await _headers())
           .timeout(ApiConfig.timeout);

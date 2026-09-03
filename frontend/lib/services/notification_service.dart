@@ -84,22 +84,20 @@ class NotificationService {
     }
   }
 
-  /// Create a local notification (used by follow_service, etc.).
-  /// This stores the notification in memory; in production this would
-  /// POST to the backend notifications API.
+  /// Create a notification via the backend API.
+  /// POST /api/v1/notifications
   Future<void> createNotification(AppNotification notification) async {
-    // For now, this is a local no-op. In production, it would call:
-    // POST /api/v1/notifications
     try {
       final headers = await ApiConfig.headers;
       await http.post(
         Uri.parse('${ApiConfig.baseUrl}/notifications'),
         headers: headers,
         body: jsonEncode({
-          'recipient': notification.recipientId,
+          'recipientId': notification.recipientId,
           'type': notification.icon == Icons.person_add
-              ? 'FOLLOW'
+              ? 'NEW_FOLLOWER'
               : 'SYSTEM',
+          'title': notification.name,
           'body': notification.text,
         }),
       );
