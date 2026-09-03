@@ -13,6 +13,13 @@ class LikeService {
       throw new ApiError(404, 'Post not found');
     }
 
+    // Block check: cannot like a post from a blocked user
+    const blockService = require('./block.service');
+    const hasBlock = await blockService.hasAnyBlock(userId, post.user);
+    if (hasBlock) {
+      throw new ApiError(400, 'Cannot interact with this content');
+    }
+
     const existingLike = await Like.findOne({ post: postId, user: userId });
 
     if (existingLike) {

@@ -8,6 +8,7 @@ const { uploadImageOnly, uploadAvatar } = require('../../middleware/upload.middl
 const User = require('../../models/user.model');
 const Follower = require('../../models/follower.model');
 const userService = require('../../services/user.service');
+const blockService = require('../../services/block.service');
 
 // ─── Profile routes ──────────────────────────────────────
 
@@ -115,7 +116,7 @@ router.get('/search', protect, async (req, res) => {
       return res.status(200).json({ success: true, users: [] });
     }
 
-    const users = await userService.search(query);
+    const users = await userService.search(query, 20, req.user._id);
     res.status(200).json({ success: true, users });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -127,15 +128,28 @@ router.get('/by-username/:username', protect, async (req, res) => {
   try {
     const user = await userService.getByUsername(req.params.username);
 
-    // Also check if the current user is following this user
     const currentUserId = req.user._id;
     const targetUserId = user._id;
+
+    // Block check: if either user has blocked the other, return 404
+    const hasBlock = await blockService.hasAnyBlock(currentUserId, targetUserId);
+    if (hasBlock) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Privacy check: if target is private and viewer is not following, restrict info
     const isFollowing = currentUserId.toString() !== targetUserId.toString()
       ? !!(await Follower.findOne({ follower: currentUserId, following: targetUserId }))
       : false;
 
     const result = typeof user.toObject === 'function' ? user.toObject() : user;
     result.isFollowing = isFollowing;
+
+    // For private accounts viewed by non-followers, hide follower/following counts
+    const isPrivate = await blockService.isPrivateAccount(targetUserId);
+    if (isPrivate && !isFollowing && currentUserId.toString() !== targetUserId.toString()) {
+      result.isPrivateRestricted = true;
+    }
 
     res.status(200).json({ success: true, user: result });
   } catch (error) {
@@ -150,6 +164,61 @@ router.get('/by-username/:username', protect, async (req, res) => {
 
 // GET /api/v1/users/:id
 router.get('/:id', protect, validateObjectId('id'), getUserById);
+
+// ─── Block / Unblock ──────────────────────────────────────
+
+// POST /api/v1/users/:id/block — block a user
+router.post('/:id/block', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const targetUserId = req.params.id;
+    const currentUserId = req.user._id;
+
+    const result = await blockService.blockUser(currentUserId, targetUserId);
+    res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    const status = error.statusCode || 500;
+    res.status(status).json({ success: false, message: error.message || 'Internal server error' });
+  }
+});
+
+// POST /api/v1/users/:id/unblock — unblock a user
+router.post('/:id/unblock', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const targetUserId = req.params.id;
+    const currentUserId = req.user._id;
+
+    const result = await blockService.unblockUser(currentUserId, targetUserId);
+    res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    const status = error.statusCode || 500;
+    res.status(status).json({ success: false, message: error.message || 'Internal server error' });
+  }
+});
+
+// GET /api/v1/users/:id/is-blocked — check if current user has blocked target (or vice versa)
+router.get('/:id/is-blocked', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const targetUserId = req.params.id;
+    const currentUserId = req.user._id;
+
+    const hasBlock = await blockService.hasAnyBlock(currentUserId, targetUserId);
+    res.status(200).json({ success: true, isBlocked: hasBlock });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// GET /api/v1/users/blocked — list users blocked by the current user
+router.get('/blocked', protect, async (req, res) => {
+  try {
+    const blockedIds = await blockService.getBlockedIds(req.user._id);
+    const users = await User.find({ _id: { $in: blockedIds } })
+      .select('name username avatar isVerified reputationBadge');
+    res.status(200).json({ success: true, users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
 
 // ─── Follow / Unfollow ────────────────────────────────────
 
@@ -166,6 +235,12 @@ router.post('/:id/follow', protect, validateObjectId('id'), async (req, res) => 
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) {
       return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Block check: cannot follow a blocked user (either direction)
+    const hasBlock = await blockService.hasAnyBlock(currentUserId, targetUserId);
+    if (hasBlock) {
+      return res.status(400).json({ success: false, message: 'Cannot follow this user' });
     }
 
     const existingFollow = await Follower.findOne({ follower: currentUserId, following: targetUserId });
@@ -254,10 +329,20 @@ router.get('/:id/followers', protect, validateObjectId('id'), async (req, res) =
       .populate('follower', 'username name avatar isVerified reputationBadge')
       .sort({ createdAt: -1 });
 
+    // Filter out blocked users from the list
+    const currentUserId = req.user._id;
+    const filtered = [];
+    for (const f of followers) {
+      const hasBlock = await blockService.hasAnyBlock(currentUserId, f.follower._id);
+      if (!hasBlock) {
+        filtered.push(f.follower);
+      }
+    }
+
     res.status(200).json({
       success: true,
-      count: followers.length,
-      users: followers.map(f => f.follower),
+      count: filtered.length,
+      users: filtered,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -271,10 +356,20 @@ router.get('/:id/following', protect, validateObjectId('id'), async (req, res) =
       .populate('following', 'username name avatar isVerified reputationBadge')
       .sort({ createdAt: -1 });
 
+    // Filter out blocked users from the list
+    const currentUserId = req.user._id;
+    const filtered = [];
+    for (const f of following) {
+      const hasBlock = await blockService.hasAnyBlock(currentUserId, f.following._id);
+      if (!hasBlock) {
+        filtered.push(f.following);
+      }
+    }
+
     res.status(200).json({
       success: true,
-      count: following.length,
-      users: following.map(f => f.following),
+      count: filtered.length,
+      users: filtered,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });

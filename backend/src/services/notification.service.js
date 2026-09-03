@@ -45,6 +45,19 @@ class NotificationService {
       return null;
     }
 
+    // Don't notify if there's a block relationship between sender and recipient
+    if (senderId) {
+      try {
+        const blockService = require('./block.service');
+        const hasBlock = await blockService.hasAnyBlock(recipientId, senderId);
+        if (hasBlock) {
+          return null;
+        }
+      } catch (_) {
+        // If block check fails, proceed with notification
+      }
+    }
+
     try {
       const notification = await Notification.create({
         recipient: recipientId,
@@ -240,6 +253,13 @@ class NotificationService {
     // Don't notify self
     if (recipientId.toString() === followerId.toString()) return null;
 
+    // Don't notify if there's a block relationship
+    try {
+      const blockService = require('./block.service');
+      const hasBlock = await blockService.hasAnyBlock(recipientId, followerId);
+      if (hasBlock) return null;
+    } catch (_) {}
+
     // Check if the recipient has notifications enabled
     try {
       const settings = await Settings.findOne({ user: recipientId });
@@ -368,6 +388,15 @@ class NotificationService {
 
     const filter = { recipient: userId };
     if (unreadOnly) filter.isRead = false;
+
+    // Exclude notifications from blocked users
+    try {
+      const blockService = require('./block.service');
+      const excludedIds = await blockService.getBlockedByIds(userId);
+      if (excludedIds.length > 0) {
+        filter.sender = { $nin: excludedIds };
+      }
+    } catch (_) {}
 
     const [notifications, total, unreadCount] = await Promise.all([
       Notification.find(filter).populate('sender', 'name username avatar').sort({ createdAt: -1 }).skip(skip).limit(limit),

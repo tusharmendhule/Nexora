@@ -87,6 +87,13 @@ router.post('/', protect, sanitizeBody(['text']), async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Cannot send message to yourself' });
     }
 
+    // Block check: cannot message a blocked user
+    const blockService = require('../services/block.service');
+    const hasBlock = await blockService.hasAnyBlock(currentUserId, recipientId);
+    if (hasBlock) {
+      return res.status(400).json({ success: false, message: 'Cannot send message to this user' });
+    }
+
     // Idempotency: check for duplicate message
     if (idempotencyKey) {
       const existing = await Message.findOne({ idempotencyKey });

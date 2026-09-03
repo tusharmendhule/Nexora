@@ -364,6 +364,59 @@ class UserService {
     return user?.postsCount ?? 0;
   }
 
+  // ─── Block API ──────────────────────────────────────
+
+  /// Block a user. Returns true on success.
+  Future<bool> blockUser(String targetUserId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/$targetUserId/block');
+      final response = await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return json['success'] == true;
+      }
+    } catch (_) {}
+
+    return false;
+  }
+
+  /// Unblock a user. Returns true on success.
+  Future<bool> unblockUser(String targetUserId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/$targetUserId/unblock');
+      final response = await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return json['success'] == true;
+      }
+    } catch (_) {}
+
+    return false;
+  }
+
+  /// Check if there is a block relationship between current user and target.
+  Future<bool> isBlocked(String targetUserId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/$targetUserId/is-blocked');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return json['isBlocked'] == true;
+      }
+    } catch (_) {}
+
+    return false;
+  }
+
   // ─── Local Cache (SharedPreferences) ────────────────
 
   /// Cache the current user's profile for offline display.

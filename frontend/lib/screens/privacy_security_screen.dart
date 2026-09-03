@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/settings_service.dart';
+import '../services/user_service.dart';
 import 'settings_detail_screen.dart';
 
 class PrivacySecurityScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class PrivacySecurityScreen extends StatefulWidget {
 
 class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   final SettingsService _settingsService = SettingsService();
+  final UserService _userService = UserService();
 
   bool privateAccount = false;
   bool activityStatus = true;
@@ -91,7 +93,6 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       'twoFactorEnabled': twoFactorEnabled,
       'authenticationMethod': authenticationMethod,
       'allowDirectMessagesFrom': _dmOptionToBackend(messageRequestOption),
-      'blockedAccounts': blockedAccounts,
       'mutedAccounts': mutedAccounts,
     });
   }
@@ -300,24 +301,67 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => _AccountListScreen(
-          title: 'Blocked Accounts',
-          description: 'People you have blocked will not be able to interact with you or view your content.',
-          emptyTitle: 'No Blocked Accounts',
-          emptySubtitle: 'Accounts you block will appear here.',
-          icon: Icons.block_outlined,
-          accounts: blockedAccounts,
-          actionLabel: 'Block Account',
-          removeLabel: 'Unblock',
-          onAdd: (name) {
-            if (!blockedAccounts.contains(name)) {
-              blockedAccounts.add(name);
-              _saveSettings();
+        builder: (_) => _BlockedAccountsScreen(
+          onBlock: (username) async {
+            // Search for user by username to get their ID
+            final users = await _userService.searchUsers(username);
+            String? targetId;
+            for (final u in users) {
+              if (u.username.toLowerCase() == username.toLowerCase() ||
+                  '@${u.username}'.toLowerCase() == username.toLowerCase()) {
+                targetId = u.id;
+                break;
+              }
             }
+
+            if (targetId == null) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('User not found'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+              return false;
+            }
+
+            final success = await _userService.blockUser(targetId);
+            if (success && mounted) {
+              setState(() {
+                if (!blockedAccounts.contains(username)) {
+                  blockedAccounts.add(username);
+                }
+              });
+              // Also save to settings for persistence
+              await _settingsService.updateSettings({
+                'blockedAccounts': blockedAccounts,
+              });
+            }
+            return success;
           },
-          onRemove: (name) {
-            blockedAccounts.remove(name);
-            _saveSettings();
+          onUnblock: (username) async {
+            // Search for user by username to get their ID
+            final users = await _userService.searchUsers(username);
+            String? targetId;
+            for (final u in users) {
+              if (u.username.toLowerCase() == username.toLowerCase() ||
+                  '@${u.username}'.toLowerCase() == username.toLowerCase()) {
+                targetId = u.id;
+                break;
+              }
+            }
+
+            if (targetId != null) {
+              await _userService.unblockUser(targetId);
+            }
+
+            setState(() {
+              blockedAccounts.remove(username);
+            });
+            await _settingsService.updateSettings({
+              'blockedAccounts': blockedAccounts,
+            });
           },
         ),
       ),
@@ -552,7 +596,283 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   }
 }
 
-// ─── Account List Screen (Blocked / Muted) ──────────────
+// ─── Blocked Accounts Screen (uses real block/unblock API) ──────
+
+class _BlockedAccountsScreen extends StatefulWidget {
+  final Future<bool> Function(String) onBlock;
+  final Future<void> Function(String) onUnblock;
+
+  const _BlockedAccountsScreen({
+    required this.onBlock,
+    required this.onUnblock,
+  });
+
+  @override
+  State<_BlockedAccountsScreen> createState() => _BlockedAccountsScreenState();
+}
+
+class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
+  final UserService _userService = UserService();
+  List<String> _blockedUsernames = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBlockedUsers();
+  }
+
+  Future<void> _loadBlockedUsers() async {
+    // Fetch blocked users from settings (backend persists them)
+    try {
+      final settings = await SettingsService().getSettings();
+      _blockedUsernames = List<String>.from(settings['blockedAccounts'] ?? []);
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _addBlockedAccount() {
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF171D35),
+        title: const Text(
+          'Block Account',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'Enter username',
+            hintStyle: TextStyle(color: Colors.white38),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final name = controller.text.trim();
+              if (name.isEmpty) return;
+
+              Navigator.pop(context);
+
+              final success = await widget.onBlock(name);
+              if (success) {
+                setState(() {
+                  if (!_blockedUsernames.contains(name)) {
+                    _blockedUsernames.add(name);
+                  }
+                });
+              }
+            },
+            child: const Text(
+              'Block',
+              style: TextStyle(color: Color(0xFF8B7CFF)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _removeBlockedAccount(String account) async {
+    await widget.onUnblock(account);
+    setState(() {
+      _blockedUsernames.remove(account);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B0B1A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0B0B1A),
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Blocked Accounts',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
+              children: [
+                const Text(
+                  'People you have blocked will not be able to interact with you or view your content.',
+                  style: TextStyle(
+                    color: Colors.white54,
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+
+                const SizedBox(height: 22),
+
+                _sectionTitle('Blocked Accounts'),
+
+                if (_blockedUsernames.isEmpty)
+                  _emptyCard()
+                else
+                  ..._blockedUsernames.map((account) => _accountTile(account)),
+
+                const SizedBox(height: 14),
+
+                _addTile(),
+              ],
+            ),
+    );
+  }
+
+  Widget _accountTile(String account) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171D35),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        leading: _iconBox(Icons.block_outlined),
+        title: Text(
+          account,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: const Text(
+          'Account',
+          style: TextStyle(color: Colors.white54, fontSize: 12),
+        ),
+        trailing: TextButton(
+          onPressed: () => _removeBlockedAccount(account),
+          child: const Text(
+            'Unblock',
+            style: TextStyle(color: Color(0xFF8B7CFF), fontSize: 12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _emptyCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171D35),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          _iconBox(Icons.block_outlined),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'No blocked accounts',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  'Nothing has been added here yet.',
+                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _addTile() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF171D35),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: ListTile(
+        leading: _iconBox(Icons.add),
+        title: const Text(
+          'Block Account',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        onTap: _addBlockedAccount,
+      ),
+    );
+  }
+
+  static Widget _sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 10),
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white54,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  static Widget _iconBox(IconData icon) {
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+        gradient: LinearGradient(
+          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+        ),
+      ),
+      child: Icon(icon, color: Colors.white, size: 21),
+    );
+  }
+}
+
+// ─── Account List Screen (Muted) ──────────────────────
 
 class _AccountListScreen extends StatefulWidget {
   final String title;
@@ -622,9 +942,9 @@ class _AccountListScreenState extends State<_AccountListScreen> {
 
               Navigator.pop(context);
             },
-            child: const Text(
-              'Add',
-              style: TextStyle(color: Color(0xFF8B7CFF)),
+            child: Text(
+              widget.actionLabel == 'Mute Account' ? 'Mute' : 'Add',
+              style: const TextStyle(color: Color(0xFF8B7CFF)),
             ),
           ),
         ],
@@ -739,9 +1059,9 @@ class _AccountListScreenState extends State<_AccountListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'No accounts',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

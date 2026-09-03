@@ -15,6 +15,7 @@ const FactCheckCache = require('./fact-check-cache.model');
 const Moderation = require('./moderation.model');
 const Report = require('./report.model');
 const ClaimEntity = require('./claim-entity.model');
+const Block = require('./block.model');
 
 module.exports = {
   User,
@@ -34,4 +35,5 @@ module.exports = {
   Moderation,
   Report,
   ClaimEntity,
+  Block,
 };

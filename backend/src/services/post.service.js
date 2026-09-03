@@ -68,13 +68,23 @@ class PostService {
   async getAll(page = 1, limit = 20, userId = null) {
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find()
+    // Build exclusion filter for blocked users
+    const postFilter = {};
+    if (userId) {
+      const blockService = require('./block.service');
+      const excludedIds = await blockService.getExcludedIds(userId);
+      if (excludedIds.length > 0) {
+        postFilter.user = { $nin: excludedIds };
+      }
+    }
+
+    const posts = await Post.find(postFilter)
       .populate('user', 'name username avatar isVerified reputationBadge')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Post.countDocuments();
+    const total = await Post.countDocuments(postFilter);
 
     const postIds = posts.map((p) => p._id);
 
@@ -239,6 +249,15 @@ class PostService {
       visibility: 'public',
       isArchived: false,
     };
+
+    // Exclude blocked users' posts from search
+    if (userId) {
+      const blockService = require('./block.service');
+      const excludedIds = await blockService.getExcludedIds(userId);
+      if (excludedIds.length > 0) {
+        filter.user = { $nin: excludedIds };
+      }
+    }
 
     const [posts, total] = await Promise.all([
       Post.find(filter)

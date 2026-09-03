@@ -160,20 +160,33 @@ class UserService {
 
   /**
    * Search users by name or username.
+   * Optionally excludes blocked users if viewerId is provided.
    */
-  async search(query, limit = 20) {
+  async search(query, limit = 20, viewerId = null) {
     if (!query || query.trim() === '') {
       return [];
     }
 
     // Escape regex special characters to prevent NoSQL injection
     const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const users = await User.find({
+
+    const filter = {
       $or: [
         { name: { $regex: escaped, $options: 'i' } },
         { username: { $regex: escaped, $options: 'i' } },
       ],
-    })
+    };
+
+    // Exclude blocked users from search results
+    if (viewerId) {
+      const blockService = require('./block.service');
+      const excludedIds = await blockService.getExcludedIds(viewerId);
+      if (excludedIds.length > 0) {
+        filter._id = { $nin: excludedIds };
+      }
+    }
+
+    const users = await User.find(filter)
       .select('name username avatar bio isVerified reputationBadge')
       .limit(Math.min(limit, 50));
 
