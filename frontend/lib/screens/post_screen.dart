@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/clip.dart';
 import '../models/moment.dart';
@@ -24,8 +25,8 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
-  static const String currentUserId = 'user_you';
-  static const String currentUsername = 'You';
+  String _currentUserId = 'user_you';
+  String _currentUsername = 'You';
 
   final TextEditingController _controller = TextEditingController();
   final ImagePicker _picker = ImagePicker();
@@ -44,6 +45,16 @@ class _PostScreenState extends State<PostScreen> {
   void initState() {
     super.initState();
     _type = widget.initialType;
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _currentUsername = prefs.getString('user_username') ?? 'You';
+      _currentUserId = prefs.getString('user_id') ?? 'user_you';
+    });
   }
 
   @override
@@ -153,9 +164,8 @@ class _PostScreenState extends State<PostScreen> {
                 _uploadProgress = 0.0;
               });
 
-              final file = File(_media!.path);
-              final uploadResult = await _uploadService.uploadFile(
-                file: file,
+              final uploadResult = await _uploadService.uploadXFile(
+                xFile: _media!,
                 onProgress: (bytesSent, totalBytes) {
                   if (mounted) {
                     setState(() {
@@ -194,8 +204,8 @@ class _PostScreenState extends State<PostScreen> {
             // API call failed — fall back to local post
             final fallbackPost = Post(
               id: 'post_${now.microsecondsSinceEpoch}',
-              authorId: currentUserId,
-              authorUsername: currentUsername,
+              authorId: _currentUserId,
+              authorUsername: _currentUsername,
               text: text.isEmpty ? null : text,
               mediaUrl: _media?.path,
               contentType: contentType,
@@ -210,8 +220,8 @@ class _PostScreenState extends State<PostScreen> {
           await _momentService.createMoment(
             Moment(
               id: 'moment_${now.microsecondsSinceEpoch}',
-              creatorId: currentUserId,
-              creatorUsername: currentUsername,
+              creatorId: _currentUserId,
+              creatorUsername: _currentUsername,
               mediaUrl: _media!.path,
               mediaType: _isVideo ? 'video' : 'image',
               label: null,
@@ -225,8 +235,8 @@ class _PostScreenState extends State<PostScreen> {
           await _clipService.createClip(
             Clip(
               id: 'clip_${now.microsecondsSinceEpoch}',
-              creatorId: currentUserId,
-              creatorUsername: currentUsername,
+              creatorId: _currentUserId,
+              creatorUsername: _currentUsername,
               videoUrl: _media!.path,
               caption: text,
               music: null,
@@ -491,9 +501,9 @@ class _PostScreenState extends State<PostScreen> {
           ),
         ),
         const SizedBox(width: 12),
-        const Text(
-          'Username_',
-          style: TextStyle(
+        Text(
+          _currentUsername,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w600,

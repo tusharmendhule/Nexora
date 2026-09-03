@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
 import '../models/nexora_label.dart';
@@ -59,9 +60,9 @@ class TrustScoreService {
   static final TrustScoreService _instance = TrustScoreService._internal();
   factory TrustScoreService() => _instance;
 
-  // ─── Token helper ────────────────────────────────────
+  // ─── Token helpers ───────────────────────────────────
 
-  Future<String?> _getIdToken() async {
+  Future<String?> _getFirebaseToken() async {
     try {
       final user = fb.FirebaseAuth.instance.currentUser;
       if (user == null) return null;
@@ -71,13 +72,21 @@ class TrustScoreService {
     }
   }
 
+  Future<String?> _getJwtToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
   Future<Map<String, String>> _headers() async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
-    final token = await _getIdToken();
-    if (token != null) {
+    String? token = await _getFirebaseToken();
+    if (token == null || token.isEmpty) {
+      token = await _getJwtToken();
+    }
+    if (token != null && token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     }
     return headers;
@@ -123,13 +132,12 @@ class TrustScoreService {
   /// Returns true if the request was accepted.
   Future<bool> requestModeratorReview(String postId, {String? reason}) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/../../api/moderation/review');
+      final url = Uri.parse('${ApiConfig.baseUrl}/moderation/posts/$postId/flag');
       final response = await http
           .post(
             url,
             headers: await _headers(),
             body: jsonEncode({
-              'postId': postId,
               'reason': reason ?? 'User-requested review',
             }),
           )

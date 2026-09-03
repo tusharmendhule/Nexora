@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
 import '../models/post.dart';
@@ -8,15 +9,16 @@ import '../models/post.dart';
 /// Backend-connected post service.
 ///
 /// All reads/writes go through the Nexora v1 API backed by MongoDB.
+/// Supports both Firebase ID tokens (Google sign-in) and JWT tokens (local auth).
 class PostService {
   PostService._internal();
 
   static final PostService _instance = PostService._internal();
   factory PostService() => _instance;
 
-  // ─── Token helper ────────────────────────────────────
+  // ─── Token helpers ───────────────────────────────────
 
-  Future<String?> _getIdToken() async {
+  Future<String?> _getFirebaseToken() async {
     try {
       final user = fb.FirebaseAuth.instance.currentUser;
       if (user == null) return null;
@@ -26,13 +28,22 @@ class PostService {
     }
   }
 
+  Future<String?> _getJwtToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
   Future<Map<String, String>> _headers() async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
-    final token = await _getIdToken();
-    if (token != null) {
+    // Try Firebase token first, fall back to JWT
+    String? token = await _getFirebaseToken();
+    if (token == null || token.isEmpty) {
+      token = await _getJwtToken();
+    }
+    if (token != null && token.isNotEmpty) {
       headers['Authorization'] = 'Bearer $token';
     }
     return headers;

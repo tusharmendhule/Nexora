@@ -1058,15 +1058,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _verificationStatusText(String verification, String moderation) {
     if (moderation == 'under_review') return 'Moderator Review';
+    // Handle both legacy lowercase and new UPPERCASE enum values
     switch (verification) {
       case 'pending':
+      case 'PENDING_VERIFICATION':
         return 'Pending';
       case 'processing':
+      case 'VERIFYING':
         return 'Analyzing';
       case 'verified':
+      case 'VERIFIED':
+      case 'PUBLISHED':
         return 'Verified';
       case 'failed':
+      case 'FAILED':
         return 'Failed';
+      case 'REVIEW_REQUIRED':
+        return 'Review Required';
+      case 'REJECTED':
+        return 'Rejected';
       default:
         return 'Unverified';
     }
@@ -1074,14 +1084,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Color _verificationStatusColor(String verification, String moderation) {
     if (moderation == 'under_review') return const Color(0xFFF39C12);
+    // Handle both legacy lowercase and new UPPERCASE enum values
     switch (verification) {
       case 'pending':
+      case 'PENDING_VERIFICATION':
         return const Color(0xFFF39C12);
       case 'processing':
+      case 'VERIFYING':
         return const Color(0xFF3498DB);
       case 'verified':
+      case 'VERIFIED':
+      case 'PUBLISHED':
         return const Color(0xFF2ECC71);
       case 'failed':
+      case 'FAILED':
+        return const Color(0xFFE74C3C);
+      case 'REVIEW_REQUIRED':
+        return const Color(0xFFF39C12);
+      case 'REJECTED':
         return const Color(0xFFE74C3C);
       default:
         return Colors.white54;

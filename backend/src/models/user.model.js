@@ -10,11 +10,13 @@ const userSchema = new mongoose.Schema(
   {
     // Firebase Authentication UID — set for Google sign-in users.
     // Not set for email/password-only users.
+    // Firebase Authentication UID — set for Google sign-in users.
+    // Not set for email/password-only users.
+    // unique + sparse allows multiple local users (firebaseUid is undefined).
     firebaseUid: {
       type: String,
       unique: true,
       sparse: true,
-      index: true,
     },
 
     // Auth method: 'local' (email+password) or 'firebase' (Google etc.)

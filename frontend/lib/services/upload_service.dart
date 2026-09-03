@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
 
@@ -106,9 +110,9 @@ class UploadService {
     'audio/x-m4a',
   };
 
-  // ─── Token helper ────────────────────────────────────
+  // ─── Token helpers ───────────────────────────────────
 
-  Future<String?> _getIdToken() async {
+  Future<String?> _getFirebaseToken() async {
     try {
       final user = fb.FirebaseAuth.instance.currentUser;
       if (user == null) return null;
@@ -116,6 +120,19 @@ class UploadService {
     } catch (_) {
       return null;
     }
+  }
+
+  Future<String?> _getJwtToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
+  Future<String?> _getIdToken() async {
+    String? token = await _getFirebaseToken();
+    if (token == null || token.isEmpty) {
+      token = await _getJwtToken();
+    }
+    return token;
   }
 
   // ─── Validation ─────────────────────────────────────
@@ -232,7 +249,7 @@ class UploadService {
 
   /// Upload a single media file to the backend.
   ///
-  /// [file] is the local file to upload.
+  /// [file] is the local file to upload (mobile only).
   /// [onProgress] is an optional callback for tracking upload progress.
   ///
   /// Returns an [UploadResult] on success, throws [UploadError] on failure.
@@ -257,29 +274,74 @@ class UploadService {
     }
 
     final fileLength = await file.length();
+    final filename = file.path.split(Platform.pathSeparator).last;
 
-    // Build multipart request
+    return _doUpload(
+      fileBytes: await file.readAsBytes(),
+      filename: filename,
+      mimeType: mimeType,
+      fileLength: fileLength,
+      token: token,
+      onProgress: onProgress,
+    );
+  }
+
+  /// Upload an XFile to the backend — works on both web and mobile.
+  ///
+  /// Uses XFile.readAsBytes() which works on all platforms including web.
+  Future<UploadResult> uploadXFile({
+    required XFile xFile,
+    UploadProgressCallback? onProgress,
+  }) async {
+    final mimeType = xFile.mimeType ?? getMimeType(xFile.name);
+
+    // Validate by MIME type (more reliable on web where path may be fake)
+    final mediaType = getMediaType(xFile.name, mimeType);
+    if (mediaType == null) {
+      throw UploadError(
+        message: 'Unsupported file type. Allowed: images (JPEG, PNG, GIF, WebP), videos (MP4, MOV, WebM), audio (MP3, WAV, OGG, AAC, FLAC).',
+      );
+    }
+
+    final token = await _getIdToken();
+    if (token == null) {
+      throw UploadError(
+        statusCode: 401,
+        message: 'Not authenticated. Please log in again.',
+      );
+    }
+
+    final fileBytes = await xFile.readAsBytes();
+
+    return _doUpload(
+      fileBytes: fileBytes,
+      filename: xFile.name,
+      mimeType: mimeType,
+      fileLength: fileBytes.length,
+      token: token,
+      onProgress: onProgress,
+    );
+  }
+
+  /// Internal: send bytes to the backend upload endpoint.
+  Future<UploadResult> _doUpload({
+    required Uint8List fileBytes,
+    required String filename,
+    required String mimeType,
+    required int fileLength,
+    required String token,
+    UploadProgressCallback? onProgress,
+  }) async {
     final url = Uri.parse('${ApiConfig.baseUrl}/posts/upload');
     final request = http.MultipartRequest('POST', url);
-
-    // Add auth header
     request.headers['Authorization'] = 'Bearer $token';
 
-    // Add the file with progress tracking
-    final fileStream = http.ByteStream(file.openRead().transform(
-      StreamTransformer<List<int>, List<int>>.fromHandlers(
-        handleData: (data, sink) {
-          onProgress?.call(0, fileLength); // Initial call
-          sink.add(data);
-        },
-      ),
-    ));
+    onProgress?.call(0, fileLength);
 
-    final multipartFile = http.MultipartFile(
+    final multipartFile = http.MultipartFile.fromBytes(
       'file',
-      fileStream,
-      fileLength,
-      filename: file.path.split(Platform.pathSeparator).last,
+      fileBytes,
+      filename: filename,
       contentType: MediaType.parse(mimeType),
     );
 
@@ -292,6 +354,8 @@ class UploadService {
           message: 'Upload timed out. Please check your connection and try again.',
         ),
       );
+
+      onProgress?.call(fileLength, fileLength);
 
       final response = await http.Response.fromStream(streamedResponse);
 
@@ -310,7 +374,6 @@ class UploadService {
         );
       }
 
-      // Handle specific error codes
       String errorMessage;
       switch (response.statusCode) {
         case 400:

@@ -18,9 +18,9 @@ class UserService {
   static final UserService _instance = UserService._internal();
   factory UserService() => _instance;
 
-  // ─── Token helper ────────────────────────────────────
+  // ─── Token helpers ───────────────────────────────────
 
-  Future<String?> _getIdToken() async {
+  Future<String?> _getFirebaseToken() async {
     try {
       final user = fb.FirebaseAuth.instance.currentUser;
       if (user == null) return null;
@@ -30,14 +30,22 @@ class UserService {
     }
   }
 
+  Future<String?> _getJwtToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
   Future<Map<String, String>> _headers({bool includeAuth = true}) async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
     if (includeAuth) {
-      final token = await _getIdToken();
-      if (token != null) {
+      String? token = await _getFirebaseToken();
+      if (token == null || token.isEmpty) {
+        token = await _getJwtToken();
+      }
+      if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
       }
     }
@@ -114,8 +122,11 @@ class UserService {
   /// Upload an avatar image file to the backend (Cloudinary via API).
   Future<User?> uploadAvatar(File imageFile) async {
     try {
-      final token = await _getIdToken();
-      if (token == null) return null;
+      String? token = await _getFirebaseToken();
+      if (token == null || token.isEmpty) {
+        token = await _getJwtToken();
+      }
+      if (token == null || token.isEmpty) return null;
 
       final url = Uri.parse('${ApiConfig.baseUrl}/users/me/avatar');
       final request = http.MultipartRequest('PATCH', url);

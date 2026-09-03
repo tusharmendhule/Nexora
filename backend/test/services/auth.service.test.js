@@ -20,10 +20,12 @@ jest.mock('../../src/config/firebase', () => {
   const mockVerifyIdToken = jest.fn();
   const mockGetUser = jest.fn();
   return {
-    auth: jest.fn(() => ({
+    __esModule: true,
+    default: {}, // firebaseApp placeholder
+    firebaseAuth: {
       verifyIdToken: mockVerifyIdToken,
       getUser: mockGetUser,
-    })),
+    },
     _mockVerifyIdToken: mockVerifyIdToken,
     _mockGetUser: mockGetUser,
   };
