@@ -1,47 +1,98 @@
 const admin = require('firebase-admin');
+const fs = require('fs');
 
 /**
  * Initialize Firebase Admin SDK.
  *
  * Credentials can be provided via:
- *   1. FIREBASE_SERVICE_ACCOUNT  — full JSON string of the service account
- *   2. GOOGLE_APPLICATION_CREDENTIALS — path to the service-account JSON file
+ * 1. FIREBASE_SERVICE_ACCOUNT — full JSON string
+ * 2. GOOGLE_APPLICATION_CREDENTIALS — path to service-account JSON
  *
- * In development, if neither is set the SDK runs in "emulator-aware" mode and
- * will still attempt to verify tokens (useful with the Firebase Auth emulator).
+ * If no credentials are provided, Firebase Admin will initialize
+ * without explicit credentials when possible.
  */
 
 function initializeFirebase() {
-  if (admin.apps && admin.apps.length > 0) return admin;
-
-  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
-
-  if (serviceAccountJson) {
-    try {
-      const serviceAccount = JSON.parse(serviceAccountJson);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-      console.log('✅ Firebase Admin initialized (service-account JSON)');
-    } catch (err) {
-      console.error('❌ Failed to parse FIREBASE_SERVICE_ACCOUNT:', err.message);
-      throw err;
-    }
-  } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    // firebase-admin auto-discovers credentials from this env var
-    admin.initializeApp();
-    console.log('✅ Firebase Admin initialized (GOOGLE_APPLICATION_CREDENTIALS)');
-  } else {
-    // Fallback: initialize without credentials — works with the Auth emulator
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'nexora-dev',
-    });
-    console.log('⚠️  Firebase Admin initialized without credentials (emulator / demo mode)');
+  if (admin.apps && admin.apps.length > 0) {
+    return admin.apps[0];
   }
 
-  return admin;
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
+  const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+
+  try {
+    // Option 1: Service account JSON from environment variable
+    if (serviceAccountJson) {
+      const serviceAccount = JSON.parse(serviceAccountJson);
+
+      const app = admin.initializeApp({
+        credential: admin.cert(serviceAccount),
+      });
+
+      console.log('✅ Firebase Admin initialized using FIREBASE_SERVICE_ACCOUNT');
+      return app;
+    }
+
+    // Option 2: Service account JSON file
+    if (credentialsPath) {
+      if (!fs.existsSync(credentialsPath)) {
+        throw new Error(
+          `Firebase service account file not found: ${credentialsPath}`
+        );
+      }
+
+      const serviceAccount = require(credentialsPath);
+
+      const app = admin.initializeApp({
+        credential: admin.cert(serviceAccount),
+      });
+
+      console.log(
+        '✅ Firebase Admin initialized using GOOGLE_APPLICATION_CREDENTIALS'
+      );
+
+      return app;
+    }
+
+    // Option 3: Application Default Credentials
+    const app = admin.initializeApp();
+
+    console.log(
+      '⚠️ Firebase Admin initialized using Application Default Credentials'
+    );
+
+    return app;
+  } catch (err) {
+    console.error('❌ Firebase Admin initialization failed:', err.message);
+
+    // Keep the application from crashing during local development.
+    try {
+      if (!admin.apps || admin.apps.length === 0) {
+        const fallbackApp = admin.initializeApp({
+          projectId: process.env.FIREBASE_PROJECT_ID || 'nexora-dev',
+        });
+
+        console.log('⚠️ Firebase running in limited development mode');
+        return fallbackApp;
+      }
+    } catch (fallbackError) {
+      console.error(
+        '❌ Firebase fallback initialization failed:',
+        fallbackError.message
+      );
+    }
+
+    // Return the default app as a last resort
+    return admin.apps[0];
+  }
 }
 
-const firebaseAdmin = initializeFirebase();
+const firebaseApp = initializeFirebase();
 
-module.exports = firebaseAdmin;
+// ── Firebase Admin v14 modular API ─────────────────────
+// In v14, admin.auth() was removed. Use getAuth(app) instead.
+const { getAuth } = require('firebase-admin/auth');
+const firebaseAuth = getAuth(firebaseApp);
+
+module.exports = firebaseApp;
+module.exports.firebaseAuth = firebaseAuth;

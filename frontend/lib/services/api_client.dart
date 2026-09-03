@@ -8,7 +8,8 @@ import '../config/api_config.dart';
 /// Centralized HTTP client for Nexora API.
 ///
 /// Handles:
-/// - Automatic Firebase ID token injection
+/// - Firebase ID token injection (Google sign-in users)
+/// - JWT token injection (email/password local users)
 /// - Automatic JSON encoding/decoding
 /// - Consistent error handling
 /// - Token caching with auto-refresh
@@ -20,16 +21,23 @@ class ApiClient {
 
   // ─── Token Management ───────────────────────────────
 
+  /// Get the stored JWT token for local (email/password) auth.
+  Future<String?> _getJwtToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
+  /// Store a JWT token from local auth.
+  Future<void> setJwtToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
+  }
+
   /// Get a valid Firebase ID token.
-  ///
-  /// Attempts to use the cached token first. If the cached token is expired
-  /// or missing, refreshes from Firebase Auth.
-  Future<String?> _getIdToken() async {
+  Future<String?> _getFirebaseToken() async {
     try {
       final user = fb.FirebaseAuth.instance.currentUser;
       if (user == null) return null;
-
-      // getIdToken(true) forces a refresh if the token is near expiry
       return await user.getIdToken(true);
     } catch (e) {
       return null;
@@ -43,12 +51,19 @@ class ApiClient {
     await prefs.remove('user_data');
   }
 
-  /// Check if user is authenticated (has a Firebase user).
-  bool get isAuthenticated => fb.FirebaseAuth.instance.currentUser != null;
+  /// Check if user is authenticated (has a Firebase user or JWT).
+  Future<bool> get isAuthenticated async {
+    if (fb.FirebaseAuth.instance.currentUser != null) return true;
+    final jwt = await _getJwtToken();
+    return jwt != null && jwt.isNotEmpty;
+  }
 
   // ─── Headers ────────────────────────────────────────
 
-  /// Build headers with optional Firebase ID token.
+  /// Build headers with the best available auth token.
+  ///
+  /// Prefers Firebase ID token if the user signed in via Google;
+  /// falls back to JWT for email/password users.
   Future<Map<String, String>> _headers({bool includeAuth = true}) async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
@@ -56,8 +71,17 @@ class ApiClient {
     };
 
     if (includeAuth) {
-      final token = await _getIdToken();
-      if (token != null) {
+      String? token;
+
+      // Try Firebase token first (Google sign-in users)
+      token = await _getFirebaseToken();
+
+      // Fall back to JWT token (email/password users)
+      if (token == null || token.isEmpty) {
+        token = await _getJwtToken();
+      }
+
+      if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
       }
     }

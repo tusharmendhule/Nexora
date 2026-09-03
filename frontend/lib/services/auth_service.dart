@@ -3,14 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_client.dart';
 
-/// Firebase-backed authentication service for Nexora.
+/// Authentication service for Nexora.
 ///
 /// Handles:
-/// - Registration (Firebase Auth + backend profile creation)
-/// - Login (Firebase Auth + backend profile retrieval)
+/// - Local registration (email/password → MongoDB only, no Firebase)
+/// - Local login (email/password → MongoDB only, returns JWT)
+/// - Google sign-in (Firebase Auth → both Firebase + MongoDB)
 /// - Logout (Firebase sign-out + local cleanup)
-/// - Session restoration (check if Firebase user exists on app launch)
-/// - Username-to-email resolution for login
+/// - Session restoration
 class AuthService {
   AuthService._internal();
 
@@ -28,19 +28,18 @@ class AuthService {
   /// Stream of Firebase auth state changes.
   Stream<fb.User?> get authStateChanges => _auth.authStateChanges();
 
-  /// Whether a user is currently signed in.
-  bool get isSignedIn => _auth.currentUser != null;
+  /// Whether a user is currently signed in (Firebase or local).
+  Future<bool> get isSignedIn async {
+    if (_auth.currentUser != null) return true;
+    return await _api.isAuthenticated;
+  }
 
-  // ─── Register ─────────────────────────────────────────
+  // ─── Register (email/password → MongoDB only) ──────────
 
-  /// Register a new user with Firebase Auth and create their backend profile.
+  /// Register a new user with email + password.
   ///
-  /// 1. Creates a Firebase Auth user with email + password
-  /// 2. Gets the Firebase ID token
-  /// 3. Sends the token + profile data to the backend
-  ///
-  /// Returns the user profile from the backend on success.
-  /// Throws [AuthException] on failure.
+  /// Stores credentials directly in MongoDB (no Firebase Auth).
+  /// Returns the user profile and JWT token from the backend.
   Future<Map<String, dynamic>> register({
     required String email,
     required String password,
@@ -48,43 +47,31 @@ class AuthService {
     required String username,
   }) async {
     try {
-      // Step 1: Create Firebase Auth user
-      final credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-
-      // Step 2: Update display name
-      await credential.user?.updateDisplayName(name.trim());
-
-      // Step 3: Get Firebase ID token
-      final idToken = await credential.user?.getIdToken();
-      if (idToken == null) {
-        throw AuthException('Failed to get authentication token');
-      }
-
-      // Step 4: Create backend profile
       final response = await _api.post(
-        '/auth/register',
+        '/auth/register-local',
         body: {
-          'idToken': idToken,
+          'email': email.trim(),
+          'password': password,
           'name': name.trim(),
           'username': username.trim(),
         },
+        auth: false,
       );
 
       if (!response.success) {
-        // If backend fails, clean up the Firebase user
-        await credential.user?.delete();
         throw AuthException(response.message ?? 'Registration failed');
+      }
+
+      // Store JWT token for future API calls
+      final token = response.data?['token'] as String?;
+      if (token != null) {
+        await _api.setJwtToken(token);
       }
 
       // Store user data locally
       await _storeUserData(response.data!);
 
       return response.data!;
-    } on fb.FirebaseAuthException catch (e) {
-      throw AuthException(_firebaseAuthErrorMessage(e));
     } on AuthException {
       rethrow;
     } catch (e) {
@@ -92,57 +79,23 @@ class AuthService {
     }
   }
 
-  // ─── Login ────────────────────────────────────────────
+  // ─── Login (email/password → MongoDB only) ────────────
 
-  /// Login an existing user with Firebase Auth.
+  /// Login an existing user with email/username + password.
   ///
-  /// If [identifier] is a username (no `@`), it is resolved to an email
-  /// via the backend `/auth/lookup-email` endpoint first.
-  ///
-  /// Returns the user profile from the backend on success.
-  /// Throws [AuthException] on failure.
+  /// Authenticates directly against MongoDB (no Firebase).
+  /// Returns the user profile and JWT token from the backend.
   Future<Map<String, dynamic>> login({
     required String identifier,
     required String password,
   }) async {
     try {
-      String email;
-
-      // Resolve username → email if needed
-      if (identifier.contains('@')) {
-        email = identifier.trim();
-      } else {
-        final resolveResponse = await _api.post(
-          '/auth/lookup-email',
-          body: {'identifier': identifier.trim()},
-          auth: false,
-        );
-
-        if (!resolveResponse.success) {
-          throw AuthException(
-            resolveResponse.message ?? 'No account found with that username',
-          );
-        }
-
-        email = resolveResponse.data!['email'] as String;
-      }
-
-      // Step 1: Sign in with Firebase Auth
-      final credential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // Step 2: Get Firebase ID token
-      final idToken = await credential.user?.getIdToken();
-      if (idToken == null) {
-        throw AuthException('Failed to get authentication token');
-      }
-
-      // Step 3: Get backend user profile
       final response = await _api.post(
-        '/auth/login',
-        body: {'idToken': idToken},
+        '/auth/login-local',
+        body: {
+          'identifier': identifier.trim(),
+          'password': password,
+        },
         auth: false,
       );
 
@@ -150,12 +103,16 @@ class AuthService {
         throw AuthException(response.message ?? 'Login failed');
       }
 
+      // Store JWT token for future API calls
+      final token = response.data?['token'] as String?;
+      if (token != null) {
+        await _api.setJwtToken(token);
+      }
+
       // Store user data locally
       await _storeUserData(response.data!);
 
       return response.data!;
-    } on fb.FirebaseAuthException catch (e) {
-      throw AuthException(_firebaseAuthErrorMessage(e));
     } on AuthException {
       rethrow;
     } catch (e) {
@@ -163,9 +120,104 @@ class AuthService {
     }
   }
 
+  // ─── Google Sign-In (Firebase + MongoDB both) ─────────
+
+  /// Sign in with Google using Firebase Auth.
+  ///
+  /// Flow:
+  ///  1. Opens Google sign-in popup via Firebase SDK
+  ///  2. Gets the Firebase ID token
+  ///  3. Tries backend login first
+  ///  4. If user doesn't exist in backend, registers them (stored in both Firebase & MongoDB)
+  ///
+  /// Returns the user profile from the backend on success.
+  Future<Map<String, dynamic>> signInWithGoogle() async {
+    try {
+      // Step 1: Create Google provider and sign in via popup
+      final googleProvider = fb.GoogleAuthProvider();
+      googleProvider.addScope('email');
+      googleProvider.addScope('profile');
+
+      final userCredential = await _auth.signInWithPopup(googleProvider);
+      final user = userCredential.user;
+
+      if (user == null) {
+        throw AuthException('Google sign-in was cancelled');
+      }
+
+      // Step 2: Get Firebase ID token
+      final idToken = await user.getIdToken();
+      if (idToken == null) {
+        throw AuthException('Failed to get authentication token');
+      }
+
+      // Step 3: Try backend login first (uses Firebase token → looks up by firebaseUid)
+      try {
+        final loginResponse = await _api.post(
+          '/auth/login',
+          body: {'idToken': idToken},
+          auth: false,
+        );
+
+        if (loginResponse.success) {
+          await _storeUserData(loginResponse.data!);
+          return loginResponse.data!;
+        }
+      } catch (_) {
+        // Login failed — user probably doesn't exist in backend yet
+      }
+
+      // Step 4: Register new user (stored in both Firebase & MongoDB)
+      final displayName = user.displayName ?? 'Google User';
+      final email = user.email ?? '';
+
+      // Generate a username from display name or email
+      String username = displayName
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-z0-9]'), '')
+          .trim();
+      if (username.isEmpty || username.length < 3) {
+        username = email.split('@').first.replaceAll(RegExp(r'[^a-z0-9]'), '');
+      }
+      if (username.length < 3) {
+        username = 'user${DateTime.now().millisecondsSinceEpoch}';
+      }
+
+      final registerResponse = await _api.post(
+        '/auth/register',
+        body: {
+          'idToken': idToken,
+          'name': displayName,
+          'username': username,
+        },
+      );
+
+      if (!registerResponse.success) {
+        throw AuthException(
+          registerResponse.message ?? 'Failed to create account with Google',
+        );
+      }
+
+      await _storeUserData(registerResponse.data!);
+      return registerResponse.data!;
+    } on fb.FirebaseAuthException catch (e) {
+      if (e.code == 'popup-blocked') {
+        throw AuthException('Pop-up was blocked. Please allow pop-ups for this site.');
+      }
+      if (e.code == 'popup-closed-by-user') {
+        throw AuthException('Sign-in cancelled');
+      }
+      throw AuthException(_firebaseAuthErrorMessage(e));
+    } on AuthException {
+      rethrow;
+    } catch (e) {
+      throw AuthException('Google sign-in failed: ${e.toString()}');
+    }
+  }
+
   // ─── Logout ───────────────────────────────────────────
 
-  /// Sign out from Firebase and clear all local auth data.
+  /// Sign out from Firebase (if applicable) and clear all local auth data.
   Future<void> logout() async {
     try {
       await _auth.signOut();
@@ -179,24 +231,34 @@ class AuthService {
 
   /// Restore the user's session on app launch.
   ///
-  /// Checks if Firebase Auth has an existing user. If so, verifies the
-  /// token is still valid by calling the backend `/auth/me` endpoint.
+  /// Checks if there's an existing Firebase user or JWT token.
+  /// Verifies the token is still valid by calling the backend `/auth/me` endpoint.
   ///
   /// Returns the user profile if the session is valid, or null if not.
   Future<Map<String, dynamic>?> restoreSession() async {
     try {
-      final user = _auth.currentUser;
-      if (user == null) return null;
+      // Check if we have a JWT token (local auth user)
+      final jwt = await SharedPreferences.getInstance();
+      final hasJwt = jwt.getString('auth_token')?.isNotEmpty ?? false;
 
-      // Refresh the ID token if it's about to expire
-      await user.getIdToken(true);
+      // Check if we have a Firebase user (Google sign-in user)
+      final hasFirebase = _auth.currentUser != null;
 
-      // Verify with backend
+      if (!hasJwt && !hasFirebase) return null;
+
+      // Refresh Firebase token if available
+      if (hasFirebase) {
+        await _auth.currentUser!.getIdToken(true);
+      }
+
+      // Verify with backend (uses whichever token is available)
       final response = await _api.get('/auth/me');
 
       if (!response.success) {
         // Backend rejected the token — sign out
-        await _auth.signOut();
+        try {
+          await _auth.signOut();
+        } catch (_) {}
         await _clearUserData();
         return null;
       }

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// API configuration for Nexora backend.
 ///
@@ -8,7 +9,11 @@ class ApiConfig {
   ApiConfig._();
 
   /// Backend base URL — change this for production.
-  static const String baseUrl = 'http://10.0.2.2:5000/api/v1';
+  /// On web, use a relative URL (same origin when served from Express).
+  /// On Android emulator, use 10.0.2.2 to reach localhost.
+  static String get baseUrl => kIsWeb
+      ? '/api/v1'
+      : 'http://10.0.2.2:5000/api/v1';
 
   /// Timeout for HTTP requests.
   static const Duration timeout = Duration(seconds: 15);

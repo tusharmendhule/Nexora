@@ -1,5 +1,74 @@
 const authService = require('../../services/auth.service');
 
+// ─── Local Auth (email/password → MongoDB only) ──────────
+
+/**
+ * POST /api/v1/auth/register-local
+ *
+ * Register a new user with email + password (stored in MongoDB only, no Firebase).
+ * Body: { email, password, name, username }
+ */
+exports.registerLocal = async (req, res, next) => {
+  try {
+    const { email, password, name, username } = req.body;
+
+    if (!email || !password || !name || !username) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields (email, password, name, username) are required',
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters',
+      });
+    }
+
+    const result = await authService.registerLocal({ email, password, name, username });
+
+    res.status(201).json({
+      success: true,
+      message: 'Account created successfully',
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /api/v1/auth/login-local
+ *
+ * Login with email/username + password (MongoDB only, no Firebase).
+ * Body: { identifier, password }
+ */
+exports.loginLocal = async (req, res, next) => {
+  try {
+    const { identifier, password } = req.body;
+
+    if (!identifier || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email/username and password are required',
+      });
+    }
+
+    const result = await authService.loginLocal({ identifier, password });
+
+    res.status(200).json({
+      success: true,
+      message: 'Logged in successfully',
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─── Firebase Auth (Google sign-in) ─────────────────────
+
 /**
  * POST /api/v1/auth/register
  *

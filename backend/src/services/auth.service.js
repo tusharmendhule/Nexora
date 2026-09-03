@@ -1,10 +1,164 @@
-const firebaseAdmin = require('../config/firebase');
+const bcrypt = require('bcryptjs');
+const { firebaseAuth } = require('../config/firebase');
 const User = require('../models/user.model');
 const { ApiError } = require('../middleware/error.middleware');
+const { generateToken } = require('../utils/generateToken');
 const ageVerificationService = require('./age-verification/age-verification.service');
 const auditService = require('./audit.service');
 
 class AuthService {
+  // ─── Local (email/password) Registration ────────────────
+
+  /**
+   * Register a new user with email + password (stored in MongoDB only).
+   *
+   * @param {Object} params
+   * @param {string} params.email
+   * @param {string} params.password
+   * @param {string} params.name
+   * @param {string} params.username
+   */
+  async registerLocal({ email, password, name, username }) {
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanUsername = username.toLowerCase().trim();
+
+    // ── Check if email already exists ──────────────────
+    const existingByEmail = await User.findOne({ email: cleanEmail });
+    if (existingByEmail) {
+      throw new ApiError(409, 'An account already exists with this email');
+    }
+
+    // ── Check username availability ────────────────────
+    const existingByUsername = await User.findOne({ username: cleanUsername });
+    if (existingByUsername) {
+      throw new ApiError(409, 'Username is already taken');
+    }
+
+    // ── Hash password and create user ──────────────────
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = await User.create({
+      name: name.trim(),
+      username: cleanUsername,
+      email: cleanEmail,
+      password: hashedPassword,
+      authMethod: 'local',
+      role: 'USER',
+    });
+
+    // ── Initiate age verification (PENDING) ─────────────
+    let ageVerificationStatus = null;
+    try {
+      await ageVerificationService.initiate({ userId: user._id });
+      ageVerificationStatus = 'PENDING';
+    } catch (err) {
+      console.error('[AuthService] Age verification initiation failed:', err.message);
+    }
+
+    // Audit
+    try {
+      await auditService.logAuthEvent({
+        eventType: 'REGISTER_SUCCESS',
+        user: { _id: user._id, username: user.username },
+        outcome: 'SUCCESS',
+      });
+    } catch (_) { /* non-critical */ }
+
+    const token = generateToken(user._id);
+
+    return {
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role,
+        isVerified: user.isVerified,
+        reputationBadge: user.reputationBadge,
+        overallTrustRating: user.overallTrustRating,
+        ageVerificationStatus,
+      },
+    };
+  }
+
+  // ─── Local (email/password) Login ───────────────────────
+
+  /**
+   * Login an existing user with email/username + password (MongoDB only).
+   *
+   * @param {Object} params
+   * @param {string} params.identifier - Email or username
+   * @param {string} params.password
+   */
+  async loginLocal({ identifier, password }) {
+    const clean = identifier.toLowerCase().trim();
+
+    // ── Find user by email or username ─────────────────
+    const user = await User.findOne({
+      $or: [
+        { email: clean },
+        { username: clean },
+      ],
+    }).select('+password');
+
+    if (!user) {
+      throw new ApiError(401, 'Invalid email or password');
+    }
+
+    if (user.isDisabled) {
+      throw new ApiError(401, 'Account has been disabled');
+    }
+
+    // ── Verify password ────────────────────────────────
+    if (!user.password) {
+      throw new ApiError(
+        401,
+        'This account uses Google sign-in. Please use Continue with Google.'
+      );
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new ApiError(401, 'Invalid email or password');
+    }
+
+    // Audit
+    try {
+      await auditService.logAuthEvent({
+        eventType: 'LOGIN_SUCCESS',
+        user: { _id: user._id, username: user.username },
+        outcome: 'SUCCESS',
+      });
+    } catch (_) { /* non-critical */ }
+
+    const token = generateToken(user._id);
+
+    return {
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        bio: user.bio,
+        role: user.role,
+        isVerified: user.isVerified,
+        reputationBadge: user.reputationBadge,
+        overallTrustRating: user.overallTrustRating,
+        followersCount: user.followersCount,
+        followingCount: user.followingCount,
+        ageVerificationStatus: user.ageVerificationStatus || null,
+        ageCategory: user.ageCategory || null,
+      },
+    };
+  }
+
+  // ─── Firebase Registration (Google sign-in) ────────────
+
   /**
    * Register a new user via Firebase Authentication.
    *
@@ -23,7 +177,7 @@ class AuthService {
     // ── Verify Firebase ID token ────────────────────────
     let decoded;
     try {
-      decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
+      decoded = await firebaseAuth.verifyIdToken(idToken);
     } catch (err) {
       if (err.code === 'auth/id-token-expired') {
         throw new ApiError(401, 'Token expired — please sign in again');
@@ -53,6 +207,7 @@ class AuthService {
       name: name.trim(),
       username: cleanUsername,
       email: email.toLowerCase().trim(),
+      authMethod: 'firebase',
       role: 'USER',
     });
 
@@ -92,6 +247,8 @@ class AuthService {
     };
   }
 
+  // ─── Firebase Login (Google sign-in) ────────────────────
+
   /**
    * Login an existing user via Firebase Authentication.
    *
@@ -108,7 +265,7 @@ class AuthService {
     // ── Verify Firebase ID token ────────────────────────
     let decoded;
     try {
-      decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
+      decoded = await firebaseAuth.verifyIdToken(idToken);
     } catch (err) {
       if (err.code === 'auth/id-token-expired') {
         throw new ApiError(401, 'Token expired — please sign in again');
@@ -119,7 +276,7 @@ class AuthService {
     // ── Check disabled Firebase account ─────────────────
     let firebaseUser;
     try {
-      firebaseUser = await firebaseAdmin.auth().getUser(decoded.uid);
+      firebaseUser = await firebaseAuth.getUser(decoded.uid);
     } catch (err) {
       // If Firebase is unreachable, still allow if the token was valid
       firebaseUser = null;

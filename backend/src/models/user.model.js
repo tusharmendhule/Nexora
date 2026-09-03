@@ -8,12 +8,20 @@ const ROLES = {
 
 const userSchema = new mongoose.Schema(
   {
-    // Firebase Authentication UID — primary identifier
+    // Firebase Authentication UID — set for Google sign-in users.
+    // Not set for email/password-only users.
     firebaseUid: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       index: true,
+    },
+
+    // Auth method: 'local' (email+password) or 'firebase' (Google etc.)
+    authMethod: {
+      type: String,
+      enum: ['local', 'firebase'],
+      default: 'firebase',
     },
 
     username: {
@@ -30,7 +38,8 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    // Kept for legacy routes — Firebase users won't have this populated
+    // Password hash — populated for local (email/password) users only.
+    // Firebase-only users (Google sign-in) will not have this.
     password: {
       type: String,
       select: false,

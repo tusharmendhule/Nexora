@@ -3,6 +3,8 @@ const router = express.Router();
 const {
   register,
   login,
+  registerLocal,
+  loginLocal,
   lookupEmail,
   getMe,
   logout,
@@ -12,12 +14,20 @@ const { authRateLimit } = require('../../middleware/rate-limit.middleware');
 
 // ─── Public Routes (no auth required, rate limited) ─────
 
+// POST /api/v1/auth/register-local
+// Register with email + password (MongoDB only, no Firebase)
+router.post('/register-local', authRateLimit, registerLocal);
+
+// POST /api/v1/auth/login-local
+// Login with email/username + password (MongoDB only, no Firebase)
+router.post('/login-local', authRateLimit, loginLocal);
+
 // POST /api/v1/auth/register
-// Register a new user via Firebase Auth
+// Register a new user via Firebase Auth (Google sign-in)
 router.post('/register', authRateLimit, register);
 
 // POST /api/v1/auth/login
-// Login via Firebase Auth
+// Login via Firebase Auth (Google sign-in)
 router.post('/login', authRateLimit, login);
 
 // POST /api/v1/auth/lookup-email

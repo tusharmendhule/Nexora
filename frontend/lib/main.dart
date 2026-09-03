@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    if (userProfile != null && authService.isSignedIn) {
+    if (userProfile != null && await authService.isSignedIn) {
       // User has a valid session → go to main app
       Navigator.pushReplacement(
         context,

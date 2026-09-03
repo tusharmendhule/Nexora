@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const connectDB = require('./config/database');
 const logger = require('./middleware/logger.middleware');
 const { errorHandler } = require('./middleware/error.middleware');
@@ -22,6 +24,8 @@ const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
   : ['http://localhost:3000', 'http://localhost:5000'];
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -30,12 +34,17 @@ app.use(
       if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
         return callback(null, true);
       }
+      // In development, allow any localhost origin (Flutter web uses random ports)
+      if (isDev && /^http:\/\/localhost(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
       return callback(new Error('Not allowed by CORS'));
     },
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    exposedHeaders: ['Content-Length'],
     credentials: true,
-    maxAge: 86400, // Preflight cache: 24 hours
+    maxAge: isDev ? 0 : 86400, // Disable preflight cache in dev for easier debugging
   })
 );
 
@@ -119,27 +128,67 @@ app.use('/api/comments', legacyCommentRoutes);
 app.use('/api/likes', legacyLikeRoutes);
 app.use('/api/conversations', legacyConversationRoutes);
 
+// ─── Serve Flutter Web Build ──────────────────────────
+// The Flutter web build output lives in frontend/build/web/.
+// We serve it from the same port as the API so everything
+// runs on a single URL.
+
+const flutterBuildPath = path.join(__dirname, '..', '..', 'frontend', 'build', 'web');
+const hasFlutterBuild = fs.existsSync(flutterBuildPath);
+
+if (hasFlutterBuild) {
+  // Serve static assets (JS, CSS, images, fonts)
+  app.use(express.static(flutterBuildPath, {
+    index: 'index.html',
+    maxAge: isDev ? 0 : '1d',
+  }));
+
+  console.log('   Frontend:  Flutter web build served from /');
+} else {
+  console.log('   Frontend:  No Flutter build found (run: cd frontend && flutter build web)');
+}
+
 // ─── Root Health ────────────────────────────────────────
 
 app.get('/', (_req, res) => {
-  res.json({
-    success: true,
-    message: 'Nexora Backend Running 🚀',
-    api: {
-      v1: '/api/v1/health',
-      legacy: '/api/auth',
-    },
-  });
+  if (hasFlutterBuild) {
+    // Serve Flutter's index.html for the root path
+    res.sendFile(path.join(flutterBuildPath, 'index.html'));
+  } else {
+    res.json({
+      success: true,
+      message: 'Nexora Backend Running 🚀',
+      api: {
+        v1: '/api/v1/health',
+        legacy: '/api/auth',
+      },
+    });
+  }
 });
 
-// ─── 404 Handler ────────────────────────────────────────
+// ─── SPA Catch-All ─────────────────────────────────────
+// For any non-API route that didn't match a static file,
+// serve index.html so Flutter's client-side router handles it.
 
-app.use((_req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found',
+if (hasFlutterBuild) {
+  app.get('*path', (req, res) => {
+    // Don't serve index.html for API routes that don't exist
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({
+        success: false,
+        message: 'API route not found',
+      });
+    }
+    res.sendFile(path.join(flutterBuildPath, 'index.html'));
   });
-});
+} else {
+  app.use((_req, res) => {
+    res.status(404).json({
+      success: false,
+      message: 'Route not found',
+    });
+  });
+}
 
 // ─── Error Handler (must be last) ───────────────────────
 
@@ -152,6 +201,7 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`\n🚀 Nexora API Server`);
   console.log(`   Port:      ${PORT}`);
+  console.log(`   App:       http://localhost:${PORT}`);
   console.log(`   V1 API:    http://localhost:${PORT}/api/v1/health`);
   console.log(`   Legacy:    http://localhost:${PORT}/api/auth`);
   console.log(`   Env:       ${process.env.NODE_ENV || 'development'}\n`);

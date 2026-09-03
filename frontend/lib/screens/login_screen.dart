@@ -63,6 +63,33 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => isLoading = true);
+
+    try {
+      await _authService.signInWithGoogle();
+
+      if (!mounted) return;
+
+      // Navigate to main app
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+        (route) => false,
+      );
+    } on AuthException catch (e) {
+      if (e.message != 'Sign-in cancelled') {
+        _showError(e.message);
+      }
+    } catch (e) {
+      _showError('Google sign-in failed. Please try again.');
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
   void _showError(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -210,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
               _socialButton(
                 icon: Icons.g_mobiledata_rounded,
                 label: 'Continue with Google',
-                onTap: () {},
+                onTap: isLoading ? () {} : _handleGoogleSignIn,
               ),
 
               const SizedBox(height: 12),

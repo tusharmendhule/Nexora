@@ -1,18 +1,23 @@
-const firebaseAdmin = require('../config/firebase');
+const { firebaseAuth } = require('../config/firebase');
+const { verifyToken } = require('../utils/generateToken');
 const User = require('../models/user.model');
 const { ApiError } = require('./error.middleware');
 
 /**
  * requireAuth
  *
- * Verifies the Firebase ID token sent as `Authorization: Bearer <token>`.
+ * Verifies the bearer token sent as `Authorization: Bearer <token>`.
+ * Supports two token types:
+ *   1. Firebase ID token — for Google sign-in users
+ *   2. JWT token — for email/password (local) users
+ *
  * On success attaches the MongoDB user document to `req.user`.
  *
  * Handles:
  *  - Missing token          → 401
  *  - Invalid / malformed    → 401
  *  - Expired token          → 401
- *  - Disabled Firebase account → 401
+ *  - Disabled account       → 401
  *  - User deleted from DB   → 401
  */
 const requireAuth = async (req, _res, next) => {
@@ -22,47 +27,56 @@ const requireAuth = async (req, _res, next) => {
     if (!header || !header.startsWith('Bearer ')) {
       return next(new ApiError(401, 'Not authorized — no token provided'));
     }
-    const idToken = header.split(' ')[1];
-    if (!idToken) {
+    const token = header.split(' ')[1];
+    if (!token) {
       return next(new ApiError(401, 'Not authorized — no token provided'));
     }
 
-    // ── Verify Firebase ID token ───────────────────────
-    let decoded;
+    let user = null;
+
+    // ── Try Firebase ID token first ────────────────────
     try {
-      decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
-    } catch (err) {
-      if (err.code === 'auth/id-token-expired') {
+      const decoded = await firebaseAuth.verifyIdToken(token);
+
+      // Check disabled Firebase account
+      let firebaseUser;
+      try {
+        firebaseUser = await firebaseAuth.getUser(decoded.uid);
+      } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+          return next(new ApiError(401, 'Not authorized — user no longer exists'));
+        }
+        firebaseUser = null;
+      }
+
+      if (firebaseUser && firebaseUser.disabled) {
+        return next(new ApiError(401, 'Account has been disabled'));
+      }
+
+      // Load MongoDB user by Firebase UID
+      user = await User.findOne({ firebaseUid: decoded.uid }).select('-password');
+    } catch (firebaseErr) {
+      // Not a valid Firebase token — try as JWT next
+      if (
+        firebaseErr.code === 'auth/id-token-expired' ||
+        firebaseErr.code === 'auth/id-token-revoked'
+      ) {
         return next(new ApiError(401, 'Not authorized — token expired'));
       }
-      if (err.code === 'auth/id-token-revoked') {
-        return next(new ApiError(401, 'Not authorized — token revoked'));
+    }
+
+    // ── If not found via Firebase, try as JWT token ─────
+    if (!user) {
+      try {
+        const decoded = verifyToken(token);
+        user = await User.findById(decoded.id).select('-password');
+      } catch (jwtErr) {
+        // Neither Firebase nor JWT — truly invalid
+        return next(new ApiError(401, 'Not authorized — invalid token'));
       }
-      return next(new ApiError(401, 'Not authorized — invalid token'));
     }
-
-    // ── Check disabled Firebase account ────────────────
-    let firebaseUser;
-    try {
-      firebaseUser = await firebaseAdmin.auth().getUser(decoded.uid);
-    } catch (err) {
-      if (err.code === 'auth/user-not-found') {
-        return next(new ApiError(401, 'Not authorized — user no longer exists'));
-      }
-      // If we can't reach Firebase, still allow if the token was valid
-      firebaseUser = null;
-    }
-
-    if (firebaseUser && firebaseUser.disabled) {
-      return next(new ApiError(401, 'Account has been disabled'));
-    }
-
-    // ── Load / sync MongoDB user ───────────────────────
-    let user = await User.findOne({ firebaseUid: decoded.uid }).select('-password');
 
     if (!user) {
-      // Token is valid but no matching MongoDB record — user may have been
-      // deleted from the database while still existing in Firebase.
       return next(new ApiError(401, 'Not authorized — user profile not found'));
     }
 
@@ -73,7 +87,6 @@ const requireAuth = async (req, _res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    // Catch-all for unexpected errors
     return next(new ApiError(401, 'Not authorized'));
   }
 };
