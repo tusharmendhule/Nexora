@@ -167,7 +167,13 @@ class Post {
 
     // Parse tags
     final tagsList = (json['tags'] as List?)?.map((e) => e.toString()).toList();
-    final hashtagsList = (json['hashtags'] as List?)?.map((e) => e.toString()).toList();
+    final hashtagsList = (json['hashtags'] as List?)?.map((e) => e.toString()).toList();    // Parse isLiked from backend (enriched per-user flag)
+
+    final isLiked = json['isLiked'] as bool? ?? false;
+
+    // Parse isSaved from backend (enriched per-user flag)
+
+    final isSaved = json['isSaved'] as bool? ?? false;
 
     return Post(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
@@ -180,6 +186,8 @@ class Post {
       likeCount: json['likesCount'] as int? ?? 0,
       commentCount: json['commentsCount'] as int? ?? 0,
       repostCount: json['sharesCount'] as int? ?? 0,
+      isLiked: isLiked,
+      isSaved: isSaved,
       createdAt: createdAt,
       authorAvatar: authorAvatar,
       authorIsVerified: authorIsVerified,

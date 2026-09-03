@@ -290,15 +290,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _profileStat('128', 'Posts'),
+                              _profileStat(
+                                _formatCount(user?.postsCount ?? 0),
+                                'Posts',
+                              ),
 
                               GestureDetector(
-                                onTap: () {
+                                onTap: user == null
+                                    ? null
+                                    : () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => FollowScreen(
                                         username: user?.username ?? 'Username_',
+                                        userId: user!.id,
                                         showFollowers: true,
                                       ),
                                     ),
@@ -311,12 +317,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
 
                               GestureDetector(
-                                onTap: () {
+                                onTap: user == null
+                                    ? null
+                                    : () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => FollowScreen(
                                         username: user?.username ?? 'Username_',
+                                        userId: user!.id,
                                         showFollowers: false,
                                       ),
                                     ),

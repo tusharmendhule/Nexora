@@ -2,15 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/clip.dart';
 import '../models/moment.dart';
 import '../models/nexora_label.dart';
-import '../models/post.dart';
 import '../services/clip_service.dart';
 import '../services/moment_service.dart';
 import '../services/post_service.dart';
+import '../services/user_service.dart';
 import '../services/upload_service.dart';
 
 enum CreationType { post, moment, clip }
@@ -25,7 +24,7 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
-  String _currentUserId = 'user_you';
+  String _currentUserId = '';
   String _currentUsername = 'You';
 
   final TextEditingController _controller = TextEditingController();
@@ -35,6 +34,7 @@ class _PostScreenState extends State<PostScreen> {
   final MomentService _momentService = MomentService();
   final ClipService _clipService = ClipService();
   final UploadService _uploadService = UploadService();
+  final UserService _userService = UserService();
 
   late CreationType _type;
   XFile? _media;
@@ -49,11 +49,11 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future<void> _loadCurrentUser() async {
-    final prefs = await SharedPreferences.getInstance();
+    final user = await _userService.getMyProfile();
     if (!mounted) return;
     setState(() {
-      _currentUsername = prefs.getString('user_username') ?? 'You';
-      _currentUserId = prefs.getString('user_id') ?? 'user_you';
+      _currentUsername = user?.displayName ?? user?.username ?? 'You';
+      _currentUserId = user?.id ?? '';
     });
   }
 
@@ -198,31 +198,51 @@ class _PostScreenState extends State<PostScreen> {
 
           if (!mounted) return;
 
+          if (!mounted) return;
+
           if (createdPost != null) {
             Navigator.pop(context, createdPost);
           } else {
-            // API call failed — fall back to local post
-            final fallbackPost = Post(
-              id: 'post_${now.microsecondsSinceEpoch}',
-              authorId: _currentUserId,
-              authorUsername: _currentUsername,
-              text: text.isEmpty ? null : text,
-              mediaUrl: _media?.path,
-              contentType: contentType,
-              label: NexoraLabel.editedContent,
-              createdAt: now,
-            );
-            Navigator.pop(context, fallbackPost);
+            setState(() => _publishing = false);
+            _showMessage('Could not create post. Please try again.');
           }
           return;
 
         case CreationType.moment:
+          // Upload media to Cloudinary before creating moment
+          String momentMediaUrl = _media!.path;
+          if (_media != null) {
+            try {
+              setState(() {
+                _uploadProgress = 0.0;
+              });
+              final uploadResult = await _uploadService.uploadXFile(
+                xFile: _media!,
+                onProgress: (bytesSent, totalBytes) {
+                  if (mounted) {
+                    setState(() {
+                      _uploadProgress = totalBytes > 0 ? bytesSent / totalBytes : 0.0;
+                    });
+                  }
+                },
+              );
+              momentMediaUrl = uploadResult.url;
+            } on UploadError catch (e) {
+              if (!mounted) return;
+              setState(() {
+                _publishing = false;
+                _uploadProgress = 0.0;
+              });
+              _showMessage(e.message);
+              return;
+            }
+          }
           await _momentService.createMoment(
             Moment(
               id: 'moment_${now.microsecondsSinceEpoch}',
               creatorId: _currentUserId,
               creatorUsername: _currentUsername,
-              mediaUrl: _media!.path,
+              mediaUrl: momentMediaUrl,
               mediaType: _isVideo ? 'video' : 'image',
               label: null,
               createdAt: now,
@@ -232,12 +252,40 @@ class _PostScreenState extends State<PostScreen> {
           break;
 
         case CreationType.clip:
+          // Upload media to Cloudinary before creating clip
+          String clipVideoUrl = _media!.path;
+          if (_media != null) {
+            try {
+              setState(() {
+                _uploadProgress = 0.0;
+              });
+              final uploadResult = await _uploadService.uploadXFile(
+                xFile: _media!,
+                onProgress: (bytesSent, totalBytes) {
+                  if (mounted) {
+                    setState(() {
+                      _uploadProgress = totalBytes > 0 ? bytesSent / totalBytes : 0.0;
+                    });
+                  }
+                },
+              );
+              clipVideoUrl = uploadResult.url;
+            } on UploadError catch (e) {
+              if (!mounted) return;
+              setState(() {
+                _publishing = false;
+                _uploadProgress = 0.0;
+              });
+              _showMessage(e.message);
+              return;
+            }
+          }
           await _clipService.createClip(
             Clip(
               id: 'clip_${now.microsecondsSinceEpoch}',
               creatorId: _currentUserId,
               creatorUsername: _currentUsername,
-              videoUrl: _media!.path,
+              videoUrl: clipVideoUrl,
               caption: text,
               music: null,
               label: NexoraLabel.editedContent,

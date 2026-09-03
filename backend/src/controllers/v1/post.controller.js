@@ -99,7 +99,26 @@ exports.getPosts = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
 
-    const result = await postService.getAll(page, limit);
+    const result = await postService.getAll(page, limit, req.user._id);
+
+    res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/v1/posts/saved
+ */
+exports.getSavedPosts = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+
+    const result = await postService.getSavedPosts(req.user._id, page, limit);
 
     res.status(200).json({
       success: true,
@@ -115,7 +134,7 @@ exports.getPosts = async (req, res, next) => {
  */
 exports.getPostById = async (req, res, next) => {
   try {
-    const post = await postService.getById(req.params.id);
+    const post = await postService.getById(req.params.id, req.user._id);
     res.status(200).json({ success: true, post });
   } catch (error) {
     next(error);
@@ -132,6 +151,49 @@ exports.updatePost = async (req, res, next) => {
       success: true,
       message: 'Post updated successfully',
       post,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/v1/posts/search?q=...
+ */
+exports.searchPosts = async (req, res, next) => {
+  try {
+    const query = req.query.q;
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+
+    const result = await postService.search(query, {
+      page,
+      limit,
+      userId: req.user._id,
+    });
+
+    res.status(200).json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /api/v1/posts/:id/save
+ *
+ * Toggle save / bookmark on a post.
+ * Returns { isSaved: true/false, message }
+ */
+exports.toggleSave = async (req, res, next) => {
+  try {
+    const result = await postService.toggleSave(req.params.id, req.user._id);
+    const statusCode = result.isSaved ? 201 : 200;
+    res.status(statusCode).json({
+      success: true,
+      ...result,
     });
   } catch (error) {
     next(error);

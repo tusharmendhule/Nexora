@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../models/conversation.dart';
 import '../services/conversation_service.dart';
+import '../services/user_service.dart';
 import 'chat_screen.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -13,9 +16,12 @@ class MessagesScreen extends StatefulWidget {
 
 class _MessagesScreenState extends State<MessagesScreen> {
   final ConversationService _conversationService = ConversationService();
+  final UserService _userService = UserService();
 
   List<Conversation> conversations = [];
   bool isLoading = true;
+  String _currentUserId = '';
+  Timer? _pollTimer;
 
   @override
   void initState() {
@@ -24,6 +30,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   Future<void> _loadConversations() async {
+    final currentId = await _userService.getCurrentUserId();
+    if (!mounted) return;
+    _currentUserId = currentId ?? '';
+
     final loadedConversations = await _conversationService.fetchConversations();
 
     if (!mounted) return;
@@ -32,6 +42,27 @@ class _MessagesScreenState extends State<MessagesScreen> {
       conversations = loadedConversations;
       isLoading = false;
     });
+
+    // Start polling for updates
+    _startPolling();
+  }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+      if (!mounted) return;
+      final updated = await _conversationService.fetchConversations();
+      if (!mounted) return;
+      setState(() {
+        conversations = updated;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -82,41 +113,80 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ? const Center(
                       child: CircularProgressIndicator(color: Colors.white),
                     )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      itemCount: conversations.length,
-                      itemBuilder: (context, index) {
-                        final conversation = conversations[index];
+                  : conversations.isEmpty
+                      ? const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.chat_bubble_outline,
+                                color: Colors.white24,
+                                size: 48,
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'No conversations yet',
+                                style: TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Start a conversation by messaging someone!',
+                                style: TextStyle(
+                                  color: Colors.white38,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          itemCount: conversations.length,
+                          itemBuilder: (context, index) {
+                            final conversation = conversations[index];
 
-                        final String name =
-                            conversation.participantIds.isNotEmpty
-                            ? conversation.participantIds.first
-                            : 'Unknown';
+                            // Get the other user's info from participantIds
+                            // participantIds[0] is the other user's _id
+                            // participantIds[1] is the other user's username
+                            final String otherUserId =
+                                conversation.participantIds.isNotEmpty
+                                ? conversation.participantIds[0]
+                                : '';
+                            final String name =
+                                conversation.participantIds.length > 1
+                                ? conversation.participantIds[1]
+                                : 'Unknown';
 
-                        final bool unread = conversation.unreadCount > 0;
+                            final bool unread = conversation.unreadCount > 0;
 
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ChatScreen(username: name),
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                      username: name,
+                                      targetUserId: otherUserId,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: _messageTile(
+                                name: name,
+                                message: conversation.lastMessageText ?? '',
+                                time: _formatTime(conversation.lastMessageAt),
+                                unread: unread,
                               ),
                             );
                           },
-                          child: _messageTile(
-                            name: name,
-                            message: conversation.lastMessageText ?? '',
-                            time: _formatTime(conversation.lastMessageAt),
-                            unread: unread,
-                          ),
-                        );
-                      },
-                    ),
+                        ),
             ),
           ],
         ),

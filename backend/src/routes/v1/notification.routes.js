@@ -39,6 +39,40 @@ router.patch('/read-all', markAllAsRead);
 // GET /api/v1/notifications — list notifications
 router.get('/', getNotifications);
 
+// POST /api/v1/notifications — create a notification (admin/system use)
+router.post('/', async (req, res, next) => {
+  try {
+    const notificationService = require('../../services/notification.service');
+    const { recipientId, type, title, body, targetType, targetId, metadata } = req.body;
+
+    if (!recipientId || !type || !title || !body) {
+      return res.status(400).json({
+        success: false,
+        message: 'recipientId, type, title, and body are required',
+      });
+    }
+
+    const notification = await notificationService.create({
+      recipientId,
+      senderId: req.user._id,
+      type,
+      title,
+      body,
+      targetType,
+      targetId,
+      metadata,
+    });
+
+    if (!notification) {
+      return res.status(400).json({ success: false, message: 'Failed to create notification' });
+    }
+
+    res.status(201).json({ success: true, notification });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // DELETE /api/v1/notifications — delete all
 router.delete('/', deleteAll);
 

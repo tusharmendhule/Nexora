@@ -1,25 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/settings_service.dart';
 import 'settings_detail_screen.dart';
-
-class PrivacyData {
-  bool privateAccount = false;
-  bool activityStatus = true;
-  bool readReceipts = true;
-  bool personalizedContent = true;
-  bool twoFactorEnabled = false;
-
-  String messageRequestOption = 'Everyone';
-  String authenticationMethod = 'Authentication App';
-
-  final List<String> blockedAccounts = [];
-  final List<String> mutedAccounts = [];
-
-  bool dataRequestSubmitted = false;
-  bool passwordChanged = false;
-}
-
-final PrivacyData privacyData = PrivacyData();
 
 class PrivacySecurityScreen extends StatefulWidget {
   const PrivacySecurityScreen({super.key});
@@ -29,6 +11,91 @@ class PrivacySecurityScreen extends StatefulWidget {
 }
 
 class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
+  final SettingsService _settingsService = SettingsService();
+
+  bool privateAccount = false;
+  bool activityStatus = true;
+  bool readReceipts = true;
+  bool personalizedContent = true;
+  bool twoFactorEnabled = false;
+  String messageRequestOption = 'Everyone';
+  String authenticationMethod = 'Authentication App';
+  List<String> blockedAccounts = [];
+  List<String> mutedAccounts = [];
+  bool passwordChanged = false;
+  bool dataRequestSubmitted = false;
+
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final settings = await _settingsService.getSettings();
+
+    if (!mounted) return;
+
+    if (settings.isNotEmpty) {
+      setState(() {
+        privateAccount = settings['isPrivateAccount'] ?? false;
+        activityStatus = settings['activityStatus'] ?? true;
+        readReceipts = settings['readReceipts'] ?? true;
+        personalizedContent = settings['personalizedContent'] ?? true;
+        twoFactorEnabled = settings['twoFactorEnabled'] ?? false;
+        authenticationMethod =
+            settings['authenticationMethod'] ?? 'Authentication App';
+        messageRequestOption = _mapDmOption(
+          settings['allowDirectMessagesFrom'] ?? 'everyone',
+        );
+        blockedAccounts =
+            List<String>.from(settings['blockedAccounts'] ?? []);
+        mutedAccounts = List<String>.from(settings['mutedAccounts'] ?? []);
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  String _mapDmOption(String backendValue) {
+    switch (backendValue) {
+      case 'followers':
+        return 'People You Follow';
+      case 'none':
+        return 'Nobody';
+      default:
+        return 'Everyone';
+    }
+  }
+
+  String _dmOptionToBackend(String option) {
+    switch (option) {
+      case 'People You Follow':
+        return 'followers';
+      case 'Nobody':
+        return 'none';
+      default:
+        return 'everyone';
+    }
+  }
+
+  Future<void> _saveSettings() async {
+    await _settingsService.updateSettings({
+      'isPrivateAccount': privateAccount,
+      'activityStatus': activityStatus,
+      'readReceipts': readReceipts,
+      'personalizedContent': personalizedContent,
+      'twoFactorEnabled': twoFactorEnabled,
+      'authenticationMethod': authenticationMethod,
+      'allowDirectMessagesFrom': _dmOptionToBackend(messageRequestOption),
+      'blockedAccounts': blockedAccounts,
+      'mutedAccounts': mutedAccounts,
+    });
+  }
+
   void refresh() {
     if (mounted) {
       setState(() {});
@@ -78,142 +145,154 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
-        children: [
-          _sectionTitle('Privacy'),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
+              children: [
+                _sectionTitle('Privacy'),
 
-          _switchTile(
-            icon: Icons.lock_outline,
-            title: 'Private Account',
-            subtitle:
-                'Only approved people can follow you and view your content',
-            value: privacyData.privateAccount,
-            onChanged: (value) {
-              privacyData.privateAccount = value;
-              refresh();
-            },
-          ),
+                _switchTile(
+                  icon: Icons.lock_outline,
+                  title: 'Private Account',
+                  subtitle:
+                      'Only approved people can follow you and view your content',
+                  value: privateAccount,
+                  onChanged: (value) {
+                    setState(() {
+                      privateAccount = value;
+                    });
+                    _saveSettings();
+                  },
+                ),
 
-          _switchTile(
-            icon: Icons.visibility_outlined,
-            title: 'Activity Status',
-            subtitle: 'Allow others to see when you are active',
-            value: privacyData.activityStatus,
-            onChanged: (value) {
-              privacyData.activityStatus = value;
-              refresh();
-            },
-          ),
+                _switchTile(
+                  icon: Icons.visibility_outlined,
+                  title: 'Activity Status',
+                  subtitle: 'Allow others to see when you are active',
+                  value: activityStatus,
+                  onChanged: (value) {
+                    setState(() {
+                      activityStatus = value;
+                    });
+                    _saveSettings();
+                  },
+                ),
 
-          _tile(
-            icon: Icons.block_outlined,
-            title: 'Blocked Accounts',
-            subtitle: privacyData.blockedAccounts.isEmpty
-                ? 'No blocked accounts'
-                : '${privacyData.blockedAccounts.length} blocked account'
-                      '${privacyData.blockedAccounts.length == 1 ? '' : 's'}',
-            onTap: () => _blockedAccounts(context),
-          ),
+                _tile(
+                  icon: Icons.block_outlined,
+                  title: 'Blocked Accounts',
+                  subtitle: blockedAccounts.isEmpty
+                      ? 'No blocked accounts'
+                      : '${blockedAccounts.length} blocked account'
+                            '${blockedAccounts.length == 1 ? '' : 's'}',
+                  onTap: () => _blockedAccounts(context),
+                ),
 
-          _tile(
-            icon: Icons.person_off_outlined,
-            title: 'Muted Accounts',
-            subtitle: privacyData.mutedAccounts.isEmpty
-                ? 'No muted accounts'
-                : '${privacyData.mutedAccounts.length} muted account'
-                      '${privacyData.mutedAccounts.length == 1 ? '' : 's'}',
-            onTap: () => _mutedAccounts(context),
-          ),
+                _tile(
+                  icon: Icons.person_off_outlined,
+                  title: 'Muted Accounts',
+                  subtitle: mutedAccounts.isEmpty
+                      ? 'No muted accounts'
+                      : '${mutedAccounts.length} muted account'
+                            '${mutedAccounts.length == 1 ? '' : 's'}',
+                  onTap: () => _mutedAccounts(context),
+                ),
 
-          const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-          _sectionTitle('Messages'),
+                _sectionTitle('Messages'),
 
-          _switchTile(
-            icon: Icons.done_all,
-            title: 'Read Receipts',
-            subtitle: 'Let people know when you have read their messages',
-            value: privacyData.readReceipts,
-            onChanged: (value) {
-              privacyData.readReceipts = value;
-              refresh();
-            },
-          ),
+                _switchTile(
+                  icon: Icons.done_all,
+                  title: 'Read Receipts',
+                  subtitle: 'Let people know when you have read their messages',
+                  value: readReceipts,
+                  onChanged: (value) {
+                    setState(() {
+                      readReceipts = value;
+                    });
+                    _saveSettings();
+                  },
+                ),
 
-          _tile(
-            icon: Icons.chat_bubble_outline,
-            title: 'Message Requests',
-            subtitle: privacyData.messageRequestOption,
-            onTap: () => _messageRequests(context),
-          ),
+                _tile(
+                  icon: Icons.chat_bubble_outline,
+                  title: 'Message Requests',
+                  subtitle: messageRequestOption,
+                  onTap: () => _messageRequests(context),
+                ),
 
-          const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-          _sectionTitle('Content & Data'),
+                _sectionTitle('Content & Data'),
 
-          _switchTile(
-            icon: Icons.auto_awesome_outlined,
-            title: 'Personalized Content',
-            subtitle: 'Use your activity to personalize what you see',
-            value: privacyData.personalizedContent,
-            onChanged: (value) {
-              privacyData.personalizedContent = value;
-              refresh();
-            },
-          ),
+                _switchTile(
+                  icon: Icons.auto_awesome_outlined,
+                  title: 'Personalized Content',
+                  subtitle: 'Use your activity to personalize what you see',
+                  value: personalizedContent,
+                  onChanged: (value) {
+                    setState(() {
+                      personalizedContent = value;
+                    });
+                    _saveSettings();
+                  },
+                ),
 
-          _tile(
-            icon: Icons.download_outlined,
-            title: 'Download Your Data',
-            subtitle: privacyData.dataRequestSubmitted
-                ? 'Data request submitted'
-                : 'Request a copy of your Nexora data',
-            onTap: () => _downloadData(context),
-          ),
+                _tile(
+                  icon: Icons.download_outlined,
+                  title: 'Download Your Data',
+                  subtitle: dataRequestSubmitted
+                      ? 'Data request submitted'
+                      : 'Request a copy of your Nexora data',
+                  onTap: () => _downloadData(context),
+                ),
 
-          const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-          _sectionTitle('Security'),
+                _sectionTitle('Security'),
 
-          _tile(
-            icon: Icons.password_outlined,
-            title: 'Change Password',
-            subtitle: privacyData.passwordChanged
-                ? 'Password updated'
-                : 'Update your Nexora password',
-            onTap: () => _changePassword(context),
-          ),
+                _tile(
+                  icon: Icons.password_outlined,
+                  title: 'Change Password',
+                  subtitle: passwordChanged
+                      ? 'Password updated'
+                      : 'Update your Nexora password',
+                  onTap: () => _changePassword(context),
+                ),
 
-          _tile(
-            icon: Icons.security_outlined,
-            title: 'Two-Factor Authentication',
-            subtitle: privacyData.twoFactorEnabled
-                ? 'Enabled · ${privacyData.authenticationMethod}'
-                : 'Add an extra layer of protection',
-            onTap: () => _twoFactorAuthentication(context),
-          ),
+                _tile(
+                  icon: Icons.security_outlined,
+                  title: 'Two-Factor Authentication',
+                  subtitle: twoFactorEnabled
+                      ? 'Enabled · $authenticationMethod'
+                      : 'Add an extra layer of protection',
+                  onTap: () => _twoFactorAuthentication(context),
+                ),
 
-          _tile(
-            icon: Icons.devices_outlined,
-            title: 'Login Activity',
-            subtitle: 'Review devices signed into your account',
-            onTap: () => _loginActivity(context),
-          ),
+                _tile(
+                  icon: Icons.devices_outlined,
+                  title: 'Login Activity',
+                  subtitle: 'Review devices signed into your account',
+                  onTap: () => _loginActivity(context),
+                ),
 
-          const SizedBox(height: 30),
+                const SizedBox(height: 30),
 
-          Center(
-            child: Text(
-              'Your privacy. Your security. Your control.',
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.35),
-                fontSize: 12,
-              ),
+                Center(
+                  child: Text(
+                    'Your privacy. Your security. Your control.',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.35),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -227,16 +306,18 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           emptyTitle: 'No Blocked Accounts',
           emptySubtitle: 'Accounts you block will appear here.',
           icon: Icons.block_outlined,
-          accounts: privacyData.blockedAccounts,
+          accounts: blockedAccounts,
           actionLabel: 'Block Account',
           removeLabel: 'Unblock',
           onAdd: (name) {
-            if (!privacyData.blockedAccounts.contains(name)) {
-              privacyData.blockedAccounts.add(name);
+            if (!blockedAccounts.contains(name)) {
+              blockedAccounts.add(name);
+              _saveSettings();
             }
           },
           onRemove: (name) {
-            privacyData.blockedAccounts.remove(name);
+            blockedAccounts.remove(name);
+            _saveSettings();
           },
         ),
       ),
@@ -253,16 +334,18 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           emptyTitle: 'No Muted Accounts',
           emptySubtitle: 'Accounts you mute will appear here.',
           icon: Icons.volume_off_outlined,
-          accounts: privacyData.mutedAccounts,
+          accounts: mutedAccounts,
           actionLabel: 'Mute Account',
           removeLabel: 'Unmute',
           onAdd: (name) {
-            if (!privacyData.mutedAccounts.contains(name)) {
-              privacyData.mutedAccounts.add(name);
+            if (!mutedAccounts.contains(name)) {
+              mutedAccounts.add(name);
+              _saveSettings();
             }
           },
           onRemove: (name) {
-            privacyData.mutedAccounts.remove(name);
+            mutedAccounts.remove(name);
+            _saveSettings();
           },
         ),
       ),
@@ -272,7 +355,15 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   void _messageRequests(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => _MessageRequestsScreen()),
+      MaterialPageRoute(builder: (_) => _MessageRequestsScreen(
+        currentOption: messageRequestOption,
+        onChanged: (option) {
+          setState(() {
+            messageRequestOption = option;
+          });
+          _saveSettings();
+        },
+      )),
     ).then((_) => refresh());
   }
 
@@ -288,12 +379,14 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
             SettingsItem(
               icon: Icons.download_outlined,
               title: 'Request Your Data',
-              subtitle: privacyData.dataRequestSubmitted
+              subtitle: dataRequestSubmitted
                   ? 'Request submitted'
                   : 'Prepare a copy of your Nexora data',
               type: SettingsItemType.action,
               onTap: () {
-                privacyData.dataRequestSubmitted = true;
+                setState(() {
+                  dataRequestSubmitted = true;
+                });
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -314,14 +407,30 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   void _changePassword(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => _ChangePasswordScreen()),
+      MaterialPageRoute(builder: (_) => _ChangePasswordScreen(
+        onPasswordChanged: () {
+          setState(() {
+            passwordChanged = true;
+          });
+        },
+      )),
     ).then((_) => refresh());
   }
 
   void _twoFactorAuthentication(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => _TwoFactorScreen()),
+      MaterialPageRoute(builder: (_) => _TwoFactorScreen(
+        twoFactorEnabled: twoFactorEnabled,
+        authenticationMethod: authenticationMethod,
+        onChanged: (enabled, method) {
+          setState(() {
+            twoFactorEnabled = enabled;
+            authenticationMethod = method;
+          });
+          _saveSettings();
+        },
+      )),
     ).then((_) => refresh());
   }
 
@@ -442,6 +551,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     );
   }
 }
+
+// ─── Account List Screen (Blocked / Muted) ──────────────
 
 class _AccountListScreen extends StatefulWidget {
   final String title;
@@ -624,19 +735,19 @@ class _AccountListScreenState extends State<_AccountListScreen> {
         children: [
           _iconBox(widget.icon),
           const SizedBox(width: 13),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'No accounts',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
                   'Nothing has been added here yet.',
                   style: TextStyle(color: Colors.white54, fontSize: 12),
@@ -700,12 +811,30 @@ class _AccountListScreenState extends State<_AccountListScreen> {
   }
 }
 
+// ─── Message Requests Screen ──────────────────────────
+
 class _MessageRequestsScreen extends StatefulWidget {
+  final String currentOption;
+  final ValueChanged<String> onChanged;
+
+  const _MessageRequestsScreen({
+    required this.currentOption,
+    required this.onChanged,
+  });
+
   @override
   State<_MessageRequestsScreen> createState() => _MessageRequestsScreenState();
 }
 
 class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
+  late String selectedOption;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedOption = widget.currentOption;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -763,7 +892,7 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
     required String subtitle,
     required String value,
   }) {
-    final selected = privacyData.messageRequestOption == value;
+    final selected = selectedOption == value;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -799,8 +928,9 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
             : const Icon(Icons.radio_button_unchecked, color: Colors.white24),
         onTap: () {
           setState(() {
-            privacyData.messageRequestOption = value;
+            selectedOption = value;
           });
+          widget.onChanged(value);
         },
       ),
     );
@@ -835,7 +965,13 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
   }
 }
 
+// ─── Change Password Screen ──────────────────────────
+
 class _ChangePasswordScreen extends StatefulWidget {
+  final VoidCallback? onPasswordChanged;
+
+  const _ChangePasswordScreen({this.onPasswordChanged});
+
   @override
   State<_ChangePasswordScreen> createState() => _ChangePasswordScreenState();
 }
@@ -844,6 +980,8 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
   final currentController = TextEditingController();
   final newController = TextEditingController();
   final confirmController = TextEditingController();
+  final SettingsService _settingsService = SettingsService();
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -853,7 +991,7 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (currentController.text.isEmpty ||
         newController.text.isEmpty ||
         confirmController.text.isEmpty) {
@@ -866,16 +1004,34 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
       return;
     }
 
-    privacyData.passwordChanged = true;
+    if (newController.text.length < 6) {
+      _message('New password must be at least 6 characters.');
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Password updated'),
-        behavior: SnackBarBehavior.floating,
-      ),
+    setState(() => _saving = true);
+
+    final error = await _settingsService.changePassword(
+      currentPassword: currentController.text,
+      newPassword: newController.text,
     );
 
-    Navigator.pop(context);
+    if (!mounted) return;
+
+    setState(() => _saving = false);
+
+    if (error == null) {
+      widget.onPasswordChanged?.call();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password updated'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.pop(context);
+    } else {
+      _message(error);
+    }
   }
 
   void _message(String text) {
@@ -935,18 +1091,27 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
                 ),
               ),
               child: ElevatedButton(
-                onPressed: _save,
+                onPressed: _saving ? null : _save,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
                 ),
-                child: const Text(
-                  'Update Password',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: _saving
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Update Password',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -982,12 +1147,34 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
   }
 }
 
+// ─── Two-Factor Screen ───────────────────────────────
+
 class _TwoFactorScreen extends StatefulWidget {
+  final bool twoFactorEnabled;
+  final String authenticationMethod;
+  final void Function(bool enabled, String method) onChanged;
+
+  const _TwoFactorScreen({
+    required this.twoFactorEnabled,
+    required this.authenticationMethod,
+    required this.onChanged,
+  });
+
   @override
   State<_TwoFactorScreen> createState() => _TwoFactorScreenState();
 }
 
 class _TwoFactorScreenState extends State<_TwoFactorScreen> {
+  late bool twoFactorEnabled;
+  late String authenticationMethod;
+
+  @override
+  void initState() {
+    super.initState();
+    twoFactorEnabled = widget.twoFactorEnabled;
+    authenticationMethod = widget.authenticationMethod;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1022,17 +1209,18 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
             icon: Icons.security_outlined,
             title: 'Authentication',
             subtitle: 'Protect your account with two-factor authentication',
-            value: privacyData.twoFactorEnabled,
+            value: twoFactorEnabled,
             onChanged: (value) {
               setState(() {
-                privacyData.twoFactorEnabled = value;
+                twoFactorEnabled = value;
               });
+              widget.onChanged(twoFactorEnabled, authenticationMethod);
             },
           ),
           _tile(
             icon: Icons.phone_android_outlined,
             title: 'Authentication Method',
-            subtitle: privacyData.authenticationMethod,
+            subtitle: authenticationMethod,
             onTap: _authenticationMethod,
           ),
         ],
@@ -1092,7 +1280,7 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
     String name,
     IconData icon,
   ) {
-    final selected = privacyData.authenticationMethod == name;
+    final selected = authenticationMethod == name;
 
     return ListTile(
       leading: _iconBox(icon),
@@ -1102,10 +1290,12 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
           : const Icon(Icons.radio_button_unchecked, color: Colors.white24),
       onTap: () {
         setSheetState(() {
-          privacyData.authenticationMethod = name;
+          authenticationMethod = name;
         });
 
         setState(() {});
+
+        widget.onChanged(twoFactorEnabled, authenticationMethod);
 
         Navigator.pop(context);
       },
@@ -1209,6 +1399,8 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
     );
   }
 }
+
+// ─── Login Activity Screen ──────────────────────────
 
 class _LoginActivityScreen extends StatefulWidget {
   const _LoginActivityScreen();

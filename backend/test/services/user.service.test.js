@@ -92,6 +92,13 @@ jest.mock('../../src/services/audit.service', () => ({
   logAccountEvent: jest.fn().mockResolvedValue(true),
 }));
 
+jest.mock('../../src/models/post.model', () => {
+  const MockPost = {
+    countDocuments: jest.fn().mockResolvedValue(0),
+  };
+  return MockPost;
+});
+
 // ─── Imports ──────────────────────────────────────────────────────────
 
 const User = require('../../src/models/user.model');

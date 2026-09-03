@@ -43,6 +43,11 @@ const {
 } = require('../../controllers/v1/audio-analysis.controller');
 
 const {
+  analyzeImageDirect,
+  getAnalysisByPostId: getImageAnalysisByPostId,
+} = require('../../controllers/v1/analyze-image.controller');
+
+const {
   analyzeLinkDirect,
   getAnalysisByPostId: getLinkAnalysisByPostId,
 } = require('../../controllers/v1/link-analysis.controller');
@@ -71,6 +76,21 @@ router.get(
   protect,
   validateObjectId('postId'),
   getVideoAnalysisByPostId
+);
+
+// ─── Direct Image Analysis ─────────────────────────────────────────────
+
+// POST /api/v1/content/analyze-image
+// Direct image manipulation / deepfake analysis
+router.post('/analyze-image', protect, analyzeImageDirect);
+
+// GET /api/v1/content/analyze-image/:postId
+// Get stored image analysis results by postId
+router.get(
+  '/analyze-image/:postId',
+  protect,
+  validateObjectId('postId'),
+  getImageAnalysisByPostId
 );
 
 // ─── Direct Audio Analysis ─────────────────────────────────────────────

@@ -82,6 +82,24 @@ const errorHandler = (err, req, res, _next) => {
     error = handleJwtExpiredError();
   }
 
+  // Multer errors (file size limit, unexpected field, etc.)
+  if (err.name === 'MulterError' || err.code === 'LIMIT_FILE_SIZE') {
+    const multerCode = err.code || err.name;
+    switch (multerCode) {
+      case 'LIMIT_FILE_SIZE':
+        error = new ApiError(400, 'File too large. Maximum allowed size is 100MB for video, 10MB for images, and 20MB for audio.');
+        break;
+      case 'LIMIT_FILE_COUNT':
+        error = new ApiError(400, 'Too many files. Maximum allowed: 10 files.');
+        break;
+      case 'LIMIT_UNEXPECTED_FILE':
+        error = new ApiError(400, 'Unexpected file field in upload.');
+        break;
+      default:
+        error = new ApiError(400, 'File upload failed: ' + (err.message || 'unknown error'));
+    }
+  }
+
   const statusCode = error.statusCode || 500;
   const message = error.message || 'Internal server error';
 

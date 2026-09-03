@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/settings_service.dart';
+
 class NotificationsSettingsScreen extends StatefulWidget {
   const NotificationsSettingsScreen({super.key});
 
@@ -10,6 +12,8 @@ class NotificationsSettingsScreen extends StatefulWidget {
 
 class _NotificationsSettingsScreenState
     extends State<NotificationsSettingsScreen> {
+  final SettingsService _settingsService = SettingsService();
+
   bool pushNotifications = true;
   bool likesAndComments = true;
   bool newFollowers = true;
@@ -17,6 +21,47 @@ class _NotificationsSettingsScreenState
   bool mentions = true;
   bool moments = true;
   bool clips = true;
+
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final settings = await _settingsService.getSettings();
+
+    if (!mounted) return;
+
+    if (settings.isNotEmpty) {
+      setState(() {
+        pushNotifications = settings['notificationsEnabled'] ?? true;
+        likesAndComments = settings['likesAndComments'] ?? true;
+        newFollowers = settings['newFollowers'] ?? true;
+        messages = settings['messages'] ?? true;
+        mentions = settings['mentions'] ?? true;
+        moments = settings['moments'] ?? true;
+        clips = settings['clips'] ?? true;
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _saveSettings() async {
+    await _settingsService.updateSettings({
+      'notificationsEnabled': pushNotifications,
+      'likesAndComments': likesAndComments,
+      'newFollowers': newFollowers,
+      'messages': messages,
+      'mentions': mentions,
+      'moments': moments,
+      'clips': clips,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,155 +92,166 @@ class _NotificationsSettingsScreenState
         ),
       ),
 
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
-        children: [
-          _sectionTitle('General'),
-
-          _settingsCard(
-            child: _switchTile(
-              icon: Icons.notifications_none,
-              title: 'Push Notifications',
-              subtitle: 'Allow Nexora to send notifications',
-              value: pushNotifications,
-              onChanged: (value) {
-                setState(() {
-                  pushNotifications = value;
-                });
-              },
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          _sectionTitle('Activity'),
-
-          _settingsCard(
-            child: Column(
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
               children: [
-                _switchTile(
-                  icon: Icons.favorite_border,
-                  title: 'Likes & Comments',
-                  subtitle: 'When someone interacts with your posts',
-                  value: likesAndComments,
-                  onChanged: pushNotifications
-                      ? (value) {
-                          setState(() {
-                            likesAndComments = value;
-                          });
-                        }
-                      : null,
-                ),
+                _sectionTitle('General'),
 
-                _divider(),
-
-                _switchTile(
-                  icon: Icons.person_add_outlined,
-                  title: 'New Followers',
-                  subtitle: 'When someone follows you',
-                  value: newFollowers,
-                  onChanged: pushNotifications
-                      ? (value) {
-                          setState(() {
-                            newFollowers = value;
-                          });
-                        }
-                      : null,
-                ),
-
-                _divider(),
-
-                _switchTile(
-                  icon: Icons.alternate_email,
-                  title: 'Mentions',
-                  subtitle: 'When someone mentions you',
-                  value: mentions,
-                  onChanged: pushNotifications
-                      ? (value) {
-                          setState(() {
-                            mentions = value;
-                          });
-                        }
-                      : null,
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          _sectionTitle('Messages'),
-
-          _settingsCard(
-            child: _switchTile(
-              icon: Icons.chat_bubble_outline,
-              title: 'Messages',
-              subtitle: 'New messages and chat activity',
-              value: messages,
-              onChanged: pushNotifications
-                  ? (value) {
+                _settingsCard(
+                  child: _switchTile(
+                    icon: Icons.notifications_none,
+                    title: 'Push Notifications',
+                    subtitle: 'Allow Nexora to send notifications',
+                    value: pushNotifications,
+                    onChanged: (value) {
                       setState(() {
-                        messages = value;
+                        pushNotifications = value;
                       });
-                    }
-                  : null,
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          _sectionTitle('Nexora'),
-
-          _settingsCard(
-            child: Column(
-              children: [
-                _switchTile(
-                  icon: Icons.auto_awesome,
-                  title: 'Moments',
-                  subtitle: 'Updates from moments you follow',
-                  value: moments,
-                  onChanged: pushNotifications
-                      ? (value) {
-                          setState(() {
-                            moments = value;
-                          });
-                        }
-                      : null,
+                      _saveSettings();
+                    },
+                  ),
                 ),
 
-                _divider(),
+                const SizedBox(height: 24),
 
-                _switchTile(
-                  icon: Icons.play_circle_outline,
-                  title: 'Clips',
-                  subtitle: 'New clips and recommendations',
-                  value: clips,
-                  onChanged: pushNotifications
-                      ? (value) {
-                          setState(() {
-                            clips = value;
-                          });
-                        }
-                      : null,
+                _sectionTitle('Activity'),
+
+                _settingsCard(
+                  child: Column(
+                    children: [
+                      _switchTile(
+                        icon: Icons.favorite_border,
+                        title: 'Likes & Comments',
+                        subtitle: 'When someone interacts with your posts',
+                        value: likesAndComments,
+                        onChanged: pushNotifications
+                            ? (value) {
+                                setState(() {
+                                  likesAndComments = value;
+                                });
+                                _saveSettings();
+                              }
+                            : null,
+                      ),
+
+                      _divider(),
+
+                      _switchTile(
+                        icon: Icons.person_add_outlined,
+                        title: 'New Followers',
+                        subtitle: 'When someone follows you',
+                        value: newFollowers,
+                        onChanged: pushNotifications
+                            ? (value) {
+                                setState(() {
+                                  newFollowers = value;
+                                });
+                                _saveSettings();
+                              }
+                            : null,
+                      ),
+
+                      _divider(),
+
+                      _switchTile(
+                        icon: Icons.alternate_email,
+                        title: 'Mentions',
+                        subtitle: 'When someone mentions you',
+                        value: mentions,
+                        onChanged: pushNotifications
+                            ? (value) {
+                                setState(() {
+                                  mentions = value;
+                                });
+                                _saveSettings();
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                _sectionTitle('Messages'),
+
+                _settingsCard(
+                  child: _switchTile(
+                    icon: Icons.chat_bubble_outline,
+                    title: 'Messages',
+                    subtitle: 'New messages and chat activity',
+                    value: messages,
+                    onChanged: pushNotifications
+                        ? (value) {
+                            setState(() {
+                              messages = value;
+                            });
+                            _saveSettings();
+                          }
+                        : null,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                _sectionTitle('Nexora'),
+
+                _settingsCard(
+                  child: Column(
+                    children: [
+                      _switchTile(
+                        icon: Icons.auto_awesome,
+                        title: 'Moments',
+                        subtitle: 'Updates from moments you follow',
+                        value: moments,
+                        onChanged: pushNotifications
+                            ? (value) {
+                                setState(() {
+                                  moments = value;
+                                });
+                                _saveSettings();
+                              }
+                            : null,
+                      ),
+
+                      _divider(),
+
+                      _switchTile(
+                        icon: Icons.play_circle_outline,
+                        title: 'Clips',
+                        subtitle: 'New clips and recommendations',
+                        value: clips,
+                        onChanged: pushNotifications
+                            ? (value) {
+                                setState(() {
+                                  clips = value;
+                                });
+                                _saveSettings();
+                              }
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                _sectionTitle('Quiet Mode'),
+
+                _settingsCard(
+                  child: _actionTile(
+                    icon: Icons.do_not_disturb_on_outlined,
+                    title: 'Quiet Mode',
+                    subtitle: 'Temporarily pause notifications',
+                    onTap: () {},
+                  ),
                 ),
               ],
             ),
-          ),
-
-          const SizedBox(height: 24),
-
-          _sectionTitle('Quiet Mode'),
-
-          _settingsCard(
-            child: _actionTile(
-              icon: Icons.do_not_disturb_on_outlined,
-              title: 'Quiet Mode',
-              subtitle: 'Temporarily pause notifications',
-              onTap: () {},
-            ),
-          ),
-        ],
-      ),
     );
   }
 

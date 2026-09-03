@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'user_profile_screen.dart';
 import '../models/user.dart';
 import '../services/follow_service.dart';
+import '../services/user_service.dart';
 
 class FollowScreen extends StatefulWidget {
   final String username;
@@ -24,8 +25,9 @@ class _FollowScreenState extends State<FollowScreen> {
   late bool showingFollowers;
 
   final FollowService _followService = FollowService();
+  final UserService _userService = UserService();
 
-  static const String currentUserId = 'user_you';
+  String currentUserId = '';
 
   List<User> users = [];
   bool isLoading = true;
@@ -37,7 +39,15 @@ class _FollowScreenState extends State<FollowScreen> {
     _loadUsers();
   }
 
+  Future<void> _loadCurrentUserId() async {
+    if (currentUserId.isNotEmpty) return;
+    final id = await _userService.getCurrentUserId();
+    currentUserId = id ?? '';
+  }
+
   Future<void> _loadUsers() async {
+    await _loadCurrentUserId();
+
     final loadedUsers = showingFollowers
         ? await _followService.getFollowers(widget.userId)
         : await _followService.getFollowing(widget.userId);
@@ -72,7 +82,11 @@ class _FollowScreenState extends State<FollowScreen> {
 
     if (!mounted) return;
 
-    setState(() {});
+    // Reload the list to reflect updated follow status
+    setState(() {
+      isLoading = true;
+    });
+    await _loadUsers();
   }
 
   @override

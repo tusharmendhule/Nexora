@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../models/notification.dart';
 import '../services/notification_service.dart';
+import '../services/user_service.dart';
+import 'chat_screen.dart';
+import 'post_screen.dart';
+import 'user_profile_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -11,12 +15,12 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  static const String currentUserId = 'user_you';
-
   final NotificationService _notificationService = NotificationService();
+  final UserService _userService = UserService();
 
   List<AppNotification> notifications = [];
   bool isLoading = true;
+  String _currentUserId = '';
 
   @override
   void initState() {
@@ -25,7 +29,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _loadNotifications() async {
-    final loaded = await _notificationService.fetchNotifications(currentUserId);
+    final currentId = await _userService.getCurrentUserId();
+    if (!mounted) return;
+    _currentUserId = currentId ?? '';
+
+    final loaded = await _notificationService.fetchNotifications(_currentUserId);
 
     if (!mounted) return;
 
@@ -35,8 +43,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
   }
 
+  Future<void> _markAllAsRead() async {
+    await _notificationService.markAllAsRead(_currentUserId);
+
+    if (!mounted) return;
+
+    setState(() {
+      notifications = notifications
+          .map((n) => n.copyWith(isRead: true))
+          .toList();
+    });
+  }
+
   Future<void> _clearNotifications() async {
-    await _notificationService.deleteAll(currentUserId);
+    await _notificationService.deleteAll(_currentUserId);
 
     if (!mounted) return;
 
@@ -46,6 +66,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _openNotification(AppNotification notification) async {
+    // Mark as read if unread
     if (!notification.isRead) {
       await _notificationService.markAsRead(notification.id);
 
@@ -60,6 +81,74 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           notifications[index] = notification.copyWith(isRead: true);
         }
       });
+    }
+
+    // Navigate to the correct screen based on notification type
+    if (!mounted) return;
+    _navigateToTarget(notification);
+  }
+
+  void _navigateToTarget(AppNotification notification) {
+    try {
+      switch (notification.targetType) {
+        case 'Post':
+          // Navigate to home screen (posts are on the home feed)
+          // We pop back to main nav which shows the home screen
+          Navigator.of(context).pop();
+          break;
+        case 'User':
+          // Navigate to the actor's profile
+          if (notification.actorId != null && notification.actorId!.isNotEmpty) {
+            // We need to get the username from the actor ID
+            _navigateToProfile(notification.actorId!);
+          }
+          break;
+        case 'Message':
+          // Navigate to chat with the sender
+          if (notification.actorId != null && notification.actorId!.isNotEmpty) {
+            _navigateToChat(notification.actorId!);
+          }
+          break;
+        case 'Report':
+          // Reports don't have a specific screen — just pop back
+          Navigator.of(context).pop();
+          break;
+        default:
+          // For system/other notifications, just pop back
+          Navigator.of(context).pop();
+          break;
+      }
+    } catch (_) {
+      // Navigation failed — stay on notifications screen
+    }
+  }
+
+  Future<void> _navigateToProfile(String userId) async {
+    final user = await _userService.getUserById(userId);
+    if (!mounted) return;
+    if (user != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => UserProfileScreen(username: user.username),
+        ),
+      );
+    }
+  }
+
+  Future<void> _navigateToChat(String userId) async {
+    final user = await _userService.getUserById(userId);
+    if (!mounted) return;
+    if (user != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChatScreen(
+            username: user.username,
+            targetUserId: userId,
+          ),
+        ),
+      );
     }
   }
 
@@ -87,6 +176,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         actions: [
+          if (notifications.any((n) => !n.isRead))
+            TextButton(
+              onPressed: _markAllAsRead,
+              child: const Text(
+                'Mark all read',
+                style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 13),
+              ),
+            ),
           TextButton(
             onPressed: notifications.isEmpty ? null : _clearNotifications,
             child: const Text(

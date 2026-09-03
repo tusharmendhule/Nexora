@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Follower = require('../models/follower.model');
+const User = require('../models/user.model');
 const { protect } = require('../middleware/auth.middleware');
+const notificationService = require('../services/notification.service');
 
 // ==========================================
 // 1. FOLLOW A USER
@@ -21,12 +23,27 @@ router.post('/:id/follow', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'You cannot follow yourself' });
     }
 
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
     const existingFollow = await Follower.findOne({ follower: currentUserId, following: targetUserId });
     if (existingFollow) {
       return res.status(400).json({ success: false, message: 'Already following this user' });
     }
 
     await Follower.create({ follower: currentUserId, following: targetUserId });
+
+    // Update counts
+    await User.findByIdAndUpdate(currentUserId, { $inc: { followingCount: 1 } });
+    await User.findByIdAndUpdate(targetUserId, { $inc: { followersCount: 1 } });
+
+    // Notify the followed user (fire-and-forget)
+    notificationService.notifyNewFollower({
+      recipientId: targetUserId,
+      followerId: currentUserId,
+    }).catch(() => {});
 
     res.status(200).json({ success: true, message: 'User followed successfully' });
   } catch (error) {
@@ -48,7 +65,16 @@ router.post('/:id/unfollow', protect, async (req, res) => {
       return res.status(401).json({ success: false, message: 'User not authenticated' });
     }
 
+    const existingFollow = await Follower.findOne({ follower: currentUserId, following: targetUserId });
+    if (!existingFollow) {
+      return res.status(200).json({ success: true, message: 'Not following', isFollowing: false });
+    }
+
     await Follower.findOneAndDelete({ follower: currentUserId, following: targetUserId });
+
+    // Update counts
+    await User.findByIdAndUpdate(currentUserId, { $inc: { followingCount: -1 } });
+    await User.findByIdAndUpdate(targetUserId, { $inc: { followersCount: -1 } });
 
     res.status(200).json({ success: true, message: 'User unfollowed successfully' });
   } catch (error) {

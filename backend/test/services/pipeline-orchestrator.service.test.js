@@ -82,6 +82,11 @@ jest.mock('../../src/services/video-analysis.service', () => ({
   getAnalysisForPost: jest.fn(),
 }));
 
+jest.mock('../../src/services/image-analysis.service', () => ({
+  analyzeImage: jest.fn(),
+  getAnalysisForPost: jest.fn(),
+}));
+
 jest.mock('../../src/services/audio-analysis.service', () => ({
   analyzeAudio: jest.fn(),
   getAnalysisForPost: jest.fn(),
@@ -116,6 +121,8 @@ jest.mock('../../src/services/trust-score.service', () => ({
 
 jest.mock('../../src/services/fact-check.service', () => ({
   factCheckClaims: jest.fn(),
+  computeFactualVerificationScore: jest.fn(),
+  isConfirmedFalse: jest.fn(),
   VerificationStatus: {
     VERIFIED_TRUE: 'VERIFIED_TRUE',
     VERIFIED_FALSE: 'VERIFIED_FALSE',
@@ -149,6 +156,7 @@ const Post = require('../../src/models/post.model');
 const contentRouter = require('../../src/services/content-router.service');
 const textAnalysisService = require('../../src/services/text-analysis.service');
 const videoAnalysisService = require('../../src/services/video-analysis.service');
+const imageAnalysisService = require('../../src/services/image-analysis.service');
 const audioAnalysisService = require('../../src/services/audio-analysis.service');
 const linkAnalysisService = require('../../src/services/link-analysis.service');
 const claimEntityService = require('../../src/services/claim-entity-extraction.service');
@@ -241,8 +249,8 @@ function setupMocksForTextPipeline() {
     summary: { total: 1, verified: 1, false: 0, mixed: 0, noEvidence: 0, unknown: 0 },
   });
 
-  trustScoreService.computeFactualVerificationScore.mockReturnValue(0.8);
-  trustScoreService.isConfirmedFalse.mockReturnValue(false);
+  factCheckService.computeFactualVerificationScore.mockReturnValue(0.8);
+  factCheckService.isConfirmedFalse.mockReturnValue(false);
 
   evidenceNormalizationService.normalizeAndStoreEvidence.mockResolvedValue({
     _id: 'evidence_001',
@@ -569,7 +577,23 @@ describe('Pipeline Orchestrator (Module 17)', () => {
       };
       PipelineStage.create.mockResolvedValue(mockPipelineDoc);
 
-      // IMAGE uses the placeholder pipeline
+      // IMAGE now uses real analysis via image-analysis service
+      imageAnalysisService.analyzeImage.mockResolvedValue({
+        status: 'COMPLETED',
+        results: {
+          manipulationProbability: 0.1,
+          faceManipulationProbability: 0.05,
+          frequencyAnomaly: 0.08,
+          colorAnomaly: 0.03,
+          textureAnomaly: 0.06,
+          faceDetectionCount: 1,
+          hasFace: true,
+          confidence: 0.85,
+          finalScore: 82,
+        },
+        modelVersion: 'nexora-image-v1.0.0',
+      });
+
       evidenceNormalizationService.normalizeAndStoreEvidence.mockResolvedValue({
         _id: 'ev_001',
         evidenceItems: [{ source: 'Content Metadata', evidenceCategory: 'positive', confidence: 0.5, sourceReliability: 0.5 }],
@@ -600,6 +624,10 @@ describe('Pipeline Orchestrator (Module 17)', () => {
       expect(textAnalysisService.analyzeText).not.toHaveBeenCalled();
       expect(claimEntityService.extractDirect).not.toHaveBeenCalled();
       expect(factCheckService.factCheckClaims).not.toHaveBeenCalled();
+
+      // Image analysis SHOULD be called for IMAGE content
+      expect(imageAnalysisService.analyzeImage).toHaveBeenCalledTimes(1);
+      expect(imageAnalysisService.analyzeImage).toHaveBeenCalledWith(job);
 
       // Trust score should still be computed
       expect(trustScoreService.computeAndStoreTrustScore).toHaveBeenCalled();
@@ -815,8 +843,8 @@ describe('Pipeline Orchestrator (Module 17)', () => {
         summary: { total: 0, verified: 0, false: 0, mixed: 0, noEvidence: 0, unknown: 0 },
       });
 
-      trustScoreService.computeFactualVerificationScore.mockReturnValue(0.5);
-      trustScoreService.isConfirmedFalse.mockReturnValue(false);
+      factCheckService.computeFactualVerificationScore.mockReturnValue(0.5);
+      factCheckService.isConfirmedFalse.mockReturnValue(false);
 
       const stagesForLink = buildStageList('LINK').map(stage => ({
         stage,
@@ -932,7 +960,7 @@ describe('Pipeline Orchestrator (Module 17)', () => {
 
       claimEntityService.extractDirect.mockResolvedValue(null);
       factCheckService.factCheckClaims.mockResolvedValue({ results: [], aggregateStatus: 'NO_EVIDENCE' });
-      trustScoreService.computeFactualVerificationScore.mockReturnValue(0.5);
+      factCheckService.computeFactualVerificationScore.mockReturnValue(0.5);
 
       // Trust score fails
       trustScoreService.computeAndStoreTrustScore.mockRejectedValue(new Error('Trust score computation failed'));

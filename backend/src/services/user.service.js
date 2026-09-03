@@ -1,6 +1,17 @@
 const User = require('../models/user.model');
+const Post = require('../models/post.model');
+const Follower = require('../models/follower.model');
 const { ApiError } = require('../middleware/error.middleware');
 const auditService = require('./audit.service');
+
+/**
+ * Safely convert a Mongoose document or plain object to a plain JS object.
+ */
+function _toPlain(doc) {
+  if (typeof doc.toJSON === 'function') return doc.toJSON();
+  if (typeof doc.toObject === 'function') return doc.toObject();
+  return Object.assign({}, doc);
+}
 
 class UserService {
   /**
@@ -11,7 +22,29 @@ class UserService {
     if (!user) {
       throw new ApiError(404, 'User not found');
     }
-    return user;
+    const obj = _toPlain(user);
+    // Attach real-time post count (non-critical — fail gracefully)
+    try {
+      obj.postsCount = await Post.countDocuments({ user: id, isArchived: false });
+    } catch (_) {
+      obj.postsCount = 0;
+    }
+    // Reconcile follower/following counts from the Follower collection
+    try {
+      const [actualFollowersCount, actualFollowingCount] = await Promise.all([
+        Follower.countDocuments({ following: id }),
+        Follower.countDocuments({ follower: id }),
+      ]);
+      obj.followersCount = actualFollowersCount;
+      obj.followingCount = actualFollowingCount;
+      // Also update the cached counts on the User document for consistency
+      await User.findByIdAndUpdate(id, {
+        $set: { followersCount: actualFollowersCount, followingCount: actualFollowingCount },
+      });
+    } catch (_) {
+      // Fallback to stored counts if reconciliation fails
+    }
+    return obj;
   }
 
   /**
@@ -22,7 +55,29 @@ class UserService {
     if (!user) {
       throw new ApiError(404, 'User not found');
     }
-    return user;
+    const obj = _toPlain(user);
+    // Attach real-time post count (non-critical — fail gracefully)
+    try {
+      obj.postsCount = await Post.countDocuments({ user: user._id, isArchived: false });
+    } catch (_) {
+      obj.postsCount = 0;
+    }
+    // Reconcile follower/following counts from the Follower collection
+    try {
+      const [actualFollowersCount, actualFollowingCount] = await Promise.all([
+        Follower.countDocuments({ following: user._id }),
+        Follower.countDocuments({ follower: user._id }),
+      ]);
+      obj.followersCount = actualFollowersCount;
+      obj.followingCount = actualFollowingCount;
+      // Also update the cached counts on the User document for consistency
+      await User.findByIdAndUpdate(user._id, {
+        $set: { followersCount: actualFollowersCount, followingCount: actualFollowingCount },
+      });
+    } catch (_) {
+      // Fallback to stored counts if reconciliation fails
+    }
+    return obj;
   }
 
   /**

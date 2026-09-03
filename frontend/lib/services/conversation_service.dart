@@ -1,104 +1,170 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../config/api_config.dart';
 import '../models/conversation.dart';
 
+/// Backend-connected conversation service.
+///
+/// All conversation operations go through the Nexora backend backed by MongoDB.
 class ConversationService {
-  final List<Conversation> _conversations = [
-    const Conversation(
-      id: 'conversation_1',
-      participantIds: ['You', 'User1'],
-      lastMessageText: 'are we meeting today?',
-      unreadCount: 1,
-    ),
-    const Conversation(
-      id: 'conversation_2',
-      participantIds: ['You', 'User2'],
-      lastMessageText: 'i broke my leg',
-      unreadCount: 0,
-    ),
-    const Conversation(
-      id: 'conversation_3',
-      participantIds: ['You', 'User3'],
-      lastMessageText: 'hi',
-      unreadCount: 1,
-    ),
-    const Conversation(
-      id: 'conversation_4',
-      participantIds: ['You', 'User4'],
-      lastMessageText: '3+ new messages',
-      unreadCount: 3,
-    ),
-    const Conversation(
-      id: 'conversation_5',
-      participantIds: ['You', 'User5'],
-      lastMessageText: 'seen',
-      unreadCount: 0,
-    ),
-    const Conversation(
-      id: 'conversation_6',
-      participantIds: ['You', 'User6'],
-      lastMessageText: 'sent',
-      unreadCount: 0,
-    ),
-    const Conversation(
-      id: 'conversation_7',
-      participantIds: ['You', 'User7'],
-      lastMessageText: 'sent',
-      unreadCount: 0,
-    ),
-    const Conversation(
-      id: 'conversation_8',
-      participantIds: ['You', 'User8'],
-      lastMessageText: 'sent a post',
-      unreadCount: 1,
-    ),
-  ];
+  ConversationService._internal();
 
-  List<Conversation> get conversations => List.unmodifiable(_conversations);
+  static final ConversationService _instance = ConversationService._internal();
+  factory ConversationService() => _instance;
 
+  // ─── Token helpers ───────────────────────────────────
+
+  Future<String?> _getFirebaseToken() async {
+    try {
+      final user = fb.FirebaseAuth.instance.currentUser;
+      if (user == null) return null;
+      return await user.getIdToken(true);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String?> _getJwtToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
+  Future<Map<String, String>> _headers() async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    String? token = await _getFirebaseToken();
+    if (token == null || token.isEmpty) {
+      token = await _getJwtToken();
+    }
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
+
+  /// Get the auth token for Socket.IO connections.
+  Future<String?> getAuthToken() async {
+    String? token = await _getFirebaseToken();
+    if (token == null || token.isEmpty) {
+      token = await _getJwtToken();
+    }
+    return token;
+  }
+
+  // ─── GET /api/messages/inbox ─────────────────────────
+
+  /// Fetch all conversations for the current user from the backend.
   Future<List<Conversation>> fetchConversations() async {
-    return List.unmodifiable(_conversations);
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/../../api/messages/inbox');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['inbox'] != null) {
+          final inboxList = body['inbox'] as List;
+          return inboxList.map((item) {
+            final contact = item['contact'] as Map<String, dynamic>?;
+            final participantIds = contact != null
+                ? [contact['_id']?.toString() ?? '', contact['username']?.toString() ?? '']
+                : <String>[];
+
+            return Conversation(
+              id: item['_id']?.toString() ?? '',
+              participantIds: participantIds,
+              lastMessageText: item['lastMessagePreview']?.toString() ?? '',
+              lastMessageAt: item['lastMessageTime'] != null
+                  ? DateTime.tryParse(item['lastMessageTime'].toString())
+                  : null,
+              unreadCount: item['unreadCount'] as int? ?? 0,
+            );
+          }).toList();
+        }
+      }
+    } catch (_) {}
+
+    return [];
   }
 
-  Future<Conversation?> getConversationById(String conversationId) async {
-    for (final conversation in _conversations) {
-      if (conversation.id == conversationId) {
-        return conversation;
+  // ─── POST /api/conversations ─────────────────────────
+
+  /// Create or find an existing conversation with another user.
+  Future<Conversation?> createOrFindConversation(String receiverId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/../../api/conversations');
+      final response = await http
+          .post(
+            url,
+            headers: await _headers(),
+            body: jsonEncode({'receiverId': receiverId}),
+          )
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['conversation'] != null) {
+          final conv = body['conversation'] as Map<String, dynamic>;
+          final participants = conv['participants'] as List? ?? [];
+          final participantIds = participants
+              .map((p) => (p as Map<String, dynamic>)['_id']?.toString() ?? '')
+              .toList();
+
+          return Conversation(
+            id: conv['_id']?.toString() ?? '',
+            participantIds: participantIds,
+            lastMessageText: conv['lastMessage']?.toString() ?? '',
+            lastMessageAt: conv['lastMessageAt'] != null
+                ? DateTime.tryParse(conv['lastMessageAt'].toString())
+                : null,
+          );
+        }
       }
-    }
+    } catch (_) {}
 
     return null;
   }
 
-  Future<Conversation?> findConversationBetween(
-    String userId,
-    String otherUserId,
-  ) async {
-    for (final conversation in _conversations) {
-      if (conversation.participantIds.contains(userId) &&
-          conversation.participantIds.contains(otherUserId)) {
-        return conversation;
+  // ─── GET /api/conversations ──────────────────────────
+
+  /// Fetch all conversations (legacy format).
+  Future<List<Conversation>> fetchConversationsLegacy() async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/../../api/conversations');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['conversations'] != null) {
+          final convList = body['conversations'] as List;
+          return convList.map((conv) {
+            final participants = conv['participants'] as List? ?? [];
+            final participantIds = participants
+                .map((p) => (p as Map<String, dynamic>)['_id']?.toString() ?? '')
+                .toList();
+
+            return Conversation(
+              id: conv['_id']?.toString() ?? '',
+              participantIds: participantIds,
+              lastMessageText: conv['lastMessage']?.toString() ?? '',
+              lastMessageAt: conv['lastMessageAt'] != null
+                  ? DateTime.tryParse(conv['lastMessageAt'].toString())
+                  : null,
+            );
+          }).toList();
+        }
       }
-    }
+    } catch (_) {}
 
-    return null;
-  }
-
-  Future<void> createConversation(Conversation conversation) async {
-    _conversations.add(conversation);
-  }
-
-  Future<void> updateConversation(Conversation updatedConversation) async {
-    final index = _conversations.indexWhere(
-      (conversation) => conversation.id == updatedConversation.id,
-    );
-
-    if (index == -1) return;
-
-    _conversations[index] = updatedConversation;
-  }
-
-  Future<void> deleteConversation(String conversationId) async {
-    _conversations.removeWhere(
-      (conversation) => conversation.id == conversationId,
-    );
+    return [];
   }
 }

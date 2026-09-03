@@ -82,6 +82,7 @@ app.use('/api/v1/age-verification', require('./routes/v1/age-verification.routes
 app.use('/api/v1/moderation', require('./routes/v1/moderation.routes'));
 app.use('/api/v1/audit', require('./routes/v1/audit.routes'));
 app.use('/api/v1/notifications', require('./routes/v1/notification.routes'));
+app.use('/api/v1/settings', require('./routes/v1/settings.routes'));
 
 // ─── Legacy Routes (backward compatibility) ─────────────
 // Keep old endpoints working so the existing Flutter frontend doesn't break.
@@ -216,9 +217,120 @@ const server = app.listen(PORT, () => {
   }
 });
 
+// ─── Socket.IO Setup ─────────────────────────────────
+const { Server } = require('socket.io');
+const io = new Server(server, {
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      if (isDev && /^http:\/\/localhost(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+// Make io accessible to route handlers via req.app.locals.io
+app.locals.io = io;
+
+// Socket.IO authentication middleware
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+    if (!token) {
+      return next(new Error('Authentication error'));
+    }
+
+    // Try Firebase token first, then JWT
+    const { firebaseAuth } = require('./config/firebase');
+    const { verifyToken } = require('./utils/generateToken');
+    const User = require('./models/user.model');
+
+    let user = null;
+
+    try {
+      const decoded = await firebaseAuth.verifyIdToken(token);
+      user = await User.findOne({ firebaseUid: decoded.uid }).select('-password');
+    } catch (_) {
+      // Try JWT
+      try {
+        const decoded = verifyToken(token);
+        user = await User.findById(decoded.id).select('-password');
+      } catch (_) {
+        return next(new Error('Authentication error'));
+      }
+    }
+
+    if (!user || user.isDisabled) {
+      return next(new Error('Authentication error'));
+    }
+
+    socket.userId = user._id.toString();
+    socket.user = user;
+    next();
+  } catch (err) {
+    next(new Error('Authentication error'));
+  }
+});
+
+// Socket.IO connection handler
+io.on('connection', (socket) => {
+  console.log(`[Socket] User connected: ${socket.userId}`);
+
+  // Join a room named after the user for targeted messaging
+  socket.join(`user:${socket.userId}`);
+
+  // Handle joining a specific conversation room
+  socket.on('join_conversation', (conversationId) => {
+    if (conversationId) {
+      socket.join(`conversation:${conversationId}`);
+    }
+  });
+
+  // Handle leaving a conversation room
+  socket.on('leave_conversation', (conversationId) => {
+    if (conversationId) {
+      socket.leave(`conversation:${conversationId}`);
+    }
+  });
+
+  // Handle typing indicators
+  socket.on('typing', (data) => {
+    if (data?.recipientId) {
+      io.to(`user:${data.recipientId}`).emit('typing', {
+        userId: socket.userId,
+        conversationId: data.conversationId
+      });
+    }
+  });
+
+  // Handle stop typing
+  socket.on('stop_typing', (data) => {
+    if (data?.recipientId) {
+      io.to(`user:${data.recipientId}`).emit('stop_typing', {
+        userId: socket.userId,
+        conversationId: data.conversationId
+      });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`[Socket] User disconnected: ${socket.userId}`);
+  });
+});
+
+console.log('   Socket.IO:   enabled');
+
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received. Shutting down gracefully...');
+  io.close();
   server.close(() => {
     process.exit(0);
   });

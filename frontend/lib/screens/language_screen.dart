@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/settings_service.dart';
+
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({super.key});
 
@@ -8,8 +10,11 @@ class LanguageScreen extends StatefulWidget {
 }
 
 class _LanguageScreenState extends State<LanguageScreen> {
+  final SettingsService _settingsService = SettingsService();
+
   String selectedLanguage = 'English';
   String searchQuery = '';
+  bool _isLoading = true;
 
   final List<Map<String, String>> languages = const [
     {'name': 'English', 'native': 'English'},
@@ -20,6 +25,33 @@ class _LanguageScreenState extends State<LanguageScreen> {
     {'name': 'Italian', 'native': 'Italiano'},
     {'name': 'Portuguese', 'native': 'Português'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final settings = await _settingsService.getSettings();
+
+    if (!mounted) return;
+
+    if (settings.isNotEmpty) {
+      setState(() {
+        selectedLanguage = settings['language'] ?? 'English';
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _saveLanguage(String language) async {
+    await _settingsService.updateSettings({
+      'language': language,
+    });
+  }
 
   List<Map<String, String>> get filteredLanguages {
     if (searchQuery.trim().isEmpty) {
@@ -59,30 +91,34 @@ class _LanguageScreenState extends State<LanguageScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          _currentLanguageCard(),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            )
+          : Column(
+              children: [
+                _currentLanguageCard(),
 
-          _searchBar(),
+                _searchBar(),
 
-          Expanded(
-            child: filteredLanguages.isEmpty
-                ? _noResults()
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(18, 6, 18, 30),
-                    itemCount: filteredLanguages.length,
-                    itemBuilder: (context, index) {
-                      final language = filteredLanguages[index];
+                Expanded(
+                  child: filteredLanguages.isEmpty
+                      ? _noResults()
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(18, 6, 18, 30),
+                          itemCount: filteredLanguages.length,
+                          itemBuilder: (context, index) {
+                            final language = filteredLanguages[index];
 
-                      return _languageTile(
-                        name: language['name']!,
-                        nativeName: language['native']!,
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
+                            return _languageTile(
+                              name: language['name']!,
+                              nativeName: language['native']!,
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -115,18 +151,18 @@ class _LanguageScreenState extends State<LanguageScreen> {
             ),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'App Language',
                   style: TextStyle(color: Colors.white70, fontSize: 12),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'English',
-                  style: TextStyle(
+                  selectedLanguage,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 19,
                     fontWeight: FontWeight.w700,
@@ -228,6 +264,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
           setState(() {
             selectedLanguage = name;
           });
+          _saveLanguage(name);
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

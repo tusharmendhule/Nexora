@@ -1,6 +1,7 @@
 const Like = require('../models/like.model');
 const Post = require('../models/post.model');
 const { ApiError } = require('../middleware/error.middleware');
+const notificationService = require('./notification.service');
 
 class LikeService {
   /**
@@ -25,6 +26,14 @@ class LikeService {
       await Like.create({ post: postId, user: userId });
       post.likesCount += 1;
       await post.save();
+
+      // Notify post owner (fire-and-forget)
+      notificationService.notifyPostLiked({
+        postOwnerId: post.user,
+        likerId: userId,
+        postId,
+      }).catch(() => {});
+
       return { isLiked: true, likesCount: post.likesCount };
     }
   }

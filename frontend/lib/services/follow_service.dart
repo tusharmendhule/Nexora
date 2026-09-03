@@ -1,170 +1,62 @@
-import 'package:flutter/material.dart';
-
-import '../models/follow.dart';
 import '../models/user.dart';
-import '../models/notification.dart';
 import 'user_service.dart';
-import 'notification_service.dart';
 
+/// Backend-connected follow service.
+///
+/// All follow/unfollow operations are persisted to MongoDB via the v1 API.
+/// Uses the Follower model on the backend for relationship tracking.
 class FollowService {
   final UserService _userService = UserService();
-  final NotificationService _notificationService = NotificationService();
 
-  static final List<Follow> _follows = [
-    // Demo relationship data.
-    // These records are intentionally kept behind the service so they can
-    // later be replaced by database/API queries without changing the UI.
-    Follow(
-      id: 'follow_user_you_aarav',
-      followerId: 'user_you',
-      followingId: 'aarav',
-      createdAt: DateTime(2026, 8, 29),
-    ),
-    Follow(
-      id: 'follow_user_you_maya',
-      followerId: 'user_you',
-      followingId: 'maya',
-      createdAt: DateTime(2026, 8, 29),
-    ),
-    Follow(
-      id: 'follow_aarav_user_you',
-      followerId: 'aarav',
-      followingId: 'user_you',
-      createdAt: DateTime(2026, 8, 29),
-    ),
-    Follow(
-      id: 'follow_maya_user_you',
-      followerId: 'maya',
-      followingId: 'user_you',
-      createdAt: DateTime(2026, 8, 29),
-    ),
-  ];
-
-  static final List<Follow> _initialFollows = List.unmodifiable(
-    List<Follow>.from(_follows),
-  );
-
-  List<Follow> get follows => List.unmodifiable(_follows);
-
+  /// Check if the current user is following a target user.
   Future<bool> isFollowing({
     required String followerId,
     required String followingId,
   }) async {
-    return _follows.any(
-      (follow) =>
-          follow.followerId == followerId && follow.followingId == followingId,
-    );
+    try {
+      return await _userService.isFollowingUser(followingId);
+    } catch (_) {
+      return false;
+    }
   }
 
+  /// Follow a user. Returns true if the follow was successful.
   Future<void> follow({
     required String followerId,
     required String followingId,
   }) async {
     if (followerId == followingId) return;
-
-    final alreadyFollowing = await isFollowing(
-      followerId: followerId,
-      followingId: followingId,
-    );
-
-    if (alreadyFollowing) return;
-
-    _follows.add(
-      Follow(
-        id: '${followerId}_$followingId',
-        followerId: followerId,
-        followingId: followingId,
-        createdAt: DateTime.now(),
-      ),
-    );
-
-    final actor = await _userService.getUserById(followerId);
-    final recipient = await _userService.getUserById(followingId);
-
-    if (actor != null && recipient != null) {
-      await _notificationService.createNotification(
-        AppNotification(
-          id: 'notification_${DateTime.now().microsecondsSinceEpoch}',
-          recipientId: recipient.id,
-          actorId: actor.id,
-          name: actor.username,
-          text: 'started following you',
-          icon: Icons.person_add,
-          createdAt: DateTime.now(),
-        ),
-      );
-    }
+    await _userService.followUser(followingId);
   }
 
+  /// Unfollow a user.
   Future<void> unfollow({
     required String followerId,
     required String followingId,
   }) async {
-    _follows.removeWhere(
-      (follow) =>
-          follow.followerId == followerId && follow.followingId == followingId,
-    );
+    await _userService.unfollowUser(followingId);
   }
 
+  /// Get a list of users who follow the given user.
   Future<List<User>> getFollowers(String userId) async {
-    final followerIds = _follows
-        .where((follow) => follow.followingId == userId)
-        .map((follow) => follow.followerId)
-        .toSet();
-
-    final users = <User>[];
-
-    for (final id in followerIds) {
-      final user = await _userService.getUserById(id);
-      if (user != null) users.add(user);
-    }
-
-    return users;
+    return await _userService.getFollowers(userId);
   }
 
+  /// Get a list of users the given user is following.
   Future<List<User>> getFollowing(String userId) async {
-    final followingIds = _follows
-        .where((follow) => follow.followerId == userId)
-        .map((follow) => follow.followingId)
-        .toSet();
-
-    final users = <User>[];
-
-    for (final id in followingIds) {
-      final user = await _userService.getUserById(id);
-      if (user != null) users.add(user);
-    }
-
-    return users;
+    return await _userService.getFollowing(userId);
   }
 
+  /// Get the follower count for a user.
+  /// Uses the count from the user profile (already fetched by the caller).
   Future<int> getFollowerCount(String userId) async {
     final user = await _userService.getUserById(userId);
-    final baseCount = user?.followersCount ?? 0;
-
-    final currentCount = _follows
-        .where((follow) => follow.followingId == userId)
-        .length;
-
-    final initialCount = _initialFollows
-        .where((follow) => follow.followingId == userId)
-        .length;
-
-    return baseCount + (currentCount - initialCount);
+    return user?.followersCount ?? 0;
   }
 
+  /// Get the following count for a user.
   Future<int> getFollowingCount(String userId) async {
     final user = await _userService.getUserById(userId);
-    final baseCount = user?.followingCount ?? 0;
-
-    final currentCount = _follows
-        .where((follow) => follow.followerId == userId)
-        .length;
-
-    final initialCount = _initialFollows
-        .where((follow) => follow.followerId == userId)
-        .length;
-
-    return baseCount + (currentCount - initialCount);
+    return user?.followingCount ?? 0;
   }
 }

@@ -9,6 +9,7 @@ import 'user_profile_screen.dart';
 import '../models/clip.dart';
 import '../services/clip_service.dart';
 import '../services/like_service.dart';
+import '../services/post_service.dart';
 
 class ClipsScreen extends StatefulWidget {
   const ClipsScreen({super.key});
@@ -20,12 +21,14 @@ class ClipsScreen extends StatefulWidget {
 class _ClipsScreenState extends State<ClipsScreen> {
   final ClipService _clipService = ClipService();
   final LikeService _likeService = LikeService();
+  final PostService _postService = PostService();
   final PageController _pageController = PageController();
 
   static const String currentUserId = 'user_you';
 
   final Map<String, bool> _likedClips = {};
   final Map<String, int> _clipLikeCounts = {};
+  final Map<String, bool> _savedClips = {};
 
   List<Clip> clips = [];
   int currentClip = 0;
@@ -93,6 +96,23 @@ class _ClipsScreenState extends State<ClipsScreen> {
       _clipLikeCounts[clip.id] = newLikedState
           ? currentCount + 1
           : (currentCount > 0 ? currentCount - 1 : 0);
+    });
+  }
+
+  Future<void> _toggleSaveClip(Clip clip) async {
+    final previousSaved = _savedClips[clip.id] ?? false;
+
+    if (!mounted) return;
+    setState(() {
+      _savedClips[clip.id] = !previousSaved;
+    });
+
+    final result = await _postService.toggleSave(postId: clip.id);
+
+    if (!mounted) return;
+
+    setState(() {
+      _savedClips[clip.id] = result['isSaved'] as bool;
     });
   }
 
@@ -458,7 +478,13 @@ class _ClipsScreenState extends State<ClipsScreen> {
 
         const SizedBox(height: 20),
 
-        _clipAction(Icons.bookmark_border, 'Save'),
+        _clipAction(
+          (_savedClips[clips[currentClip].id] ?? false)
+              ? Icons.bookmark
+              : Icons.bookmark_border,
+          'Save',
+          onTap: () => _toggleSaveClip(clips[currentClip]),
+        ),
       ],
     );
   }

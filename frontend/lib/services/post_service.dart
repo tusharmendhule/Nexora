@@ -216,6 +216,105 @@ class PostService {
     return false;
   }
 
+  // ─── GET /api/v1/posts/search?q=... ────────────────
+
+  /// Search posts by text, hashtags, or tags.
+  Future<Map<String, dynamic>> searchPosts(String query, {int page = 1, int limit = 20}) async {
+    try {
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}/posts/search?q=${Uri.encodeComponent(query)}&page=$page&limit=$limit',
+      );
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true) {
+          final postsList = (body['posts'] as List?) ?? [];
+          final posts = postsList
+              .map((p) => Post.fromJson(p as Map<String, dynamic>))
+              .toList();
+          final pagination = body['pagination'] as Map<String, dynamic>? ?? {};
+          return {
+            'posts': posts,
+            'pagination': pagination,
+          };
+        }
+      }
+    } catch (_) {}
+
+    return {'posts': <Post>[], 'pagination': <String, dynamic>{}};
+  }
+
+  // ─── POST /api/v1/posts/:id/save ──────────────────
+
+  /// Toggle save / bookmark on a post.
+  ///
+  /// Returns `{ isSaved: bool, message: String }` on success,
+  /// or `{ isSaved: previousValue, message: '' }` on failure.
+  Future<Map<String, dynamic>> toggleSave({required String postId}) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/posts/$postId/save');
+      final response = await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        if (json['success'] == true) {
+          return {
+            'isSaved': json['isSaved'] as bool,
+            'message': json['message'] as String? ?? '',
+          };
+        }
+      }
+    } catch (_) {}
+
+    return {'isSaved': false, 'message': ''};
+  }
+
+  // ─── GET /api/v1/posts/saved ───────────────────────
+
+  /// Fetch saved posts for the current user.
+  ///
+  /// Returns a map with `savedPosts` list (List<Post>) and `pagination` info.
+  Future<Map<String, dynamic>> getSavedPosts({int page = 1, int limit = 20}) async {
+    try {
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}/posts/saved?page=$page&limit=$limit',
+      );
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true) {
+          // Each saved post entry has a `post` sub-document
+          final savedList = (body['savedPosts'] as List?) ?? [];
+          final posts = savedList
+              .map((sp) {
+                final postData = sp['post'] as Map<String, dynamic>?;
+                if (postData == null) return null;
+                // Mark as saved since it came from the saved-posts endpoint
+                postData['isSaved'] = true;
+                return Post.fromJson(postData);
+              })
+              .whereType<Post>()
+              .toList();
+          final pagination = body['pagination'] as Map<String, dynamic>? ?? {};
+          return {
+            'savedPosts': posts,
+            'pagination': pagination,
+          };
+        }
+      }
+    } catch (_) {}
+
+    return {'savedPosts': <Post>[], 'pagination': <String, dynamic>{}};
+  }
+
   // ─── Legacy Compatibility ───────────────────────────
 
   /// Legacy helper that returns all posts (ignores pagination).

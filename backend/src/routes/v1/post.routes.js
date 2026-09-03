@@ -11,8 +11,11 @@ const {
   createPost,
   getPosts,
   getPostById,
+  searchPosts,
   updatePost,
   deletePost,
+  toggleSave,
+  getSavedPosts,
 } = require('../../controllers/v1/post.controller');
 
 // Upload controllers
@@ -41,8 +44,18 @@ router.post('/upload', protect, upload.single('file'), uploadMedia, uploadMediaC
 // POST /api/v1/posts
 router.post('/', protect, sanitizeBody(['text']), createPost);
 
+// ─── GET collection routes (must be before /:id) ────────
+
 // GET /api/v1/posts
 router.get('/', protect, getPosts);
+
+// GET /api/v1/posts/search?q=... — search posts
+router.get('/search', protect, searchPosts);
+
+// GET /api/v1/posts/saved — get user's saved posts
+router.get('/saved', protect, getSavedPosts);
+
+// ─── Single-post routes (/must be after collection routes) ─
 
 // GET /api/v1/posts/:id
 router.get('/:id', protect, validateObjectId('id'), getPostById);
@@ -61,6 +74,11 @@ router.post('/:id/like', protect, validateObjectId('id'), toggleLike);
 
 // DELETE /api/v1/posts/:id/like
 router.delete('/:id/like', protect, validateObjectId('id'), removeLike);
+
+// ─── Bookmark / Save routes ────────────────────────────
+
+// POST /api/v1/posts/:id/save — toggle save/unsave
+router.post('/:id/save', protect, validateObjectId('id'), toggleSave);
 
 // ─── Comment routes ────────────────────────────────────
 

@@ -9,6 +9,9 @@ class AppNotification {
   final IconData icon;
   final DateTime createdAt;
   final bool isRead;
+  final String? type;
+  final String? targetType;
+  final String? targetId;
 
   const AppNotification({
     required this.id,
@@ -19,6 +22,9 @@ class AppNotification {
     required this.icon,
     required this.createdAt,
     this.isRead = false,
+    this.type,
+    this.targetType,
+    this.targetId,
   });
 
   AppNotification copyWith({
@@ -33,6 +39,9 @@ class AppNotification {
       icon: icon,
       createdAt: createdAt,
       isRead: isRead ?? this.isRead,
+      type: type,
+      targetType: targetType,
+      targetId: targetId,
     );
   }
 }

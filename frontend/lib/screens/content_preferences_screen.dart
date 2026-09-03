@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/settings_service.dart';
 import 'settings_detail_screen.dart';
-
-class ContentPreferencesData {
-  final List<String> hiddenWords = [];
-
-  final List<String> followedCreators = ['@creator_one', '@creator_two'];
-}
-
-final ContentPreferencesData contentPreferencesData = ContentPreferencesData();
 
 class ContentPreferencesScreen extends StatefulWidget {
   const ContentPreferencesScreen({super.key});
@@ -19,30 +12,52 @@ class ContentPreferencesScreen extends StatefulWidget {
 }
 
 class _ContentPreferencesScreenState extends State<ContentPreferencesScreen> {
-  void _openHiddenWords() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const HiddenWordsScreen()),
-    ).then((_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
+  final SettingsService _settingsService = SettingsService();
+  List<String> hiddenWords = [];
+  List<String> followedCreators = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
   }
 
-  void _openCreators() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const CreatorsYouFollowScreen()),
-    ).then((_) {
-      if (mounted) {
-        setState(() {});
-      }
+  Future<void> _loadSettings() async {
+    final settings = await _settingsService.getSettings();
+
+    if (!mounted) return;
+
+    if (settings.isNotEmpty) {
+      setState(() {
+        hiddenWords = List<String>.from(settings['hiddenWords'] ?? []);
+        followedCreators =
+            List<String>.from(settings['followedCreators'] ?? []);
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _saveSettings() async {
+    await _settingsService.updateSettings({
+      'hiddenWords': hiddenWords,
+      'followedCreators': followedCreators,
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF0B0B1A),
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      );
+    }
+
     return SettingsDetailScreen(
       title: 'Content Preferences',
       description: 'Control what appears in your Nexora feed.',
@@ -53,10 +68,10 @@ class _ContentPreferencesScreenState extends State<ContentPreferencesScreen> {
             SettingsItem(
               icon: Icons.visibility_off_outlined,
               title: 'Hidden Words',
-              subtitle: contentPreferencesData.hiddenWords.isEmpty
+              subtitle: hiddenWords.isEmpty
                   ? 'Hide posts containing specific words or phrases'
-                  : '${contentPreferencesData.hiddenWords.length} hidden word'
-                        '${contentPreferencesData.hiddenWords.length == 1 ? '' : 's'}',
+                  : '${hiddenWords.length} hidden word'
+                        '${hiddenWords.length == 1 ? '' : 's'}',
               type: SettingsItemType.navigation,
               onTap: _openHiddenWords,
             ),
@@ -64,8 +79,8 @@ class _ContentPreferencesScreenState extends State<ContentPreferencesScreen> {
               icon: Icons.people_outline,
               title: 'Creators You Follow',
               subtitle:
-                  '${contentPreferencesData.followedCreators.length} followed creator'
-                  '${contentPreferencesData.followedCreators.length == 1 ? '' : 's'}',
+                  '${followedCreators.length} followed creator'
+                  '${followedCreators.length == 1 ? '' : 's'}',
               type: SettingsItemType.navigation,
               onTap: _openCreators,
             ),
@@ -74,20 +89,88 @@ class _ContentPreferencesScreenState extends State<ContentPreferencesScreen> {
       ],
     );
   }
+
+  void _openHiddenWords() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HiddenWordsScreen(
+          hiddenWords: hiddenWords,
+          onChanged: (updatedWords) {
+            setState(() {
+              hiddenWords = updatedWords;
+            });
+            _saveSettings();
+          },
+        ),
+      ),
+    ).then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  void _openCreators() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CreatorsYouFollowScreen(
+          followedCreators: followedCreators,
+          onChanged: (updatedCreators) {
+            setState(() {
+              followedCreators = updatedCreators;
+            });
+            _saveSettings();
+          },
+        ),
+      ),
+    ).then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 }
 
 class HiddenWordsScreen extends StatefulWidget {
-  const HiddenWordsScreen({super.key});
+  final List<String> hiddenWords;
+  final void Function(List<String>) onChanged;
+
+  const HiddenWordsScreen({
+    super.key,
+    required this.hiddenWords,
+    required this.onChanged,
+  });
 
   @override
   State<HiddenWordsScreen> createState() => _HiddenWordsScreenState();
 }
 
 class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
+  late List<String> words;
+
+  @override
+  void initState() {
+    super.initState();
+    words = List<String>.from(widget.hiddenWords);
+  }
+
   void _addHiddenWord() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const AddHiddenWordScreen()),
+      MaterialPageRoute(
+        builder: (_) => AddHiddenWordScreen(
+          onAdd: (word) {
+            if (!words.contains(word)) {
+              setState(() {
+                words.add(word);
+              });
+              widget.onChanged(words);
+            }
+          },
+        ),
+      ),
     ).then((_) {
       if (mounted) {
         setState(() {});
@@ -97,14 +180,13 @@ class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
 
   void _removeHiddenWord(String word) {
     setState(() {
-      contentPreferencesData.hiddenWords.remove(word);
+      words.remove(word);
     });
+    widget.onChanged(words);
   }
 
   @override
   Widget build(BuildContext context) {
-    final words = contentPreferencesData.hiddenWords;
-
     return SettingsDetailScreen(
       title: 'Hidden Words',
       description:
@@ -181,7 +263,9 @@ class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
 }
 
 class AddHiddenWordScreen extends StatefulWidget {
-  const AddHiddenWordScreen({super.key});
+  final void Function(String) onAdd;
+
+  const AddHiddenWordScreen({super.key, required this.onAdd});
 
   @override
   State<AddHiddenWordScreen> createState() => _AddHiddenWordScreenState();
@@ -256,9 +340,7 @@ class _AddHiddenWordScreenState extends State<AddHiddenWordScreen> {
                   return;
                 }
 
-                if (!contentPreferencesData.hiddenWords.contains(word)) {
-                  contentPreferencesData.hiddenWords.add(word);
-                }
+                widget.onAdd(word);
 
                 Navigator.pop(context);
                 Navigator.pop(context);
@@ -276,7 +358,14 @@ class _AddHiddenWordScreenState extends State<AddHiddenWordScreen> {
 }
 
 class CreatorsYouFollowScreen extends StatefulWidget {
-  const CreatorsYouFollowScreen({super.key});
+  final List<String> followedCreators;
+  final void Function(List<String>) onChanged;
+
+  const CreatorsYouFollowScreen({
+    super.key,
+    required this.followedCreators,
+    required this.onChanged,
+  });
 
   @override
   State<CreatorsYouFollowScreen> createState() =>
@@ -287,7 +376,12 @@ class _CreatorsYouFollowScreenState extends State<CreatorsYouFollowScreen> {
   void _openFollowedCreators() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const FollowedCreatorsScreen()),
+      MaterialPageRoute(
+        builder: (_) => FollowedCreatorsScreen(
+          creators: widget.followedCreators,
+          onChanged: widget.onChanged,
+        ),
+      ),
     ).then((_) {
       if (mounted) {
         setState(() {});
@@ -309,8 +403,8 @@ class _CreatorsYouFollowScreenState extends State<CreatorsYouFollowScreen> {
               icon: Icons.people_outline,
               title: 'Followed Creators',
               subtitle:
-                  '${contentPreferencesData.followedCreators.length} creator'
-                  '${contentPreferencesData.followedCreators.length == 1 ? '' : 's'}',
+                  '${widget.followedCreators.length} creator'
+                  '${widget.followedCreators.length == 1 ? '' : 's'}',
               type: SettingsItemType.navigation,
               onTap: _openFollowedCreators,
             ),
@@ -322,17 +416,34 @@ class _CreatorsYouFollowScreenState extends State<CreatorsYouFollowScreen> {
 }
 
 class FollowedCreatorsScreen extends StatefulWidget {
-  const FollowedCreatorsScreen({super.key});
+  final List<String> creators;
+  final void Function(List<String>) onChanged;
+
+  const FollowedCreatorsScreen({
+    super.key,
+    required this.creators,
+    required this.onChanged,
+  });
 
   @override
-  State<FollowedCreatorsScreen> createState() => _FollowedCreatorsScreenState();
+  State<FollowedCreatorsScreen> createState() =>
+      _FollowedCreatorsScreenState();
 }
 
 class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
+  late List<String> creators;
+
+  @override
+  void initState() {
+    super.initState();
+    creators = List<String>.from(widget.creators);
+  }
+
   void _unfollow(String creator) {
     setState(() {
-      contentPreferencesData.followedCreators.remove(creator);
+      creators.remove(creator);
     });
+    widget.onChanged(creators);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -383,12 +494,11 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
                   username = '@$username';
                 }
 
-                if (!contentPreferencesData.followedCreators.contains(
-                  username,
-                )) {
+                if (!creators.contains(username)) {
                   setState(() {
-                    contentPreferencesData.followedCreators.add(username);
+                    creators.add(username);
                   });
+                  widget.onChanged(creators);
                 }
 
                 Navigator.pop(context);
@@ -406,8 +516,6 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final creators = contentPreferencesData.followedCreators;
-
     return SettingsDetailScreen(
       title: 'Followed Creators',
       description: 'Manage the creators you currently follow.',

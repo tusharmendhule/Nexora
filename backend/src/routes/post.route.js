@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
 
 // Models
 const Post = require('../models/post.model');
+const TrustScore = require('../models/trust-score.model');
 const SavedPost = require('../models/saved-post.model');
 const Activity = require('../models/activity.model');
 const Hashtag = require('../models/hashtag.model');
+
+// Services
+const contentRouter = require('../services/content-router.service');
+const processingQueue = require('../services/processing-queue.service');
 
 // Middleware
 const { protect } = require('../middleware/auth.middleware');
@@ -30,10 +34,38 @@ router.get('/', protect, async (req, res) => {
       .populate('comments.user', 'name avatar')
       .sort({ createdAt: -1 });
 
+    // Enrich posts with TrustScore detail from the TrustScore collection
+    const postIds = posts.map((p) => p._id);
+    const trustScores = await TrustScore.find({ post: { $in: postIds } });
+    const trustScoreMap = {};
+    trustScores.forEach((ts) => {
+      trustScoreMap[ts.post.toString()] = ts;
+    });
+
+    const enrichedPosts = posts.map((p) => {
+      const obj = p.toObject();
+      const tsDetail = trustScoreMap[p._id.toString()];
+      if (tsDetail) {
+        obj.trustScoreDetail = {
+          score: tsDetail.score,
+          label: tsDetail.label,
+          explanation: tsDetail.explanation,
+          isOverrideApplied: tsDetail.isOverrideApplied,
+          authenticity: tsDetail.authenticity,
+          factualVerification: tsDetail.factualVerification,
+          sourceCredibility: tsDetail.sourceCredibility,
+          modelConfidence: tsDetail.modelConfidence,
+        };
+        // Override the post's default trustScore with the computed value
+        obj.trustScore = tsDetail.score;
+      }
+      return obj;
+    });
+
     res.status(200).json({
       success: true,
-      count: posts.length,
-      posts
+      count: enrichedPosts.length,
+      posts: enrichedPosts
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -63,31 +95,11 @@ router.post('/', protect, async (req, res) => {
       mediaList = [{ url: mediaUrl, type: 'image' }];
     }
 
-    // Call Python FastAPI AI Trust Engine (Port 8000)
-    let trustData = {
-      trustScore: 75.0,
-      badge: 'Blue',
-      breakdown: {
-        factualVerification: 75,
-        authenticity: 75,
-        sourceCredibility: 75,
-        modelConfidence: 80
-      }
-    };
-
-    try {
-      const aiResponse = await axios.post('http://127.0.0.1:8000/analyze-trust', {
-        text: postContent,
-        userId: currentUserId ? currentUserId.toString() : null,
-        accountAgeDays: 30
-      });
-      trustData = aiResponse.data;
-    } catch (aiErr) {
-      console.warn('FastAPI Service unreachable, using default baseline trust score:', aiErr.message);
-    }
-
     const hashtags = extractHashtags(postContent);
 
+    // Create post with pending verification state.
+    // The real trust score will be computed by the verification pipeline
+    // (triggered via the processing queue) and stored in the TrustScore collection.
     const newPost = await Post.create({
       user: currentUserId,
       text: postContent,
@@ -96,10 +108,19 @@ router.post('/', protect, async (req, res) => {
       media: mediaList,
       mediaUrl: mediaUrl || '',
       hashtags,
-      trustScore: trustData.trustScore,
-      trustBadge: trustData.badge,
-      trustBreakdown: trustData.breakdown
+      verificationStatus: 'PENDING_VERIFICATION',
+      moderationStatus: 'pending',
     });
+
+    // Enqueue content processing job for real trust-score computation.
+    // The pipeline will: AI analysis → claim extraction → fact verification
+    // → evidence normalization → trust score → moderation decision.
+    try {
+      const job = await contentRouter.createJob(newPost);
+      await processingQueue.enqueueJob(job);
+    } catch (queueErr) {
+      console.error('[Content] Failed to enqueue analysis job:', queueErr.message);
+    }
 
     // Auto-sync hashtag counts in Hashtag collection
     if (hashtags && hashtags.length > 0) {
@@ -116,9 +137,8 @@ router.post('/', protect, async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Post created and analyzed successfully',
+      message: 'Post created successfully',
       post: newPost,
-      aiAnalysis: trustData
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -142,10 +162,41 @@ router.get('/saved', protect, async (req, res) => {
       })
       .sort({ createdAt: -1 });
 
+    // Enrich saved posts with TrustScore detail
+    const postIds = savedPosts
+      .map((sp) => sp.post?._id)
+      .filter(Boolean);
+    const trustScores = await TrustScore.find({ post: { $in: postIds } });
+    const trustScoreMap = {};
+    trustScores.forEach((ts) => {
+      trustScoreMap[ts.post.toString()] = ts;
+    });
+
+    const enrichedSaved = savedPosts.map((sp) => {
+      const obj = sp.toObject();
+      if (obj.post) {
+        const tsDetail = trustScoreMap[obj.post._id?.toString()];
+        if (tsDetail) {
+          obj.post.trustScoreDetail = {
+            score: tsDetail.score,
+            label: tsDetail.label,
+            explanation: tsDetail.explanation,
+            isOverrideApplied: tsDetail.isOverrideApplied,
+            authenticity: tsDetail.authenticity,
+            factualVerification: tsDetail.factualVerification,
+            sourceCredibility: tsDetail.sourceCredibility,
+            modelConfidence: tsDetail.modelConfidence,
+          };
+          obj.post.trustScore = tsDetail.score;
+        }
+      }
+      return obj;
+    });
+
     res.status(200).json({
       success: true,
-      count: savedPosts.length,
-      savedPosts
+      count: enrichedSaved.length,
+      savedPosts: enrichedSaved
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -167,9 +218,26 @@ router.get('/:id', protect, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Post not found' });
     }
 
+    // Attach TrustScore detail
+    const obj = post.toObject();
+    const tsDetail = await TrustScore.findOne({ post: req.params.id });
+    if (tsDetail) {
+      obj.trustScoreDetail = {
+        score: tsDetail.score,
+        label: tsDetail.label,
+        explanation: tsDetail.explanation,
+        isOverrideApplied: tsDetail.isOverrideApplied,
+        authenticity: tsDetail.authenticity,
+        factualVerification: tsDetail.factualVerification,
+        sourceCredibility: tsDetail.sourceCredibility,
+        modelConfidence: tsDetail.modelConfidence,
+      };
+      obj.trustScore = tsDetail.score;
+    }
+
     res.status(200).json({
       success: true,
-      post
+      post: obj
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });

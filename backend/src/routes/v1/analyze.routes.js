@@ -36,6 +36,19 @@ const {
   getClaimEntityStatus,
 } = require('../../controllers/v1/claim-entity.controller');
 
+const {
+  submitImageAnalysis,
+  getImageAnalysisStatus,
+} = require('../../controllers/v1/analyze-image.controller');
+
+// POST /api/v1/analyze/image
+// Accepts { mediaUrl, postId? }, returns { jobId } immediately
+router.post('/image', protect, submitImageAnalysis);
+
+// GET /api/v1/analyze/image/:jobId
+// Returns processing status and results when complete
+router.get('/image/:jobId', protect, getImageAnalysisStatus);
+
 // POST /api/v1/analyze/video
 // Accepts { mediaUrl, postId? }, returns { jobId } immediately
 router.post('/video', protect, submitVideoAnalysis);

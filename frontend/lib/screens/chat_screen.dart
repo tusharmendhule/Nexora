@@ -1,14 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../models/conversation.dart';
 import '../models/message.dart';
 import '../services/conversation_service.dart';
 import '../services/message_service.dart';
+import '../services/user_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String username;
 
-  const ChatScreen({super.key, required this.username});
+  /// The MongoDB _id of the target user (preferred over username lookup).
+  final String? targetUserId;
+
+  const ChatScreen({super.key, required this.username, this.targetUserId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -19,10 +25,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final ConversationService _conversationService = ConversationService();
   final MessageService _messageService = MessageService();
+  final UserService _userService = UserService();
 
   List<Message> messages = [];
   Conversation? conversation;
   bool isLoading = true;
+  String _currentUserId = '';
+  String _targetUserId = '';
+  Timer? _pollTimer;
+  bool _isSending = false;
 
   @override
   void initState() {
@@ -31,24 +42,46 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadChat() async {
-    final foundConversation = await _conversationService
-        .findConversationBetween('You', widget.username);
+    // Get current user ID
+    final currentId = await _userService.getCurrentUserId();
+    if (!mounted) return;
+    _currentUserId = currentId ?? '';
 
-    if (foundConversation == null) {
+    // Resolve target user ID
+    if (widget.targetUserId != null && widget.targetUserId!.isNotEmpty) {
+      _targetUserId = widget.targetUserId!;
+    } else {
+      // Look up by username
+      final targetUser = await _userService.getUserByUsername(widget.username);
       if (!mounted) return;
+      _targetUserId = targetUser?.id ?? '';
+    }
 
+    if (_targetUserId.isEmpty) {
+      if (!mounted) return;
       setState(() {
         conversation = null;
         messages = [];
         isLoading = false;
       });
-
       return;
     }
 
-    final loadedMessages = await _messageService.fetchMessages(
-      foundConversation.id,
-    );
+    // Create or find conversation
+    final foundConversation = await _conversationService.createOrFindConversation(_targetUserId);
+
+    if (foundConversation == null) {
+      if (!mounted) return;
+      setState(() {
+        conversation = null;
+        messages = [];
+        isLoading = false;
+      });
+      return;
+    }
+
+    // Fetch messages
+    final loadedMessages = await _messageService.fetchMessages(_targetUserId);
 
     if (!mounted) return;
 
@@ -57,37 +90,96 @@ class _ChatScreenState extends State<ChatScreen> {
       messages = loadedMessages;
       isLoading = false;
     });
+
+    // Mark messages as read
+    await _messageService.markAsRead(_targetUserId);
+
+    // Start polling for new messages
+    _startPolling();
+  }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+      if (!mounted || _targetUserId.isEmpty) return;
+      final newMessages = await _messageService.fetchMessages(_targetUserId);
+      if (!mounted) return;
+
+      setState(() {
+        messages = newMessages;
+      });
+
+      // Mark new messages as read
+      await _messageService.markAsRead(_targetUserId);
+    });
   }
 
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
 
-    if (text.isEmpty || conversation == null) {
+    if (text.isEmpty || _targetUserId.isEmpty || _isSending) {
       return;
     }
 
-    final message = Message(
-      id: 'message_${DateTime.now().millisecondsSinceEpoch}',
-      conversationId: conversation!.id,
-      senderId: 'You',
-      receiverId: widget.username,
+    // Clear input immediately for better UX
+    _messageController.clear();
+
+    setState(() {
+      _isSending = true;
+    });
+
+    // Optimistically add the message to the list
+    final optimisticMessage = Message(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      conversationId: conversation?.id ?? '',
+      senderId: _currentUserId,
+      receiverId: _targetUserId,
       text: text,
       createdAt: DateTime.now(),
       isRead: false,
     );
 
-    await _messageService.sendMessage(message);
+    setState(() {
+      messages.add(optimisticMessage);
+    });
+
+    // Send to backend
+    final sentMessage = await _messageService.sendMessage(
+      recipientId: _targetUserId,
+      text: text,
+    );
 
     if (!mounted) return;
 
+    if (sentMessage != null) {
+      // Replace optimistic message with real one
+      setState(() {
+        final idx = messages.indexWhere((m) => m.id == optimisticMessage.id);
+        if (idx != -1) {
+          messages[idx] = sentMessage;
+        }
+      });
+    } else {
+      // Failed to send - remove optimistic message and show error
+      setState(() {
+        messages.removeWhere((m) => m.id == optimisticMessage.id);
+        _isSending = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send message. Please try again.')),
+      );
+      // Re-add text to controller so user can retry
+      _messageController.text = text;
+    }
+
     setState(() {
-      messages.add(message);
-      _messageController.clear();
+      _isSending = false;
     });
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _messageController.dispose();
     super.dispose();
   }

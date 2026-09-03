@@ -1,12 +1,18 @@
 const Comment = require('../models/comment.model');
 const Post = require('../models/post.model');
 const { ApiError } = require('../middleware/error.middleware');
+const notificationService = require('./notification.service');
 
 class CommentService {
   /**
    * Add a comment to a post.
    */
   async create(postId, userId, text, parentCommentId = null) {
+    // Validate text is provided and not empty/whitespace
+    if (!text || typeof text !== 'string' || text.trim() === '') {
+      throw new ApiError(400, 'Comment text is required');
+    }
+
     const post = await Post.findById(postId);
     if (!post) {
       throw new ApiError(404, 'Post not found');
@@ -22,6 +28,14 @@ class CommentService {
     // Increment comment count on post
     post.commentsCount += 1;
     await post.save();
+
+    // Notify post owner (fire-and-forget)
+    notificationService.notifyPostCommented({
+      postOwnerId: post.user,
+      commenterId: userId,
+      postId,
+      commentText: text.trim(),
+    }).catch(() => {});
 
     return comment.populate('user', 'name username avatar');
   }
@@ -99,14 +113,18 @@ class CommentService {
       throw new ApiError(403, 'Not authorized to delete this comment');
     }
 
-    // Also delete all replies to this comment
+    // Count replies before deletion to properly update comment count
+    const repliesCount = await Comment.countDocuments({ parentComment: commentId });
+    const totalDeleted = 1 + repliesCount; // 1 for the comment itself + replies
+
+    // Delete all replies to this comment
     await Comment.deleteMany({ parentComment: commentId });
     await Comment.deleteOne({ _id: commentId });
 
-    // Decrement comment count on post
+    // Decrement comment count on post by total deleted (comment + replies)
     const post = await Post.findById(comment.post);
     if (post) {
-      post.commentsCount = Math.max(0, post.commentsCount - 1);
+      post.commentsCount = Math.max(0, post.commentsCount - totalDeleted);
       await post.save();
     }
 

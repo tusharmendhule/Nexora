@@ -110,23 +110,42 @@ class NotificationService {
 
   /// Parse a backend notification JSON into an AppNotification.
   AppNotification _parseNotification(Map<String, dynamic> json) {
+    // Handle sender being a populated object or just an ID
+    final senderObj = json['sender'] as Map<String, dynamic>?;
+    final senderName = senderObj != null
+        ? (senderObj['name']?.toString() ?? senderObj['username']?.toString() ?? 'System')
+        : 'System';
+
     return AppNotification(
-      id: json['_id'] ?? json['id'] ?? '',
-      recipientId: json['recipient'] ?? '',
-      actorId: json['sender'] is Map ? json['sender']['_id'] : json['sender'],
-      name: json['sender'] is Map
-          ? (json['sender']['name'] ?? json['sender']['username'] ?? 'System')
-          : 'System',
-      text: json['body'] ?? '',
-      icon: _typeToIcon(json['type']),
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-      isRead: json['isRead'] ?? false,
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      recipientId: json['recipient']?.toString() ?? '',
+      actorId: senderObj?['_id']?.toString() ?? json['sender']?.toString(),
+      name: senderName,
+      text: json['body']?.toString() ?? '',
+      icon: _typeToIcon(json['type']?.toString()),
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      isRead: json['isRead'] as bool? ?? false,
+      type: json['type']?.toString(),
+      targetType: json['targetType']?.toString(),
+      targetId: json['targetId']?.toString(),
     );
   }
 
   /// Map notification type to an icon.
   IconData _typeToIcon(String? type) {
     switch (type) {
+      // Social notifications
+      case 'NEW_FOLLOWER':
+        return Icons.person_add;
+      case 'POST_LIKED':
+        return Icons.favorite;
+      case 'POST_COMMENTED':
+        return Icons.comment;
+      case 'NEW_MESSAGE':
+        return Icons.chat_bubble;
+      // Content moderation
       case 'POST_VERIFIED':
         return Icons.verified;
       case 'POST_REQUIRES_MODERATION':
@@ -137,10 +156,16 @@ class NotificationService {
         return Icons.cancel;
       case 'LABEL_OVERRIDE':
         return Icons.label;
+      case 'CONTENT_REMOVED':
+        return Icons.delete_outline;
+      case 'CONTENT_RESTORED':
+        return Icons.restore;
+      // Reports
       case 'REPORT_RESOLVED':
         return Icons.flag;
       case 'REPORT_DISMISSED':
         return Icons.outlined_flag;
+      // Account
       case 'ACCOUNT_SECURITY':
         return Icons.security;
       case 'SYSTEM':

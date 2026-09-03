@@ -1,68 +1,150 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../config/api_config.dart';
 import '../models/comment.dart';
 
+/// Backend-connected comment service.
+///
+/// All comment operations go through the Nexora v1 API backed by MongoDB.
 class CommentService {
-  final List<Comment> _comments = [
-    Comment(
-      id: 'comment_001',
-      contentId: 'demo_content',
-      authorId: 'aarav',
-      authorUsername: 'Aarav',
-      text: 'This is actually really interesting. 👏',
-      createdAt: DateTime(2026, 8, 29, 19, 58),
-    ),
-    Comment(
-      id: 'comment_002',
-      contentId: 'demo_content',
-      authorId: 'maya',
-      authorUsername: 'Maya',
-      text: 'Love this! ✨',
-      createdAt: DateTime(2026, 8, 29, 19, 52),
-    ),
-    Comment(
-      id: 'comment_003',
-      contentId: 'demo_content',
-      authorId: 'arjun',
-      authorUsername: 'Arjun',
-      text: 'Nexora is looking better every day.',
-      createdAt: DateTime(2026, 8, 29, 19, 46),
-    ),
-  ];
+  CommentService._internal();
 
-  List<Comment> get comments => List.unmodifiable(_comments);
+  static final CommentService _instance = CommentService._internal();
+  factory CommentService() => _instance;
 
-  Future<List<Comment>> fetchComments(String contentId) async {
-    return _comments
-        .where(
-          (comment) =>
-              comment.contentId == contentId && comment.parentCommentId == null,
-        )
-        .toList();
+  // ─── Token helpers ───────────────────────────────────
+
+  Future<String?> _getFirebaseToken() async {
+    try {
+      final user = fb.FirebaseAuth.instance.currentUser;
+      if (user == null) return null;
+      return await user.getIdToken(true);
+    } catch (_) {
+      return null;
+    }
   }
 
-  Future<Comment?> getCommentById(String commentId) async {
-    for (final comment in _comments) {
-      if (comment.id == commentId) return comment;
+  Future<String?> _getJwtToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
+  Future<Map<String, String>> _headers() async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    String? token = await _getFirebaseToken();
+    if (token == null || token.isEmpty) {
+      token = await _getJwtToken();
     }
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
+
+  // ─── GET /api/v1/posts/:id/comments ─────────────────
+
+  /// Fetch comments for a post from the backend.
+  Future<List<Comment>> fetchComments(String postId, {int page = 1, int limit = 50}) async {
+    try {
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}/posts/$postId/comments?page=$page&limit=$limit',
+      );
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['comments'] != null) {
+          final commentsList = body['comments'] as List;
+          return commentsList
+              .map((c) => Comment.fromJson(c as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  // ─── POST /api/v1/posts/:id/comments ────────────────
+
+  /// Create a new comment on a post via the backend.
+  Future<Comment?> createComment({
+    required String postId,
+    required String text,
+    String? parentCommentId,
+  }) async {
+    try {
+      final body = <String, dynamic>{
+        'text': text,
+      };
+      if (parentCommentId != null) {
+        body['parentCommentId'] = parentCommentId;
+      }
+
+      final url = Uri.parse('${ApiConfig.baseUrl}/posts/$postId/comments');
+      final response = await http
+          .post(url, headers: await _headers(), body: jsonEncode(body))
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 201) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        if (json['success'] == true && json['comment'] != null) {
+          return Comment.fromJson(json['comment'] as Map<String, dynamic>);
+        }
+      }
+    } catch (_) {}
+
     return null;
   }
 
+  // ─── Legacy Compatibility ────────────────────────────
+
+  /// Legacy: fetch comments by contentId (postId).
+  Future<List<Comment>> fetchCommentsByContentId(String contentId) async {
+    return fetchComments(contentId);
+  }
+
+  /// Legacy: get comment by ID.
+  Future<Comment?> getCommentById(String commentId) async {
+    // No dedicated endpoint for single comment — not critical
+    return null;
+  }
+
+  /// Legacy: add comment (delegates to createComment).
   Future<void> addComment(Comment comment) async {
-    _comments.insert(0, comment);
+    await createComment(
+      postId: comment.contentId,
+      text: comment.text,
+      parentCommentId: comment.parentCommentId,
+    );
   }
 
-  Future<void> updateComment(Comment updatedComment) async {
-    final index = _comments.indexWhere((c) => c.id == updatedComment.id);
-    if (index == -1) return;
-    _comments[index] = updatedComment;
-  }
+  /// Legacy: update comment (no backend endpoint — not critical).
+  Future<void> updateComment(Comment updatedComment) async {}
 
+  /// Legacy: delete comment.
   Future<void> deleteComment(String commentId) async {
-    _comments.removeWhere((c) => c.id == commentId);
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/comments/$commentId');
+      await http
+          .delete(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+    } catch (_) {}
   }
 
+  /// Legacy: fetch replies.
   Future<List<Comment>> fetchReplies(String parentCommentId) async {
-    return _comments
-        .where((c) => c.parentCommentId == parentCommentId)
-        .toList();
+    // Replies are included in the main comments response from the backend
+    // (nested under each comment). This method is kept for API compatibility.
+    return [];
   }
 }

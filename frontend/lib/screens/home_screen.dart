@@ -15,7 +15,9 @@ import '../models/nexora_label.dart';
 import '../models/post.dart';
 import '../services/post_service.dart';
 import '../services/like_service.dart';
+import '../services/user_service.dart';
 import '../services/trust_score_service.dart';
+import '../services/report_service.dart';
 import '../widgets/nexora_label_badge.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -33,10 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final LikeService _likeService = LikeService();
   final PostService _postService = PostService();
   final MomentService _momentService = MomentService();
+  final UserService _userService = UserService();
+  final ReportService _reportService = ReportService();
 
   Moment? _myMoment;
-
-  static const String currentUserId = 'user_you';
+  String _currentUserId = '';
 
   bool _isLoadingPosts = true;
   bool _hasMorePosts = true;
@@ -45,11 +48,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final id = await _userService.getCurrentUserId();
+    if (!mounted) return;
+    setState(() {
+      _currentUserId = id ?? '';
+    });
     _loadMyMoment();
     _loadPosts();
   }
 
   Future<void> _loadMyMoment() async {
+    if (_currentUserId.isEmpty) return;
     final moments = await _momentService.fetchMoments();
 
     if (!mounted) return;
@@ -60,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _myMoment = moments
           .where(
             (moment) =>
-                moment.creatorId == currentUserId &&
+                moment.creatorId == _currentUserId &&
                 moment.expiresAt.isAfter(now),
           )
           .firstOrNull;
@@ -82,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _currentPage = 1;
         _hasMorePosts = fetchedPosts.length >= 20;
         _isLoadingPosts = false;
+        _initLikeStates(fetchedPosts);
       });
     } catch (_) {
       if (!mounted) return;
@@ -105,48 +119,453 @@ class _HomeScreenState extends State<HomeScreen> {
         posts.addAll(fetchedPosts);
         _currentPage++;
         _hasMorePosts = fetchedPosts.length >= 20;
+        _initLikeStates(fetchedPosts);
       });
     } catch (_) {}
   }
 
+  // Maps tracking per-post like state, initialized from backend data
   final Map<String, bool> _likedPosts = {};
   final Map<String, int> _postLikeCounts = {};
+  final Map<String, bool> _savedPosts = {};
+
+  /// Initialize local like/save state from the fetched post data.
+  void _initLikeStates(List<Post> fetchedPosts) {
+    for (final post in fetchedPosts) {
+      _likedPosts[post.id] = post.isLiked;
+      _postLikeCounts[post.id] = post.likeCount;
+      _savedPosts[post.id] = post.isSaved;
+    }
+  }
 
   final List<Post> posts = [];
 
   Future<void> _togglePostLike(Post post) async {
-    final currentlyLiked = await _likeService.isLiked(
-      userId: currentUserId,
-      contentId: post.id,
-      contentType: 'post',
-    );
+    // Optimistic update — flip state immediately
+    final previousLiked = _likedPosts[post.id] ?? false;
+    final previousCount = _postLikeCounts[post.id] ?? post.likeCount;
 
-    if (currentlyLiked) {
-      await _likeService.unlike(
-        userId: currentUserId,
-        contentId: post.id,
-        contentType: 'post',
-      );
+    final newLiked = !previousLiked;
+    final newCount = newLiked
+        ? previousCount + 1
+        : (previousCount > 0 ? previousCount - 1 : 0);
+
+    if (!mounted) return;
+    setState(() {
+      _likedPosts[post.id] = newLiked;
+      _postLikeCounts[post.id] = newCount;
+    });
+
+    // Call backend
+    final result = await _likeService.toggleLike(postId: post.id);
+
+    if (!mounted) return;
+
+    // Check if the API failed (returned fallback default values)
+    final apiFailed = result['likesCount'] == 0 &&
+        result['isLiked'] == false &&
+        newLiked; // we tried to like but got back false+0
+
+    if (apiFailed) {
+      // Rollback on failure
+      setState(() {
+        _likedPosts[post.id] = previousLiked;
+        _postLikeCounts[post.id] = previousCount;
+      });
     } else {
-      await _likeService.like(
-        userId: currentUserId,
-        contentId: post.id,
-        contentType: 'post',
-      );
+      // Trust the backend response
+      setState(() {
+        _likedPosts[post.id] = result['isLiked'] as bool;
+        _postLikeCounts[post.id] = result['likesCount'] as int;
+      });
     }
+  }
+
+  Future<void> _togglePostSave(Post post) async {
+    final previousSaved = _savedPosts[post.id] ?? false;
+
+    if (!mounted) return;
+    setState(() {
+      _savedPosts[post.id] = !previousSaved;
+    });
+
+    final result = await _postService.toggleSave(postId: post.id);
 
     if (!mounted) return;
 
     setState(() {
-      final newLikedState = !currentlyLiked;
-      _likedPosts[post.id] = newLikedState;
-
-      final currentCount = _postLikeCounts[post.id] ?? post.likeCount;
-
-      _postLikeCounts[post.id] = newLikedState
-          ? currentCount + 1
-          : (currentCount > 0 ? currentCount - 1 : 0);
+      _savedPosts[post.id] = result['isSaved'] as bool;
     });
+  }
+
+  bool _isPostOwner(Post post) {
+    return _currentUserId.isNotEmpty && post.authorId == _currentUserId;
+  }
+
+  void _showPostOptions(BuildContext context, Post post) {
+    final isOwner = _isPostOwner(post);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF11162B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                if (isOwner)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.delete_outline,
+                      color: Color(0xFFE74C3C),
+                      size: 22,
+                    ),
+                    title: const Text(
+                      'Delete post',
+                      style: TextStyle(
+                        color: Color(0xFFE74C3C),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _confirmDeletePost(context, post);
+                    },
+                  ),
+                if (!isOwner) ...[
+                  ListTile(
+                    leading: const Icon(
+                      Icons.flag_outlined,
+                      color: Color(0xFFF39C12),
+                      size: 22,
+                    ),
+                    title: const Text(
+                      'Report post',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showReportDialog(context, post);
+                    },
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmDeletePost(BuildContext context, Post post) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF171D35),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: const Text(
+          'Delete post',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this post? This action cannot be undone.',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _deletePost(post);
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: Color(0xFFE74C3C),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deletePost(Post post) async {
+    final success = await _postService.deletePost(post.id);
+
+    if (!mounted) return;
+
+    if (success) {
+      setState(() {
+        posts.removeWhere((p) => p.id == post.id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post deleted')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not delete post. Please try again.'),
+        ),
+      );
+    }
+  }
+
+  void _showReportDialog(BuildContext context, Post post) {
+    final List<Map<String, String>> reasons = const [
+      {'value': 'MISINFORMATION', 'label': 'Misinformation'},
+      {'value': 'HARASSMENT', 'label': 'Harassment or bullying'},
+      {'value': 'HARMFUL_CONTENT', 'label': 'Harmful content'},
+      {'value': 'IMPERSONATION', 'label': 'Impersonation'},
+      {'value': 'MANIPULATED_MEDIA', 'label': 'Manipulated media'},
+      {'value': 'SPAM', 'label': 'Spam'},
+      {'value': 'OTHER', 'label': 'Other'},
+    ];
+
+    String? selectedReason;
+    final descriptionController = TextEditingController();
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF11162B),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              ),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Drag handle
+                      Center(
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+
+                      const Text(
+                        'Report post',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      const Text(
+                        'Why are you reporting this post?',
+                        style: TextStyle(color: Colors.white54, fontSize: 13),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Reason selection
+                      ...reasons.map((r) => RadioListTile<String>(
+                            value: r['value']!,
+                            groupValue: selectedReason,
+                            onChanged: (val) {
+                              setModalState(() => selectedReason = val);
+                            },
+                            title: Text(
+                              r['label']!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            activeColor: const Color(0xFF3157D5),
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          )),
+
+                      const SizedBox(height: 8),
+
+                      // Optional description
+                      TextField(
+                        controller: descriptionController,
+                        maxLines: 3,
+                        maxLength: 1000,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Additional details (optional)',
+                          hintStyle: const TextStyle(
+                            color: Colors.white30,
+                            fontSize: 13,
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFF171D35),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF3157D5),
+                            ),
+                          ),
+                          counterStyle: const TextStyle(
+                            color: Colors.white30,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Submit button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 46,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: selectedReason == null
+                                ? Colors.white10
+                                : const Color(0xFFE74C3C),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: (selectedReason == null || isSubmitting)
+                                ? null
+                                : () async {
+                                    setModalState(() => isSubmitting = true);
+
+                                    final success =
+                                        await _reportService.reportPost(
+                                      postId: post.id,
+                                      reason: selectedReason!,
+                                      description:
+                                          descriptionController.text.trim(),
+                                    );
+
+                                    if (!ctx.mounted) return;
+
+                                    Navigator.pop(ctx);
+
+                                    if (!mounted) return;
+
+                                    if (success) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Report submitted. Thank you for keeping Nexora safe.',
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Could not submit report. Please try again.',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              disabledBackgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: isSubmitting
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Submit report',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -702,7 +1121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () => _showPostOptions(context, post),
                   icon: const Icon(Icons.more_vert, color: Colors.white70),
                 ),
               ],
@@ -828,7 +1247,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => CommentsScreen(username: username),
+                        builder: (_) => CommentsScreen(
+                          username: username,
+                          contentId: post.id,
+                        ),
                       ),
                     );
                   },
@@ -860,8 +1282,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Spacer(),
 
                 IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.bookmark_border, color: Colors.white),
+                  onPressed: () => _togglePostSave(post),
+                  icon: Icon(
+                    (_savedPosts[post.id] ?? false)
+                        ? Icons.bookmark
+                        : Icons.bookmark_border,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -947,9 +1374,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 8),
 
-                const Text(
-                  'View all comments',
-                  style: TextStyle(color: Colors.white54, fontSize: 13),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CommentsScreen(
+                          username: username,
+                          contentId: post.id,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'View all comments',
+                    style: TextStyle(color: Colors.white54, fontSize: 13),
+                  ),
                 ),
               ],
             ),

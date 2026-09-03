@@ -12,6 +12,7 @@
 
 const Notification = require('../models/notification.model');
 const { NOTIFICATION_TYPE } = require('../models/notification.model');
+const Settings = require('../models/settings.model');
 
 class NotificationService {
   // ─── Create Notifications ──────────────────────────────────────────
@@ -227,6 +228,129 @@ class NotificationService {
       targetType: 'User',
       targetId: userId,
       metadata: { eventType, details: details || null },
+    });
+  }
+
+  // ─── Social Notification Convenience Methods ──────────────────────
+
+  /**
+   * Notify a user when someone follows them.
+   */
+  async notifyNewFollower({ recipientId, followerId }) {
+    // Don't notify self
+    if (recipientId.toString() === followerId.toString()) return null;
+
+    // Check if the recipient has notifications enabled
+    try {
+      const settings = await Settings.findOne({ user: recipientId });
+      if (settings && settings.notificationsEnabled === false) {
+        return null; // Recipient has disabled notifications
+      }
+    } catch (_) {
+      // If settings lookup fails, proceed with notification (default: enabled)
+    }
+
+    // Fetch follower name for the notification
+    const User = require('../models/user.model');
+    let followerName = 'Someone';
+    try {
+      const follower = await User.findById(followerId).select('name username');
+      if (follower) {
+        followerName = follower.name || follower.username || 'Someone';
+      }
+    } catch (_) {}
+
+    return this.create({
+      recipientId,
+      senderId: followerId,
+      type: 'NEW_FOLLOWER',
+      title: 'New Follower',
+      body: `${followerName} started following you`,
+      targetType: 'User',
+      targetId: followerId,
+    });
+  }
+
+  /**
+   * Notify a post owner when someone likes their post.
+   */
+  async notifyPostLiked({ postOwnerId, likerId, postId }) {
+    if (postOwnerId.toString() === likerId.toString()) return null;
+
+    const User = require('../models/user.model');
+    let likerName = 'Someone';
+    try {
+      const liker = await User.findById(likerId).select('name username');
+      if (liker) {
+        likerName = liker.name || liker.username || 'Someone';
+      }
+    } catch (_) {}
+
+    return this.create({
+      recipientId: postOwnerId,
+      senderId: likerId,
+      type: 'POST_LIKED',
+      title: 'Post Liked',
+      body: `${likerName} liked your post`,
+      targetType: 'Post',
+      targetId: postId,
+    });
+  }
+
+  /**
+   * Notify a post owner when someone comments on their post.
+   */
+  async notifyPostCommented({ postOwnerId, commenterId, postId, commentText }) {
+    if (postOwnerId.toString() === commenterId.toString()) return null;
+
+    const User = require('../models/user.model');
+    let commenterName = 'Someone';
+    try {
+      const commenter = await User.findById(commenterId).select('name username');
+      if (commenter) {
+        commenterName = commenter.name || commenter.username || 'Someone';
+      }
+    } catch (_) {}
+
+    const preview = commentText && commentText.length > 50
+      ? commentText.substring(0, 50) + '...'
+      : commentText || '';
+
+    return this.create({
+      recipientId: postOwnerId,
+      senderId: commenterId,
+      type: 'POST_COMMENTED',
+      title: 'New Comment',
+      body: `${commenterName} commented: ${preview}`,
+      targetType: 'Post',
+      targetId: postId,
+    });
+  }
+
+  /**
+   * Notify a user when they receive a new message.
+   */
+  async notifyNewMessage({ recipientId, senderId, messageId }) {
+    if (recipientId.toString() === senderId.toString()) return null;
+
+    const User = require('../models/user.model');
+    let senderName = 'Someone';
+    try {
+      const sender = await User.findById(senderId).select('name username');
+      if (sender) {
+        senderName = sender.name || sender.username || 'Someone';
+      }
+    } catch (_) {}
+
+    return this.create({
+      recipientId,
+      senderId,
+      type: 'NEW_MESSAGE',
+      title: 'New Message',
+      body: `${senderName} sent you a message`,
+      targetType: 'Message',
+      targetId: messageId,
+      metadata: { senderId },
     });
   }
 

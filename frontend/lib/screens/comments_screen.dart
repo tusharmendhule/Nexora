@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'user_profile_screen.dart';
 import '../models/comment.dart';
 import '../services/comment_service.dart';
-import '../services/like_service.dart';
+import '../services/user_service.dart';
 
 class CommentsScreen extends StatefulWidget {
   final String username;
@@ -24,9 +24,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   final FocusNode _focusNode = FocusNode();
 
   final CommentService _commentService = CommentService();
-  final LikeService _likeService = LikeService();
-
-  static const String currentUserId = 'user_you';
+  final UserService _userService = UserService();
 
   final Map<String, bool> _likedComments = {};
   final Map<String, int> _commentLikeCounts = {};
@@ -35,13 +33,23 @@ class _CommentsScreenState extends State<CommentsScreen> {
   List<Comment> comments = [];
   List<String> times = [];
   bool isLoading = true;
+  String _currentUserId = '';
 
   Comment? _replyingTo;
 
   @override
   void initState() {
     super.initState();
+    _loadCurrentUser();
     _loadComments();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final id = await _userService.getCurrentUserId();
+    if (!mounted) return;
+    setState(() {
+      _currentUserId = id ?? '';
+    });
   }
 
   Future<void> _loadComments() async {
@@ -49,32 +57,18 @@ class _CommentsScreenState extends State<CommentsScreen> {
       widget.contentId,
     );
 
-    final loadedReplies = <String, List<Comment>>{};
-
-    for (final comment in loadedComments) {
-      loadedReplies[comment.id] = await _commentService.fetchReplies(
-        comment.id,
-      );
-    }
-
     if (!mounted) return;
 
     setState(() {
       comments = loadedComments;
-      _replies
-        ..clear()
-        ..addAll(loadedReplies);
 
-      times = List.generate(
-        loadedComments.length,
-        (index) => index == 0
-            ? '2m'
-            : index == 1
-            ? '8m'
-            : index == 2
-            ? '14m'
-            : 'now',
-      );
+      times = loadedComments.map((c) {
+        final diff = DateTime.now().difference(c.createdAt);
+        if (diff.inMinutes < 1) return 'now';
+        if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+        if (diff.inHours < 24) return '${diff.inHours}h';
+        return '${diff.inDays}d';
+      }).toList();
 
       isLoading = false;
     });
@@ -111,60 +105,103 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
     final parent = _replyingTo;
 
-    final comment = Comment(
-      id: 'comment_${DateTime.now().microsecondsSinceEpoch}',
-      contentId: widget.contentId,
-      authorId: currentUserId,
-      authorUsername: 'You',
+    final createdComment = await _commentService.createComment(
+      postId: widget.contentId,
       text: text,
       parentCommentId: parent?.id,
-      createdAt: DateTime.now(),
     );
-
-    await _commentService.addComment(comment);
 
     if (!mounted) return;
 
-    setState(() {
-      if (parent == null) {
-        comments.insert(0, comment);
-        times.insert(0, 'now');
-      } else {
-        _replies.putIfAbsent(parent.id, () => []);
-        _replies[parent.id]!.add(comment);
-      }
+    if (createdComment != null) {
+      setState(() {
+        if (parent == null) {
+          comments.insert(0, createdComment);
+          times.insert(0, 'now');
+        }
 
-      _replyingTo = null;
-      _controller.clear();
-    });
+        _replyingTo = null;
+        _controller.clear();
+      });
+    } else {
+      _showMessage('Could not post comment. Please try again.');
+    }
 
     _focusNode.unfocus();
   }
 
-  Future<void> _toggleCommentLike(Comment comment) async {
-    final currentlyLiked = await _likeService.isLiked(
-      userId: currentUserId,
-      contentId: comment.id,
-      contentType: 'comment',
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> _deleteComment(Comment comment) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF171D35),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: const Text(
+          'Delete comment',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this comment?',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: Color(0xFFE74C3C),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
 
-    if (currentlyLiked) {
-      await _likeService.unlike(
-        userId: currentUserId,
-        contentId: comment.id,
-        contentType: 'comment',
-      );
-    } else {
-      await _likeService.like(
-        userId: currentUserId,
-        contentId: comment.id,
-        contentType: 'comment',
-      );
-    }
+    if (confirmed != true || !mounted) return;
+
+    await _commentService.deleteComment(comment.id);
 
     if (!mounted) return;
 
     setState(() {
+      comments.removeWhere((c) => c.id == comment.id);
+      times.removeWhere((t) => t == 'now');
+    });
+
+    _showMessage('Comment deleted');
+  }
+
+  Future<void> _toggleCommentLike(Comment comment) async {
+    // Comment-level likes are not supported by the current backend API.
+    // Toggle the local visual state as a placeholder until backend support is added.
+    if (!mounted) return;
+
+    setState(() {
+      final currentlyLiked = _likedComments[comment.id] ?? false;
       final newLikedState = !currentlyLiked;
       _likedComments[comment.id] = newLikedState;
 
@@ -342,6 +379,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }) {
     final username = comment.authorUsername;
     final isYou = username == 'You';
+    final isOwner = _currentUserId.isNotEmpty && comment.authorId == _currentUserId;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,16 +403,30 @@ class _CommentsScreenState extends State<CommentsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: isYou ? null : () => _openProfile(username),
-                  child: Text(
-                    username,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: isYou ? null : () => _openProfile(username),
+                      child: Text(
+                        username,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  ),
+                    const Spacer(),
+                    if (isOwner)
+                      GestureDetector(
+                        onTap: () => _deleteComment(comment),
+                        child: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.white54,
+                          size: 16,
+                        ),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 5),
                 Text(

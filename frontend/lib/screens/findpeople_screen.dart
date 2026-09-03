@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../models/user.dart';
+import '../services/user_service.dart';
 import 'main_nav.dart';
 
 class FindPeopleScreen extends StatefulWidget {
@@ -10,40 +12,92 @@ class FindPeopleScreen extends StatefulWidget {
 }
 
 class _FindPeopleScreenState extends State<FindPeopleScreen> {
-  final Set<int> followedUsers = {};
+  final UserService _userService = UserService();
+  final Set<String> _followedUserIds = {};
+  final Map<String, bool> _followStatus = {};
+  // Note: _followStatus is final, so we use .clear() + .addAll() to update it
 
-  final List<Map<String, dynamic>> people = const [
-    {
-      'name': 'Aarav Sharma',
-      'username': '@aarav',
-      'bio': 'Photography • Travel • Stories',
-    },
-    {
-      'name': 'Maya Kapoor',
-      'username': '@maya',
-      'bio': 'Designing things worth remembering.',
-    },
-    {
-      'name': 'Arjun Mehta',
-      'username': '@arjun',
-      'bio': 'Tech • Ideas • Late night thoughts',
-    },
-    {
-      'name': 'Ananya Singh',
-      'username': '@ananya',
-      'bio': 'Finding beauty in ordinary moments.',
-    },
-    {
-      'name': 'Rohan Verma',
-      'username': '@rohan',
-      'bio': 'Music • Films • Good conversations',
-    },
-    {
-      'name': 'Kiara Patel',
-      'username': '@kiara',
-      'bio': 'Creator • Explorer • Dreamer',
-    },
-  ];
+  List<User> _people = [];
+  bool _isLoading = true;
+  String _currentUserId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPeople();
+  }
+
+  Future<void> _loadPeople() async {
+    // Get current user ID
+    final currentId = await _userService.getCurrentUserId();
+    if (!mounted) return;
+    _currentUserId = currentId ?? '';
+
+    // Search for users to suggest (using a generic query to get diverse results)
+    final users = await _userService.searchUsers('a');
+
+    if (!mounted) return;
+
+    // Filter out current user
+    final filteredUsers = users.where((u) => u.id != _currentUserId).toList();
+
+    // Check follow status for each user
+    final followStatuses = <String, bool>{};
+    final followedIds = <String>{};
+    for (final user in filteredUsers) {
+      final isFollowing = await _userService.isFollowingUser(user.id);
+      followStatuses[user.id] = isFollowing;
+      if (isFollowing) {
+        followedIds.add(user.id);
+      }
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _people = filteredUsers;
+      _followStatus
+        ..clear()
+        ..addAll(followStatuses);
+      _followedUserIds.clear();
+      _followedUserIds.addAll(followedIds);
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _toggleFollow(User user) async {
+    final isCurrentlyFollowing = _followStatus[user.id] ?? false;
+
+    // Optimistic update
+    setState(() {
+      _followStatus[user.id] = !isCurrentlyFollowing;
+      if (isCurrentlyFollowing) {
+        _followedUserIds.remove(user.id);
+      } else {
+        _followedUserIds.add(user.id);
+      }
+    });
+
+    try {
+      if (isCurrentlyFollowing) {
+        await _userService.unfollowUser(user.id);
+      } else {
+        await _userService.followUser(user.id);
+      }
+    } catch (_) {
+      // Revert on failure
+      if (mounted) {
+        setState(() {
+          _followStatus[user.id] = isCurrentlyFollowing;
+          if (isCurrentlyFollowing) {
+            _followedUserIds.add(user.id);
+          } else {
+            _followedUserIds.remove(user.id);
+          }
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,15 +134,28 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
 
                   const SizedBox(height: 16),
 
-                  ...List.generate(
-                    people.length,
-                    (index) => _personCard(
-                      index: index,
-                      name: people[index]['name'] as String,
-                      username: people[index]['username'] as String,
-                      bio: people[index]['bio'] as String,
+                  if (_isLoading)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                    )
+                  else if (_people.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: Text(
+                          'No people to suggest yet',
+                          style: TextStyle(color: Colors.white54, fontSize: 14),
+                        ),
+                      ),
+                    )
+                  else
+                    ...List.generate(
+                      _people.length,
+                      (index) => _personCard(user: _people[index]),
                     ),
-                  ),
 
                   const SizedBox(height: 15),
 
@@ -216,13 +283,8 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
     );
   }
 
-  Widget _personCard({
-    required int index,
-    required String name,
-    required String username,
-    required String bio,
-  }) {
-    final isFollowed = followedUsers.contains(index);
+  Widget _personCard({required User user}) {
+    final isFollowing = _followStatus[user.id] ?? false;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -231,14 +293,25 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
         color: const Color(0xFF171D35),
         borderRadius: BorderRadius.circular(17),
         border: Border.all(
-          color: isFollowed
+          color: isFollowing
               ? const Color(0xFF7C3AED).withOpacity(0.35)
               : Colors.white.withOpacity(0.05),
         ),
       ),
       child: Row(
         children: [
-          _avatar(index),
+          // Avatar
+          CircleAvatar(
+            radius: 25,
+            backgroundColor: const Color(0xFF6C63FF),
+            backgroundImage: user.profileImageUrl != null &&
+                    user.profileImageUrl!.isNotEmpty
+                ? NetworkImage(user.profileImageUrl!)
+                : null,
+            child: user.profileImageUrl == null || user.profileImageUrl!.isEmpty
+                ? const Icon(Icons.person, color: Colors.white, size: 25)
+                : null,
+          ),
 
           const SizedBox(width: 12),
 
@@ -246,32 +319,43 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        user.displayName ?? user.username,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    if (user.isVerified) ...[
+                      const SizedBox(width: 4),
+                      const Icon(Icons.verified, color: Color(0xFF6C8CFF), size: 14),
+                    ],
+                  ],
                 ),
 
                 const SizedBox(height: 3),
 
                 Text(
-                  username,
+                  '@${user.username}',
                   style: const TextStyle(color: Colors.white54, fontSize: 11),
                 ),
 
                 const SizedBox(height: 4),
 
-                Text(
-                  bio,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white38, fontSize: 10),
-                ),
+                if (user.bio != null && user.bio!.isNotEmpty)
+                  Text(
+                    user.bio!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white38, fontSize: 10),
+                  ),
               ],
             ),
           ),
@@ -280,13 +364,9 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
 
           SizedBox(
             height: 36,
-            child: isFollowed
+            child: isFollowing
                 ? OutlinedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        followedUsers.remove(index);
-                      });
-                    },
+                    onPressed: () => _toggleFollow(user),
                     icon: const Icon(Icons.check, size: 15),
                     label: const Text(
                       'Following',
@@ -306,11 +386,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                     ),
                   )
                 : ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        followedUsers.add(index);
-                      });
-                    },
+                    onPressed: () => _toggleFollow(user),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF3157D5),
                       foregroundColor: Colors.white,
@@ -334,33 +410,8 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
     );
   }
 
-  Widget _avatar(int index) {
-    final gradients = [
-      const [Color(0xFF3157D5), Color(0xFF7C3AED)],
-      const [Color(0xFF16A34A), Color(0xFFEAB308)],
-      const [Color(0xFFEC4899), Color(0xFF22C55E)],
-      const [Color(0xFFF97316), Color(0xFF8B5CF6)],
-      const [Color(0xFF0891B2), Color(0xFF6366F1)],
-      const [Color(0xFFDB2777), Color(0xFFF59E0B)],
-    ];
-
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: gradients[index % gradients.length],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: const Icon(Icons.person, color: Colors.white, size: 25),
-    );
-  }
-
   Widget _continueButton() {
-    final count = followedUsers.length;
+    final count = _followedUserIds.length;
 
     return SizedBox(
       width: double.infinity,
@@ -411,6 +462,6 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
         builder: (context) => const MainNavigation(startWithEmptyHome: true),
       ),
       (route) => false,
-    ); // Navigation to Home will be connected after the Home screen is finalized.
+    );
   }
 }

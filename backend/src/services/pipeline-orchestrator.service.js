@@ -77,6 +77,7 @@ const RETRY_DELAY_MS = 1000;
 let contentRouter;
 let textAnalysisService;
 let videoAnalysisService;
+let imageAnalysisService;
 let audioAnalysisService;
 let linkAnalysisService;
 let claimEntityService;
@@ -89,6 +90,7 @@ function _loadServices() {
   if (!contentRouter) contentRouter = require('./content-router.service');
   if (!textAnalysisService) textAnalysisService = require('./text-analysis.service');
   if (!videoAnalysisService) videoAnalysisService = require('./video-analysis.service');
+  if (!imageAnalysisService) imageAnalysisService = require('./image-analysis.service');
   if (!audioAnalysisService) audioAnalysisService = require('./audio-analysis.service');
   if (!linkAnalysisService) linkAnalysisService = require('./link-analysis.service');
   if (!claimEntityService) claimEntityService = require('./claim-entity-extraction.service');
@@ -356,19 +358,8 @@ async function executeAIAnalysis(pipeline, post, contentType, job) {
       break;
 
     case 'IMAGE':
-      // Image authenticity analysis (Module 8 - placeholder)
-      analysisResult = {
-        status: 'COMPLETED',
-        results: {
-          deepfakeProbability: 0,
-          manipulationProbability: 0,
-          confidence: 0.5,
-          finalScore: 75,
-          message: 'Image pipeline placeholder — full implementation pending',
-        },
-        modelVersion: 'nexora-image-v1.0.0',
-      };
-      modelVersion = 'nexora-image-v1.0.0';
+      analysisResult = await imageAnalysisService.analyzeImage(job);
+      modelVersion = analysisResult.modelVersion;
       serviceId = 'image-authenticity';
       break;
 
@@ -568,6 +559,14 @@ async function executeEvidenceNormalization(
           confidence: aiData.confidence || 0.5,
           modelVersion: aiResult.modelVersion,
         };
+      } else if (contentType === 'IMAGE') {
+        evidenceInputs.contentMetadata.mediaAnalysisResults = {
+          manipulationProbability: aiData.manipulationProbability || 0,
+          faceManipulationProbability: aiData.faceManipulationProbability || 0,
+          frequencyAnomaly: aiData.frequencyAnomaly || 0,
+          colorAnomaly: aiData.colorAnomaly || 0,
+          textureAnomaly: aiData.textureAnomaly || 0,
+        };
       } else if (contentType === 'VIDEO') {
         evidenceInputs.contentMetadata.mediaAnalysisResults = {
           deepfakeProbability: aiData.deepfakeProbability || 0,
@@ -658,6 +657,12 @@ async function executeTrustScore(pipeline, post, contentType, aiResult, factChec
           aiData.manipulationProbability || 0
         );
         input.modelConfidenceScore = aiData.confidence || 0.5;
+      } else if (contentType === 'IMAGE') {
+        input.authenticityScore = 1 - Math.max(
+          aiData.manipulationProbability || 0,
+          aiData.faceManipulationProbability || 0
+        );
+        input.modelConfidenceScore = aiData.confidence || 0.5;
       } else if (contentType === 'AUDIO') {
         input.authenticityScore = 1 - Math.max(
           aiData.syntheticSpeechProbability || 0,
@@ -673,12 +678,12 @@ async function executeTrustScore(pipeline, post, contentType, aiResult, factChec
 
     // Add fact-check score
     if (factCheckResult && factCheckResult.results) {
-      input.factualVerificationScore = trustScoreService.computeFactualVerificationScore(
-        factCheckResult.results
-      );
+      input.factualVerificationScore = factCheckService
+        ? factCheckService.computeFactualVerificationScore(factCheckResult.results)
+        : 0.5;
 
       // Check for confirmed false
-      if (trustScoreService.isConfirmedFalse(factCheckResult.results)) {
+      if (factCheckService && factCheckService.isConfirmedFalse(factCheckResult.results)) {
         input.isConfirmedFalse = true;
       }
     }

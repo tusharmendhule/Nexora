@@ -2428,6 +2428,250 @@ async def analyze_audio(request: AudioAnalysisRequest):
         )
 
 
+# =============================================================================
+# IMAGE AUTHENTICITY ANALYSIS
+# =============================================================================
+
+IMAGE_MODEL_VERSION = "nexora-image-v1.0.0"
+MAX_IMAGE_SIZE_MB = 50
+
+logger_image = logging.getLogger("nexora-image")
+
+
+class ImageAnalysisRequest(BaseModel):
+    mediaUrl: str = Field(..., description="Cloudinary or public URL of the image")
+    postId: str = Field(..., description="MongoDB ObjectId of the post")
+
+    @field_validator("mediaUrl")
+    @classmethod
+    def validate_media_url(cls, v):
+        if not v or not v.strip():
+            raise ValueError("mediaUrl must not be empty")
+        v = v.strip()
+        if not v.startswith("http://") and not v.startswith("https://"):
+            raise ValueError("mediaUrl must be a valid HTTP(S) URL")
+        return v
+
+    @field_validator("postId")
+    @classmethod
+    def validate_post_id(cls, v):
+        if not v or not v.strip():
+            raise ValueError("postId must not be empty")
+        return v.strip()
+
+
+class ImageAnalysisResponse(BaseModel):
+    success: bool = True
+    postId: str
+    manipulationProbability: float
+    faceManipulationProbability: float
+    frequencyAnomaly: float
+    colorAnomaly: float
+    textureAnomaly: float
+    faceDetectionCount: int
+    hasFace: bool
+    preprocessing: dict
+    confidence: float
+    modelVersion: str
+    processingTimeMs: int
+    errors: List[dict] = []
+
+
+# -- Image download and validation ----------------------------------------
+
+
+def download_image(url: str, timeout: int = 60) -> str:
+    """Download image to a temporary file. Returns the file path."""
+    tmp_path = os.path.join(
+        tempfile.gettempdir(), f"nexora_image_{uuid.uuid4().hex[:12]}.jpg"
+    )
+    try:
+        urllib.request.urlretrieve(url, tmp_path)
+    except Exception as exc:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+        raise RuntimeError(f"Failed to download image: {exc}") from exc
+
+    size_mb = os.path.getsize(tmp_path) / (1024 * 1024)
+    if size_mb > MAX_IMAGE_SIZE_MB:
+        os.remove(tmp_path)
+        raise RuntimeError(
+            f"Image too large: {size_mb:.1f}MB (max {MAX_IMAGE_SIZE_MB}MB)"
+        )
+
+    return tmp_path
+
+
+def validate_image(file_path: str) -> dict:
+    """Validate the image file and return metadata."""
+    import cv2
+
+    img = cv2.imread(file_path)
+    if img is None:
+        raise RuntimeError("Cannot read image file — invalid or corrupted format")
+
+    height, width = img.shape[:2]
+    if width <= 0 or height <= 0:
+        raise RuntimeError(f"Invalid dimensions: {width}x{height}")
+    if width * height > 4096 * 4096:
+        raise RuntimeError(f"Image too large: {width}x{height} (max 4096x4096)")
+
+    return {
+        "width": width,
+        "height": height,
+        "channels": img.shape[2] if len(img.shape) > 2 else 1,
+        "fileSize": os.path.getsize(file_path),
+    }
+
+
+# -- Image analysis --------------------------------------------------------
+
+
+def analyze_single_image(file_path: str) -> dict:
+    """
+    Analyze a single image for manipulation indicators.
+    Reuses the frame-level analysis from video analysis but applied once.
+    """
+    import cv2
+
+    img = cv2.imread(file_path)
+    if img is None:
+        raise RuntimeError("Cannot read image for analysis")
+
+    faces = []
+    detector_info = _load_face_detector()
+    anomaly_info = _load_anomaly_model()
+
+    # Detect faces
+    if detector_info is not None:
+        faces = detect_faces_in_frame(img, detector_info)
+
+    # Run frame-level manipulation analysis
+    analysis = analyze_frame_manipulation(img, faces, anomaly_info)
+
+    return {
+        "manipulationScore": analysis["manipulationScore"],
+        "frequencyAnomaly": analysis["frequencyAnomaly"],
+        "colorAnomaly": analysis["colorAnomaly"],
+        "textureAnomaly": analysis["textureAnomaly"],
+        "faceManipulation": analysis["faceManipulation"],
+        "faceDetectionCount": len(faces),
+        "hasFace": len(faces) > 0,
+    }
+
+
+def compute_image_confidence(
+    metadata: dict, analysis_result: dict, errors: list
+) -> float:
+    """Confidence score for the image analysis."""
+    score = 0.5
+
+    # Larger image = higher confidence
+    pixels = metadata.get("width", 0) * metadata.get("height", 0)
+    if pixels > 1000000:  # > 1MP
+        score += 0.15
+    elif pixels > 100000:
+        score += 0.10
+    elif pixels < 10000:
+        score -= 0.15
+
+    # Face presence boosts confidence for manipulation detection
+    if analysis_result.get("hasFace"):
+        score += 0.10
+
+    # More channels (RGB) = more data
+    if metadata.get("channels", 1) >= 3:
+        score += 0.05
+
+    # Errors reduce confidence
+    score -= len(errors) * 0.1
+
+    return round(max(0.0, min(1.0, score)), 4)
+
+
+@app.post("/analyze/image", response_model=ImageAnalysisResponse)
+async def analyze_image(request: ImageAnalysisRequest):
+    """
+    Full image authenticity analysis pipeline:
+      1. Download image securely
+      2. Validate image format and metadata
+      3. Detect faces
+      4. Analyze for manipulation indicators (frequency, color, texture, face)
+      5. Produce manipulation probability + confidence
+    """
+    start_time = time.time()
+    errors = []
+    tmp_file = None
+
+    try:
+        # Step 1: Download image
+        try:
+            tmp_file = download_image(request.mediaUrl)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Failed to download image: {exc}",
+            )
+
+        # Step 2: Validate image
+        try:
+            metadata = validate_image(tmp_file)
+        except Exception as exc:
+            os.remove(tmp_file)
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid image: {exc}",
+            )
+
+        # Step 3-4: Analyze image
+        try:
+            analysis = analyze_single_image(tmp_file)
+        except Exception as exc:
+            if tmp_file and os.path.exists(tmp_file):
+                os.remove(tmp_file)
+            raise HTTPException(
+                status_code=500,
+                detail=f"Image analysis failed: {exc}",
+            )
+
+        # Step 5: Compute confidence
+        confidence = compute_image_confidence(metadata, analysis, errors)
+
+        processing_time_ms = int((time.time() - start_time) * 1000)
+
+        # Clean up temp file
+        if tmp_file and os.path.exists(tmp_file):
+            os.remove(tmp_file)
+
+        return ImageAnalysisResponse(
+            success=len(errors) == 0,
+            postId=request.postId,
+            manipulationProbability=analysis["manipulationScore"],
+            faceManipulationProbability=analysis["faceManipulation"],
+            frequencyAnomaly=analysis["frequencyAnomaly"],
+            colorAnomaly=analysis["colorAnomaly"],
+            textureAnomaly=analysis["textureAnomaly"],
+            faceDetectionCount=analysis["faceDetectionCount"],
+            hasFace=analysis["hasFace"],
+            preprocessing=metadata,
+            confidence=confidence,
+            modelVersion=IMAGE_MODEL_VERSION,
+            processingTimeMs=processing_time_ms,
+            errors=errors,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger_image.error("Image analysis failed: %s", exc, exc_info=True)
+        if tmp_file and os.path.exists(tmp_file):
+            os.remove(tmp_file)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Image analysis failed: {exc}",
+        )
+
+
 @app.get("/health")
 def health():
     """Health check endpoint showing model load status."""

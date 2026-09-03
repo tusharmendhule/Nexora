@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../models/post.dart';
+import '../services/post_service.dart';
+
 class SavedScreen extends StatefulWidget {
   const SavedScreen({super.key});
 
@@ -11,57 +14,71 @@ class _SavedScreenState extends State<SavedScreen> {
   bool isGridView = false;
   String selectedSort = 'Newest saved';
 
-  final List<Map<String, dynamic>> savedPosts = [
-    {
-      'title': 'A quiet moment above the clouds.',
-      'author': 'Aarav',
-      'gradient': [const Color(0xFF3157D5), const Color(0xFF7C3AED)],
-      'order': 4,
-    },
-    {
-      'title': 'Build something worth remembering.',
-      'author': 'Maya',
-      'gradient': [const Color(0xFF16A34A), const Color(0xFFEAB308)],
-      'order': 3,
-    },
-    {
-      'title': 'Late nights. Big ideas.',
-      'author': 'Arjun',
-      'gradient': [const Color(0xFFEC4899), const Color(0xFF22C55E)],
-      'order': 2,
-    },
-    {
-      'title': 'Find beauty in the ordinary.',
-      'author': 'Ananya',
-      'gradient': [const Color(0xFFF97316), const Color(0xFF8B5CF6)],
-      'order': 1,
-    },
+  final PostService _postService = PostService();
+
+  List<Post> _savedPosts = [];
+  bool _isLoading = true;
+
+  // Predefined gradient palette for cards
+  static const List<List<Color>> _gradients = [
+    [Color(0xFF3157D5), Color(0xFF7C3AED)],
+    [Color(0xFF16A34A), Color(0xFFEAB308)],
+    [Color(0xFFEC4899), Color(0xFF22C55E)],
+    [Color(0xFFF97316), Color(0xFF8B5CF6)],
+    [Color(0xFF0EA5E9), Color(0xFF6366F1)],
+    [Color(0xFFE11D48), Color(0xFF0EA5E9)],
   ];
 
-  List<Map<String, dynamic>> get sortedPosts {
-    final posts = List<Map<String, dynamic>>.from(savedPosts);
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedPosts();
+  }
+
+  Future<void> _loadSavedPosts() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _postService.getSavedPosts(page: 1, limit: 20);
+      final fetchedPosts = result['savedPosts'] as List<Post>;
+
+      if (!mounted) return;
+
+      setState(() {
+        _savedPosts = fetchedPosts;
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
+  }
+
+  List<Post> get sortedPosts {
+    final posts = List<Post>.from(_savedPosts);
 
     switch (selectedSort) {
       case 'Newest saved':
-        posts.sort((a, b) => (b['order'] as int).compareTo(a['order'] as int));
+        posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
-
       case 'Oldest saved':
-        posts.sort((a, b) => (a['order'] as int).compareTo(b['order'] as int));
+        posts.sort((a, b) => a.createdAt.compareTo(b.createdAt));
         break;
-
       case 'Creator A–Z':
         posts.sort(
-          (a, b) => (a['author'] as String).compareTo(b['author'] as String),
+          (a, b) => a.authorUsername.compareTo(b.authorUsername),
         );
         break;
-
       case 'Recently viewed':
-        posts.sort((a, b) => (b['order'] as int).compareTo(a['order'] as int));
+        posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
     }
 
     return posts;
+  }
+
+  List<Color> _gradientForPost(int index) {
+    return _gradients[index % _gradients.length];
   }
 
   @override
@@ -105,19 +122,25 @@ class _SavedScreenState extends State<SavedScreen> {
           const SizedBox(width: 4),
         ],
       ),
-      body: savedPosts.isEmpty
-          ? _emptyState()
-          : Column(
-              children: [
-                _sortBar(),
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: isGridView ? _buildGrid() : _buildList(),
-                  ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF7C3AED),
+              ),
+            )
+          : _savedPosts.isEmpty
+              ? _emptyState()
+              : Column(
+                  children: [
+                    _sortBar(),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        child: isGridView ? _buildGrid() : _buildList(),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 
@@ -173,27 +196,28 @@ class _SavedScreenState extends State<SavedScreen> {
   }
 
   Widget _buildList() {
+    final sorted = sortedPosts;
     return ListView.builder(
       key: const ValueKey('list'),
       padding: const EdgeInsets.fromLTRB(18, 2, 18, 30),
-      itemCount: sortedPosts.length,
+      itemCount: sorted.length,
       itemBuilder: (context, index) {
-        final post = sortedPosts[index];
+        final post = sorted[index];
 
         return _savedPostCard(
-          title: post['title'] as String,
-          author: post['author'] as String,
-          gradient: post['gradient'] as List<Color>,
+          post: post,
+          gradient: _gradientForPost(index),
         );
       },
     );
   }
 
   Widget _buildGrid() {
+    final sorted = sortedPosts;
     return GridView.builder(
       key: const ValueKey('grid'),
       padding: const EdgeInsets.fromLTRB(18, 2, 18, 30),
-      itemCount: sortedPosts.length,
+      itemCount: sorted.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
@@ -201,22 +225,23 @@ class _SavedScreenState extends State<SavedScreen> {
         childAspectRatio: 0.82,
       ),
       itemBuilder: (context, index) {
-        final post = sortedPosts[index];
+        final post = sorted[index];
 
         return _savedGridCard(
-          title: post['title'] as String,
-          author: post['author'] as String,
-          gradient: post['gradient'] as List<Color>,
+          post: post,
+          gradient: _gradientForPost(index),
         );
       },
     );
   }
 
   Widget _savedPostCard({
-    required String title,
-    required String author,
+    required Post post,
     required List<Color> gradient,
   }) {
+    final title = post.text ?? '';
+    final author = post.authorUsername;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -227,42 +252,83 @@ class _SavedScreenState extends State<SavedScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 180,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
+          // Header area: show media image if available, otherwise gradient
+          if (post.mediaUrl != null && post.mediaUrl!.isNotEmpty)
+            Container(
+              height: 180,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+                image: DecorationImage(
+                  image: NetworkImage(post.mediaUrl!),
+                  fit: BoxFit.cover,
+                ),
+                color: const Color(0xFF252B45),
               ),
-              gradient: LinearGradient(
-                colors: gradient,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  left: 18,
-                  right: 18,
-                  bottom: 18,
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      height: 1.15,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 18,
+                    right: 18,
+                    bottom: 18,
+                    child: Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        height: 1.15,
+                      ),
                     ),
                   ),
+                  const Positioned(
+                    top: 14,
+                    right: 14,
+                    child: Icon(Icons.bookmark, color: Colors.white, size: 22),
+                  ),
+                ],
+              ),
+            )
+          else
+            Container(
+              height: 180,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
                 ),
-                const Positioned(
-                  top: 14,
-                  right: 14,
-                  child: Icon(Icons.bookmark, color: Colors.white, size: 22),
+                gradient: LinearGradient(
+                  colors: gradient,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 18,
+                    right: 18,
+                    bottom: 18,
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        height: 1.15,
+                      ),
+                    ),
+                  ),
+                  const Positioned(
+                    top: 14,
+                    right: 14,
+                    child: Icon(Icons.bookmark, color: Colors.white, size: 22),
+                  ),
+                ],
+              ),
             ),
-          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
             child: Row(
@@ -280,7 +346,7 @@ class _SavedScreenState extends State<SavedScreen> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () => _unsavePost(post),
                   icon: const Icon(Icons.more_horiz, color: Colors.white54),
                 ),
               ],
@@ -292,10 +358,12 @@ class _SavedScreenState extends State<SavedScreen> {
   }
 
   Widget _savedGridCard({
-    required String title,
-    required String author,
+    required Post post,
     required List<Color> gradient,
   }) {
+    final title = post.text ?? '';
+    final author = post.authorUsername;
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF171D35),
@@ -308,52 +376,99 @@ class _SavedScreenState extends State<SavedScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.16),
-                          shape: BoxShape.circle,
+              child: post.mediaUrl != null && post.mediaUrl!.isNotEmpty
+                  ? Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(post.mediaUrl!),
+                          fit: BoxFit.cover,
                         ),
-                        child: const Icon(
-                          Icons.bookmark,
-                          color: Colors.white,
-                          size: 18,
+                        color: const Color(0xFF252B45),
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.16),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.bookmark,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 12,
+                            right: 12,
+                            bottom: 12,
+                            child: Text(
+                              title,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                height: 1.15,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: gradient,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                       ),
-                    ),
-                    Positioned(
-                      left: 12,
-                      right: 12,
-                      bottom: 12,
-                      child: Text(
-                        title,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          height: 1.15,
-                        ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.16),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.bookmark,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 12,
+                            right: 12,
+                            bottom: 12,
+                            child: Text(
+                              title,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                height: 1.15,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(11, 10, 7, 10),
@@ -478,6 +593,25 @@ class _SavedScreenState extends State<SavedScreen> {
         );
       },
     );
+  }
+
+  Future<void> _unsavePost(Post post) async {
+    final result = await _postService.toggleSave(postId: post.id);
+    if (!mounted) return;
+
+    if (result['isSaved'] == false) {
+      setState(() {
+        _savedPosts.removeWhere((p) => p.id == post.id);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Post removed from saved posts'),
+          backgroundColor: Color(0xFF171D35),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Widget _emptyState() {

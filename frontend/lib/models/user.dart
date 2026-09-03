@@ -8,6 +8,7 @@ class User {
 
   final int followersCount;
   final int followingCount;
+  final int postsCount;
 
   final bool isFollowing;
   final bool isFollowedBy;
@@ -31,6 +32,7 @@ class User {
     this.profileImageUrl,
     this.followersCount = 0,
     this.followingCount = 0,
+    this.postsCount = 0,
     this.isFollowing = false,
     this.isFollowedBy = false,
     this.isVerified = false,
@@ -56,6 +58,7 @@ class User {
       profileImageUrl: json['avatar']?.toString(),
       followersCount: json['followersCount'] as int? ?? 0,
       followingCount: json['followingCount'] as int? ?? 0,
+      postsCount: json['postsCount'] as int? ?? 0,
       isFollowing: json['isFollowing'] as bool? ?? false,
       isFollowedBy: json['isFollowedBy'] as bool? ?? false,
       isVerified: json['isVerified'] as bool? ?? false,

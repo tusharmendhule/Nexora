@@ -2,13 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Conversation = require('../models/conversation.model');
 const { protect } = require('../middleware/auth.middleware');
+const { validateObjectId, sanitizeBody } = require('../middleware/validate.middleware');
+const { ApiError } = require('../middleware/error.middleware');
 
 // ==========================================
 // 1. CREATE OR GET EXISTING CONVERSATION
 // ==========================================
 // @route   POST /api/conversations
 // @access  Private
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, sanitizeBody(['receiverId']), async (req, res, next) => {
   try {
     const { receiverId } = req.body;
     const senderId = req.user?._id || req.user?.id;
@@ -23,7 +25,7 @@ router.post('/', protect, async (req, res) => {
 
     // Check if conversation already exists between these two users
     let conversation = await Conversation.findOne({
-      participants: { $all: [senderId, receiverId] }
+      participants: { $all: [senderId, receiverId], $size: 2 }
     }).populate('participants', 'username name avatar');
 
     if (!conversation) {
@@ -35,7 +37,7 @@ router.post('/', protect, async (req, res) => {
 
     res.status(200).json({ success: true, conversation });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    next(error);
   }
 });
 
@@ -44,7 +46,7 @@ router.post('/', protect, async (req, res) => {
 // ==========================================
 // @route   GET /api/conversations
 // @access  Private
-router.get('/', protect, async (req, res) => {
+router.get('/', protect, async (req, res, next) => {
   try {
     const userId = req.user?._id || req.user?.id;
 
@@ -53,11 +55,11 @@ router.get('/', protect, async (req, res) => {
     })
       .populate('participants', 'username name avatar')
       .populate('lastMessageSender', 'username name')
-      .sort({ updatedAt: -1 });
+      .sort({ lastMessageAt: -1, updatedAt: -1 });
 
     res.status(200).json({ success: true, count: conversations.length, conversations });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    next(error);
   }
 });
 

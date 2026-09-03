@@ -15,13 +15,11 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const ClaimEntity = require('../models/claim-entity.model');
-const FactCheckCache = require('../models/fact-check-cache.model');
 
 // ─── Configuration ────────────────────────────────────────────────────
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
 const AI_SERVICE_TIMEOUT = 120000; // 120s for model cold-start
-const GOOGLE_FACT_CHECK_API_KEY = process.env.GOOGLE_FACT_CHECK_API_KEY;
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -59,7 +57,11 @@ function deduplicateClaims(claims) {
 
 /**
  * Verify extracted claims against the Google Fact Check Tools API.
- * Uses the FactCheckCache model for deduplication of API calls.
+ * Delegates to the dedicated fact-check.service.js which handles:
+ *   - Cache lookup and storage
+ *   - API calls with retry logic for rate limits
+ *   - Proper error codes and timeout handling
+ *   - No fabricated data on failure
  *
  * @param {Array} claims - Extracted claims to verify
  * @returns {Array} Array of fact-check results linked to claims
@@ -67,89 +69,30 @@ function deduplicateClaims(claims) {
 async function verifyClaimsFactCheck(claims) {
   if (!claims || claims.length === 0) return [];
 
+  const factCheckService = require('./fact-check.service');
   const allResults = [];
 
   for (const claim of claims) {
-    const normalizedQuery = claim.text.trim().toLowerCase();
-
-    // Check cache first
     try {
-      const cached = await FactCheckCache.findOne({ queryText: normalizedQuery });
-      if (cached && cached.expiresAt > new Date()) {
-        for (const cr of cached.claimResults || []) {
-          for (const rating of cr.factCheckRatings || []) {
-            allResults.push({
-              claimText: claim.text,
-              textHash: claim.textHash,
-              publisherName: rating.publisherName,
-              publisherSite: rating.publisherSite,
-              url: rating.url,
-              title: rating.title,
-              rating: rating.rating,
-            });
-          }
-        }
-        continue;
+      const result = await factCheckService.factCheckClaim(claim.text);
+
+      // Map service result to the flat format expected by the caller
+      for (const review of result.reviews || []) {
+        allResults.push({
+          claimText: claim.text,
+          textHash: claim.textHash,
+          publisherName: review.publisher?.name || null,
+          publisherSite: review.publisher?.site || null,
+          url: review.url || null,
+          title: review.title || null,
+          rating: review.textualRating || null,
+        });
       }
-    } catch {
-      // Cache lookup failed — proceed to API
-    }
-
-    // Query Google Fact Check API
-    if (GOOGLE_FACT_CHECK_API_KEY) {
-      try {
-        const response = await axios.get(
-          'https://factchecktools.googleapis.com/v1alpha1/claims:search',
-          {
-            params: { query: normalizedQuery, key: GOOGLE_FACT_CHECK_API_KEY },
-            timeout: 10000,
-          }
-        );
-
-        if (response.data && response.data.claims) {
-          const claimResults = response.data.claims.map((item) => ({
-            text: item.text,
-            claimant: item.claimant,
-            claimDate: item.claimDate,
-            factCheckRatings: (item.claimReview || []).map((rev) => ({
-              publisherName: rev.publisher?.name,
-              publisherSite: rev.publisher?.site,
-              url: rev.url,
-              title: rev.title,
-              rating: rev.textualRating,
-            })),
-          }));
-
-          // Cache for 24 hours
-          const expiresAt = new Date();
-          expiresAt.setHours(expiresAt.getHours() + 24);
-          await FactCheckCache.findOneAndUpdate(
-            { queryText: normalizedQuery },
-            { queryText: normalizedQuery, claimResults, expiresAt },
-            { upsert: true, new: true }
-          );
-
-          // Extract ratings
-          for (const cr of claimResults) {
-            for (const rating of cr.factCheckRatings || []) {
-              allResults.push({
-                claimText: claim.text,
-                textHash: claim.textHash,
-                publisherName: rating.publisherName,
-                publisherSite: rating.publisherSite,
-                url: rating.url,
-                title: rating.title,
-                rating: rating.rating,
-              });
-            }
-          }
-        }
-      } catch (err) {
-        console.warn(
-          `[ClaimEntity] Fact Check API failed for "${claim.text.substring(0, 50)}...":`,
-          err.message
-        );
-      }
+    } catch (err) {
+      console.warn(
+        `[ClaimEntity] Fact Check failed for "${claim.text.substring(0, 50)}...":`,
+        err.message
+      );
     }
   }
 

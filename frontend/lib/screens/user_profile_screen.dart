@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../models/user.dart';
 import '../services/user_service.dart';
-import '../services/follow_service.dart';
+import '../services/report_service.dart';
 import 'chat_screen.dart';
 import 'follower_screen.dart';
 
@@ -17,13 +19,11 @@ class UserProfileScreen extends StatefulWidget {
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final UserService _userService = UserService();
-  final FollowService _followService = FollowService();
-
-  static const String currentUserId = 'user_you';
 
   User? user;
   bool isLoading = true;
   bool isFollowing = false;
+  String _currentUserId = '';
 
   @override
   void initState() {
@@ -32,7 +32,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _loadUser() async {
-    // Try fetching by username via API search
+    // Get the real current user ID
+    final currentId = await _userService.getCurrentUserId();
+    _currentUserId = currentId ?? '';
+
+    // Fetch user by username via v1 API
     final loadedUser = await _userService.getUserByUsername(widget.username);
 
     if (!mounted) return;
@@ -46,17 +50,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       return;
     }
 
-    final following = loadedUser.id == currentUserId
-        ? false
-        : await _followService.isFollowing(
-            followerId: currentUserId,
-            followingId: loadedUser.id,
-          );
+    // Check follow status from the API response (isFollowing is set by by-username endpoint)
+    final following = loadedUser.isFollowing;
 
-    final followerCount = await _followService.getFollowerCount(loadedUser.id);
-    final followingCount = await _followService.getFollowingCount(
-      loadedUser.id,
-    );
+    final followerCount = await _userService.getFollowers(loadedUser.id).then((list) => list.length);
+    final followingCount = await _userService.getFollowing(loadedUser.id).then((list) => list.length);
+
+    if (!mounted) return;
 
     setState(() {
       user = User(
@@ -67,6 +67,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         profileImageUrl: loadedUser.profileImageUrl,
         followersCount: followerCount,
         followingCount: followingCount,
+        postsCount: loadedUser.postsCount,
         isFollowing: following,
         isFollowedBy: loadedUser.isFollowedBy,
         isVerified: loadedUser.isVerified,
@@ -84,26 +85,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Future<void> _toggleFollow() async {
     final target = user;
 
-    if (target == null || target.id == currentUserId) return;
+    if (target == null || target.id == _currentUserId) return;
 
     if (isFollowing) {
-      await _followService.unfollow(
-        followerId: currentUserId,
-        followingId: target.id,
-      );
+      await _userService.unfollowUser(target.id);
     } else {
-      await _followService.follow(
-        followerId: currentUserId,
-        followingId: target.id,
-      );
+      await _userService.followUser(target.id);
     }
 
-    final following = await _followService.isFollowing(
-      followerId: currentUserId,
-      followingId: target.id,
-    );
-    final followerCount = await _followService.getFollowerCount(target.id);
-    final followingCount = await _followService.getFollowingCount(target.id);
+    // Refresh follow status and counts
+    final following = await _userService.isFollowingUser(target.id);
+    final followerCount = await _userService.getFollowers(target.id).then((list) => list.length);
+    final followingCount = await _userService.getFollowing(target.id).then((list) => list.length);
 
     if (!mounted) return;
 
@@ -117,6 +110,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         profileImageUrl: target.profileImageUrl,
         followersCount: followerCount,
         followingCount: followingCount,
+        postsCount: target.postsCount,
         isFollowing: following,
         isFollowedBy: target.isFollowedBy,
         isVerified: target.isVerified,
@@ -127,6 +121,277 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         createdAt: target.createdAt,
       );
     });
+  }
+
+  bool get _isOwnProfile => _currentUserId.isNotEmpty && user?.id == _currentUserId;
+
+  void _showUserOptions() {
+    if (user == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF11162B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.flag_outlined,
+                    color: Color(0xFFF39C12),
+                    size: 22,
+                  ),
+                  title: const Text(
+                    'Report user',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _showReportUserDialog();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showReportUserDialog() {
+    if (user == null) return;
+
+    final reportService = ReportService();
+
+    final List<Map<String, String>> reasons = const [
+      {'value': 'MISINFORMATION', 'label': 'Misinformation'},
+      {'value': 'HARASSMENT', 'label': 'Harassment or bullying'},
+      {'value': 'HARMFUL_CONTENT', 'label': 'Harmful content'},
+      {'value': 'IMPERSONATION', 'label': 'Impersonation'},
+      {'value': 'MANIPULATED_MEDIA', 'label': 'Manipulated media'},
+      {'value': 'SPAM', 'label': 'Spam'},
+      {'value': 'OTHER', 'label': 'Other'},
+    ];
+
+    String? selectedReason;
+    final descriptionController = TextEditingController();
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF11162B),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              ),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+
+                      Text(
+                        'Report @${user!.username}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      const Text(
+                        'Why are you reporting this user?',
+                        style: TextStyle(color: Colors.white54, fontSize: 13),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      ...reasons.map((r) => RadioListTile<String>(
+                            value: r['value']!,
+                            groupValue: selectedReason,
+                            onChanged: (val) {
+                              setModalState(() => selectedReason = val);
+                            },
+                            title: Text(
+                              r['label']!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            activeColor: const Color(0xFF3157D5),
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          )),
+
+                      const SizedBox(height: 8),
+
+                      TextField(
+                        controller: descriptionController,
+                        maxLines: 3,
+                        maxLength: 1000,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Additional details (optional)',
+                          hintStyle: const TextStyle(
+                            color: Colors.white30,
+                            fontSize: 13,
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFF171D35),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF3157D5),
+                            ),
+                          ),
+                          counterStyle: const TextStyle(
+                            color: Colors.white30,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 46,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: selectedReason == null
+                                ? Colors.white10
+                                : const Color(0xFFE74C3C),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: (selectedReason == null || isSubmitting)
+                                ? null
+                                : () async {
+                                    setModalState(() => isSubmitting = true);
+
+                                    final success = await reportService.createReport(
+                                      targetType: 'User',
+                                      targetId: user!.id,
+                                      reason: selectedReason!,
+                                      description: descriptionController.text.trim(),
+                                    );
+
+                                    if (!ctx.mounted) return;
+                                    Navigator.pop(ctx);
+                                    if (!mounted) return;
+
+                                    if (success) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Report submitted. Thank you for keeping Nexora safe.',
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Could not submit report. Please try again.',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              disabledBackgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: isSubmitting
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Submit report',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   String _formatCount(int count) {
@@ -168,13 +433,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           width: double.infinity,
                           height: 390,
                           color: const Color(0xFF171D35),
-                          child: const Center(
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.white24,
-                              size: 110,
-                            ),
-                          ),
+                          child: _buildHeroImage(),
                         ),
 
                         // Bottom gradient
@@ -214,7 +473,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           top: 10,
                           right: 10,
                           child: IconButton(
-                            onPressed: () {},
+                            onPressed: _isOwnProfile ? null : _showUserOptions,
                             icon: const Icon(
                               Icons.more_vert,
                               color: Colors.white,
@@ -238,9 +497,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     size: 17,
                                   ),
                                   const SizedBox(width: 6),
-                                  const Text(
-                                    'Nexora Hero',
-                                    style: TextStyle(
+                                  Text(
+                                    user?.reputationBadge ?? 'Nexora Hero',
+                                    style: const TextStyle(
                                       color: Color(0xFFB7A8FF),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -300,83 +559,87 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           const SizedBox(height: 18),
 
                           // Follow + Message
-                          Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: _toggleFollow,
-                                  child: Container(
-                                    height: 46,
-                                    decoration: BoxDecoration(
-                                      gradient: isFollowing
-                                          ? null
-                                          : const LinearGradient(
-                                              colors: [
-                                                Color(0xFF2878E8),
-                                                Color(0xFF673DE6),
-                                              ],
-                                            ),
-                                      color: isFollowing
-                                          ? const Color(0xFF171D35)
-                                          : null,
-                                      borderRadius: BorderRadius.circular(24),
-                                      border: isFollowing
-                                          ? Border.all(
-                                              color: const Color(0xFF303653),
-                                            )
-                                          : null,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        isFollowing ? 'Following' : 'Follow',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
+                          if (_currentUserId.isNotEmpty && user?.id != _currentUserId)
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: _toggleFollow,
+                                    child: Container(
+                                      height: 46,
+                                      decoration: BoxDecoration(
+                                        gradient: isFollowing
+                                            ? null
+                                            : const LinearGradient(
+                                                colors: [
+                                                  Color(0xFF2878E8),
+                                                  Color(0xFF673DE6),
+                                                ],
+                                              ),
+                                        color: isFollowing
+                                            ? const Color(0xFF171D35)
+                                            : null,
+                                        borderRadius: BorderRadius.circular(24),
+                                        border: isFollowing
+                                            ? Border.all(
+                                                color: const Color(0xFF303653),
+                                              )
+                                            : null,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          isFollowing ? 'Following' : 'Follow',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
 
-                              const SizedBox(width: 10),
+                                const SizedBox(width: 10),
 
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ChatScreen(username: username),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ChatScreen(
+                                                username: username,
+                                                targetUserId: user?.id,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      height: 46,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF171D35),
+                                        borderRadius: BorderRadius.circular(24),
+                                        border: Border.all(
+                                          color: const Color(0xFF303653),
+                                        ),
                                       ),
-                                    );
-                                  },
-                                  child: Container(
-                                    height: 46,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF171D35),
-                                      borderRadius: BorderRadius.circular(24),
-                                      border: Border.all(
-                                        color: const Color(0xFF303653),
-                                      ),
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        'Message',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
+                                      child: const Center(
+                                        child: Text(
+                                          'Message',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
 
                           const SizedBox(height: 26),
 
@@ -384,7 +647,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              const _Stat(value: '128', label: 'Posts'),
+                              _Stat(
+                                value: _formatCount(user?.postsCount ?? 0),
+                                label: 'Posts',
+                              ),
 
                               GestureDetector(
                                 onTap: () {
@@ -393,6 +659,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     MaterialPageRoute(
                                       builder: (context) => FollowScreen(
                                         username: username,
+                                        userId: user?.id ?? '',
                                         showFollowers: true,
                                       ),
                                     ),
@@ -413,6 +680,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     MaterialPageRoute(
                                       builder: (context) => FollowScreen(
                                         username: username,
+                                        userId: user?.id ?? '',
                                         showFollowers: false,
                                       ),
                                     ),
@@ -466,6 +734,32 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
               ),
       ),
+    );
+  }
+
+  Widget _buildHeroImage() {
+    final url = user?.profileImageUrl;
+    if (url != null && url.isNotEmpty) {
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return Image.network(
+          url,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const Center(
+            child: Icon(Icons.person, color: Colors.white24, size: 110),
+          ),
+        );
+      }
+      return Image.file(
+        File(url),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const Center(
+          child: Icon(Icons.person, color: Colors.white24, size: 110),
+        ),
+      );
+    }
+
+    return const Center(
+      child: Icon(Icons.person, color: Colors.white24, size: 110),
     );
   }
 
