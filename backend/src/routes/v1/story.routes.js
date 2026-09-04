@@ -24,9 +24,13 @@ router.get('/', protect, async (req, res) => {
       .populate('user', 'username name avatar isVerified')
       .sort({ createdAt: -1 });
 
+    const currentUserId = req.user._id.toString();
+    const likesOf = (likes = []) => likes.map((id) => id?.toString?.());
+
     // Map to the shape the Flutter MomentService expects
     const mapped = stories.map((s) => {
       const userObj = s.user;
+      const likeIds = likesOf(s.likes);
       return {
         _id: s._id,
         userId: userObj?._id?.toString() ?? s.user?.toString() ?? '',
@@ -39,6 +43,9 @@ router.get('/', protect, async (req, res) => {
         createdAt: s.createdAt,
         expiresAt: new Date(new Date(s.createdAt).getTime() + 24 * 60 * 60 * 1000),
         viewCount: s.views?.length ?? 0,
+        likeCount: likeIds.length,
+        likedByMe: likeIds.includes(currentUserId),
+        commentCount: s.comments?.length ?? 0,
       };
     });
 
@@ -82,6 +89,10 @@ router.post('/', protect, async (req, res) => {
         caption: story.caption,
         createdAt: story.createdAt,
         expiresAt: new Date(new Date(story.createdAt).getTime() + 24 * 60 * 60 * 1000),
+        viewCount: story.views?.length ?? 0,
+        likeCount: story.likes?.length ?? 0,
+        likedByMe: false,
+        commentCount: 0,
       },
     });
   } catch (error) {
@@ -141,9 +152,13 @@ router.post('/:id/like', protect, validateObjectId('id'), async (req, res) => {
 
     if (!story.likes) story.likes = [];
 
-    const isLiked = story.likes.includes(req.user._id);
+    const isLiked = (story.likes || []).some(
+      (id) => id && id.toString() === req.user._id.toString()
+    );
     if (isLiked) {
-      story.likes = story.likes.filter((id) => id.toString() !== req.user._id.toString());
+      story.likes = story.likes.filter(
+        (id) => id && id.toString() !== req.user._id.toString()
+      );
     } else {
       story.likes.push(req.user._id);
     }
@@ -154,6 +169,43 @@ router.post('/:id/like', protect, validateObjectId('id'), async (req, res) => {
       success: true,
       isLiked: !isLiked,
       likesCount: story.likes.length,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ─── POST /api/v1/stories/:id/reply — reply to a moment ─
+router.post('/:id/reply', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const { text } = req.body || {};
+    const clean = (text || '').trim();
+
+    if (!clean) {
+      return res.status(400).json({ success: false, message: 'Reply text is required' });
+    }
+    if (clean.length > 500) {
+      return res.status(400).json({ success: false, message: 'Reply must be under 500 characters' });
+    }
+
+    const story = await Story.findById(req.params.id);
+    if (!story) {
+      return res.status(404).json({ success: false, message: 'Story not found' });
+    }
+
+    const reply = {
+      user: req.user._id,
+      text: clean,
+      createdAt: new Date(),
+    };
+    story.comments = story.comments || [];
+    story.comments.push(reply);
+    await story.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Reply added successfully',
+      commentCount: story.comments.length,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });

@@ -380,7 +380,8 @@ class _ChatScreenState extends State<ChatScreen> {
     // Upload to backend (Cloudinary via /api/messages/image)
     final sentMessage = await _messageService.sendImageMessage(
       recipientId: _targetUserId,
-      imagePath: picked.path,
+      imageBytes: bytes,
+      filename: picked.name.isNotEmpty ? picked.name : 'image.jpg',
     );
 
     if (!mounted) return;

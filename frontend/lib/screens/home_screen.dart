@@ -47,6 +47,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Moment? _myMoment;
   String _currentUserId = '';
 
+  /// Current user's profile picture URL, shown in the "You" story circle
+  /// (empty → default person icon).
+  String _myAvatarUrl = '';
+
+  /// Active moments from other users — one story circle per creator.
+  List<Moment> _storyMoments = [];
+
   bool _isLoadingPosts = true;
   bool _hasMorePosts = true;
   int _currentPage = 1;
@@ -58,10 +65,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadCurrentUser() async {
-    final id = await _userService.getCurrentUserId();
+    final me = await _userService.getMyProfile();
     if (!mounted) return;
     setState(() {
-      _currentUserId = id ?? '';
+      _currentUserId = me?.id ?? '';
+      _myAvatarUrl = me?.profileImageUrl ?? '';
     });
     _loadMyMoment();
     _loadPosts();
@@ -70,19 +78,36 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadMyMoment() async {
     if (_currentUserId.isEmpty) return;
     final moments = await _momentService.fetchMoments();
-
     if (!mounted) return;
 
     final now = DateTime.now();
 
+    // Latest active moment of the current user (shown in the "You" circle).
+    final myMoments = moments
+        .where(
+          (moment) =>
+              moment.creatorId == _currentUserId &&
+              moment.expiresAt.isAfter(now),
+        )
+        .toList();
+
+    // One circle per other creator with an active moment. The backend sorts
+    // by createdAt descending, so the first moment seen per creator is the
+    // newest one.
+    final seenCreators = <String>{};
+    final otherMoments = <Moment>[];
+    for (final moment in moments) {
+      if (moment.creatorId == _currentUserId) continue;
+      if (!moment.expiresAt.isAfter(now)) continue;
+      if (!seenCreators.add(moment.creatorId)) continue;
+      otherMoments.add(moment);
+    }
+
+    if (!mounted) return;
+
     setState(() {
-      _myMoment = moments
-          .where(
-            (moment) =>
-                moment.creatorId == _currentUserId &&
-                moment.expiresAt.isAfter(now),
-          )
-          .firstOrNull;
+      _myMoment = myMoments.firstOrNull;
+      _storyMoments = otherMoments;
     });
   }
 
@@ -740,38 +765,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   },
                 ),
-                _storyItem(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MomentsScreen()),
-                    );
-                  },
-                ),
-                _storyItem(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MomentsScreen()),
-                    );
-                  },
-                ),
-                _storyItem(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MomentsScreen()),
-                    );
-                  },
-                ),
-                _storyItem(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MomentsScreen()),
-                    );
-                  },
-                ),
+                for (final moment in _storyMoments)
+                  _storyItem(
+                    avatarUrl: moment.creatorAvatar,
+                    label: moment.creatorUsername,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MomentsScreen(),
+                        ),
+                      );
+                    },
+                  ),
               ],
             ),
           ),
@@ -982,8 +988,25 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _storyItem({bool isFirst = false, required VoidCallback onTap}) {
+  Widget _storyItem({
+    bool isFirst = false,
+    String? avatarUrl,
+    String? label,
+    required VoidCallback onTap,
+  }) {
     final hasMyMoment = isFirst && _myMoment != null;
+
+    // Image shown inside the circle: own active moment → its media;
+    // otherwise the profile picture ("You" or the other creator) when one
+    // is set; otherwise a default person icon.
+    String? imageUrl;
+    if (hasMyMoment) {
+      imageUrl = _myMoment!.mediaUrl;
+    } else if (isFirst) {
+      imageUrl = _myAvatarUrl.isNotEmpty ? _myAvatarUrl : null;
+    } else if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      imageUrl = avatarUrl;
+    }
 
     return GestureDetector(
       onTap: onTap,
@@ -1005,17 +1028,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 2,
                     ),
                   ),
-                  child: hasMyMoment
+                  child: imageUrl != null
                       ? ClipOval(
-                          child: Image.file(
-                            File(_myMoment!.mediaUrl),
-                            fit: BoxFit.cover,
-                          ),
+                          child: _storyImage(imageUrl),
                         )
-                      : CircleAvatar(
-                          backgroundColor: Color(0xFFE5E5E5),
-                          child: Icon(Icons.person, color: context.nexora.textPrimary),
-                        ),
+                      : _storyPlaceholderAvatar(),
                 ),
 
                 if (isFirst && !hasMyMoment)
@@ -1067,10 +1084,47 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 'You',
                 style: TextStyle(fontSize: 11, color: context.nexora.textPrimary),
+              )
+            else if (label != null && label.isNotEmpty)
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: context.nexora.textSecondary,
+                ),
               ),
           ],
         ),
       ),
+    );
+  }
+
+  /// Default avatar used while no picture/moment exists (and as the
+  /// fallback when an image fails to load).
+  Widget _storyPlaceholderAvatar() {
+    return CircleAvatar(
+      backgroundColor: Color(0xFFE5E5E5),
+      child: Icon(Icons.person, color: context.nexora.textPrimary),
+    );
+  }
+
+  /// Render a story media URL: network images for http(s) URLs (what the
+  /// backend returns), local files otherwise.
+  Widget _storyImage(String url) {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return Image.network(
+        url,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _storyPlaceholderAvatar(),
+      );
+    }
+    return Image.file(
+      File(url),
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _storyPlaceholderAvatar(),
     );
   }
 

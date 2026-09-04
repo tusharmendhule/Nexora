@@ -43,6 +43,50 @@ const storySchema = new mongoose.Schema(
       }
     ],
 
+    // Users who liked the story
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
+
+    // Replies (comments) viewers left on the story
+    comments: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        text: {
+          type: String,
+          trim: true,
+          default: ''
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now
+        },
+        replies: [
+          {
+            user: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: 'User'
+            },
+            text: {
+              type: String,
+              trim: true,
+              default: ''
+            },
+            createdAt: {
+              type: Date,
+              default: Date.now
+            }
+          }
+        ]
+      }
+    ],
+
     // Story creation timestamp
     createdAt: {
       type: Date,

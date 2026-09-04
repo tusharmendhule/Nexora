@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
@@ -139,13 +141,30 @@ class MessageService {
     return null;
   }
 
+  /// MIME type for the multipart "image" field when the picked file's
+  /// extension is unknown.
+  static const Map<String, String> _imageMimeByExtension = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'webp': 'image/webp',
+    'heic': 'image/heic',
+    'heif': 'image/heif',
+    'bmp': 'image/bmp',
+  };
+
   // ─── POST /api/messages/image ────────────────────────
 
   /// Send an image message (multipart) to another user via the backend.
-  /// Returns null on failure (caller decides how to surface it).
+  ///
+  /// The image is sent as raw bytes so the same code works on mobile and on
+  /// the web (where `dart:io` file paths are unavailable). Returns null on
+  /// failure (caller decides how to surface it).
   Future<Message?> sendImageMessage({
     required String recipientId,
-    required String imagePath,
+    required Uint8List imageBytes,
+    String filename = 'image.jpg',
     String text = '',
   }) async {
     try {
@@ -158,6 +177,12 @@ class MessageService {
           : token;
       if (authToken == null || authToken.isEmpty) return null;
 
+      final extension = filename.contains('.')
+          ? filename.split('.').last.toLowerCase()
+          : 'jpg';
+      final mime = _imageMimeByExtension[extension] ?? 'image/jpeg';
+      if (filename.isEmpty) filename = 'image.jpg';
+
       final url = Uri.parse('${ApiConfig.legacyBaseUrl}/messages/image');
       final request = http.MultipartRequest('POST', url);
       request.headers['Authorization'] = 'Bearer $authToken';
@@ -166,7 +191,14 @@ class MessageService {
       if (text.isNotEmpty) {
         request.fields['text'] = text;
       }
-      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'image',
+          imageBytes,
+          filename: filename,
+          contentType: MediaType.parse(mime),
+        ),
+      );
 
       final streamedResponse = await request.send().timeout(ApiConfig.timeout);
       final response = await http.Response.fromStream(streamedResponse);

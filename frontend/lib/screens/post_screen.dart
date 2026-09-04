@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
@@ -17,6 +17,14 @@ import '../services/user_service.dart';
 import '../services/upload_service.dart';
 
 enum CreationType { post, moment, clip }
+
+/// File extensions treated as video/audio when classifying picked media.
+const List<String> _videoExtensions = [
+  '.mp4', '.mov', '.m4v', '.webm', '.avi', '.mkv',
+];
+const List<String> _audioExtensions = [
+  '.mp3', '.wav', '.aac', '.ogg', '.flac',
+];
 
 class PostScreen extends StatefulWidget {
   final CreationType initialType;
@@ -42,6 +50,11 @@ class _PostScreenState extends State<PostScreen> {
 
   late CreationType _type;
   XFile? _media;
+
+  /// Bytes of a picked image used for the on-screen preview. image_picker
+  /// paths are blob URLs on web, where dart:io File reads don't work, so
+  /// the preview is fed from bytes instead.
+  Uint8List? _previewBytes;
   bool _publishing = false;
   double _uploadProgress = 0.0;
 
@@ -67,24 +80,22 @@ class _PostScreenState extends State<PostScreen> {
     super.dispose();
   }
 
-  bool get _isVideo {
-    final path = _media?.path.toLowerCase() ?? '';
-    return path.endsWith('.mp4') ||
-        path.endsWith('.mov') ||
-        path.endsWith('.m4v') ||
-        path.endsWith('.webm') ||
-        path.endsWith('.avi') ||
-        path.endsWith('.mkv');
+  /// Whether the picked media's name or path carries one of [extensions].
+  /// The XFile name is checked too because on web the path is a blob URL
+  /// without an extension.
+  bool _mediaHasExtension(List<String> extensions) {
+    final media = _media;
+    if (media == null) return false;
+    final lowerName = media.name.toLowerCase();
+    final lowerPath = media.path.toLowerCase();
+    return extensions.any(
+      (ext) => lowerName.endsWith(ext) || lowerPath.endsWith(ext),
+    );
   }
 
-  bool get _isAudio {
-    final path = _media?.path.toLowerCase() ?? '';
-    return path.endsWith('.mp3') ||
-        path.endsWith('.wav') ||
-        path.endsWith('.aac') ||
-        path.endsWith('.ogg') ||
-        path.endsWith('.flac');
-  }
+  bool get _isVideo => _mediaHasExtension(_videoExtensions);
+
+  bool get _isAudio => _mediaHasExtension(_audioExtensions);
 
   bool get _canPublish {
     if (_type == CreationType.clip) return _media != null && _isVideo;
@@ -96,12 +107,13 @@ class _PostScreenState extends State<PostScreen> {
     final picked = await _picker.pickMedia();
     if (picked == null) return;
 
-    if (_type == CreationType.clip && !_looksLikeVideo(picked.path)) {
+    if (_type == CreationType.clip && !_isVideoFile(picked)) {
       _showMessage('Clips require a video.');
       return;
     }
 
     setState(() => _media = picked);
+    await _cacheImagePreview(picked);
   }
 
   Future<void> _openCamera() async {
@@ -115,16 +127,29 @@ class _PostScreenState extends State<PostScreen> {
 
     if (picked == null) return;
     setState(() => _media = picked);
+    await _cacheImagePreview(picked);
   }
 
-  bool _looksLikeVideo(String path) {
-    final value = path.toLowerCase();
-    return value.endsWith('.mp4') ||
-        value.endsWith('.mov') ||
-        value.endsWith('.m4v') ||
-        value.endsWith('.webm') ||
-        value.endsWith('.avi') ||
-        value.endsWith('.mkv');
+  /// True when an [XFile] looks like a video (extension on name or path).
+  static bool _isVideoFile(XFile file) {
+    final lowerName = file.name.toLowerCase();
+    final lowerPath = file.path.toLowerCase();
+    return _videoExtensions.any(
+      (ext) => lowerName.endsWith(ext) || lowerPath.endsWith(ext),
+    );
+  }
+
+  /// Reads a picked image into memory so the preview works on every
+  /// platform. Videos/audio are skipped — they are previewed as an icon.
+  Future<void> _cacheImagePreview(XFile picked) async {
+    if (_isVideo || _isAudio) return;
+    try {
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      setState(() => _previewBytes = bytes);
+    } catch (_) {
+      // Preview is cosmetic — ignore read failures.
+    }
   }
 
   void _setType(CreationType type) {
@@ -132,6 +157,7 @@ class _PostScreenState extends State<PostScreen> {
       _type = type;
       if (type == CreationType.clip && _media != null && !_isVideo) {
         _media = null;
+        _previewBytes = null;
       }
     });
   }
@@ -566,8 +592,6 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _mediaPreview() {
-    final file = File(_media!.path);
-
     return Stack(
       children: [
         ClipRRect(
@@ -593,23 +617,44 @@ class _PostScreenState extends State<PostScreen> {
                     ],
                   ),
                 )
-              : Image.file(
-                  file,
-                  height: 230,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+              : _imagePreview(),
         ),
         Positioned(
           top: 8,
           right: 8,
           child: IconButton(
-            onPressed: () => setState(() => _media = null),
+            onPressed: () => setState(() {
+              _media = null;
+              _previewBytes = null;
+            }),
             style: IconButton.styleFrom(backgroundColor: Colors.black54),
             icon: Icon(Icons.close, color: context.nexora.textPrimary),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _imagePreview() {
+    final bytes = _previewBytes;
+    if (bytes == null) {
+      return Container(
+        height: 230,
+        width: double.infinity,
+        color: context.nexora.field,
+        child: Icon(
+          Icons.image_outlined,
+          color: context.nexora.textSecondary,
+          size: 52,
+        ),
+      );
+    }
+
+    return Image.memory(
+      bytes,
+      height: 230,
+      width: double.infinity,
+      fit: BoxFit.cover,
     );
   }
 

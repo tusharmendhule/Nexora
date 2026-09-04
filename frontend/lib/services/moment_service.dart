@@ -70,6 +70,7 @@ class MomentService {
               id: map['_id']?.toString() ?? '',
               creatorId: map['userId']?.toString() ?? '',
               creatorUsername: map['displayName']?.toString() ?? map['username']?.toString() ?? '',
+              creatorAvatar: map['avatar']?.toString() ?? '',
               mediaUrl: map['mediaUrl']?.toString() ?? '',
               mediaType: map['mediaType']?.toString() ?? 'image',
               label: null,
@@ -80,6 +81,11 @@ class MomentService {
                   ? DateTime.tryParse(map['expiresAt'].toString()) ?? DateTime.now().add(const Duration(hours: 24))
                   : DateTime.now().add(const Duration(hours: 24)),
               isViewed: map['isViewed'] as bool? ?? false,
+              likeCount: (map['likeCount'] as num?)?.toInt() ?? 0,
+              isLiked: map['likedByMe'] as bool? ??
+                  map['isLiked'] as bool? ??
+                  false,
+              commentCount: (map['commentCount'] as num?)?.toInt() ?? 0,
             );
           }).toList();
         }
@@ -109,6 +115,7 @@ class MomentService {
             id: map['_id']?.toString() ?? '',
             creatorId: map['userId']?.toString() ?? '',
             creatorUsername: map['displayName']?.toString() ?? '',
+            creatorAvatar: map['avatar']?.toString() ?? '',
             mediaUrl: map['mediaUrl']?.toString() ?? '',
             mediaType: map['mediaType']?.toString() ?? 'image',
             label: null,
@@ -118,12 +125,66 @@ class MomentService {
             expiresAt: map['expiresAt'] != null
                 ? DateTime.tryParse(map['expiresAt'].toString()) ?? DateTime.now().add(const Duration(hours: 24))
                 : DateTime.now().add(const Duration(hours: 24)),
+            likeCount: (map['likeCount'] as num?)?.toInt() ?? 0,
+            isLiked: map['likedByMe'] as bool? ??
+                map['isLiked'] as bool? ??
+                false,
+            commentCount: (map['commentCount'] as num?)?.toInt() ?? 0,
           );
         }
       }
     } catch (_) {}
 
     return null;
+  }
+
+  // ─── POST /api/v1/stories/:id/like ─────────────────────
+
+  /// Toggle a like on a moment (story). Returns `{ isLiked, likesCount }`
+  /// on success, or `{ error: true }` on failure so the UI can roll back.
+  Future<Map<String, dynamic>> toggleLike(String momentId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$momentId/like');
+      final response = await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true) {
+          return {
+            'isLiked': body['isLiked'] as bool? ?? false,
+            'likesCount': (body['likesCount'] as num?)?.toInt() ?? 0,
+          };
+        }
+      }
+    } catch (_) {}
+
+    return {'error': true};
+  }
+
+  // ─── POST /api/v1/stories/:id/reply ────────────────────
+
+  /// Reply to a moment (stored as a comment on the story).
+  /// Returns true on success.
+  Future<bool> replyToMoment(String momentId, String text) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$momentId/reply');
+      final response = await http
+          .post(
+            url,
+            headers: await _headers(),
+            body: jsonEncode({'text': text.trim()}),
+          )
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        return body['success'] == true;
+      }
+    } catch (_) {}
+
+    return false;
   }
 
   // ─── POST /api/v1/stories ──────────────────────────────
@@ -173,28 +234,6 @@ class MomentService {
           .post(url, headers: await _headers())
           .timeout(ApiConfig.timeout);
     } catch (_) {}
-  }
-
-  // ─── POST /api/v1/stories/:id/like ─────────────────────
-
-  /// Toggle like on a moment (story).
-  Future<Map<String, dynamic>> toggleLike(String momentId) async {
-    try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$momentId/like');
-      final response = await http
-          .post(url, headers: await _headers())
-          .timeout(ApiConfig.timeout);
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        return {
-          'isLiked': body['isLiked'] as bool? ?? false,
-          'likesCount': body['likesCount'] as int? ?? 0,
-        };
-      }
-    } catch (_) {}
-
-    return {'isLiked': false, 'likesCount': 0};
   }
 
   // ─── Legacy compatibility ────────────────────────────
