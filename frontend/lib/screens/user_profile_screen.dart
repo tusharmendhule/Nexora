@@ -9,6 +9,7 @@ import '../services/user_service.dart';
 import '../services/report_service.dart';
 import 'chat_screen.dart';
 import 'follower_screen.dart';
+import '../widgets/profile_post_grid.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String username;
@@ -701,7 +702,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           SizedBox(height: 28),
 
                           Text(
-                            'Recent activity',
+                            'Posts',
                             style: TextStyle(
                               color: context.nexora.textPrimary,
                               fontSize: 18,
@@ -711,24 +712,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                           SizedBox(height: 14),
 
-                          _activityCard(
-                            Icons.image_outlined,
-                            'Shared a new post',
-                          ),
-
-                          SizedBox(height: 10),
-
-                          _activityCard(
-                            Icons.favorite_border,
-                            'Liked a community post',
-                          ),
-
-                          SizedBox(height: 10),
-
-                          _activityCard(
-                            Icons.groups_outlined,
-                            'Joined a community',
-                          ),
+                          // Real posts published by this user, in an
+                          // Instagram-style grid.
+                          if (user == null)
+                            const SizedBox.shrink()
+                          else
+                            ProfilePostGrid(
+                              userId: user!.id,
+                              emptyMessage:
+                                  '@${user!.username} has not published any posts yet.',
+                            ),
                         ],
                       ),
                     ),
@@ -765,26 +758,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 
-  Widget _activityCard(IconData icon, String text) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.nexora.sheet,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: const Color(0xFF6C8CFF), size: 24),
-          SizedBox(width: 14),
-          Text(
-            text,
-            style: TextStyle(color: context.nexora.textSecondary, fontSize: 13),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _Stat extends StatelessWidget {

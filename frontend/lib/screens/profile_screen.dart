@@ -11,6 +11,8 @@ import 'edit_profile_screen.dart';
 import '../models/user.dart';
 import '../services/user_service.dart';
 import 'settings_screen.dart';
+import '../widgets/profile_moments_grid.dart';
+import '../widgets/profile_post_grid.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -29,8 +31,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   User? user;
   bool isLoading = true;
 
+  /// Keys for the posts/memories grids so re-selecting a tab refetches it.
+  final GlobalKey<ProfilePostGridState> _postsGridKey =
+      GlobalKey<ProfilePostGridState>();
+  final GlobalKey<ProfileMomentsGridState> _momentsGridKey =
+      GlobalKey<ProfileMomentsGridState>();
+
   final List<String> sections = [
-    'Projects',
+    'Posts',
     'Memories',
     'Communities',
     'Thoughts',
@@ -403,6 +411,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     setState(() {
                                       selectedSection = index;
                                     });
+
+                                    // Re-fetch the grids whenever the
+                                    // Posts / Memories tab is (re)selected.
+                                    if (index == 0) {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        _postsGridKey.currentState?.reload();
+                                      });
+                                    }
+                                    if (index == 1) {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        _momentsGridKey.currentState?.reload();
+                                      });
+                                    }
                                   },
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
@@ -561,17 +584,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _sectionContent() {
     switch (selectedSection) {
       case 0:
-        return _contentCard(
-          Icons.code,
-          'Projects',
-          'Your projects and creations will appear here.',
+        // Instagram-style grid of every post the user has published.
+        if (user == null) return const SizedBox.shrink();
+        return ProfilePostGrid(
+          key: _postsGridKey,
+          userId: user!.id,
+          emptyMessage:
+              'No posts yet. When you publish posts they will appear here.',
         );
 
       case 1:
-        return _contentCard(
-          Icons.photo_library_outlined,
-          'Memories',
-          'Your shared memories will appear here.',
+        // The user's active moments (stories), Instagram-story style.
+        if (user == null) return const SizedBox.shrink();
+        return ProfileMomentsGrid(
+          key: _momentsGridKey,
+          userId: user!.id,
+          emptyMessage:
+              'No active memories. Moments you share will appear here for 24 hours.',
         );
 
       case 2:

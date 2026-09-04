@@ -374,6 +374,36 @@ class NotificationService {
   }
 
   /**
+   * Notify a moment owner when someone replies to their moment (story).
+   */
+  async notifyMomentReplied({ momentOwnerId, replierId, momentId, replyText }) {
+    if (momentOwnerId.toString() === replierId.toString()) return null;
+
+    const User = require('../models/user.model');
+    let replierName = 'Someone';
+    try {
+      const replier = await User.findById(replierId).select('name username');
+      if (replier) {
+        replierName = replier.name || replier.username || 'Someone';
+      }
+    } catch (_) {}
+
+    const preview = replyText && replyText.length > 50
+      ? replyText.substring(0, 50) + '...'
+      : replyText || '';
+
+    return this.create({
+      recipientId: momentOwnerId,
+      senderId: replierId,
+      type: 'MOMENT_REPLIED',
+      title: 'New Reply',
+      body: `${replierName} replied to your moment: ${preview}`,
+      targetType: 'Post',
+      targetId: momentId,
+    });
+  }
+
+  /**
    * Notify a user when they receive a new message.
    */
   async notifyNewMessage({ recipientId, senderId, messageId }) {

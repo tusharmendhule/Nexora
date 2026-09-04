@@ -11,6 +11,10 @@ class Moment {
   final String mediaUrl;
   final String mediaType;
 
+  /// 'moment' (stories) or 'clip' (reels). The moments feed only ever
+  /// contains moments.
+  final String storyType;
+
   final NexoraLabel? label;
 
   final DateTime createdAt;
@@ -30,6 +34,7 @@ class Moment {
     this.creatorAvatar = '',
     required this.mediaUrl,
     required this.mediaType,
+    this.storyType = 'moment',
     this.label,
     required this.createdAt,
     required this.expiresAt,

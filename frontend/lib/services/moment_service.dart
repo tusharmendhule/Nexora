@@ -52,10 +52,18 @@ class MomentService {
 
   // ─── GET /api/v1/stories ──────────────────────────────
 
-  /// Fetch all active moments (stories) from the backend.
-  Future<List<Moment>> fetchMoments() async {
+  /// Fetch active moments (stories) from the backend.
+  ///
+  /// When [authorId] is provided, only that user's moments are returned
+  /// (used by profile "Memories" grids).
+  Future<List<Moment>> fetchMoments({String? authorId}) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/stories');
+      var url = Uri.parse('${ApiConfig.baseUrl}/stories');
+      // Moments feed only — clips are shown in the Clips tab exclusively.
+      url = url.replace(queryParameters: {
+        'type': 'moment',
+        if (authorId != null && authorId.isNotEmpty) 'authorId': authorId,
+      });
       final response = await http
           .get(url, headers: await _headers())
           .timeout(ApiConfig.timeout);
@@ -64,7 +72,14 @@ class MomentService {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         if (body['success'] == true && body['stories'] != null) {
           final storiesList = body['stories'] as List;
-          return storiesList.map((s) {
+          return storiesList
+              // Defensive: never treat a clip as a moment, even if an old
+              // server ignores the type filter.
+              .where((s) {
+                final map = s as Map<String, dynamic>;
+                return (map['storyType']?.toString() ?? 'moment') != 'clip';
+              })
+              .map((s) {
             final map = s as Map<String, dynamic>;
             return Moment(
               id: map['_id']?.toString() ?? '',
@@ -73,6 +88,7 @@ class MomentService {
               creatorAvatar: map['avatar']?.toString() ?? '',
               mediaUrl: map['mediaUrl']?.toString() ?? '',
               mediaType: map['mediaType']?.toString() ?? 'image',
+              storyType: map['storyType']?.toString() ?? 'moment',
               label: null,
               createdAt: map['createdAt'] != null
                   ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
@@ -200,6 +216,7 @@ class MomentService {
             body: jsonEncode({
               'mediaUrl': moment.mediaUrl,
               'mediaType': moment.mediaType,
+              'storyType': 'moment',
               'caption': moment.creatorUsername,
             }),
           )

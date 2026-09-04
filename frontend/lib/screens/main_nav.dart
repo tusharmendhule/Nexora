@@ -21,8 +21,6 @@ class _MainNavigationState extends State<MainNavigation> {
   late int currentIndex;
   int previousIndex = 0;
 
-  late final List<Widget> screens;
-
   @override
   void initState() {
     super.initState();
@@ -32,23 +30,6 @@ class _MainNavigationState extends State<MainNavigation> {
     AppearanceController.instance.load();
 
     currentIndex = 0;
-
-    screens = [
-      HomeScreen(
-        isEmpty: widget.startWithEmptyHome,
-        onExploreClips: () => changeTab(2),
-      ),
-      MessagesScreen(),
-      const ClipsScreen(),
-      ExploreScreen(),
-      ProfileScreen(
-        onBack: () {
-          setState(() {
-            currentIndex = previousIndex;
-          });
-        },
-      ),
-    ];
   }
 
   void changeTab(int index) {
@@ -62,10 +43,33 @@ class _MainNavigationState extends State<MainNavigation> {
     });
   }
 
+  /// The tab screens, rebuilt on every navigation so each one knows
+  /// whether it is currently active (e.g. Clips pauses its audio when it
+  /// is not the visible tab). Widget state is preserved because the order
+  /// and types of the children never change.
+  List<Widget> _screens() {
+    return [
+      HomeScreen(
+        isEmpty: widget.startWithEmptyHome,
+        onExploreClips: () => changeTab(2),
+      ),
+      MessagesScreen(),
+      ClipsScreen(active: currentIndex == 2),
+      ExploreScreen(),
+      ProfileScreen(
+        onBack: () {
+          setState(() {
+            currentIndex = previousIndex;
+          });
+        },
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: currentIndex, children: screens),
+      body: IndexedStack(index: currentIndex, children: _screens()),
 
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),

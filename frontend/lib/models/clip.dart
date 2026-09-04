@@ -5,6 +5,9 @@ class Clip {
   final String creatorId;
   final String creatorUsername;
 
+  /// Backend media type — clips are stories with mediaType='video'.
+  final String mediaType;
+
   final String videoUrl;
   final String caption;
   final String? music;
@@ -25,6 +28,7 @@ class Clip {
     required this.id,
     required this.creatorId,
     required this.creatorUsername,
+    this.mediaType = 'video',
     required this.videoUrl,
     required this.caption,
     this.music,

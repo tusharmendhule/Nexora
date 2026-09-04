@@ -53,13 +53,22 @@ class PostService {
 
   /// Fetch posts with pagination.
   ///
-  /// [page] starts at 1, [limit] defaults to 20.
+  /// [page] starts at 1, [limit] defaults to 20. When [authorId] is provided
+  /// only that user's posts are returned (used by profile grids).
   /// Returns a map with `posts` list and `pagination` info.
-  Future<Map<String, dynamic>> fetchPosts({int page = 1, int limit = 20}) async {
+  Future<Map<String, dynamic>> fetchPosts({
+    int page = 1,
+    int limit = 20,
+    String? authorId,
+  }) async {
     try {
-      final url = Uri.parse(
-        '${ApiConfig.baseUrl}/posts?page=$page&limit=$limit',
-      );
+      final queryParameters = <String, String>{
+        'page': '$page',
+        'limit': '$limit',
+        if (authorId != null && authorId.isNotEmpty) 'authorId': authorId,
+      };
+      final url = Uri.parse('${ApiConfig.baseUrl}/posts')
+          .replace(queryParameters: queryParameters);
       final response = await http
           .get(url, headers: await _headers())
           .timeout(ApiConfig.timeout);

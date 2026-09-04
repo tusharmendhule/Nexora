@@ -16,11 +16,27 @@ const router = express.Router();
 const { protect } = require('../../middleware/auth.middleware');
 const { validateObjectId } = require('../../middleware/validate.middleware');
 const Story = require('../../models/story.model');
+const notificationService = require('../../services/notification.service');
 
 // ─── GET /api/v1/stories — list all active stories ──────
 router.get('/', protect, async (req, res) => {
   try {
-    const stories = await Story.find()
+    // Optional ?authorId=<userId> filters to one user's active moments
+    // (used by profile "Memories" grids).
+    const storyFilter = {};
+    const authorId = req.query.authorId ? String(req.query.authorId) : null;
+    if (authorId && /^[0-9a-fA-F]{24}$/.test(authorId)) {
+      storyFilter.user = authorId;
+    }
+
+    // Optional ?type=moment|clip separates the Moments feed from the Clips
+    // feed. Clips must never appear inside moments.
+    const storyType = req.query.type ? String(req.query.type) : null;
+    if (storyType === 'moment' || storyType === 'clip') {
+      storyFilter.storyType = storyType;
+    }
+
+    const stories = await Story.find(storyFilter)
       .populate('user', 'username name avatar isVerified')
       .sort({ createdAt: -1 });
 
@@ -39,6 +55,7 @@ router.get('/', protect, async (req, res) => {
         avatar: userObj?.avatar ?? '',
         mediaUrl: s.mediaUrl,
         mediaType: s.mediaType,
+        storyType: s.storyType || 'moment',
         caption: s.caption,
         createdAt: s.createdAt,
         expiresAt: new Date(new Date(s.createdAt).getTime() + 24 * 60 * 60 * 1000),
@@ -58,17 +75,24 @@ router.get('/', protect, async (req, res) => {
 // ─── POST /api/v1/stories — create a new story/moment ───
 router.post('/', protect, async (req, res) => {
   try {
-    const { mediaUrl, mediaType, caption } = req.body;
+    const { mediaUrl, mediaType, caption, storyType } = req.body;
     const currentUserId = req.user._id;
 
     if (!mediaUrl) {
       return res.status(400).json({ success: false, message: 'Media URL is required' });
     }
 
+    // 'clip' must be a video; anything else (or missing) is a moment.
+    const type = storyType === 'clip' ? 'clip' : 'moment';
+    if (type === 'clip' && mediaType !== 'video') {
+      return res.status(400).json({ success: false, message: 'Clips require a video' });
+    }
+
     const story = await Story.create({
       user: currentUserId,
       mediaUrl,
       mediaType: mediaType || 'image',
+      storyType: type,
       caption: caption || '',
     });
 
@@ -86,6 +110,7 @@ router.post('/', protect, async (req, res) => {
         avatar: userObj?.avatar ?? '',
         mediaUrl: story.mediaUrl,
         mediaType: story.mediaType,
+        storyType: story.storyType || 'moment',
         caption: story.caption,
         createdAt: story.createdAt,
         expiresAt: new Date(new Date(story.createdAt).getTime() + 24 * 60 * 60 * 1000),
@@ -100,8 +125,47 @@ router.post('/', protect, async (req, res) => {
   }
 });
 
+// ─── GET /api/v1/stories/:id — fetch a single story ────
+router.get('/:id', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const story = await Story.findById(req.params.id)
+      .populate('user', 'username name avatar isVerified');
+    if (!story) {
+      return res.status(404).json({ success: false, message: 'Story not found' });
+    }
+
+    const userObj = story.user;
+    const currentUserId = req.user._id.toString();
+    const likeIds = (story.likes || []).map((id) => id?.toString?.());
+
+    res.status(200).json({
+      success: true,
+      story: {
+        _id: story._id,
+        userId: userObj?._id?.toString() ?? story.user?.toString() ?? '',
+        username: userObj?.username ?? '',
+        displayName: userObj?.name ?? '',
+        avatar: userObj?.avatar ?? '',
+        mediaUrl: story.mediaUrl,
+        mediaType: story.mediaType,
+        storyType: story.storyType || 'moment',
+        caption: story.caption,
+        createdAt: story.createdAt,
+        expiresAt: new Date(new Date(story.createdAt).getTime() + 24 * 60 * 60 * 1000),
+        viewCount: story.views?.length ?? 0,
+        likeCount: likeIds.length,
+        likedByMe: likeIds.includes(currentUserId),
+        commentCount: story.comments?.length ?? 0,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // ─── DELETE /api/v1/stories/:id — delete a story ────────
 router.delete('/:id', protect, validateObjectId('id'), async (req, res) => {
+
   try {
     const story = await Story.findById(req.params.id);
     if (!story) {
@@ -201,6 +265,17 @@ router.post('/:id/reply', protect, validateObjectId('id'), async (req, res) => {
     story.comments = story.comments || [];
     story.comments.push(reply);
     await story.save();
+
+    // Notify the moment owner that they got a reply (fire-and-forget,
+    // never blocks the reply itself). Self-replies are skipped by the service.
+    notificationService
+      .notifyMomentReplied({
+        momentOwnerId: story.user,
+        replierId: req.user._id,
+        momentId: story._id,
+        replyText: clean,
+      })
+      .catch(() => {});
 
     res.status(201).json({
       success: true,

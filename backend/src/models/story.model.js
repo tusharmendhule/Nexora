@@ -22,6 +22,14 @@ const storySchema = new mongoose.Schema(
       default: 'image'
     },
 
+    // Content type: 'moment' (stories, shown in the Moments viewer / home
+    // story row) or 'clip' (reels-style videos, shown in the Clips tab only).
+    storyType: {
+      type: String,
+      enum: ['moment', 'clip'],
+      default: 'moment'
+    },
+
     // Story text caption or overlay
     caption: {
       type: String,

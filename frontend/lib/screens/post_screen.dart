@@ -104,7 +104,14 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future<void> _pickMedia() async {
-    final picked = await _picker.pickMedia();
+    final XFile? picked;
+    if (_type == CreationType.clip) {
+      // Clips only accept videos — open the platform's video-only picker
+      // so images can't even be selected.
+      picked = await _picker.pickVideo(source: ImageSource.gallery);
+    } else {
+      picked = await _picker.pickMedia();
+    }
     if (picked == null) return;
 
     if (_type == CreationType.clip && !_isVideoFile(picked)) {
@@ -130,13 +137,23 @@ class _PostScreenState extends State<PostScreen> {
     await _cacheImagePreview(picked);
   }
 
-  /// True when an [XFile] looks like a video (extension on name or path).
+  /// True when an [XFile] looks like a video. Checks the extension on the
+  /// file's name or path first (works on web where the path is a blob URL
+  /// but the name still carries the real extension), then falls back to the
+  /// MIME type when the picker provides one.
   static bool _isVideoFile(XFile file) {
     final lowerName = file.name.toLowerCase();
     final lowerPath = file.path.toLowerCase();
-    return _videoExtensions.any(
+    if (_videoExtensions.any(
       (ext) => lowerName.endsWith(ext) || lowerPath.endsWith(ext),
-    );
+    )) {
+      return true;
+    }
+
+    // Fallback: some pickers return files without extensions (or blob URLs
+    // with generated names) but expose the MIME type.
+    final mime = file.mimeType?.toLowerCase() ?? '';
+    return mime.startsWith('video/');
   }
 
   /// Reads a picked image into memory so the preview works on every

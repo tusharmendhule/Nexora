@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../utils/media_url.dart';
 import 'user_profile_screen.dart';
 import '../models/moment.dart';
 import '../services/moment_service.dart';
@@ -12,7 +13,19 @@ import '../services/user_service.dart';
 class MomentsScreen extends StatefulWidget {
   final int initialIndex;
 
-  const MomentsScreen({super.key, this.initialIndex = 0});
+  /// When set, only this user's moments are shown (profile Memories tab).
+  final String? authorId;
+
+  /// When set, the viewer starts on the moment with this id (if present) —
+  /// used when opening from a "replied to your moment" notification.
+  final String? startMomentId;
+
+  const MomentsScreen({
+    super.key,
+    this.initialIndex = 0,
+    this.authorId,
+    this.startMomentId,
+  });
 
   @override
   State<MomentsScreen> createState() => _MomentsScreenState();
@@ -84,7 +97,21 @@ class _MomentsScreenState extends State<MomentsScreen>
   }
 
   Future<void> _loadMoments() async {
-    final loadedMoments = await _momentService.fetchMoments();
+    var loadedMoments =
+        await _momentService.fetchMoments(authorId: widget.authorId);
+
+    // Defensive: when a specific author was requested, only keep their
+    // moments even if the server ignores the filter.
+    if (widget.authorId != null && widget.authorId!.isNotEmpty) {
+      loadedMoments = loadedMoments
+          .where((m) => m.creatorId == widget.authorId)
+          .toList();
+    }
+
+    // Clips never belong in the moments viewer.
+    loadedMoments = loadedMoments
+        .where((m) => m.storyType != 'clip')
+        .toList();
 
     if (!mounted) return;
 
@@ -96,9 +123,19 @@ class _MomentsScreenState extends State<MomentsScreen>
       _momentLikeCounts[m.id] = m.likeCount;
     }
 
+    // If a specific moment was requested (e.g. from a reply notification),
+    // start there instead of the generic index.
+    var startIndex = widget.initialIndex;
+    if (widget.startMomentId != null && widget.startMomentId!.isNotEmpty) {
+      final match = loadedMoments.indexWhere(
+        (m) => m.id == widget.startMomentId,
+      );
+      if (match != -1) startIndex = match;
+    }
+
     final safeIndex = loadedMoments.isEmpty
         ? 0
-        : widget.initialIndex.clamp(0, loadedMoments.length - 1);
+        : startIndex.clamp(0, loadedMoments.length - 1);
 
     _pageController = PageController(initialPage: safeIndex);
 
@@ -179,7 +216,7 @@ class _MomentsScreenState extends State<MomentsScreen>
         duration = _videoMaxDuration;
         try {
           final vc = VideoPlayerController.networkUrl(
-            Uri.parse(moment.mediaUrl),
+            Uri.parse(mediaPlaybackUrl(moment.mediaUrl)),
           );
           _videoController = vc;
           await vc.initialize();

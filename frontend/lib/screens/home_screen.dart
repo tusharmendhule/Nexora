@@ -760,7 +760,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     } else {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const MomentsScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => MomentsScreen(
+                            authorId: _currentUserId,
+                            startMomentId: _myMoment?.id,
+                          ),
+                        ),
                       );
                     }
                   },
@@ -770,10 +775,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     avatarUrl: moment.creatorAvatar,
                     label: moment.creatorUsername,
                     onTap: () {
+                      // Open the viewer scoped to this user only — never
+                      // everyone's moments mixed together.
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const MomentsScreen(),
+                          builder: (_) => MomentsScreen(
+                            authorId: moment.creatorId,
+                            startMomentId: moment.id,
+                          ),
                         ),
                       );
                     },

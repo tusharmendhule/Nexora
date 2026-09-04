@@ -99,7 +99,13 @@ exports.getPosts = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
 
-    const result = await postService.getAll(page, limit, req.user._id);
+    // Optional ?authorId=<userId> filters to one user's posts (profile grid).
+    let authorId = req.query.authorId ? String(req.query.authorId) : null;
+    if (authorId && !/^[0-9a-fA-F]{24}$/.test(authorId)) {
+      authorId = null; // invalid id — ignore rather than error
+    }
+
+    const result = await postService.getAll(page, limit, req.user._id, authorId);
 
     res.status(200).json({
       success: true,

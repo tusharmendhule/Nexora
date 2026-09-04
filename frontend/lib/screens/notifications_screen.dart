@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../config/nexora_themes.dart';
 
 import '../models/notification.dart';
+import '../services/moment_service.dart';
 import '../services/notification_service.dart';
 import '../services/user_service.dart';
 import 'chat_screen.dart';
+import 'moments_screen.dart';
 import 'user_profile_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -91,6 +93,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   void _navigateToTarget(AppNotification notification) {
     try {
+      // "Replied to your moment" — open the moment viewer scoped to the
+      // moment's author, starting at the moment that got the reply.
+      if (notification.type == 'MOMENT_REPLIED' &&
+          notification.targetId != null &&
+          notification.targetId!.isNotEmpty) {
+        _openRepliedMoment(notification.targetId!);
+        return;
+      }
+
       switch (notification.targetType) {
         case 'Post':
           // Navigate to home screen (posts are on the home feed)
@@ -122,6 +133,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     } catch (_) {
       // Navigation failed — stay on notifications screen
     }
+  }
+
+  Future<void> _openRepliedMoment(String momentId) async {
+    final moment = await MomentService().getMomentById(momentId);
+    if (!mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MomentsScreen(
+          authorId: moment?.creatorId ?? '',
+          startMomentId: momentId,
+        ),
+      ),
+    );
   }
 
   Future<void> _navigateToProfile(String userId) async {

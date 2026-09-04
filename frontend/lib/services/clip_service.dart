@@ -53,10 +53,11 @@ class ClipService {
   // ─── GET /api/v1/stories (clips are video stories) ────
 
   /// Fetch all clips from the backend.
-  /// Clips are stories with mediaType='video'.
+  /// Clips are stories with storyType='clip' (reels-style videos).
   Future<List<Clip>> fetchClips() async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/stories');
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories')
+          .replace(queryParameters: {'type': 'clip'});
       final response = await http
           .get(url, headers: await _headers())
           .timeout(ApiConfig.timeout);
@@ -65,12 +66,22 @@ class ClipService {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         if (body['success'] == true && body['stories'] != null) {
           final storiesList = body['stories'] as List;
-          return storiesList.map((s) {
+          return storiesList
+              // Defensive: only actual clips (video, marked as clip) belong
+              // in the Clips tab.
+              .where((s) {
+                final map = s as Map<String, dynamic>;
+                final storyType = map['storyType']?.toString() ?? 'moment';
+                final mediaType = map['mediaType']?.toString() ?? 'image';
+                return storyType == 'clip' && mediaType == 'video';
+              })
+              .map((s) {
             final map = s as Map<String, dynamic>;
             return Clip(
               id: map['_id']?.toString() ?? '',
               creatorId: map['userId']?.toString() ?? '',
               creatorUsername: map['displayName']?.toString() ?? map['username']?.toString() ?? '',
+              mediaType: map['mediaType']?.toString() ?? 'video',
               videoUrl: map['mediaUrl']?.toString() ?? '',
               caption: map['caption']?.toString() ?? '',
               music: null,
@@ -105,6 +116,7 @@ class ClipService {
             id: map['_id']?.toString() ?? '',
             creatorId: map['userId']?.toString() ?? '',
             creatorUsername: map['displayName']?.toString() ?? '',
+            mediaType: map['mediaType']?.toString() ?? 'video',
             videoUrl: map['mediaUrl']?.toString() ?? '',
             caption: map['caption']?.toString() ?? '',
             music: null,
@@ -133,6 +145,7 @@ class ClipService {
             body: jsonEncode({
               'mediaUrl': clip.videoUrl,
               'mediaType': 'video',
+              'storyType': 'clip',
               'caption': clip.caption,
             }),
           )

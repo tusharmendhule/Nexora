@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../config/nexora_themes.dart';
+import '../utils/media_url.dart';
+import '../utils/route_observer.dart';
 import 'comments_screen.dart';
 import 'post_screen.dart';
 import 'share_screen.dart';
@@ -14,13 +17,19 @@ import '../services/like_service.dart';
 import '../services/post_service.dart';
 
 class ClipsScreen extends StatefulWidget {
-  const ClipsScreen({super.key});
+  /// Whether this screen is the tab currently shown in the bottom
+  /// navigation. When false, the playing clip is paused so its audio
+  /// stops after the user leaves the Clips tab.
+  final bool active;
+
+  const ClipsScreen({super.key, this.active = true});
 
   @override
   State<ClipsScreen> createState() => _ClipsScreenState();
 }
 
-class _ClipsScreenState extends State<ClipsScreen> {
+class _ClipsScreenState extends State<ClipsScreen>
+    with RouteAware, WidgetsBindingObserver {
   final ClipService _clipService = ClipService();
   final LikeService _likeService = LikeService();
   final PostService _postService = PostService();
@@ -29,6 +38,7 @@ class _ClipsScreenState extends State<ClipsScreen> {
   final Map<String, bool> _likedClips = {};
   final Map<String, int> _clipLikeCounts = {};
   final Map<String, bool> _savedClips = {};
+  final Map<String, GlobalKey<_VideoPlayerWidgetState>> _playerKeys = {};
 
   List<Clip> clips = [];
   int currentClip = 0;
@@ -44,7 +54,48 @@ class _ClipsScreenState extends State<ClipsScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadClips();
+  }
+
+  /// App went to the background (or the browser tab was hidden) — stop
+  /// clip audio so it never plays when the user isn't looking at it.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (widget.active) {
+        _resumeCurrentClip();
+      }
+    } else {
+      _pauseAllPlayback();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Watch the enclosing route so any full-screen page pushed on top of
+    // the Clips screen pauses clip playback while it is covered. Modal
+    // bottom sheets are not PageRoutes, so they do not pause the video.
+    final route = ModalRoute.of(context);
+    if (route is PageRoute<dynamic>) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  /// A new screen was pushed on top of the Clips screen — stop audio.
+  @override
+  void didPushNext() {
+    if (!widget.active) return;
+    _pauseAllPlayback();
+  }
+
+  /// The covering screen was popped — resume the visible clip (if the
+  /// Clips tab is still the active tab).
+  @override
+  void didPopNext() {
+    if (!widget.active) return;
+    _resumeCurrentClip();
   }
 
   Future<void> _loadClips() async {
@@ -65,11 +116,69 @@ class _ClipsScreenState extends State<ClipsScreen> {
   }
 
   @override
+  void didUpdateWidget(covariant ClipsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.active == widget.active) return;
+
+    if (widget.active) {
+      // Back on the Clips tab — resume the clip that was playing.
+      _resumeCurrentClip();
+    } else {
+      // Left the Clips tab — stop audio/video playback.
+      _pauseAllPlayback();
+    }
+  }
+
+  @override
   void dispose() {
+    routeObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
   }
 
+  /// Player widget of the clip currently on screen, if it exists yet.
+  _VideoPlayerWidgetState? _currentPlayerState() {
+    if (clips.isEmpty || currentClip < 0 || currentClip >= clips.length) {
+      return null;
+    }
+    return _playerKeys[clips[currentClip].id]?.currentState;
+  }
+
+  /// Every player currently mounted (the visible clip plus cached
+  /// neighbours), so audio can be silenced no matter which clip was
+  /// unmuted last.
+  Iterable<_VideoPlayerWidgetState> get _allPlayerStates => _playerKeys.values
+      .map((key) => key.currentState)
+      .whereType<_VideoPlayerWidgetState>();
+
+  /// Silences every mounted clip player (used when the user leaves the
+  /// Clips screen or another screen covers it).
+  void _pauseAllPlayback() {
+    for (final state in _allPlayerStates) {
+      state.pause();
+    }
+  }
+
+  void _resumeCurrentClip() {
+    _currentPlayerState()?.play();
+  }
+
+  /// Pushes [screen] on top of the Clips screen. Playback is paused while
+  /// the screen is covered and resumed once the user comes back, so clip
+  /// audio never plays while another screen is open.
+  Future<void> _navigateTo(
+    Widget screen, {
+    Future<void> Function()? onReturn,
+  }) async {
+    _pauseAllPlayback();
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    if (!mounted) return;
+    if (onReturn != null) {
+      await onReturn();
+    }
+    _resumeCurrentClip();
+  }
   Future<void> _toggleLike(Clip clip) async {
     final previousLiked = _likedClips[clip.id] ?? false;
     final previousCount = _clipLikeCounts[clip.id] ?? clip.likeCount;
@@ -120,10 +229,7 @@ class _ClipsScreenState extends State<ClipsScreen> {
   }
 
   void _openProfile(String username) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => UserProfileScreen(username: username)),
-    );
+    _navigateTo(UserProfileScreen(username: username));
   }
 
   @override
@@ -149,6 +255,13 @@ class _ClipsScreenState extends State<ClipsScreen> {
                     setState(() {
                       currentClip = index;
                     });
+                    // The page we just swiped away from is still mounted
+                    // briefly — stop its audio so only the visible clip
+                    // can be heard.
+                    for (final state in _allPlayerStates) {
+                      state.pause();
+                    }
+                    _resumeCurrentClip();
                   },
                   itemBuilder: (context, index) {
                     return _clipPage(index);
@@ -174,7 +287,20 @@ class _ClipsScreenState extends State<ClipsScreen> {
       );
     }
 
-    return _VideoPlayerWidget(videoUrl: clip.videoUrl);
+    return _VideoPlayerWidget(
+      key: _playerKeys.putIfAbsent(
+        clip.id,
+        () => GlobalKey<_VideoPlayerWidgetState>(),
+      ),
+      videoUrl: clip.videoUrl,
+      onMutedChanged: (muted) {
+        if (mounted) {
+          setState(() {
+            _mutedClips[clip.id] = muted;
+          });
+        }
+      },
+    );
   }
 
   Widget _clipPage(int index) {
@@ -451,12 +577,7 @@ class _ClipsScreenState extends State<ClipsScreen> {
           onTap: () {
             final creator = clips[currentClip].creatorUsername;
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CommentsScreen(username: creator),
-              ),
-            );
+            _navigateTo(CommentsScreen(username: creator));
           },
         ),
 
@@ -472,12 +593,7 @@ class _ClipsScreenState extends State<ClipsScreen> {
           onTap: () {
             final creator = clips[currentClip].creatorUsername;
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ShareScreen(postAuthor: creator),
-              ),
-            );
+            _navigateTo(ShareScreen(postAuthor: creator));
           },
         ),
 
@@ -544,14 +660,37 @@ class _ClipsScreenState extends State<ClipsScreen> {
 
             const Spacer(),
 
+            // Volume toggle lives in the header row (right of the title),
+            // clear of the camera button and the video's overlay icons.
+            // Only shown for real (non-demo) clips.
+            if (_hasCurrentVideo())
+              GestureDetector(
+                onTap: _toggleCurrentMute,
+                child: Container(
+                  width: 34,
+                  height: 34,
+                  margin: const EdgeInsets.only(right: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.35),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.25)),
+                  ),
+                  child: Icon(
+                    _isCurrentClipMuted()
+                        ? Icons.volume_off
+                        : Icons.volume_up,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                ),
+              ),
+
             IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const PostScreen(initialType: CreationType.clip),
-                  ),
-                ).then((_) => _loadClips());
+                _navigateTo(
+                  const PostScreen(initialType: CreationType.clip),
+                  onReturn: _loadClips,
+                );
               },
               icon: const Icon(
                 Icons.camera_alt_outlined,
@@ -563,6 +702,28 @@ class _ClipsScreenState extends State<ClipsScreen> {
         ),
       ),
     );
+  }
+
+  /// Mute state per clip, kept in sync by each player via [onMutedChanged].
+  final Map<String, bool> _mutedClips = {};
+
+  bool _hasCurrentVideo() {
+    if (clips.isEmpty || currentClip >= clips.length) return false;
+    return !clips[currentClip].videoUrl.startsWith('demo://');
+  }
+
+  bool _isCurrentClipMuted() {
+    if (clips.isEmpty || currentClip >= clips.length) return true;
+    return _mutedClips[clips[currentClip].id] ?? true;
+  }
+
+  void _toggleCurrentMute() {
+    if (clips.isEmpty || currentClip >= clips.length) return;
+    final clip = clips[currentClip];
+    final state = _playerKeys[clip.id]?.currentState;
+    if (state != null) {
+      state.setMuted(!_isCurrentClipMuted());
+    }
   }
 
   Widget _pageIndicator() {
@@ -596,7 +757,14 @@ class _ClipsScreenState extends State<ClipsScreen> {
 class _VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
 
-  const _VideoPlayerWidget({required this.videoUrl});
+  /// Reports mute-state changes so the header button stays in sync.
+  final ValueChanged<bool>? onMutedChanged;
+
+  const _VideoPlayerWidget({
+    super.key,
+    required this.videoUrl,
+    this.onMutedChanged,
+  });
 
   @override
   State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
@@ -604,41 +772,110 @@ class _VideoPlayerWidget extends StatefulWidget {
 
 class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   late final VideoPlayerController _controller;
+  bool _failed = false;
+  bool _muted = true;
+  Timer? _initTimer;
+
+  /// Set this player's mute state.
+  void setMuted(bool muted) {
+    if (_muted == muted) return;
+    setState(() {
+      _muted = muted;
+    });
+    // Runs inside the user's tap, which is the gesture browsers require
+    // before allowing audible playback.
+    _controller.setVolume(muted ? 0 : 1);
+    widget.onMutedChanged?.call(muted);
+  }
+
+  /// Pauses playback and silences the audio track (used when the user
+  /// navigates away from the Clips screen so audio cannot keep playing in
+  /// the background). Volume is restored on [play].
+  void pause() {
+    if (_controller.value.isInitialized) {
+      _controller.pause();
+      _controller.setVolume(0);
+    }
+  }
+
+  /// Resumes playback after returning to the Clips screen, restoring the
+  /// user's chosen volume (muted unless they turned sound on).
+  void play() {
+    if (_controller.value.isInitialized && !_failed) {
+      _controller.setVolume(_muted ? 0 : 1);
+      _controller.play();
+    }
+  }
+
+  void _reportMuted() {
+    widget.onMutedChanged?.call(_muted);
+  }
 
   @override
   void initState() {
     super.initState();
 
-    final url = widget.videoUrl;
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(url))
-        ..initialize().then((_) {
-          if (!mounted) return;
-          setState(() {});
-          _controller
-            ..setLooping(true)
-            ..play();
-        });
-    } else {
-      _controller = VideoPlayerController.file(File(url))
-        ..initialize().then((_) {
-          if (!mounted) return;
-          setState(() {});
-          _controller
-            ..setLooping(true)
-            ..play();
-        });
-    }
+    final url = mediaPlaybackUrl(widget.videoUrl);
+    final isNetwork = url.startsWith('http://') || url.startsWith('https://');
+    _controller = isNetwork
+        ? VideoPlayerController.networkUrl(Uri.parse(url))
+        : VideoPlayerController.file(File(url));
+
+    _controller.initialize().then((_) {
+      if (!mounted) return;
+      _initTimer?.cancel();
+      _initTimer = null;
+      setState(() {});
+      // Start muted so autoplay is allowed (browsers block audible
+      // autoplay without a prior user gesture).
+      _controller
+        ..setLooping(true)
+        ..setVolume(0)
+        ..play();
+      _reportMuted();
+    }).catchError((Object _) {
+      if (!mounted) return;
+      _initTimer?.cancel();
+      _initTimer = null;
+      setState(() => _failed = true);
+    });
+
+    // Some browsers hang forever instead of erroring when a video can't
+    // decode (e.g. unsupported codec) — surface it instead of spinning.
+    _initTimer = Timer(const Duration(seconds: 20), () {
+      if (!mounted || _controller.value.isInitialized) return;
+      setState(() => _failed = true);
+    });
   }
 
   @override
   void dispose() {
+    _initTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_failed) {
+      return Container(
+        color: Colors.black,
+        alignment: Alignment.center,
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.videocam_off_outlined,
+                color: Colors.white38, size: 40),
+            SizedBox(height: 8),
+            Text(
+              'Video unavailable',
+              style: TextStyle(color: Colors.white54, fontSize: 13),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (!_controller.value.isInitialized) {
       return const Center(
         child: CircularProgressIndicator(color: Colors.white),

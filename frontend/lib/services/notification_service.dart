@@ -140,6 +140,7 @@ class NotificationService {
       case 'POST_LIKED':
         return Icons.favorite;
       case 'POST_COMMENTED':
+      case 'MOMENT_REPLIED':
         return Icons.comment;
       case 'NEW_MESSAGE':
         return Icons.chat_bubble;

@@ -6,6 +6,7 @@ import 'services/appearance_controller.dart';
 import 'services/auth_service.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/main_nav.dart';
+import 'utils/route_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +57,7 @@ class _NexoraAppState extends State<NexoraApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Nexora',
+      navigatorObservers: [routeObserver],
       theme: NexoraThemes.light,
       darkTheme: NexoraThemes.dark,
       themeMode: appearance.themeMode,

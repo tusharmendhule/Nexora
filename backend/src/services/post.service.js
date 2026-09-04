@@ -65,17 +65,25 @@ class PostService {
    * alongside the numeric trustScore already on the Post model.
    * If userId is provided, each post includes an isLiked flag.
    */
-  async getAll(page = 1, limit = 20, userId = null) {
+  async getAll(page = 1, limit = 20, userId = null, authorId = null) {
     const skip = (page - 1) * limit;
 
-    // Build exclusion filter for blocked users
-    const postFilter = {};
+    // Blocked users are hidden from the feed (and from profile views).
+    let excludedIds = [];
     if (userId) {
       const blockService = require('./block.service');
-      const excludedIds = await blockService.getExcludedIds(userId);
-      if (excludedIds.length > 0) {
-        postFilter.user = { $nin: excludedIds };
-      }
+      excludedIds = await blockService.getExcludedIds(userId);
+    }
+
+    // Build the post filter
+    const postFilter = {};
+    if (authorId) {
+      // Profile view: only this author's posts
+      postFilter.user = excludedIds.length > 0
+        ? { $in: [authorId], $nin: excludedIds }
+        : authorId;
+    } else if (excludedIds.length > 0) {
+      postFilter.user = { $nin: excludedIds };
     }
 
     const posts = await Post.find(postFilter)

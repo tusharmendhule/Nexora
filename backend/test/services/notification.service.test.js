@@ -17,6 +17,7 @@ jest.mock('../../src/models/notification.model', () => {
     NEW_FOLLOWER: 'NEW_FOLLOWER',
     POST_LIKED: 'POST_LIKED',
     POST_COMMENTED: 'POST_COMMENTED',
+    MOMENT_REPLIED: 'MOMENT_REPLIED',
     NEW_MESSAGE: 'NEW_MESSAGE',
     POST_VERIFIED: 'POST_VERIFIED',
     POST_REQUIRES_MODERATION: 'POST_REQUIRES_MODERATION',
@@ -316,6 +317,33 @@ describe('Notification Service', () => {
 
       expect(notif).toBeDefined();
       expect(notif.body.length).toBeLessThan(longText.length + 50);
+    });
+
+    it('should create MOMENT_REPLIED notification with reply text', async () => {
+      User._add({ _id: 'replier_1', name: 'Fay', username: 'fay' });
+
+      const notif = await notificationService.notifyMomentReplied({
+        momentOwnerId: 'u2',
+        replierId: 'replier_1',
+        momentId: 'story1',
+        replyText: 'Nice moment!',
+      });
+
+      expect(notif).toBeDefined();
+      expect(notif.type).toBe('MOMENT_REPLIED');
+      expect(notif.targetId).toBe('story1');
+      expect(notif.body).toContain('Nice moment!');
+    });
+
+    it('should not notify when replying to your own moment', async () => {
+      const notif = await notificationService.notifyMomentReplied({
+        momentOwnerId: 'u1',
+        replierId: 'u1',
+        momentId: 'story1',
+        replyText: 'Self reply',
+      });
+
+      expect(notif).toBeNull();
     });
 
     it('should create NEW_MESSAGE notification', async () => {
