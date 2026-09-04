@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import '../models/user.dart';
 
 class ShareProfileScreen extends StatelessWidget {
@@ -12,12 +14,12 @@ class ShareProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF080B1A),
-        foregroundColor: Colors.white,
+        backgroundColor: context.nexora.backgroundAlt,
+        foregroundColor: context.nexora.textPrimary,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Share Profile',
           style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
         ),
@@ -29,11 +31,12 @@ class ShareProfileScreen extends StatelessWidget {
             children: [
               const Spacer(),
 
-              _profileCard(),
+              _profileCard(context),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               _shareButton(
+                context,
                 icon: Icons.copy_rounded,
                 label: 'Copy Profile Link',
                 onTap: () {
@@ -41,9 +44,10 @@ class ShareProfileScreen extends StatelessWidget {
                 },
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               _shareButton(
+                context,
                 icon: Icons.ios_share_rounded,
                 label: 'Share Profile',
                 onTap: () {
@@ -53,9 +57,9 @@ class ShareProfileScreen extends StatelessWidget {
 
               const Spacer(),
 
-              const Text(
+              Text(
                 'Share your Nexora profile with others',
-                style: TextStyle(color: Colors.white38, fontSize: 12),
+                style: TextStyle(color: context.nexora.textHint, fontSize: 12),
               ),
             ],
           ),
@@ -64,63 +68,63 @@ class ShareProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _profileCard() {
+  Widget _profileCard(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF11162B),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF26345F)),
+        border: Border.all(color: context.nexora.surfaceSubtle),
       ),
       child: Column(
         children: [
-          _profileAvatar(),
+          _profileAvatar(context),
 
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
 
           Text(
             user.displayName ?? user.username,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.nexora.textPrimary,
               fontSize: 23,
               fontWeight: FontWeight.bold,
             ),
           ),
 
-          const SizedBox(height: 5),
+          SizedBox(height: 5),
 
           Text(
             '@${user.username}',
-            style: const TextStyle(color: Colors.white60, fontSize: 13),
+            style: TextStyle(color: context.nexora.textSecondary, fontSize: 13),
           ),
 
           if (user.bio != null && user.bio!.isNotEmpty) ...[
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             Text(
               user.bio!,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: context.nexora.textSecondary,
                 fontSize: 13,
                 height: 1.4,
               ),
             ),
           ],
 
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
 
-          Container(height: 1, color: const Color(0xFF26345F)),
+          Container(height: 1, color: context.nexora.surfaceSubtle),
 
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _stat(user.followersCount.toString(), 'Followers'),
-              const SizedBox(width: 42),
-              _stat(user.followingCount.toString(), 'Following'),
+              _stat(context, user.followersCount.toString(), 'Followers'),
+              SizedBox(width: 42),
+              _stat(context, user.followingCount.toString(), 'Following'),
             ],
           ),
         ],
@@ -128,12 +132,12 @@ class ShareProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _profileAvatar() {
+  Widget _profileAvatar(BuildContext context) {
     return Container(
       width: 104,
       height: 104,
       padding: const EdgeInsets.all(3),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(
           colors: [Color(0xFF36C8FF), Color(0xFF7B61FF)],
@@ -147,46 +151,47 @@ class ShareProfileScreen extends StatelessWidget {
                 ? Image.network(
                     user.profileImageUrl!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _avatarPlaceholder(),
+                    errorBuilder: (_, __, ___) => _avatarPlaceholder(context),
                   )
                 : Image.file(
                     File(user.profileImageUrl!),
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _avatarPlaceholder(),
+                    errorBuilder: (_, __, ___) => _avatarPlaceholder(context),
                   ))
-            : _avatarPlaceholder(),
+            : _avatarPlaceholder(context),
       ),
     );
   }
 
-  Widget _avatarPlaceholder() {
-    return const ColoredBox(
-      color: Color(0xFF171D35),
-      child: Icon(Icons.person, color: Colors.white70, size: 50),
+  Widget _avatarPlaceholder(BuildContext context) {
+    return ColoredBox(
+      color: context.nexora.card,
+      child: Icon(Icons.person, color: context.nexora.textSecondary, size: 50),
     );
   }
 
-  Widget _stat(String value, String label) {
+  Widget _stat(BuildContext context, String value, String label) {
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(color: Colors.white54, fontSize: 11),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 11),
         ),
       ],
     );
   }
 
-  Widget _shareButton({
+  Widget _shareButton(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required VoidCallback onTap,
@@ -197,7 +202,7 @@ class ShareProfileScreen extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [Color(0xFF2878E8), Color(0xFF673DE6)],
           ),
         ),
@@ -209,12 +214,12 @@ class ShareProfileScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: Colors.white, size: 19),
-                const SizedBox(width: 9),
+                Icon(icon, color: context.nexora.textPrimary, size: 19),
+                SizedBox(width: 9),
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -235,7 +240,7 @@ class ShareProfileScreen extends StatelessWidget {
 
   void _showShareMessage(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('System sharing will be connected soon')),
+      SnackBar(content: Text('System sharing will be connected soon')),
     );
   }
 }

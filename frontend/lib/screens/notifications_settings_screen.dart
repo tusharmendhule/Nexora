@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import '../services/settings_service.dart';
 
 class NotificationsSettingsScreen extends StatefulWidget {
@@ -66,26 +70,26 @@ class _NotificationsSettingsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
 
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
 
-        title: const Text(
+        title: Text(
           'Notifications',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -93,8 +97,8 @@ class _NotificationsSettingsScreenState
       ),
 
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.white),
+          ? Center(
+              child: CircularProgressIndicator(color: context.nexora.textPrimary),
             )
           : ListView(
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
@@ -116,7 +120,7 @@ class _NotificationsSettingsScreenState
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _sectionTitle('Activity'),
 
@@ -175,7 +179,7 @@ class _NotificationsSettingsScreenState
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _sectionTitle('Messages'),
 
@@ -196,7 +200,7 @@ class _NotificationsSettingsScreenState
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _sectionTitle('Nexora'),
 
@@ -238,7 +242,7 @@ class _NotificationsSettingsScreenState
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _sectionTitle('Quiet Mode'),
 
@@ -268,8 +272,8 @@ class _NotificationsSettingsScreenState
       padding: const EdgeInsets.only(left: 2, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white70,
+        style: TextStyle(
+          color: context.nexora.textSecondary,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -280,9 +284,9 @@ class _NotificationsSettingsScreenState
   Widget _settingsCard({required Widget child}) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.05)),
       ),
       child: child,
     );
@@ -315,10 +319,10 @@ class _NotificationsSettingsScreenState
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Icon(icon, color: Colors.white, size: 21),
+            child: Icon(icon, color: context.nexora.textPrimary, size: 21),
           ),
 
-          const SizedBox(width: 13),
+          SizedBox(width: 13),
 
           Expanded(
             child: Column(
@@ -327,18 +331,18 @@ class _NotificationsSettingsScreenState
                 Text(
                   title,
                   style: TextStyle(
-                    color: enabled ? Colors.white : Colors.white38,
+                    color: enabled ? context.nexora.textPrimary : context.nexora.textHint,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
 
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
 
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: enabled ? Colors.white54 : Colors.white24,
+                    color: enabled ? context.nexora.textMuted : context.nexora.textDim,
                     fontSize: 11.5,
                     height: 1.3,
                   ),
@@ -350,10 +354,10 @@ class _NotificationsSettingsScreenState
           Switch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: Colors.white,
+            activeThumbColor: context.nexora.textPrimary,
             activeTrackColor: const Color(0xFF6C63FF),
-            inactiveThumbColor: Colors.white54,
-            inactiveTrackColor: Colors.white12,
+            inactiveThumbColor: context.nexora.textMuted,
+            inactiveTrackColor: context.nexora.surfaceSubtle,
           ),
         ],
       ),
@@ -378,16 +382,16 @@ class _NotificationsSettingsScreenState
               height: 42,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(13),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                gradient: LinearGradient(
+                  colors: nexoraGradient(),
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: Icon(icon, color: Colors.white, size: 21),
+              child: Icon(icon, color: context.nexora.textPrimary, size: 21),
             ),
 
-            const SizedBox(width: 13),
+            SizedBox(width: 13),
 
             Expanded(
               child: Column(
@@ -395,19 +399,19 @@ class _NotificationsSettingsScreenState
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.nexora.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
 
-                  const SizedBox(height: 3),
+                  SizedBox(height: 3),
 
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      color: Colors.white54,
+                    style: TextStyle(
+                      color: context.nexora.textMuted,
                       fontSize: 11.5,
                     ),
                   ),
@@ -415,7 +419,7 @@ class _NotificationsSettingsScreenState
               ),
             ),
 
-            const Icon(Icons.chevron_right, color: Colors.white54, size: 22),
+            Icon(Icons.chevron_right, color: context.nexora.textMuted, size: 22),
           ],
         ),
       ),
@@ -425,7 +429,7 @@ class _NotificationsSettingsScreenState
   Widget _divider() {
     return Padding(
       padding: const EdgeInsets.only(left: 69),
-      child: Divider(height: 1, color: Colors.white.withOpacity(0.05)),
+      child: Divider(height: 1, color: context.nexora.textPrimary.withOpacity(0.05)),
     );
   }
 }

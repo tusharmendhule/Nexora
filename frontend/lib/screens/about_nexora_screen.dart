@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import 'help_support_screen.dart';
 import 'settings_detail_screen.dart';
 
@@ -9,23 +13,23 @@ class AboutNexoraScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'About Nexora',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -34,13 +38,14 @@ class AboutNexoraScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 35),
         children: [
-          _hero(),
+          _hero(context),
 
-          const SizedBox(height: 26),
+          SizedBox(height: 26),
 
-          _sectionTitle('About Nexora'),
+          _sectionTitle(context, 'About Nexora'),
 
           _infoCard(
+            context,
             icon: Icons.auto_awesome_outlined,
             title: 'A space made for you',
             description:
@@ -48,11 +53,12 @@ class AboutNexoraScreen extends StatelessWidget {
                 'and meaningful moments together in one personal space.',
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
-          _sectionTitle('Nexora'),
+          _sectionTitle(context, 'Nexora'),
 
           _actionTile(
+            context,
             icon: Icons.menu_book_outlined,
             title: 'Community Guidelines',
             subtitle: 'Learn how we keep Nexora welcoming and respectful',
@@ -67,6 +73,7 @@ class AboutNexoraScreen extends StatelessWidget {
           ),
 
           _actionTile(
+            context,
             icon: Icons.privacy_tip_outlined,
             title: 'Privacy Policy',
             subtitle: 'Learn how Nexora handles your information',
@@ -79,6 +86,7 @@ class AboutNexoraScreen extends StatelessWidget {
           ),
 
           _actionTile(
+            context,
             icon: Icons.description_outlined,
             title: 'Terms of Service',
             subtitle: 'Read the terms that govern your use of Nexora',
@@ -90,11 +98,12 @@ class AboutNexoraScreen extends StatelessWidget {
             },
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
-          _sectionTitle('Credits'),
+          _sectionTitle(context, 'Credits'),
 
           _actionTile(
+            context,
             icon: Icons.code_outlined,
             title: 'Open Source Licenses',
             subtitle: 'View licenses for software used by Nexora',
@@ -103,12 +112,13 @@ class AboutNexoraScreen extends StatelessWidget {
                 context: context,
                 applicationName: 'Nexora',
                 applicationVersion: '1.0.0',
-                applicationIcon: _smallLogo(),
+                applicationIcon: _smallLogo(context),
               );
             },
           ),
 
           _actionTile(
+            context,
             icon: Icons.people_outline,
             title: 'Nexora Team',
             subtitle: 'The people building Nexora',
@@ -117,44 +127,44 @@ class AboutNexoraScreen extends StatelessWidget {
             },
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
-          _sectionTitle('App Information'),
+          _sectionTitle(context, 'App Information'),
 
-          _infoRow('Version', '1.0.0'),
+          _infoRow(context, 'Version', '1.0.0'),
 
-          _infoRow('Build', '1'),
+          _infoRow(context, 'Build', '1'),
 
-          _infoRow('Platform', 'Flutter'),
+          _infoRow(context, 'Platform', 'Flutter'),
 
-          const SizedBox(height: 30),
+          SizedBox(height: 30),
 
           Center(
             child: Column(
               children: [
-                _smallLogo(),
-                const SizedBox(height: 12),
-                const Text(
+                _smallLogo(context),
+                SizedBox(height: 12),
+                Text(
                   'Nexora',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Text(
                   'Your space. Your content. Your world.',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.35),
+                    color: context.nexora.textPrimary.withOpacity(0.35),
                     fontSize: 11,
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   'Made with care.',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.22),
+                    color: context.nexora.textPrimary.withOpacity(0.22),
                     fontSize: 10,
                   ),
                 ),
@@ -166,13 +176,13 @@ class AboutNexoraScreen extends StatelessWidget {
     );
   }
 
-  Widget _hero() {
+  Widget _hero(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(26),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+        gradient: LinearGradient(
+          colors: nexoraGradient(),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -186,41 +196,41 @@ class AboutNexoraScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _largeLogo(),
+          _largeLogo(context),
 
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
 
-          const Text(
+          Text(
             'Nexora',
             style: TextStyle(
-              color: Colors.white,
+              color: context.nexora.textPrimary,
               fontSize: 30,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.5,
             ),
           ),
 
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
 
-          const Text(
+          Text(
             'Your space. Your content. Your world.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70, fontSize: 13),
+            style: TextStyle(color: context.nexora.textSecondary, fontSize: 13),
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.14),
+              color: context.nexora.textPrimary.withOpacity(0.14),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.12)),
+              border: Border.all(color: context.nexora.textPrimary.withOpacity(0.12)),
             ),
-            child: const Text(
+            child: Text(
               'VERSION 1.0.0',
               style: TextStyle(
-                color: Colors.white,
+                color: context.nexora.textPrimary,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1,
@@ -232,50 +242,50 @@ class AboutNexoraScreen extends StatelessWidget {
     );
   }
 
-  Widget _largeLogo() {
+  Widget _largeLogo(BuildContext context) {
     return Container(
       width: 82,
       height: 82,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color: context.nexora.textPrimary.withOpacity(0.12),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.18)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.18)),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.auto_awesome_rounded,
-        color: Colors.white,
+        color: context.nexora.textPrimary,
         size: 42,
       ),
     );
   }
 
-  Widget _smallLogo() {
+  Widget _smallLogo(BuildContext context) {
     return Container(
       width: 42,
       height: 42,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(13),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+        gradient: LinearGradient(
+          colors: nexoraGradient(),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.auto_awesome_rounded,
-        color: Colors.white,
+        color: context.nexora.textPrimary,
         size: 22,
       ),
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  Widget _sectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
@@ -284,7 +294,8 @@ class AboutNexoraScreen extends StatelessWidget {
     );
   }
 
-  Widget _infoCard({
+  Widget _infoCard(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String description,
@@ -292,32 +303,32 @@ class AboutNexoraScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.05)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _iconBox(icon),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 7),
+                SizedBox(height: 7),
                 Text(
                   description,
-                  style: const TextStyle(
-                    color: Colors.white54,
+                  style: TextStyle(
+                    color: context.nexora.textMuted,
                     fontSize: 12,
                     height: 1.5,
                   ),
@@ -330,7 +341,8 @@ class AboutNexoraScreen extends StatelessWidget {
     );
   }
 
-  Widget _actionTile({
+  Widget _actionTile(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
@@ -339,17 +351,17 @@ class AboutNexoraScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         leading: _iconBox(icon),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -358,29 +370,29 @@ class AboutNexoraScreen extends StatelessWidget {
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: onTap,
       ),
     );
   }
 
-  Widget _infoRow(String label, String value) {
+  Widget _infoRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
       child: Row(
         children: [
           Text(
             label,
-            style: const TextStyle(color: Colors.white54, fontSize: 13),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
           ),
           const Spacer(),
           Text(
             value,
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: context.nexora.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -396,21 +408,20 @@ class AboutNexoraScreen extends StatelessWidget {
       height: 42,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+        gradient: LinearGradient(
+          colors: nexoraGradient(),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-      ),
-      child: Icon(icon, color: Colors.white, size: 21),
+      ),          child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 
   void _showTeam(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF11162A),
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.nexora.sheet,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
@@ -424,35 +435,35 @@ class AboutNexoraScreen extends StatelessWidget {
                   width: 38,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: context.nexora.textDim,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                const SizedBox(height: 20),
-                _smallLogo(),
-                const SizedBox(height: 12),
-                const Text(
+                SizedBox(height: 20),
+                _smallLogo(context),
+                SizedBox(height: 12),
+                Text(
                   'The Nexora Team',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   'Building a better social space, one idea at a time.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white54,
+                    color: context.nexora.textMuted,
                     fontSize: 13,
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 TextButton(
                   onPressed: () => Navigator.pop(sheetContext),
-                  child: const Text(
+                  child: Text(
                     'Close',
                     style: TextStyle(color: Color(0xFF8B7CFF)),
                   ),

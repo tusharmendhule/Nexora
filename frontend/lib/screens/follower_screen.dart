@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import 'user_profile_screen.dart';
 import '../models/user.dart';
 import '../services/follow_service.dart';
@@ -92,21 +94,21 @@ class _FollowScreenState extends State<FollowScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFF080B1A),
-        foregroundColor: Colors.white,
+        backgroundColor: context.nexora.backgroundAlt,
+        foregroundColor: context.nexora.textPrimary,
         elevation: 0,
         title: Text(
           widget.username,
-          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
         ),
       ),
 
       body: Column(
         children: [
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           // Followers / Following switch
           Padding(
@@ -115,7 +117,7 @@ class _FollowScreenState extends State<FollowScreen> {
               height: 46,
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: const Color(0xFF171D35),
+                color: context.nexora.card,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Row(
@@ -139,13 +141,13 @@ class _FollowScreenState extends State<FollowScreen> {
             ),
           ),
 
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           // User list
           Expanded(
             child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                ? Center(
+                    child: CircularProgressIndicator(color: context.nexora.textPrimary),
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -167,27 +169,27 @@ class _FollowScreenState extends State<FollowScreen> {
                           margin: const EdgeInsets.only(bottom: 10),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF11162B),
+                            color: context.nexora.sheet,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Row(
                             children: [
-                              const CircleAvatar(
+                              CircleAvatar(
                                 radius: 25,
-                                backgroundColor: Color(0xFF242A43),
+                                backgroundColor: context.nexora.surfaceSelected,
                                 child: Icon(
                                   Icons.person,
-                                  color: Colors.white54,
+                                  color: context.nexora.textMuted,
                                 ),
                               ),
 
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
 
                               Expanded(
                                 child: Text(
                                   user.username,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: context.nexora.textPrimary,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -212,26 +214,26 @@ class _FollowScreenState extends State<FollowScreen> {
                                       decoration: BoxDecoration(
                                         gradient: isFollowed
                                             ? null
-                                            : const LinearGradient(
+                                            : LinearGradient(
                                                 colors: [
                                                   Color(0xFF2878E8),
                                                   Color(0xFF673DE6),
                                                 ],
                                               ),
                                         color: isFollowed
-                                            ? const Color(0xFF171D35)
+                                            ? context.nexora.card
                                             : null,
                                         borderRadius: BorderRadius.circular(20),
                                         border: isFollowed
                                             ? Border.all(
-                                                color: const Color(0xFF303653),
+                                                color: context.nexora.surfaceSubtle,
                                               )
                                             : null,
                                       ),
                                       child: Text(
                                         isFollowed ? 'Following' : 'Follow',
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: context.nexora.textPrimary,
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -260,7 +262,7 @@ class _FollowScreenState extends State<FollowScreen> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             gradient: selected
-                ? const LinearGradient(
+                ? LinearGradient(
                     colors: [Color(0xFF2878E8), Color(0xFF673DE6)],
                   )
                 : null,
@@ -269,7 +271,7 @@ class _FollowScreenState extends State<FollowScreen> {
           child: Text(
             text,
             style: TextStyle(
-              color: selected ? Colors.white : Colors.white54,
+              color: selected ? context.nexora.textPrimary : context.nexora.textMuted,
               fontSize: 13,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),

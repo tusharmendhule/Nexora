@@ -84,6 +84,43 @@ const requireAuth = async (req, _res, next) => {
       return next(new ApiError(401, 'Account has been disabled'));
     }
 
+    // ── Account status enforcement ─────────────────────
+    // Deleted/suspended/restricted accounts cannot use any protected API.
+    // Deactivated accounts may only reach account-recovery endpoints
+    // (view own profile, reactivate, logout) until they reactivate.
+    if (user.accountStatus === 'deleted') {
+      return next(new ApiError(401, 'This account has been deleted'));
+    }
+
+    if (user.accountStatus === 'suspended') {
+      return next(new ApiError(403, 'This account has been suspended'));
+    }
+
+    if (user.accountStatus === 'restricted') {
+      return next(new ApiError(403, 'This account is restricted'));
+    }
+
+    if (user.accountStatus === 'deactivated') {
+      const path = req.originalUrl.split('?')[0];
+      const method = req.method;
+      const allowedDeactivated = [
+        ['GET', '/api/v1/auth/me'],
+        ['POST', '/api/v1/auth/logout'],
+        ['GET', '/api/v1/users/me'],
+        ['POST', '/api/v1/users/me/reactivate'],
+        ['GET', '/api/v1/users/me/history'],
+        ['GET', '/api/v1/settings'],
+      ];
+      const isAllowed = allowedDeactivated.some(
+        ([m, p]) => m === method && p === path
+      );
+      if (!isAllowed) {
+        return next(
+          new ApiError(403, 'Your account is deactivated. Reactivate it to continue.')
+        );
+      }
+    }
+
     req.user = user;
     next();
   } catch (error) {

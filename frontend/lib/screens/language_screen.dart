@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import '../services/settings_service.dart';
 
 class LanguageScreen extends StatefulWidget {
@@ -69,31 +73,31 @@ class _LanguageScreenState extends State<LanguageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Language',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.white),
+          ? Center(
+              child: CircularProgressIndicator(color: context.nexora.textPrimary),
             )
           : Column(
               children: [
@@ -128,8 +132,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+        gradient: LinearGradient(
+          colors: nexoraGradient(),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -140,30 +144,30 @@ class _LanguageScreenState extends State<LanguageScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.14),
+              color: context.nexora.textPrimary.withOpacity(0.14),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.white.withOpacity(0.14)),
+              border: Border.all(color: context.nexora.textPrimary.withOpacity(0.14)),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.language_rounded,
-              color: Colors.white,
+              color: context.nexora.textPrimary,
               size: 25,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'App Language',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(color: context.nexora.textSecondary, fontSize: 12),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   selectedLanguage,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontSize: 19,
                     fontWeight: FontWeight.w700,
                   ),
@@ -171,7 +175,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
               ],
             ),
           ),
-          const Icon(Icons.check_circle, color: Colors.white, size: 22),
+          Icon(Icons.check_circle, color: context.nexora.textPrimary, size: 22),
         ],
       ),
     );
@@ -182,9 +186,9 @@ class _LanguageScreenState extends State<LanguageScreen> {
       padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF171D35),
+          color: context.nexora.card,
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Colors.white.withOpacity(0.06)),
+          border: Border.all(color: context.nexora.textPrimary.withOpacity(0.06)),
         ),
         child: TextField(
           onChanged: (value) {
@@ -192,11 +196,11 @@ class _LanguageScreenState extends State<LanguageScreen> {
               searchQuery = value;
             });
           },
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             hintText: 'Search languages',
-            hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
-            prefixIcon: const Icon(Icons.search, color: Colors.white54),
+            hintStyle: TextStyle(color: context.nexora.textHint, fontSize: 14),
+            prefixIcon: Icon(Icons.search, color: context.nexora.textMuted),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(vertical: 15),
           ),
@@ -211,12 +215,12 @@ class _LanguageScreenState extends State<LanguageScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: selected ? const Color(0xFF1C2342) : const Color(0xFF171D35),
+        color: selected ? context.nexora.surfaceSelected : context.nexora.card,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
           color: selected
               ? const Color(0xFF6D63E8).withOpacity(0.55)
-              : Colors.white.withOpacity(0.05),
+              : context.nexora.textPrimary.withOpacity(0.05),
         ),
       ),
       child: ListTile(
@@ -226,22 +230,22 @@ class _LanguageScreenState extends State<LanguageScreen> {
           height: 40,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(11),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+            gradient: LinearGradient(
+              colors: nexoraGradient(),
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.translate_rounded,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
         ),
         title: Text(
           name,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -250,14 +254,14 @@ class _LanguageScreenState extends State<LanguageScreen> {
           padding: const EdgeInsets.only(top: 2),
           child: Text(
             nativeName,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
         trailing: selected
-            ? const Icon(Icons.check_circle, color: Color(0xFF8B7CFF), size: 21)
-            : const Icon(
+            ? Icon(Icons.check_circle, color: Color(0xFF8B7CFF), size: 21)
+            : Icon(
                 Icons.radio_button_unchecked,
-                color: Colors.white24,
+                color: context.nexora.textDim,
                 size: 21,
               ),
         onTap: () {
@@ -271,7 +275,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
               content: Text('$name selected'),
               duration: const Duration(milliseconds: 900),
               behavior: SnackBarBehavior.floating,
-              backgroundColor: const Color(0xFF171D35),
+              backgroundColor: context.nexora.card,
             ),
           );
         },
@@ -286,26 +290,26 @@ class _LanguageScreenState extends State<LanguageScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.language_outlined,
-              color: Colors.white30,
+              color: context.nexora.textHint,
               size: 42,
             ),
-            const SizedBox(height: 14),
-            const Text(
+            SizedBox(height: 14),
+            Text(
               'No languages found',
               style: TextStyle(
-                color: Colors.white70,
+                color: context.nexora.textSecondary,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               'Try searching for another language.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.35),
+                color: context.nexora.textPrimary.withOpacity(0.35),
                 fontSize: 12,
               ),
             ),

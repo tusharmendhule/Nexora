@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import '../models/user.dart';
 import '../services/user_service.dart';
 import '../services/report_service.dart';
@@ -130,8 +132,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF11162B),
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.nexora.sheet,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
@@ -146,20 +148,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: context.nexora.textDim,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.flag_outlined,
                     color: Color(0xFFF39C12),
                     size: 22,
                   ),
-                  title: const Text(
+                  title: Text(
                     'Report user',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.nexora.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
@@ -198,9 +200,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF11162B),
+      backgroundColor: context.nexora.sheet,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
@@ -223,7 +225,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           height: 4,
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white24,
+                            color: context.nexora.textDim,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -231,21 +233,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                       Text(
                         'Report @${user!.username}',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
 
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
 
-                      const Text(
+                      Text(
                         'Why are you reporting this user?',
-                        style: TextStyle(color: Colors.white54, fontSize: 13),
+                        style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       ...reasons.map((r) => RadioListTile<String>(
                             value: r['value']!,
@@ -255,8 +257,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             },
                             title: Text(
                               r['label']!,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: context.nexora.textPrimary,
                                 fontSize: 14,
                               ),
                             ),
@@ -265,50 +267,50 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             dense: true,
                           )),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       TextField(
                         controller: descriptionController,
                         maxLines: 3,
                         maxLength: 1000,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 14,
                         ),
                         decoration: InputDecoration(
                           hintText: 'Additional details (optional)',
-                          hintStyle: const TextStyle(
-                            color: Colors.white30,
+                          hintStyle: TextStyle(
+                            color: context.nexora.textHint,
                             fontSize: 13,
                           ),
                           filled: true,
-                          fillColor: const Color(0xFF171D35),
+                          fillColor: context.nexora.card,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(
-                              color: Colors.white.withOpacity(0.1),
+                              color: context.nexora.textPrimary.withOpacity(0.1),
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(
-                              color: Colors.white.withOpacity(0.1),
+                              color: context.nexora.textPrimary.withOpacity(0.1),
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: Color(0xFF3157D5),
                             ),
                           ),
-                          counterStyle: const TextStyle(
-                            color: Colors.white30,
+                          counterStyle: TextStyle(
+                            color: context.nexora.textHint,
                             fontSize: 11,
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       SizedBox(
                         width: double.infinity,
@@ -317,7 +319,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             color: selectedReason == null
-                                ? Colors.white10
+                                ? context.nexora.surfaceSubtle
                                 : const Color(0xFFE74C3C),
                           ),
                           child: ElevatedButton(
@@ -339,7 +341,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
                                     if (success) {
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
                                           content: Text(
                                             'Report submitted. Thank you for keeping Nexora safe.',
                                           ),
@@ -347,7 +349,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       );
                                     } else {
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
                                           content: Text(
                                             'Could not submit report. Please try again.',
                                           ),
@@ -364,18 +366,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               ),
                             ),
                             child: isSubmitting
-                                ? const SizedBox(
+                                ? SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: context.nexora.textPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
+                                : Text(
                                     'Submit report',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: context.nexora.textPrimary,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -417,11 +419,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final bio = user?.bio ?? 'Creating, sharing and discovering new things.';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       body: SafeArea(
         child: isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
+            ? Center(
+                child: CircularProgressIndicator(color: context.nexora.textPrimary),
               )
             : SingleChildScrollView(
                 child: Column(
@@ -432,7 +434,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         Container(
                           width: double.infinity,
                           height: 390,
-                          color: const Color(0xFF171D35),
+                          color: context.nexora.card,
                           child: _buildHeroImage(),
                         ),
 
@@ -443,11 +445,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           bottom: 0,
                           child: Container(
                             height: 170,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                colors: [Colors.transparent, Color(0xFF080B1A)],
+                                colors: [Colors.transparent, context.nexora.backgroundAlt],
                               ),
                             ),
                           ),
@@ -461,9 +463,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_back,
-                              color: Colors.white,
+                              color: context.nexora.textPrimary,
                             ),
                           ),
                         ),
@@ -474,9 +476,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           right: 10,
                           child: IconButton(
                             onPressed: _isOwnProfile ? null : _showUserOptions,
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.more_vert,
-                              color: Colors.white,
+                              color: context.nexora.textPrimary,
                             ),
                           ),
                         ),
@@ -491,23 +493,23 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.auto_awesome,
                                     color: Color(0xFF7C5CFF),
                                     size: 17,
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     user?.reputationBadge ?? 'Nexora Hero',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Color(0xFFB7A8FF),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   if (user?.isVerified ?? false) ...[
-                                    const SizedBox(width: 6),
-                                    const Icon(
+                                    SizedBox(width: 6),
+                                    Icon(
                                       Icons.verified,
                                       color: Color(0xFF6C8CFF),
                                       size: 16,
@@ -516,23 +518,23 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 ],
                               ),
 
-                              const SizedBox(height: 7),
+                              SizedBox(height: 7),
 
                               Text(
                                 displayName,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: context.nexora.textPrimary,
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
 
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4),
 
                               Text(
                                 '@${username.toLowerCase()}',
-                                style: const TextStyle(
-                                  color: Colors.white60,
+                                style: TextStyle(
+                                  color: context.nexora.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -549,14 +551,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         children: [
                           Text(
                             bio,
-                            style: const TextStyle(
-                              color: Colors.white70,
+                            style: TextStyle(
+                              color: context.nexora.textSecondary,
                               fontSize: 14,
                               height: 1.4,
                             ),
                           ),
 
-                          const SizedBox(height: 18),
+                          SizedBox(height: 18),
 
                           // Follow + Message
                           if (_currentUserId.isNotEmpty && user?.id != _currentUserId)
@@ -570,27 +572,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       decoration: BoxDecoration(
                                         gradient: isFollowing
                                             ? null
-                                            : const LinearGradient(
+                                            : LinearGradient(
                                                 colors: [
                                                   Color(0xFF2878E8),
                                                   Color(0xFF673DE6),
                                                 ],
                                               ),
                                         color: isFollowing
-                                            ? const Color(0xFF171D35)
+                                            ? context.nexora.card
                                             : null,
                                         borderRadius: BorderRadius.circular(24),
                                         border: isFollowing
                                             ? Border.all(
-                                                color: const Color(0xFF303653),
+                                                color: context.nexora.surfaceSubtle,
                                               )
                                             : null,
                                       ),
                                       child: Center(
                                         child: Text(
                                           isFollowing ? 'Following' : 'Follow',
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color: context.nexora.textPrimary,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -600,7 +602,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   ),
                                 ),
 
-                                const SizedBox(width: 10),
+                                SizedBox(width: 10),
 
                                 Expanded(
                                   child: GestureDetector(
@@ -619,17 +621,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     child: Container(
                                       height: 46,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF171D35),
+                                        color: context.nexora.card,
                                         borderRadius: BorderRadius.circular(24),
                                         border: Border.all(
-                                          color: const Color(0xFF303653),
+                                          color: context.nexora.surfaceSubtle,
                                         ),
                                       ),
-                                      child: const Center(
+                                      child: Center(
                                         child: Text(
                                           'Message',
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: context.nexora.textPrimary,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -641,7 +643,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               ],
                             ),
 
-                          const SizedBox(height: 26),
+                          SizedBox(height: 26),
 
                           // Stats
                           Row(
@@ -696,32 +698,32 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             ],
                           ),
 
-                          const SizedBox(height: 28),
+                          SizedBox(height: 28),
 
-                          const Text(
+                          Text(
                             'Recent activity',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: context.nexora.textPrimary,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
 
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
 
                           _activityCard(
                             Icons.image_outlined,
                             'Shared a new post',
                           ),
 
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
 
                           _activityCard(
                             Icons.favorite_border,
                             'Liked a community post',
                           ),
 
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
 
                           _activityCard(
                             Icons.groups_outlined,
@@ -744,22 +746,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         return Image.network(
           url,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const Center(
-            child: Icon(Icons.person, color: Colors.white24, size: 110),
+          errorBuilder: (_, __, ___) => Center(
+            child: Icon(Icons.person, color: context.nexora.textDim, size: 110),
           ),
         );
       }
       return Image.file(
         File(url),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Center(
-          child: Icon(Icons.person, color: Colors.white24, size: 110),
+        errorBuilder: (_, __, ___) => Center(
+          child: Icon(Icons.person, color: context.nexora.textDim, size: 110),
         ),
       );
     }
 
-    return const Center(
-      child: Icon(Icons.person, color: Colors.white24, size: 110),
+    return Center(
+      child: Icon(Icons.person, color: context.nexora.textDim, size: 110),
     );
   }
 
@@ -768,16 +770,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF11162B),
+        color: context.nexora.sheet,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
           Icon(icon, color: const Color(0xFF6C8CFF), size: 24),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Text(
             text,
-            style: const TextStyle(color: Colors.white70, fontSize: 13),
+            style: TextStyle(color: context.nexora.textSecondary, fontSize: 13),
           ),
         ],
       ),
@@ -797,16 +799,16 @@ class _Stat extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
       ],
     );

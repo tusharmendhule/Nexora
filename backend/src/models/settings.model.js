@@ -93,6 +93,11 @@ const settingsSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    textSize: {
+      type: String,
+      enum: ['small', 'medium', 'large'],
+      default: 'medium',
+    },
 
     // ─── Language ──────────────────────────────────────
     language: {

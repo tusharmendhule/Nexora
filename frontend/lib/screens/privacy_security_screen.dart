@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import '../services/settings_service.dart';
 import '../services/user_service.dart';
 import 'settings_detail_screen.dart';
@@ -124,31 +128,31 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Privacy & Security',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.white),
+          ? Center(
+              child: CircularProgressIndicator(color: context.nexora.textPrimary),
             )
           : ListView(
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
@@ -202,7 +206,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                   onTap: () => _mutedAccounts(context),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _sectionTitle('Messages'),
 
@@ -226,7 +230,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                   onTap: () => _messageRequests(context),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _sectionTitle('Content & Data'),
 
@@ -252,7 +256,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                   onTap: () => _downloadData(context),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 _sectionTitle('Security'),
 
@@ -281,13 +285,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                   onTap: () => _loginActivity(context),
                 ),
 
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
 
                 Center(
                   child: Text(
                     'Your privacy. Your security. Your control.',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.35),
+                      color: context.nexora.textPrimary.withOpacity(0.35),
                       fontSize: 12,
                     ),
                   ),
@@ -317,7 +321,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
             if (targetId == null) {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text('User not found'),
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -433,7 +437,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
                 });
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text('Data request submitted'),
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -485,13 +489,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
@@ -500,7 +504,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     );
   }
 
-  static Widget _tile({
+  Widget _tile({
     required IconData icon,
     required String title,
     required String subtitle,
@@ -509,17 +513,17 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         leading: _iconBox(icon),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -528,16 +532,16 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: onTap,
       ),
     );
   }
 
-  static Widget _switchTile({
+  Widget _switchTile({
     required IconData icon,
     required String title,
     required String subtitle,
@@ -547,17 +551,17 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         leading: _iconBox(icon),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -566,32 +570,31 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
         trailing: Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: Colors.white,
+          activeColor: context.nexora.textPrimary,
           activeTrackColor: const Color(0xFF5B5FEF),
-          inactiveThumbColor: Colors.white70,
-          inactiveTrackColor: const Color(0xFF30364F),
+          inactiveThumbColor: context.nexora.textSecondary,
+          inactiveTrackColor: context.nexora.switchTrack,
         ),
       ),
     );
   }
 
-  static Widget _iconBox(IconData icon) {
+  Widget _iconBox(IconData icon) {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         gradient: LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          colors: nexoraGradient(),
         ),
-      ),
-      child: Icon(icon, color: Colors.white, size: 21),
+      ),          child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 }
@@ -639,25 +642,25 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF171D35),
-        title: const Text(
+        backgroundColor: context.nexora.card,
+        title: Text(
           'Block Account',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: context.nexora.textPrimary),
         ),
         content: TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
+          style: TextStyle(color: context.nexora.textPrimary),
+          decoration: InputDecoration(
             hintText: 'Enter username',
-            hintStyle: TextStyle(color: Colors.white38),
+            hintStyle: TextStyle(color: context.nexora.textHint),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: context.nexora.textSecondary),
             ),
           ),
           TextButton(
@@ -676,7 +679,7 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
                 });
               }
             },
-            child: const Text(
+            child: Text(
               'Block',
               style: TextStyle(color: Color(0xFF8B7CFF)),
             ),
@@ -696,45 +699,45 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Blocked Accounts',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.white),
+          ? Center(
+              child: CircularProgressIndicator(color: context.nexora.textPrimary),
             )
           : ListView(
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
               children: [
-                const Text(
+                Text(
                   'People you have blocked will not be able to interact with you or view your content.',
                   style: TextStyle(
-                    color: Colors.white54,
+                    color: context.nexora.textMuted,
                     fontSize: 12,
                     height: 1.4,
                   ),
                 ),
 
-                const SizedBox(height: 22),
+                SizedBox(height: 22),
 
                 _sectionTitle('Blocked Accounts'),
 
@@ -743,7 +746,7 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
                 else
                   ..._blockedUsernames.map((account) => _accountTile(account)),
 
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
 
                 _addTile(),
               ],
@@ -755,7 +758,7 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
@@ -763,19 +766,19 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
         leading: _iconBox(Icons.block_outlined),
         title: Text(
           account,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
-        subtitle: const Text(
+        subtitle: Text(
           'Account',
-          style: TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
         trailing: TextButton(
           onPressed: () => _removeBlockedAccount(account),
-          child: const Text(
+          child: Text(
             'Unblock',
             style: TextStyle(color: Color(0xFF8B7CFF), fontSize: 12),
           ),
@@ -788,29 +791,29 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
           _iconBox(Icons.block_outlined),
-          const SizedBox(width: 13),
+          SizedBox(width: 13),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'No blocked accounts',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Text(
                   'Nothing has been added here yet.',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                  style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                 ),
               ],
             ),
@@ -823,32 +826,32 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
   Widget _addTile() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
         leading: _iconBox(Icons.add),
-        title: const Text(
+        title: Text(
           'Block Account',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: _addBlockedAccount,
       ),
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -856,17 +859,16 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
     );
   }
 
-  static Widget _iconBox(IconData icon) {
+  Widget _iconBox(IconData icon) {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         gradient: LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          colors: nexoraGradient(),
         ),
-      ),
-      child: Icon(icon, color: Colors.white, size: 21),
+      ),          child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 }
@@ -909,25 +911,25 @@ class _AccountListScreenState extends State<_AccountListScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF171D35),
+        backgroundColor: context.nexora.card,
         title: Text(
           widget.actionLabel,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: context.nexora.textPrimary),
         ),
         content: TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
+          style: TextStyle(color: context.nexora.textPrimary),
+          decoration: InputDecoration(
             hintText: 'Enter username',
-            hintStyle: TextStyle(color: Colors.white38),
+            hintStyle: TextStyle(color: context.nexora.textHint),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: context.nexora.textSecondary),
             ),
           ),
           TextButton(
@@ -943,7 +945,7 @@ class _AccountListScreenState extends State<_AccountListScreen> {
             },
             child: Text(
               widget.actionLabel == 'Mute Account' ? 'Mute' : 'Add',
-              style: const TextStyle(color: Color(0xFF8B7CFF)),
+              style: TextStyle(color: Color(0xFF8B7CFF)),
             ),
           ),
         ],
@@ -959,23 +961,23 @@ class _AccountListScreenState extends State<_AccountListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -986,14 +988,14 @@ class _AccountListScreenState extends State<_AccountListScreen> {
         children: [
           Text(
             widget.description,
-            style: const TextStyle(
-              color: Colors.white54,
+            style: TextStyle(
+              color: context.nexora.textMuted,
               fontSize: 12,
               height: 1.4,
             ),
           ),
 
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
 
           _sectionTitle(widget.title),
 
@@ -1002,7 +1004,7 @@ class _AccountListScreenState extends State<_AccountListScreen> {
           else
             ...widget.accounts.map((account) => _accountTile(account)),
 
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           _addTile(),
         ],
@@ -1014,7 +1016,7 @@ class _AccountListScreenState extends State<_AccountListScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
@@ -1022,21 +1024,21 @@ class _AccountListScreenState extends State<_AccountListScreen> {
         leading: _iconBox(widget.icon),
         title: Text(
           account,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
-        subtitle: const Text(
+        subtitle: Text(
           'Account',
-          style: TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
         trailing: TextButton(
           onPressed: () => _removeAccount(account),
           child: Text(
             widget.removeLabel,
-            style: const TextStyle(color: Color(0xFF8B7CFF), fontSize: 12),
+            style: TextStyle(color: Color(0xFF8B7CFF), fontSize: 12),
           ),
         ),
       ),
@@ -1047,29 +1049,29 @@ class _AccountListScreenState extends State<_AccountListScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
           _iconBox(widget.icon),
-          const SizedBox(width: 13),
+          SizedBox(width: 13),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'No accounts',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Text(
                   'Nothing has been added here yet.',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                  style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                 ),
               ],
             ),
@@ -1082,32 +1084,32 @@ class _AccountListScreenState extends State<_AccountListScreen> {
   Widget _addTile() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
         leading: _iconBox(Icons.add),
         title: Text(
           widget.actionLabel,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: _addAccount,
       ),
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -1115,17 +1117,16 @@ class _AccountListScreenState extends State<_AccountListScreen> {
     );
   }
 
-  static Widget _iconBox(IconData icon) {
+  Widget _iconBox(IconData icon) {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         gradient: LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          colors: nexoraGradient(),
         ),
-      ),
-      child: Icon(icon, color: Colors.white, size: 21),
+      ),          child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 }
@@ -1157,19 +1158,19 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Message Requests',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -1178,12 +1179,12 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
-          const Text(
+          Text(
             'Choose how message requests from people you do not follow are handled.',
-            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12, height: 1.4),
           ),
 
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
 
           _sectionTitle('Message Requests'),
 
@@ -1216,12 +1217,12 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: selected ? const Color(0xFF1C2342) : const Color(0xFF171D35),
+        color: selected ? context.nexora.surfaceSelected : context.nexora.card,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: selected
               ? const Color(0xFF6D63E8).withOpacity(0.55)
-              : Colors.white.withOpacity(0.05),
+              : context.nexora.textPrimary.withOpacity(0.05),
         ),
       ),
       child: ListTile(
@@ -1229,8 +1230,8 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
         leading: _iconBox(icon),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -1239,12 +1240,12 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
         trailing: selected
-            ? const Icon(Icons.check_circle, color: Color(0xFF8B7CFF))
-            : const Icon(Icons.radio_button_unchecked, color: Colors.white24),
+            ? Icon(Icons.check_circle, color: Color(0xFF8B7CFF))
+            : Icon(Icons.radio_button_unchecked, color: context.nexora.textDim),
         onTap: () {
           setState(() {
             selectedOption = value;
@@ -1255,13 +1256,13 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -1269,17 +1270,16 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
     );
   }
 
-  static Widget _iconBox(IconData icon) {
+  Widget _iconBox(IconData icon) {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         gradient: LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          colors: nexoraGradient(),
         ),
-      ),
-      child: Icon(icon, color: Colors.white, size: 21),
+      ),          child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 }
@@ -1342,7 +1342,7 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
     if (error == null) {
       widget.onPasswordChanged?.call();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Password updated'),
           behavior: SnackBarBehavior.floating,
         ),
@@ -1362,19 +1362,19 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Change Password',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -1383,30 +1383,30 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
-          const Text(
+          Text(
             'Keep your account secure by regularly updating your password.',
-            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12, height: 1.4),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           _passwordField(
             controller: currentController,
             label: 'Current Password',
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _passwordField(controller: newController, label: 'New Password'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _passwordField(
             controller: confirmController,
             label: 'Confirm New Password',
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           SizedBox(
             height: 52,
             child: DecoratedBox(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
                 gradient: LinearGradient(
-                  colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                  colors: nexoraGradient(),
                 ),
               ),
               child: ElevatedButton(
@@ -1416,18 +1416,18 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
                   shadowColor: Colors.transparent,
                 ),
                 child: _saving
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 22,
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: context.nexora.textPrimary,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Update Password',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: context.nexora.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1445,16 +1445,16 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: TextField(
         controller: controller,
         obscureText: true,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: context.nexora.textPrimary),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.white54),
+          labelStyle: TextStyle(color: context.nexora.textMuted),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -1497,19 +1497,19 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Two-Factor Authentication',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -1518,11 +1518,11 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
-          const Text(
+          Text(
             'Add another verification step when signing into your Nexora account.',
-            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12, height: 1.4),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           _sectionTitle('Two-Factor Authentication'),
           _switchTile(
             icon: Icons.security_outlined,
@@ -1550,8 +1550,8 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
   void _authenticationMethod() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF171D35),
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.nexora.card,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) {
@@ -1562,15 +1562,15 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     'Authentication Method',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.nexora.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 18),
+                  SizedBox(height: 18),
                   _method(
                     context,
                     setSheetState,
@@ -1603,10 +1603,10 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
 
     return ListTile(
       leading: _iconBox(icon),
-      title: Text(name, style: const TextStyle(color: Colors.white)),
+      title: Text(name, style: TextStyle(color: context.nexora.textPrimary)),
       trailing: selected
-          ? const Icon(Icons.check_circle, color: Color(0xFF8B7CFF))
-          : const Icon(Icons.radio_button_unchecked, color: Colors.white24),
+          ? Icon(Icons.check_circle, color: Color(0xFF8B7CFF))
+          : Icon(Icons.radio_button_unchecked, color: context.nexora.textDim),
       onTap: () {
         setSheetState(() {
           authenticationMethod = name;
@@ -1621,13 +1621,13 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -1635,7 +1635,7 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
     );
   }
 
-  static Widget _tile({
+  Widget _tile({
     required IconData icon,
     required String title,
     required String subtitle,
@@ -1644,30 +1644,30 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
         leading: _iconBox(icon),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: onTap,
       ),
     );
   }
 
-  static Widget _switchTile({
+  Widget _switchTile({
     required IconData icon,
     required String title,
     required String subtitle,
@@ -1677,44 +1677,43 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
         leading: _iconBox(icon),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
         trailing: Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: Colors.white,
+          activeColor: context.nexora.textPrimary,
           activeTrackColor: const Color(0xFF5B5FEF),
         ),
       ),
     );
   }
 
-  static Widget _iconBox(IconData icon) {
+  Widget _iconBox(IconData icon) {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         gradient: LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          colors: nexoraGradient(),
         ),
-      ),
-      child: Icon(icon, color: Colors.white, size: 21),
+      ),          child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 }
@@ -1734,19 +1733,19 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Login Activity',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -1755,11 +1754,11 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
-          const Text(
+          Text(
             'Review recent devices and sessions associated with your Nexora account.',
-            style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12, height: 1.4),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           _sectionTitle('Recent Activity'),
           if (currentDeviceActive)
             _deviceTile()
@@ -1767,12 +1766,12 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: const Color(0xFF171D35),
+                color: context.nexora.card,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Text(
+              child: Text(
                 'No active sessions.',
-                style: TextStyle(color: Colors.white54, fontSize: 13),
+                style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
               ),
             ),
         ],
@@ -1783,25 +1782,25 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
   Widget _deviceTile() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         leading: _iconBox(Icons.computer_outlined),
-        title: const Text(
+        title: Text(
           'Current Device',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
-        subtitle: const Text(
+        subtitle: Text(
           'This device · Active now',
-          style: TextStyle(color: Colors.white54, fontSize: 12),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: _deviceDetails,
       ),
     );
@@ -1810,8 +1809,8 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
   void _deviceDetails() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF171D35),
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.nexora.card,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) {
@@ -1821,25 +1820,25 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Current Device',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 19,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 'This device',
-                style: TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
               ),
-              const SizedBox(height: 5),
-              const Text(
+              SizedBox(height: 5),
+              Text(
                 'Active now',
                 style: TextStyle(color: Colors.greenAccent, fontSize: 12),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -1850,7 +1849,7 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
                       currentDeviceActive = false;
                     });
                   },
-                  child: const Text(
+                  child: Text(
                     'Log Out',
                     style: TextStyle(color: Colors.redAccent),
                   ),
@@ -1863,13 +1862,13 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -1877,17 +1876,16 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
     );
   }
 
-  static Widget _iconBox(IconData icon) {
+  Widget _iconBox(IconData icon) {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         gradient: LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          colors: nexoraGradient(),
         ),
-      ),
-      child: Icon(icon, color: Colors.white, size: 21),
+      ),          child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 }

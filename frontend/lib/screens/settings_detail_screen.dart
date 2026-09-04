@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+import '../services/appearance_controller.dart';
+
 class SettingsDetailScreen extends StatelessWidget {
   final String title;
   final String? description;
@@ -15,23 +18,23 @@ class SettingsDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -45,8 +48,8 @@ class SettingsDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
               child: Text(
                 description!,
-                style: const TextStyle(
-                  color: Colors.white54,
+                style: TextStyle(
+                  color: context.nexora.textMuted,
                   fontSize: 12,
                   height: 1.4,
                 ),
@@ -55,8 +58,8 @@ class SettingsDetailScreen extends StatelessWidget {
           ],
 
           for (final section in sections) ...[
-            _sectionTitle(section.title),
-            _sectionCard(section.items),
+            _sectionTitle(context, section.title),
+            _sectionCard(context, section.items),
             const SizedBox(height: 24),
           ],
         ],
@@ -64,13 +67,13 @@ class SettingsDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionTitle(String title) {
+  Widget _sectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
@@ -79,23 +82,23 @@ class SettingsDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionCard(List<SettingsItem> items) {
+  Widget _sectionCard(BuildContext context, List<SettingsItem> items) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
           for (int i = 0; i < items.length; i++) ...[
-            _item(items[i]),
+            _item(context, items[i]),
             if (i < items.length - 1)
               Padding(
                 padding: const EdgeInsets.only(left: 70),
                 child: Divider(
                   height: 1,
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: context.nexora.textPrimary.withValues(alpha: 0.05),
                 ),
               ),
           ],
@@ -104,7 +107,7 @@ class SettingsDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _item(SettingsItem item) {
+  Widget _item(BuildContext context, SettingsItem item) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
       leading: Container(
@@ -112,8 +115,8 @@ class SettingsDetailScreen extends StatelessWidget {
         height: 42,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          gradient: LinearGradient(
+            colors: nexoraGradient(),
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -122,8 +125,8 @@ class SettingsDetailScreen extends StatelessWidget {
       ),
       title: Text(
         item.title,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: context.nexora.textPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
@@ -134,18 +137,18 @@ class SettingsDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.only(top: 3),
               child: Text(
                 item.subtitle!,
-                style: const TextStyle(color: Colors.white54, fontSize: 11.5),
+                style: TextStyle(color: context.nexora.textMuted, fontSize: 11.5),
               ),
             ),
-      trailing: _trailing(item),
+      trailing: _trailing(context, item),
       onTap: item.onTap,
     );
   }
 
-  Widget? _trailing(SettingsItem item) {
+  Widget? _trailing(BuildContext context, SettingsItem item) {
     switch (item.type) {
       case SettingsItemType.navigation:
-        return const Icon(Icons.chevron_right, color: Colors.white38);
+        return Icon(Icons.chevron_right, color: context.nexora.textHint);
 
       case SettingsItemType.toggle:
         return Switch(
@@ -153,8 +156,8 @@ class SettingsDetailScreen extends StatelessWidget {
           onChanged: item.onChanged,
           activeThumbColor: Colors.white,
           activeTrackColor: const Color(0xFF6C63FF),
-          inactiveThumbColor: Colors.white54,
-          inactiveTrackColor: Colors.white12,
+          inactiveThumbColor: context.nexora.textMuted,
+          inactiveTrackColor: context.nexora.surfaceSubtle,
         );
 
       case SettingsItemType.selection:
@@ -164,15 +167,15 @@ class SettingsDetailScreen extends StatelessWidget {
             if (item.valueText != null)
               Text(
                 item.valueText!,
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
+                style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
               ),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: Colors.white38),
+            Icon(Icons.chevron_right, color: context.nexora.textHint),
           ],
         );
 
       case SettingsItemType.action:
-        return const Icon(Icons.chevron_right, color: Colors.white38);
+        return Icon(Icons.chevron_right, color: context.nexora.textHint);
     }
   }
 }

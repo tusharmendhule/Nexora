@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import '../models/post.dart';
 import '../models/user.dart';
 import '../services/post_service.dart';
@@ -140,12 +142,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF080B1A),
-        foregroundColor: Colors.white,
+        backgroundColor: context.nexora.backgroundAlt,
+        foregroundColor: context.nexora.textPrimary,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Explore',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
@@ -160,24 +162,24 @@ class _ExploreScreenState extends State<ExploreScreen> {
               child: Container(
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF151A2E),
+                  color: context.nexora.field,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: TextField(
                   controller: _searchController,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
                   onChanged: _onSearchChanged,
                   decoration: InputDecoration(
                     hintText: 'Search Nexora...',
-                    hintStyle: const TextStyle(color: Colors.white54),
-                    prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                    hintStyle: TextStyle(color: context.nexora.textMuted),
+                    prefixIcon: Icon(Icons.search, color: context.nexora.textSecondary),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             onPressed: () {
                               _searchController.clear();
                               _onSearchChanged('');
                             },
-                            icon: const Icon(Icons.clear, color: Colors.white54, size: 18),
+                            icon: Icon(Icons.clear, color: context.nexora.textMuted, size: 18),
                           )
                         : null,
                     border: InputBorder.none,
@@ -204,13 +206,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
             ),
 
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
 
             // Content area
             Expanded(
               child: _isSearching
-                  ? const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
+                  ? Center(
+                      child: CircularProgressIndicator(color: context.nexora.textPrimary),
                     )
                   : _hasSearched
                       ? _buildSearchResults()
@@ -227,16 +229,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
     final hasPosts = _searchPosts.isNotEmpty;
 
     if (!hasUsers && !hasPosts) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, color: Colors.white24, size: 48),
+            Icon(Icons.search_off, color: context.nexora.textDim, size: 48),
             SizedBox(height: 16),
             Text(
               'No results found',
               style: TextStyle(
-                color: Colors.white54,
+                color: context.nexora.textMuted,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -244,7 +246,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             SizedBox(height: 8),
             Text(
               'Try a different search term',
-              style: TextStyle(color: Colors.white38, fontSize: 13),
+              style: TextStyle(color: context.nexora.textHint, fontSize: 13),
             ),
           ],
         ),
@@ -256,29 +258,29 @@ class _ExploreScreenState extends State<ExploreScreen> {
       children: [
         // User results
         if (hasUsers) ...[
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
               'People',
               style: TextStyle(
-                color: Colors.white,
+                color: context.nexora.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
           ..._searchUsers.map((user) => _userResultTile(user)),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
 
         // Post results
         if (hasPosts) ...[
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
               'Posts',
               style: TextStyle(
-                color: Colors.white,
+                color: context.nexora.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),
@@ -304,7 +306,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF171D35),
+          color: context.nexora.card,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -317,10 +319,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   ? NetworkImage(user.profileImageUrl!)
                   : null,
               child: user.profileImageUrl == null || user.profileImageUrl!.isEmpty
-                  ? const Icon(Icons.person, color: Colors.white)
+                  ? Icon(Icons.person, color: context.nexora.textPrimary)
                   : null,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,31 +334,31 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           user.displayName ?? user.username,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: context.nexora.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                       if (user.isVerified) ...[
-                        const SizedBox(width: 4),
-                        const Icon(Icons.verified, color: Color(0xFF6C8CFF), size: 14),
+                        SizedBox(width: 4),
+                        Icon(Icons.verified, color: Color(0xFF6C8CFF), size: 14),
                       ],
                     ],
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     '@${user.username}',
-                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                    style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                   ),
                   if (user.bio != null && user.bio!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       user.bio!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.white38, fontSize: 11),
+                      style: TextStyle(color: context.nexora.textHint, fontSize: 11),
                     ),
                   ],
                 ],
@@ -389,7 +391,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF171D35),
+          color: context.nexora.card,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -405,14 +407,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ? NetworkImage(post.authorAvatar!)
                       : null,
                   child: post.authorAvatar == null || post.authorAvatar!.isEmpty
-                      ? const Icon(Icons.person, color: Colors.white, size: 14)
+                      ? Icon(Icons.person, color: context.nexora.textPrimary, size: 14)
                       : null,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   username,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -420,27 +422,27 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ],
             ),
             if (text.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 text,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: context.nexora.textSecondary,
                   fontSize: 13,
                   height: 1.4,
                 ),
               ),
             ],
             if (post.hashtags != null && post.hashtags!.isNotEmpty) ...[
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Wrap(
                 spacing: 6,
                 children: post.hashtags!
                     .take(3)
                     .map((tag) => Text(
                           '#$tag',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Color(0xFF7D8CFF),
                             fontSize: 11,
                           ),
@@ -487,7 +489,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           },
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF171D35),
+              color: context.nexora.card,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Column(
@@ -496,8 +498,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF252B45),
+                    decoration: BoxDecoration(
+                      color: context.nexora.placeholder,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(18),
                       ),
@@ -519,17 +521,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         item['title'],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         item['category'],
-                        style: const TextStyle(
-                          color: Colors.white54,
+                        style: TextStyle(
+                          color: context.nexora.textMuted,
                           fontSize: 12,
                         ),
                       ),
@@ -550,17 +552,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 10),
       decoration: BoxDecoration(
         gradient: selected
-            ? const LinearGradient(
+            ? LinearGradient(
                 colors: [Color(0xFF2878E8), Color(0xFF673DE6)],
               )
             : null,
-        color: selected ? null : const Color(0xFF171D35),
+        color: selected ? null : context.nexora.card,
         borderRadius: BorderRadius.circular(22),
       ),
       child: Text(
         text,
         style: TextStyle(
-          color: Colors.white,
+          color: context.nexora.textPrimary,
           fontSize: 12,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
         ),

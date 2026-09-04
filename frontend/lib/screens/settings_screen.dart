@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+import '../services/appearance_controller.dart';
+
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 import 'language_screen.dart';
@@ -18,15 +21,15 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Settings',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -35,9 +38,10 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
-          _sectionTitle('Account'),
+          _sectionTitle(context, 'Account'),
 
           _settingsTile(
+            context,
             icon: Icons.person_outline,
             title: 'Account',
             subtitle: 'Manage your profile and account details',
@@ -50,6 +54,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _settingsTile(
+            context,
             icon: Icons.lock_outline,
             title: 'Privacy & Security',
             subtitle: 'Control your privacy and security',
@@ -65,9 +70,10 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          _sectionTitle('Preferences'),
+          _sectionTitle(context, 'Preferences'),
 
           _settingsTile(
+            context,
             icon: Icons.palette_outlined,
             title: 'Appearance',
             subtitle: 'Customize Nexora with gradients and themes',
@@ -82,6 +88,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _settingsTile(
+            context,
             icon: Icons.notifications_none,
             title: 'Notifications',
             subtitle: 'Manage your notification preferences',
@@ -96,6 +103,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _settingsTile(
+            context,
             icon: Icons.language_outlined,
             title: 'Language',
             subtitle: 'Choose your preferred language',
@@ -109,9 +117,10 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          _sectionTitle('Content'),
+          _sectionTitle(context, 'Content'),
 
           _settingsTile(
+            context,
             icon: Icons.bookmark_border,
             title: 'Saved',
             subtitle: 'View your saved posts and content',
@@ -124,6 +133,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _settingsTile(
+            context,
             icon: Icons.tune,
             title: 'Content Preferences',
             subtitle: 'Control what appears in your feed',
@@ -139,9 +149,10 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          _sectionTitle('Support'),
+          _sectionTitle(context, 'Support'),
 
           _settingsTile(
+            context,
             icon: Icons.help_outline,
             title: 'Help & Support',
             subtitle: 'Get help with Nexora',
@@ -156,6 +167,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _settingsTile(
+            context,
             icon: Icons.info_outline,
             title: 'About Nexora',
             subtitle: 'Learn more about Nexora',
@@ -171,12 +183,12 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          _sectionTitle('Session'),
+          _sectionTitle(context, 'Session'),
 
           Container(
             margin: const EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFF211724),
+              color: context.nexora.dangerSurface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.redAccent.withOpacity(0.12)),
             ),
@@ -199,33 +211,33 @@ class SettingsScreen extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              subtitle: const Padding(
-                padding: EdgeInsets.only(top: 3),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 3),
                 child: Text(
                   'Sign out of your Nexora account',
-                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                  style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                 ),
               ),
-              trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+              trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
               onTap: () {
                 showDialog(
                   context: context,
                   builder: (_) => AlertDialog(
-                    backgroundColor: const Color(0xFF171D35),
-                    title: const Text(
+                    backgroundColor: context.nexora.card,
+                    title: Text(
                       'Log Out?',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: context.nexora.textPrimary),
                     ),
-                    content: const Text(
+                    content: Text(
                       'You will be signed out of your Nexora account.',
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(color: context.nexora.textSecondary),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text(
+                        child: Text(
                           'Cancel',
-                          style: TextStyle(color: Colors.white70),
+                          style: TextStyle(color: context.nexora.textSecondary),
                         ),
                       ),
                       TextButton(
@@ -260,8 +272,8 @@ class SettingsScreen extends StatelessWidget {
           Center(
             child: ShaderMask(
               shaderCallback: (bounds) {
-                return const LinearGradient(
-                  colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                return LinearGradient(
+                  colors: nexoraGradient(),
                 ).createShader(bounds);
               },
               child: const Text(
@@ -277,10 +289,10 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 6),
 
-          const Center(
+          Center(
             child: Text(
               'Your space. Your content. Your control.',
-              style: TextStyle(color: Colors.white38, fontSize: 12),
+              style: TextStyle(color: context.nexora.textHint, fontSize: 12),
             ),
           ),
         ],
@@ -288,13 +300,13 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  static Widget _sectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
@@ -303,7 +315,8 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  static Widget _settingsTile({
+  static Widget _settingsTile(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
@@ -312,9 +325,9 @@ class SettingsScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -323,8 +336,8 @@ class SettingsScreen extends StatelessWidget {
           height: 42,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+            gradient: LinearGradient(
+              colors: nexoraGradient(),
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -333,8 +346,8 @@ class SettingsScreen extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -343,10 +356,10 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: onTap,
       ),
     );

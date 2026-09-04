@@ -1,6 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/clip.dart';
@@ -337,18 +341,18 @@ class _PostScreenState extends State<PostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF080B1A),
-        foregroundColor: Colors.white,
+        backgroundColor: context.nexora.backgroundAlt,
+        foregroundColor: context.nexora.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back),
           onPressed: _publishing ? null : () => Navigator.pop(context),
         ),
         title: Text(
           _title,
-          style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
         ),
       ),
       body: SafeArea(
@@ -357,26 +361,26 @@ class _PostScreenState extends State<PostScreen> {
           child: Column(
             children: [
               _typeSelector(),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               Expanded(
                 child: ListView(
                   children: [
                     _profileRow(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     if (_media != null) ...[
                       _mediaPreview(),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                     ],
                     if (_publishing && _uploadProgress > 0) ...[
                       _uploadProgressIndicator(),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                     ],
                     Container(
                       width: double.infinity,
                       height: 220,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF151A2E),
+                        color: context.nexora.field,
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: TextField(
@@ -385,8 +389,8 @@ class _PostScreenState extends State<PostScreen> {
                         maxLines: null,
                         expands: true,
                         textAlignVertical: TextAlignVertical.top,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 16,
                         ),
                         decoration: InputDecoration(
@@ -395,21 +399,21 @@ class _PostScreenState extends State<PostScreen> {
                               : _type == CreationType.moment
                               ? 'Add a caption to your Moment...'
                               : "What's on your mind?",
-                          hintStyle: const TextStyle(
-                            color: Colors.white54,
+                          hintStyle: TextStyle(
+                            color: context.nexora.textMuted,
                             fontSize: 16,
                           ),
                           border: InputBorder.none,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    SizedBox(height: 18),
                     Row(
                       children: [
                         _mediaButton(Icons.image_outlined, _pickMedia),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         _mediaButton(Icons.camera_alt_outlined, _openCamera),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         _mediaButton(
                           Icons.emoji_emotions_outlined,
                           () => _showEmojiPicker(),
@@ -419,7 +423,7 @@ class _PostScreenState extends State<PostScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -427,23 +431,23 @@ class _PostScreenState extends State<PostScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
                     gradient: _canPublish && !_publishing
-                        ? const LinearGradient(
-                            colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                        ? LinearGradient(
+                            colors: nexoraGradient(),
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           )
                         : null,
                     color: _canPublish && !_publishing
                         ? null
-                        : const Color(0xFF343441),
+                        : context.nexora.disabled,
                   ),
                   child: ElevatedButton(
                     onPressed: _canPublish && !_publishing ? _publish : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       disabledBackgroundColor: Colors.transparent,
-                      foregroundColor: Colors.white,
-                      disabledForegroundColor: Colors.white38,
+                      foregroundColor: context.nexora.textPrimary,
+                      disabledForegroundColor: context.nexora.textHint,
                       shadowColor: Colors.transparent,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -451,17 +455,17 @@ class _PostScreenState extends State<PostScreen> {
                       ),
                     ),
                     child: _publishing
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 22,
                             height: 22,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: context.nexora.textPrimary,
                             ),
                           )
                         : Text(
                             _publishLabel,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
                             ),
@@ -480,7 +484,7 @@ class _PostScreenState extends State<PostScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFF151A2E),
+        color: context.nexora.field,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
@@ -507,7 +511,7 @@ class _PostScreenState extends State<PostScreen> {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFF242A46) : Colors.transparent,
+            color: selected ? context.nexora.surfaceSelected : Colors.transparent,
             borderRadius: BorderRadius.circular(11),
           ),
           child: Column(
@@ -515,13 +519,13 @@ class _PostScreenState extends State<PostScreen> {
               Icon(
                 icon,
                 size: 20,
-                color: selected ? Colors.white : Colors.white54,
+                color: selected ? context.nexora.textPrimary : context.nexora.textMuted,
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? Colors.white : Colors.white54,
+                  color: selected ? context.nexora.textPrimary : context.nexora.textMuted,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   fontSize: 12,
                 ),
@@ -543,16 +547,16 @@ class _PostScreenState extends State<PostScreen> {
             shape: BoxShape.circle,
             border: Border.all(color: const Color(0xFF3157D5), width: 2),
           ),
-          child: const CircleAvatar(
-            backgroundColor: Color(0xFF171D35),
-            child: Icon(Icons.person, color: Colors.white),
+          child: CircleAvatar(
+            backgroundColor: context.nexora.card,
+            child: Icon(Icons.person, color: context.nexora.textPrimary),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Text(
           _currentUsername,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -572,19 +576,19 @@ class _PostScreenState extends State<PostScreen> {
               ? Container(
                   height: 230,
                   width: double.infinity,
-                  color: const Color(0xFF151A2E),
-                  child: const Column(
+                  color: context.nexora.field,
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.videocam_outlined,
-                        color: Colors.white,
+                        color: context.nexora.textPrimary,
                         size: 52,
                       ),
                       SizedBox(height: 10),
                       Text(
                         'Video selected',
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: context.nexora.textSecondary),
                       ),
                     ],
                   ),
@@ -602,7 +606,7 @@ class _PostScreenState extends State<PostScreen> {
           child: IconButton(
             onPressed: () => setState(() => _media = null),
             style: IconButton.styleFrom(backgroundColor: Colors.black54),
-            icon: const Icon(Icons.close, color: Colors.white),
+            icon: Icon(Icons.close, color: context.nexora.textPrimary),
           ),
         ),
       ],
@@ -617,10 +621,10 @@ class _PostScreenState extends State<PostScreen> {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: const Color(0xFF151A2E),
+          color: context.nexora.field,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Icon(icon, color: Colors.white70, size: 23),
+        child: Icon(icon, color: context.nexora.textSecondary, size: 23),
       ),
     );
   }
@@ -631,7 +635,7 @@ class _PostScreenState extends State<PostScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF151A2E),
+        color: context.nexora.field,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -639,7 +643,7 @@ class _PostScreenState extends State<PostScreen> {
         children: [
           Row(
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
@@ -647,22 +651,22 @@ class _PostScreenState extends State<PostScreen> {
                   color: Color(0xFF3157D5),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Text(
                 'Uploading media... $percent%',
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: context.nexora.textSecondary,
                   fontSize: 13,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: _uploadProgress,
-              backgroundColor: const Color(0xFF242A46),
+              backgroundColor: context.nexora.surfaceSelected,
               valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF3157D5)),
               minHeight: 4,
             ),
@@ -677,7 +681,7 @@ class _PostScreenState extends State<PostScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF151A2E),
+      backgroundColor: context.nexora.field,
       builder: (context) {
         return SafeArea(
           child: Padding(
@@ -709,7 +713,7 @@ class _PostScreenState extends State<PostScreen> {
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8),
-                    child: Text(emoji, style: const TextStyle(fontSize: 28)),
+                    child: Text(emoji, style: TextStyle(fontSize: 28)),
                   ),
                 );
               }).toList(),

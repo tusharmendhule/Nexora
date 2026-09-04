@@ -17,10 +17,12 @@ class User {
 
   final String? website;
   final String? email;
+  final String? phone;
   final String? role;
   final String? reputationBadge;
   final int? overallTrustRating;
   final bool? isPrivate;
+  final String? accountStatus;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -38,10 +40,12 @@ class User {
     this.isVerified = false,
     this.website,
     this.email,
+    this.phone,
     this.role,
     this.reputationBadge,
     this.overallTrustRating,
     this.isPrivate,
+    this.accountStatus,
     this.createdAt,
     this.updatedAt,
   });
@@ -64,10 +68,12 @@ class User {
       isVerified: json['isVerified'] as bool? ?? false,
       website: json['website']?.toString(),
       email: json['email']?.toString(),
+      phone: json['phone']?.toString(),
       role: json['role']?.toString(),
       reputationBadge: json['reputationBadge']?.toString(),
       overallTrustRating: json['overallTrustRating'] as int?,
       isPrivate: json['isPrivate'] as bool?,
+      accountStatus: json['accountStatus']?.toString(),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,

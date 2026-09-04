@@ -64,6 +64,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    phone: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+
+    // ─── Account Status ──────────────────────────────────
+    // 'active'       — normal account
+    // 'deactivated'  — user hid their account; can be reactivated
+    // 'suspended'    — platform restriction (moderation)
+    // 'restricted'   — limited account (moderation)
+    // 'deleted'      — account deletion requested/completed
+    accountStatus: {
+      type: String,
+      enum: ['active', 'deactivated', 'suspended', 'restricted', 'deleted'],
+      default: 'active',
+      index: true,
+    },
+    deactivatedAt: {
+      type: Date,
+      default: null,
+    },
 
     // ─── Authorization ──────────────────────────────────
     role: {

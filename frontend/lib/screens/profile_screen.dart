@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../config/nexora_themes.dart';
 
 import 'follower_screen.dart';
 import 'share_profile_screen.dart';
@@ -53,11 +56,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       body: SafeArea(
         child: isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
+            ? Center(
+                child: CircularProgressIndicator(color: context.nexora.textPrimary),
               )
             : SingleChildScrollView(
                 child: Column(
@@ -67,8 +70,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Container(
                           width: double.infinity,
                           height: 430,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF171D35),
+                          decoration: BoxDecoration(
+                            color: context.nexora.card,
                           ),
                           child: _buildHeroImage(),
                         ),
@@ -79,11 +82,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           bottom: 0,
                           child: Container(
                             height: 180,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                colors: [Colors.transparent, Color(0xFF080B1A)],
+                                colors: [Colors.transparent, context.nexora.backgroundAlt],
                               ),
                             ),
                           ),
@@ -100,9 +103,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Navigator.pop(context);
                               }
                             },
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_back,
-                              color: Colors.white,
+                              color: context.nexora.textPrimary,
                             ),
                           ),
                         ),
@@ -119,9 +122,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               );
                             },
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.more_vert,
-                              color: Colors.white,
+                              color: context.nexora.textPrimary,
                             ),
                           ),
                         ),
@@ -135,23 +138,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.auto_awesome,
                                     color: Color(0xFF7C5CFF),
                                     size: 18,
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     user?.reputationBadge ?? 'Nexora Hero',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Color(0xFFB7A8FF),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   if (user?.isVerified == true) ...[
-                                    const SizedBox(width: 6),
-                                    const Icon(
+                                    SizedBox(width: 6),
+                                    Icon(
                                       Icons.verified,
                                       color: Color(0xFF6C8CFF),
                                       size: 16,
@@ -160,25 +163,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
 
-                              const SizedBox(height: 7),
+                              SizedBox(height: 7),
 
                               Text(
                                 user?.displayName ??
                                     user?.username ??
                                     'Username_',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: context.nexora.textPrimary,
                                   fontSize: 30,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
 
-                              const SizedBox(height: 5),
+                              SizedBox(height: 5),
 
                               Text(
                                 '@${user?.username ?? 'username_'}',
-                                style: const TextStyle(
-                                  color: Colors.white60,
+                                style: TextStyle(
+                                  color: context.nexora.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -196,14 +199,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             user?.bio ??
                                 'Building, creating and exploring the world.',
-                            style: const TextStyle(
-                              color: Colors.white70,
+                            style: TextStyle(
+                              color: context.nexora.textSecondary,
                               fontSize: 14,
                               height: 1.4,
                             ),
                           ),
 
-                          const SizedBox(height: 18),
+                          SizedBox(height: 18),
 
                           Row(
                             children: [
@@ -221,7 +224,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   required String displayName,
                                                   required String username,
                                                   required String bio,
-                                                  String? profileImagePath,
+                                                  Uint8List? profileImageBytes,
+                                                  String? profileImageFilename,
                                                 }) async {
                                                   // Update profile fields via API
                                                   final updated = await _userService.updateMyProfile(
@@ -230,12 +234,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     bio: bio,
                                                   );
 
-                                                  // Upload avatar if a new local file was selected
-                                                  if (profileImagePath != null &&
-                                                      !profileImagePath.startsWith('http') &&
+                                                  // Upload the newly picked avatar photo (bytes work
+                                                  // on mobile and on the web)
+                                                  if (profileImageBytes != null &&
                                                       updated != null) {
-                                                    final file = File(profileImagePath);
-                                                    await _userService.uploadAvatar(file);
+                                                    final uploaded =
+                                                        await _userService.uploadAvatar(
+                                                      profileImageBytes,
+                                                      filename: profileImageFilename ??
+                                                          'avatar.jpg',
+                                                    );
+
+                                                    if (uploaded == null && mounted) {
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            'Profile picture could not be updated. Please try again.',
+                                                          ),
+                                                          behavior:
+                                                              SnackBarBehavior.floating,
+                                                        ),
+                                                      );
+                                                    }
                                                   }
 
                                                   // Reload fresh profile from backend
@@ -260,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              SizedBox(width: 10),
                               Expanded(
                                 child: GestureDetector(
                                   onTap: user == null
@@ -285,7 +305,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ],
                           ),
 
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20),
 
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -339,7 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ],
                           ),
 
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
 
                           // Account metadata — created timestamp
                           if (user?.createdAt != null)
@@ -349,14 +369,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 children: [
                                   Icon(
                                     Icons.calendar_today_outlined,
-                                    color: Colors.white38,
+                                    color: context.nexora.textHint,
                                     size: 14,
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     'Joined ${_formatDate(user!.createdAt!)}',
-                                    style: const TextStyle(
-                                      color: Colors.white38,
+                                    style: TextStyle(
+                                      color: context.nexora.textHint,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -374,7 +394,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               itemCount: sections.length,
                               separatorBuilder: (context, index) =>
-                                  const SizedBox(width: 10),
+                                  SizedBox(width: 10),
                               itemBuilder: (context, index) {
                                 final selected = selectedSection == index;
 
@@ -392,7 +412,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     decoration: BoxDecoration(
                                       gradient: selected
-                                          ? const LinearGradient(
+                                          ? LinearGradient(
                                               colors: [
                                                 Color(0xFF36C8FF),
                                                 Color(0xFF7B61FF),
@@ -401,20 +421,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           : null,
                                       color: selected
                                           ? null
-                                          : const Color(0xFF111A3A),
+                                          : context.nexora.sheet,
                                       borderRadius: BorderRadius.circular(24),
                                       border: Border.all(
                                         color: selected
                                             ? Colors.transparent
-                                            : const Color(0xFF26345F),
+                                            : context.nexora.surfaceSubtle,
                                       ),
                                     ),
                                     child: Text(
                                       sections[index],
                                       style: TextStyle(
                                         color: selected
-                                            ? Colors.white
-                                            : Colors.white70,
+                                            ? context.nexora.textPrimary
+                                            : context.nexora.textSecondary,
                                         fontSize: 12,
                                         fontWeight: selected
                                             ? FontWeight.w600
@@ -427,11 +447,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
 
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20),
 
                           _sectionContent(),
 
-                          const SizedBox(height: 100),
+                          SizedBox(height: 100),
                         ],
                       ),
                     ),
@@ -449,22 +469,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Image.network(
           url,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const Center(
-            child: Icon(Icons.person, color: Colors.white24, size: 120),
+          errorBuilder: (_, __, ___) => Center(
+            child: Icon(Icons.person, color: context.nexora.textDim, size: 120),
           ),
         );
       }
       return Image.file(
         File(url),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Center(
-          child: Icon(Icons.person, color: Colors.white24, size: 120),
+        errorBuilder: (_, __, ___) => Center(
+          child: Icon(Icons.person, color: context.nexora.textDim, size: 120),
         ),
       );
     }
 
-    return const Center(
-      child: Icon(Icons.person, color: Colors.white24, size: 120),
+    return Center(
+      child: Icon(Icons.person, color: context.nexora.textDim, size: 120),
     );
   }
 
@@ -495,21 +515,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       height: 44,
       decoration: BoxDecoration(
         gradient: filled
-            ? const LinearGradient(
+            ? LinearGradient(
                 colors: [Color(0xFF2878E8), Color(0xFF673DE6)],
               )
             : null,
-        color: filled ? null : const Color(0xFF171D35),
+        color: filled ? null : context.nexora.card,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: filled ? Colors.transparent : const Color(0xFF303653),
+          color: filled ? Colors.transparent : context.nexora.surfaceSubtle,
         ),
       ),
       child: Center(
         child: Text(
           text,
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 13,
             fontWeight: filled ? FontWeight.w600 : FontWeight.w500,
           ),
@@ -523,16 +543,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Colors.white70),
+          style: TextStyle(fontSize: 12, color: context.nexora.textSecondary),
         ),
       ],
     );
@@ -575,26 +595,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0xFF11162B),
+        color: context.nexora.sheet,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         children: [
           Icon(icon, color: const Color(0xFF6C8CFF), size: 32),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.nexora.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             description,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white54, fontSize: 13),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
           ),
         ],
       ),

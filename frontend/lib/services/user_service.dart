@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
@@ -124,17 +125,48 @@ class UserService {
 
   // ─── PATCH /api/v1/users/me/avatar ──────────────────
 
-  /// Upload an avatar image file to the backend (Cloudinary via API).
-  Future<User?> uploadAvatar(File imageFile) async {
+  /// MIME type used for the multipart "avatar" field when the picked file's
+  /// extension is unknown.
+  static const Map<String, String> _avatarMimeByExtension = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'webp': 'image/webp',
+    'heic': 'image/heic',
+    'heif': 'image/heif',
+    'bmp': 'image/bmp',
+  };
+
+  /// Upload an avatar image to the backend (Cloudinary via API).
+  ///
+  /// The image is sent as raw bytes so the same code works on mobile and on
+  /// the web (where `dart:io` file paths are unavailable). Returns the
+  /// updated [User] on success, or null on failure.
+  Future<User?> uploadAvatar(
+    Uint8List imageBytes, {
+    String filename = 'avatar.jpg',
+  }) async {
     try {
       final token = await _getIdToken();
       if (token == null || token.isEmpty) return null;
+
+      final extension = filename.contains('.')
+          ? filename.split('.').last.toLowerCase()
+          : 'jpg';
+      final mime = _avatarMimeByExtension[extension] ?? 'image/jpeg';
+      if (filename.isEmpty) filename = 'avatar.jpg';
 
       final url = Uri.parse('${ApiConfig.baseUrl}/users/me/avatar');
       final request = http.MultipartRequest('PATCH', url);
       request.headers['Authorization'] = 'Bearer $token';
       request.files.add(
-        await http.MultipartFile.fromPath('avatar', imageFile.path),
+        http.MultipartFile.fromBytes(
+          'avatar',
+          imageBytes,
+          filename: filename,
+          contentType: MediaType.parse(mime),
+        ),
       );
 
       final streamedResponse = await request.send().timeout(ApiConfig.timeout);
@@ -280,11 +312,170 @@ class UserService {
     );
   }
 
-  /// Delete user (placeholder — backend doesn't expose this yet).
-  Future<void> deleteUser(String userId) async {}
+  /// Permanently delete the current user's account (backend removes
+  /// the account and its related data). Returns null on success or an
+  /// error message on failure.
+  Future<String?> deleteUser() async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/me');
+      final response = await http
+          .delete(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && body['success'] == true) {
+        return null; // success
+      }
+      return body['message'] as String? ?? 'Failed to delete account';
+    } catch (_) {
+      return 'Network error. Please try again.';
+    }
+  }
 
   /// Create user (registration is handled by AuthService, not here).
   Future<void> createUser(User user) async {}
+
+  // ─── Account management ───────────────────────────────
+
+  /// Add/update the current user's phone number on the backend.
+  /// Returns null on success or an error message on failure.
+  Future<String?> updatePhone(String phone) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/me/phone');
+      final response = await http
+          .patch(
+            url,
+            headers: await _headers(),
+            body: jsonEncode({'phone': phone.trim()}),
+          )
+          .timeout(ApiConfig.timeout);
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && body['success'] == true) {
+        if (body['user'] != null) {
+          await _cacheProfile(User.fromJson(body['user'] as Map<String, dynamic>));
+        }
+        return null;
+      }
+      return body['message'] as String? ?? 'Failed to update phone number';
+    } catch (_) {
+      return 'Network error. Please try again.';
+    }
+  }
+
+  /// Change the current user's email address (local accounts require
+  /// the current password). Returns null on success or an error message.
+  Future<String?> updateEmail({
+    required String newEmail,
+    String? currentPassword,
+  }) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/me/email');
+      final response = await http
+          .patch(
+            url,
+            headers: await _headers(),
+            body: jsonEncode({
+              'newEmail': newEmail.trim(),
+              if (currentPassword != null) 'currentPassword': currentPassword,
+            }),
+          )
+          .timeout(ApiConfig.timeout);
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && body['success'] == true) {
+        if (body['user'] != null) {
+          await _cacheProfile(User.fromJson(body['user'] as Map<String, dynamic>));
+        }
+        return null;
+      }
+      return body['message'] as String? ?? 'Failed to update email';
+    } catch (_) {
+      return 'Network error. Please try again.';
+    }
+  }
+
+  /// Fetch the current user's account history from the backend.
+  Future<List<Map<String, dynamic>>> getAccountHistory() async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/me/history');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['history'] != null) {
+          return (body['history'] as List)
+              .map((h) => Map<String, dynamic>.from(h as Map))
+              .toList();
+        }
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /// Deactivate the current user's account. Returns null on success
+  /// or an error message on failure.
+  Future<String?> deactivateAccount() async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/me/deactivate');
+      final response = await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && body['success'] == true) {
+        return null;
+      }
+      return body['message'] as String? ?? 'Failed to deactivate account';
+    } catch (_) {
+      return 'Network error. Please try again.';
+    }
+  }
+
+  /// Reactivate a deactivated account. Returns null on success or an
+  /// error message on failure.
+  Future<String?> reactivateAccount() async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/me/reactivate');
+      final response = await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && body['success'] == true) {
+        return null;
+      }
+      return body['message'] as String? ?? 'Failed to reactivate account';
+    } catch (_) {
+      return 'Network error. Please try again.';
+    }
+  }
+
+  /// Request the authenticated user's data export.
+  /// Returns a map with `filename` and `data` (the exported JSON map).
+  Future<Map<String, dynamic>?> exportAccountData() async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/users/me/export');
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(Duration(seconds: 60));
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['data'] != null) {
+          return {
+            'filename': body['filename'] as String? ?? 'nexora-export.json',
+            'data': body['data'] as Map<String, dynamic>,
+          };
+        }
+      }
+    } catch (_) {}
+
+    return null;
+  }
 
   // ─── Follow API ─────────────────────────────────────
 

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../config/nexora_themes.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/conversation.dart';
@@ -332,7 +334,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _isSending = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send message. Please try again.')),
+        SnackBar(content: Text('Failed to send message. Please try again.')),
       );
       // Re-add text to controller so user can retry
       _messageController.text = text;
@@ -408,7 +410,7 @@ class _ChatScreenState extends State<ChatScreen> {
         messages.removeWhere((m) => m.id == optimisticMessage.id);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send image. Please try again.')),
+        SnackBar(content: Text('Failed to send image. Please try again.')),
       );
     }
 
@@ -434,11 +436,11 @@ class _ChatScreenState extends State<ChatScreen> {
     if (cleared) {
       setState(() => messages.clear());
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Conversation cleared')),
+        SnackBar(content: Text('Conversation cleared')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to clear conversation. Please try again.')),
+        SnackBar(content: Text('Failed to clear conversation. Please try again.')),
       );
     }
   }
@@ -466,13 +468,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF080B1A),
-        foregroundColor: Colors.white,
+        backgroundColor: context.nexora.backgroundAlt,
+        foregroundColor: context.nexora.textPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -481,14 +483,14 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           children: [
             _ChatAvatar(url: widget.avatarUrl, size: 40),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   _displayName,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -498,7 +500,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   style: TextStyle(
                     color: _isOnline == true
                         ? const Color(0xFF6C8CFF)
-                        : Colors.white38,
+                        : context.nexora.textHint,
                     fontSize: 11,
                   ),
                 ),
@@ -511,8 +513,8 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () {
               showModalBottomSheet(
                 context: context,
-                backgroundColor: const Color(0xFF11162B),
-                shape: const RoundedRectangleBorder(
+                backgroundColor: context.nexora.sheet,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
                 builder: (ctx) => SafeArea(
@@ -526,21 +528,21 @@ class _ChatScreenState extends State<ChatScreen> {
                           height: 4,
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
-                            color: Colors.white24,
+                            color: context.nexora.textDim,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                         ListTile(
-                          leading: const Icon(Icons.block_outlined, color: Color(0xFFE74C3C), size: 22),
-                          title: const Text('Block user', style: TextStyle(color: Colors.white, fontSize: 15)),
+                          leading: Icon(Icons.block_outlined, color: Color(0xFFE74C3C), size: 22),
+                          title: Text('Block user', style: TextStyle(color: context.nexora.textPrimary, fontSize: 15)),
                           onTap: () {
                             Navigator.pop(ctx);
                             _blockUser();
                           },
                         ),
                         ListTile(
-                          leading: const Icon(Icons.delete_outline, color: Color(0xFFF39C12), size: 22),
-                          title: const Text('Clear conversation', style: TextStyle(color: Colors.white, fontSize: 15)),
+                          leading: Icon(Icons.delete_outline, color: Color(0xFFF39C12), size: 22),
+                          title: Text('Clear conversation', style: TextStyle(color: context.nexora.textPrimary, fontSize: 15)),
                           onTap: () {
                             Navigator.pop(ctx);
                             _clearConversation();
@@ -552,7 +554,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               );
             },
-            icon: const Icon(Icons.more_vert),
+            icon: Icon(Icons.more_vert),
           ),
         ],
       ),
@@ -568,29 +570,29 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   IconButton(
                     onPressed: _sendImageMessage,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.add_circle_outline,
-                      color: Colors.white70,
+                      color: context.nexora.textSecondary,
                     ),
                   ),
 
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF151A2E),
+                        color: context.nexora.field,
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: TextField(
                         controller: _messageController,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 14,
                         ),
                         textInputAction: TextInputAction.send,
                         onSubmitted: (_) => _sendMessage(),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Type a message...',
-                          hintStyle: TextStyle(color: Colors.white38),
+                          hintStyle: TextStyle(color: context.nexora.textHint),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 18,
@@ -601,20 +603,20 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
 
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
 
                   GestureDetector(
                     onTap: _sendMessage,
                     child: Container(
                       width: 46,
                       height: 46,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           colors: [Color(0xFF2878E8), Color(0xFF673DE6)],
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.send,
                         color: Colors.white,
                         size: 20,
@@ -632,8 +634,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessagesArea() {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+      return Center(
+        child: CircularProgressIndicator(color: context.nexora.textPrimary),
       );
     }
 
@@ -642,20 +644,20 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, color: Colors.white24, size: 40),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline, color: context.nexora.textDim, size: 40),
+            SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
                 _loadError!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             TextButton(
               onPressed: _loadChat,
-              child: const Text(
+              child: Text(
                 'Retry',
                 style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 14),
               ),
@@ -679,7 +681,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   /// Inline preview of a shared post inside a message bubble.
-  Widget _sharedPostBlock(Message message) {
+  Widget _sharedPostBlock(Message message, bool isMine) {
     final post = message.sharedPost;
     final postUser = post?['user'] is Map<String, dynamic>
         ? post!['user'] as Map<String, dynamic>
@@ -710,7 +712,7 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.black26,
+          color: isMine ? Colors.black26 : context.nexora.surfaceSubtle,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -719,12 +721,14 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Row(
               children: [
-                const Icon(Icons.repeat, size: 13, color: Colors.white70),
-                const SizedBox(width: 5),
-                const Text(
+                Icon(Icons.repeat,
+                    size: 13,
+                    color: isMine ? Colors.white70 : context.nexora.textSecondary),
+                SizedBox(width: 5),
+                Text(
                   'Shared a post',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: isMine ? Colors.white70 : context.nexora.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -732,31 +736,31 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
             if (postAuthor.isNotEmpty) ...[
-              const SizedBox(height: 7),
+              SizedBox(height: 7),
               Text(
                 postAuthor,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: isMine ? Colors.white : context.nexora.textPrimary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
             if (postText.isNotEmpty) ...[
-              const SizedBox(height: 3),
+              SizedBox(height: 3),
               Text(
                 postText,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: isMine ? Colors.white70 : context.nexora.textSecondary,
                   fontSize: 12,
                   height: 1.3,
                 ),
               ),
             ],
             if (thumbUrl != null && thumbUrl.isNotEmpty) ...[
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
@@ -798,11 +802,11 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         decoration: BoxDecoration(
           gradient: isMine
-              ? const LinearGradient(
+              ? LinearGradient(
                   colors: [Color(0xFF2878E8), Color(0xFF673DE6)],
                 )
               : null,
-          color: isMine ? null : const Color(0xFF171D35),
+          color: isMine ? null : context.nexora.card,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(18),
             topRight: const Radius.circular(18),
@@ -814,8 +818,8 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (isShare) _sharedPostBlock(message),
-            if (isShare && showShareText) const SizedBox(height: 6),
+            if (isShare) _sharedPostBlock(message, isMine),
+            if (isShare && showShareText) SizedBox(height: 6),
             if (hasImage)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -827,9 +831,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         errorBuilder: (context, error, stackTrace) => Container(
                           width: 220,
                           height: 120,
-                          color: Colors.black26,
-                          child: const Icon(Icons.broken_image_outlined,
-                              color: Colors.white38),
+                          color: isMine ? Colors.black26 : context.nexora.surfaceSubtle,
+                          child: Icon(Icons.broken_image_outlined,
+                              color: isMine ? Colors.white38 : context.nexora.textMuted),
                         ),
                       )
                     : Image.memory(
@@ -839,7 +843,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
               ),
             if (hasImage && message.text.isNotEmpty && !isShare)
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
             // Render text for plain/image bubbles and for share captions,
             // but not the redundant default 'Shared a post' text.
             if (message.text.isNotEmpty &&
@@ -850,8 +854,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     : EdgeInsets.zero,
                 child: Text(
                   message.text,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: isMine ? Colors.white : context.nexora.textPrimary,
                     fontSize: 14,
                     height: 1.3,
                   ),
@@ -877,8 +881,8 @@ class _ChatAvatar extends StatelessWidget {
     Widget fallback() => Container(
           width: size,
           height: size,
-          color: const Color(0xFF242A43),
-          child: const Icon(Icons.person, color: Colors.white54),
+          color: context.nexora.surfaceSelected,
+          child: Icon(Icons.person, color: context.nexora.textMuted),
         );
 
     return ClipOval(

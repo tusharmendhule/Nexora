@@ -1,6 +1,8 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../config/nexora_themes.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'interests_screen.dart';
@@ -21,7 +23,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final UserService _userService = UserService();
   final ImagePicker _picker = ImagePicker();
 
-  String? _profileImagePath;
+  /// Bytes of the photo picked for the profile picture.
+  Uint8List? _pickedAvatarBytes;
+  String _pickedAvatarName = 'avatar.jpg';
   bool _isSaving = false;
 
   @override
@@ -36,12 +40,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final picked = await _picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
+      maxWidth: 1600,
     );
 
     if (picked == null) return;
 
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+
     setState(() {
-      _profileImagePath = picked.path;
+      _pickedAvatarBytes = bytes;
+      _pickedAvatarName = picked.name.isNotEmpty ? picked.name : 'avatar.jpg';
     });
   }
 
@@ -51,7 +60,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Please enter your display name'),
           behavior: SnackBarBehavior.floating,
         ),
@@ -61,7 +70,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     if (username.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Please enter a username'),
           behavior: SnackBarBehavior.floating,
         ),
@@ -81,9 +90,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         bio: _bioController.text.trim(),
       );
 
-      // Upload avatar if selected
-      if (_profileImagePath != null && updatedUser != null) {
-        await _userService.uploadAvatar(File(_profileImagePath!));
+      // Upload avatar if a photo was picked (non-fatal on failure)
+      if (_pickedAvatarBytes != null && updatedUser != null) {
+        final uploaded = await _userService.uploadAvatar(
+          _pickedAvatarBytes!,
+          filename: _pickedAvatarName,
+        );
+        if (uploaded == null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Your profile was saved but the profile picture could not be uploaded. You can retry later from Edit Profile.',
+              ),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
 
       if (!mounted) return;
@@ -98,7 +120,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Failed to save profile. Please try again.'),
           behavior: SnackBarBehavior.floating,
         ),
@@ -115,7 +137,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
 
       body: SafeArea(
         child: Padding(
@@ -130,37 +152,37 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_back,
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     size: 25,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
 
               // Title
-              const Text(
+              Text(
                 'Set up your profile',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
 
-              const Text(
+              Text(
                 "Let's make your Nexora profile yours",
                 style: TextStyle(
-                  color: Colors.white60,
+                  color: context.nexora.textSecondary,
                   fontSize: 13,
                 ),
               ),
 
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
 
               // Profile photo
               GestureDetector(
@@ -171,29 +193,25 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     Container(
                       width: 78,
                       height: 78,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color(0xFF242A43),
+                        color: context.nexora.surfaceSelected,
                       ),
-                      child: _profileImagePath != null
+                      child: _pickedAvatarBytes != null
                           ? ClipOval(
-                              child: _profileImagePath!.startsWith('http')
-                                  ? Image.network(
-                                      _profileImagePath!,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) =>
-                                          const Icon(Icons.person, color: Colors.white54, size: 42),
-                                    )
-                                  : Image.file(
-                                      File(_profileImagePath!),
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) =>
-                                          const Icon(Icons.person, color: Colors.white54, size: 42),
-                                    ),
+                              child: Image.memory(
+                                _pickedAvatarBytes!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.person,
+                                  color: context.nexora.textMuted,
+                                  size: 42,
+                                ),
+                              ),
                             )
-                          : const Icon(
+                          : Icon(
                               Icons.person,
-                              color: Colors.white54,
+                              color: context.nexora.textMuted,
                               size: 42,
                             ),
                     ),
@@ -202,16 +220,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       width: 25,
                       height: 25,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF171D35),
+                        color: context.nexora.card,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white54,
+                          color: context.nexora.textMuted,
                           width: 1,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.add,
-                        color: Colors.white,
+                        color: context.nexora.textPrimary,
                         size: 17,
                       ),
                     ),
@@ -219,11 +237,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               GestureDetector(
                 onTap: _pickProfileImage,
-                child: const Text(
+                child: Text(
                   'Add profile photo',
                   style: TextStyle(
                     color: Color(0xFF6C8CFF),
@@ -233,21 +251,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
               ),
 
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
 
               _inputField(
                 controller: _nameController,
                 hintText: 'Display name',
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               _inputField(
                 controller: _usernameController,
                 hintText: '@username',
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               _inputField(
                 controller: _bioController,
@@ -283,18 +301,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     ),
                   ),
                   child: _isSaving
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: context.nexora.textPrimary,
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Continue',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: context.nexora.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -302,7 +320,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
             ],
           ),
         ),
@@ -318,18 +336,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(
-        color: Colors.white,
+      style: TextStyle(
+        color: context.nexora.textPrimary,
         fontSize: 14,
       ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(
-          color: Colors.white38,
+        hintStyle: TextStyle(
+          color: context.nexora.textHint,
           fontSize: 14,
         ),
         filled: true,
-        fillColor: const Color(0xFF151A2E),
+        fillColor: context.nexora.field,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,

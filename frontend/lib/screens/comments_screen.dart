@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import 'user_profile_screen.dart';
 import '../models/comment.dart';
 import '../services/comment_service.dart';
@@ -140,36 +142,36 @@ class _CommentsScreenState extends State<CommentsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF171D35),
+        backgroundColor: context.nexora.card,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
-        title: const Text(
+        title: Text(
           'Delete comment',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to delete this comment?',
           style: TextStyle(
-            color: Colors.white70,
+            color: context.nexora.textSecondary,
             fontSize: 14,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(color: context.nexora.textMuted),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
+            child: Text(
               'Delete',
               style: TextStyle(
                 color: Color(0xFFE74C3C),
@@ -228,29 +230,29 @@ class _CommentsScreenState extends State<CommentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Comments',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 19,
             fontWeight: FontWeight.w700,
           ),
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          ? Center(child: CircularProgressIndicator(color: context.nexora.textPrimary))
           : Column(
               children: [
                 Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
                     itemCount: comments.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 18),
+                    separatorBuilder: (_, __) => SizedBox(height: 18),
                     itemBuilder: (context, index) {
                       final comment = comments[index];
 
@@ -290,23 +292,23 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-                    color: const Color(0xFF11162B),
+                    color: context.nexora.sheet,
                     child: Row(
                       children: [
                         Expanded(
                           child: Text(
                             'Replying to ${_replyingTo!.authorUsername}',
-                            style: const TextStyle(
-                              color: Colors.white70,
+                            style: TextStyle(
+                              color: context.nexora.textSecondary,
                               fontSize: 11,
                             ),
                           ),
                         ),
                         GestureDetector(
                           onTap: _cancelReply,
-                          child: const Icon(
+                          child: Icon(
                             Icons.close,
-                            color: Colors.white54,
+                            color: context.nexora.textMuted,
                             size: 18,
                           ),
                         ),
@@ -319,22 +321,22 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
                     child: Row(
                       children: [
-                        const CircleAvatar(
+                        CircleAvatar(
                           radius: 18,
                           backgroundColor: Color(0xFF6C63FF),
                           child: Icon(
                             Icons.person,
-                            color: Colors.white,
+                            color: context.nexora.textPrimary,
                             size: 18,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Expanded(
                           child: TextField(
                             controller: _controller,
                             focusNode: _focusNode,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: context.nexora.textPrimary,
                               fontSize: 13,
                             ),
                             textInputAction: TextInputAction.send,
@@ -343,12 +345,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
                               hintText: _replyingTo == null
                                   ? 'Add a comment...'
                                   : 'Write a reply...',
-                              hintStyle: const TextStyle(
-                                color: Colors.white38,
+                              hintStyle: TextStyle(
+                                color: context.nexora.textHint,
                                 fontSize: 13,
                               ),
                               filled: true,
-                              fillColor: const Color(0xFF171D35),
+                              fillColor: context.nexora.card,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(22),
                                 borderSide: BorderSide.none,
@@ -360,12 +362,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         IconButton(
                           onPressed: _submitComment,
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.send_outlined,
-                            color: Colors.white,
+                            color: context.nexora.textPrimary,
                           ),
                         ),
                       ],
@@ -391,18 +393,18 @@ class _CommentsScreenState extends State<CommentsScreen> {
       children: [
         GestureDetector(
           onTap: isYou ? null : () => _openProfile(username),
-          child: const CircleAvatar(
+          child: CircleAvatar(
             radius: 20,
             backgroundColor: Color(0xFF6C63FF),
-            child: Icon(Icons.person, color: Colors.white, size: 20),
+            child: Icon(Icons.person, color: context.nexora.textPrimary, size: 20),
           ),
         ),
-        const SizedBox(width: 11),
+        SizedBox(width: 11),
         Expanded(
           child: Container(
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 11),
             decoration: BoxDecoration(
-              color: const Color(0xFF171D35),
+              color: context.nexora.card,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -414,8 +416,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       onTap: isYou ? null : () => _openProfile(username),
                       child: Text(
                         username,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
@@ -425,34 +427,34 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     if (isOwner)
                       GestureDetector(
                         onTap: () => _deleteComment(comment),
-                        child: const Icon(
+                        child: Icon(
                           Icons.delete_outline,
-                          color: Colors.white54,
+                          color: context.nexora.textMuted,
                           size: 16,
                         ),
                       ),
                   ],
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Text(
                   comment.text,
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: context.nexora.textSecondary,
                     fontSize: 13,
                     height: 1.35,
                   ),
                 ),
-                const SizedBox(height: 7),
+                SizedBox(height: 7),
                 Row(
                   children: [
                     Text(
                       time,
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: context.nexora.textHint,
                         fontSize: 10,
                       ),
                     ),
-                    const SizedBox(width: 15),
+                    SizedBox(width: 15),
                     GestureDetector(
                       onTap: () => _toggleCommentLike(comment),
                       child: Row(
@@ -463,19 +465,19 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                 ? Icons.favorite
                                 : Icons.favorite_border,
                             color: _likedComments[comment.id] == true
-                                ? Colors.white
-                                : Colors.white54,
+                                ? context.nexora.textPrimary
+                                : context.nexora.textMuted,
                             size: 13,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Text(
                             ((_commentLikeCounts[comment.id] ??
                                         comment.likeCount) >
                                     0)
                                 ? '${_commentLikeCounts[comment.id] ?? comment.likeCount}'
                                 : 'Like',
-                            style: const TextStyle(
-                              color: Colors.white54,
+                            style: TextStyle(
+                              color: context.nexora.textMuted,
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                             ),
@@ -484,13 +486,13 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       ),
                     ),
                     if (showReplyButton) ...[
-                      const SizedBox(width: 15),
+                      SizedBox(width: 15),
                       GestureDetector(
                         onTap: () => _startReply(comment),
-                        child: const Text(
+                        child: Text(
                           'Reply',
                           style: TextStyle(
-                            color: Colors.white54,
+                            color: context.nexora.textMuted,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),

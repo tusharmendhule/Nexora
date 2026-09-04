@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../config/nexora_themes.dart';
 import 'comments_screen.dart';
 import 'post_screen.dart';
 import 'share_screen.dart';
@@ -348,7 +349,7 @@ class _ClipsScreenState extends State<ClipsScreen> {
   void _showLabelDetails(String label, Color labelColor) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF11162B),
+      backgroundColor: context.nexora.sheet,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -371,8 +372,8 @@ class _ClipsScreenState extends State<ClipsScreen> {
                 const SizedBox(width: 14),
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
                   ),
@@ -382,10 +383,10 @@ class _ClipsScreenState extends State<ClipsScreen> {
 
             const SizedBox(height: 18),
 
-            const Text(
+            Text(
               'Why this label?',
               style: TextStyle(
-                color: Colors.white,
+                color: context.nexora.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -395,8 +396,8 @@ class _ClipsScreenState extends State<ClipsScreen> {
 
             Text(
               _labelWhy(label),
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: context.nexora.textSecondary,
                 fontSize: 13,
                 height: 1.4,
               ),
@@ -404,16 +405,16 @@ class _ClipsScreenState extends State<ClipsScreen> {
 
             const SizedBox(height: 16),
 
-            const Text(
+            Text(
               'Content type',
-              style: TextStyle(color: Colors.white54, fontSize: 12),
+              style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
             ),
 
             const SizedBox(height: 4),
 
-            const Text(
+            Text(
               '🎥 Video',
-              style: TextStyle(color: Colors.white, fontSize: 13),
+              style: TextStyle(color: context.nexora.textPrimary, fontSize: 13),
             ),
           ],
         ),

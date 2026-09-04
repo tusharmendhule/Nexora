@@ -1,6 +1,10 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/user.dart';
@@ -11,7 +15,8 @@ class EditProfileScreen extends StatefulWidget {
     required String displayName,
     required String username,
     required String bio,
-    String? profileImagePath,
+    Uint8List? profileImageBytes,
+    String? profileImageFilename,
   })?
   onSave;
 
@@ -30,7 +35,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   final ImagePicker _picker = ImagePicker();
 
-  String? _profileImagePath;
+  /// Bytes of a newly picked photo (only set when the user chose a new one).
+  Uint8List? _pickedAvatarBytes;
+  String _pickedAvatarName = 'avatar.jpg';
   bool _saving = false;
 
   @override
@@ -44,8 +51,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _usernameController = TextEditingController(text: widget.user.username);
 
     _bioController = TextEditingController(text: widget.user.bio ?? '');
-
-    _profileImagePath = widget.user.profileImageUrl;
   }
 
   @override
@@ -60,12 +65,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final picked = await _picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
+      maxWidth: 1600,
     );
 
     if (picked == null) return;
 
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+
     setState(() {
-      _profileImagePath = picked.path;
+      _pickedAvatarBytes = bytes;
+      _pickedAvatarName = picked.name.isNotEmpty ? picked.name : 'avatar.jpg';
     });
   }
 
@@ -84,7 +94,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           displayName: _displayNameController.text.trim(),
           username: _usernameController.text.trim(),
           bio: _bioController.text.trim(),
-          profileImagePath: _profileImagePath,
+          profileImageBytes: _pickedAvatarBytes,
+          profileImageFilename: _pickedAvatarName,
         );
       }
 
@@ -94,7 +105,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'displayName': _displayNameController.text.trim(),
         'username': _usernameController.text.trim(),
         'bio': _bioController.text.trim(),
-        'profileImagePath': _profileImagePath,
       });
     } catch (e) {
       if (!mounted) return;
@@ -104,7 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Could not save profile. Please try again.'),
         ),
       );
@@ -114,19 +124,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF080B1A),
-        foregroundColor: Colors.white,
+        backgroundColor: context.nexora.backgroundAlt,
+        foregroundColor: context.nexora.textPrimary,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Edit Profile',
           style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
         ),
         actions: [
           TextButton(
             onPressed: _saving ? null : _saveProfile,
-            child: const Text(
+            child: Text(
               'Save',
               style: TextStyle(
                 color: Color(0xFF7C61FF),
@@ -144,30 +154,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               _profilePhotoSection(),
 
-              const SizedBox(height: 30),
+              SizedBox(height: 30),
 
               _fieldLabel('Display Name'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _textField(
                 controller: _displayNameController,
                 hint: 'Your display name',
                 textCapitalization: TextCapitalization.words,
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               _fieldLabel('Username'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _textField(
                 controller: _usernameController,
                 hint: 'username',
                 prefixText: '@',
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               _fieldLabel('Bio'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _textField(
                 controller: _bioController,
                 hint: 'Tell people about yourself...',
@@ -175,7 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 maxLength: 160,
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               _saveButton(),
             ],
@@ -186,7 +196,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _profilePhotoSection() {
-    final hasImage = _profileImagePath != null && _profileImagePath!.isNotEmpty;
+    final existingUrl = widget.user.profileImageUrl;
+    final hasImage = _pickedAvatarBytes != null ||
+        (existingUrl != null && existingUrl.isNotEmpty);
 
     return Column(
       children: [
@@ -199,8 +211,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFF7C61FF), width: 2),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                gradient: LinearGradient(
+                  colors: nexoraGradient(),
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -208,15 +220,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               padding: const EdgeInsets.all(3),
               child: ClipOval(
                 child: hasImage
-                    ? _buildProfileImage(_profileImagePath!)
-                    : const ColoredBox(
-                        color: Color(0xFF171D35),
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white70,
-                          size: 55,
-                        ),
-                      ),
+                    ? _avatarPreview()
+                    : _avatarPlaceholder(),
               ),
             ),
             GestureDetector(
@@ -226,24 +231,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 height: 34,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                  gradient: LinearGradient(
+                    colors: nexoraGradient(),
                   ),
-                  border: Border.all(color: const Color(0xFF080B1A), width: 3),
+                  border: Border.all(color: context.nexora.backgroundAlt, width: 3),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.camera_alt_outlined,
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   size: 17,
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         TextButton(
           onPressed: _pickProfileImage,
-          child: const Text(
+          child: Text(
             'Change Profile Photo',
             style: TextStyle(
               color: Color(0xFF9C8CFF),
@@ -255,37 +260,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildProfileImage(String path) {
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      return Image.network(
-        path,
+  /// Preview for the avatar circle: shows a newly picked photo first, then
+  /// the existing profile picture, then a placeholder.
+  Widget _avatarPreview() {
+    final bytes = _pickedAvatarBytes;
+    if (bytes != null) {
+      return Image.memory(
+        bytes,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
-          return const ColoredBox(
-            color: Color(0xFF171D35),
-            child: Icon(Icons.person, color: Colors.white70, size: 55),
-          );
-        },
+        errorBuilder: (_, __, ___) => _avatarPlaceholder(),
       );
     }
 
-    return Image.file(
-      File(path),
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) {
-        return const ColoredBox(
-          color: Color(0xFF171D35),
-          child: Icon(Icons.person, color: Colors.white70, size: 55),
-        );
-      },
+    final url = widget.user.profileImageUrl;
+    if (url != null && url.isNotEmpty &&
+        (url.startsWith('http://') || url.startsWith('https://'))) {
+      return Image.network(
+        url,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _avatarPlaceholder(),
+      );
+    }
+
+    return _avatarPlaceholder();
+  }
+
+  Widget _avatarPlaceholder() {
+    return ColoredBox(
+      color: context.nexora.card,
+      child: Icon(
+        Icons.person,
+        color: context.nexora.textSecondary,
+        size: 55,
+      ),
     );
   }
 
   Widget _fieldLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(
-        color: Colors.white,
+      style: TextStyle(
+        color: context.nexora.textPrimary,
         fontSize: 13,
         fontWeight: FontWeight.w600,
       ),
@@ -305,7 +320,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       maxLines: maxLines,
       maxLength: maxLength,
       textCapitalization: textCapitalization,
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
       validator: (value) {
         if (controller == _usernameController &&
             (value == null || value.trim().isEmpty)) {
@@ -316,12 +331,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       },
       decoration: InputDecoration(
         prefixText: prefixText,
-        prefixStyle: const TextStyle(color: Colors.white70, fontSize: 14),
+        prefixStyle: TextStyle(color: context.nexora.textSecondary, fontSize: 14),
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
-        counterStyle: const TextStyle(color: Colors.white38, fontSize: 11),
+        hintStyle: TextStyle(color: context.nexora.textHint, fontSize: 14),
+        counterStyle: TextStyle(color: context.nexora.textHint, fontSize: 11),
         filled: true,
-        fillColor: const Color(0xFF151A2E),
+        fillColor: context.nexora.field,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 15,
@@ -332,19 +347,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Color(0xFF26345F)),
+          borderSide: BorderSide(color: context.nexora.surfaceSubtle),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Color(0xFF7C61FF), width: 1.2),
+          borderSide: BorderSide(color: Color(0xFF7C61FF), width: 1.2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Color(0xFFE74C3C)),
+          borderSide: BorderSide(color: Color(0xFFE74C3C)),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Color(0xFFE74C3C), width: 1.2),
+          borderSide: BorderSide(color: Color(0xFFE74C3C), width: 1.2),
         ),
       ),
     );
@@ -357,8 +372,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          gradient: LinearGradient(
+            colors: nexoraGradient(),
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
@@ -368,7 +383,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
             disabledBackgroundColor: Colors.transparent,
-            foregroundColor: Colors.white,
+            foregroundColor: context.nexora.textPrimary,
             shadowColor: Colors.transparent,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -376,15 +391,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           child: _saving
-              ? const SizedBox(
+              ? SizedBox(
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                   ),
                 )
-              : const Text(
+              : Text(
                   'Save Changes',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),

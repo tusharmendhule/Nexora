@@ -106,6 +106,118 @@ router.get('/me/network', protect, async (req, res) => {
   }
 });
 
+// ─── Account management ──────────────────────────────────
+
+// GET /api/v1/users/me/history — account history for current user
+router.get('/me/history', protect, async (req, res, next) => {
+  try {
+    const history = await userService.getAccountHistory(req.user._id);
+    res.status(200).json({ success: true, count: history.length, history });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /api/v1/users/me/phone — add/update phone number
+router.patch('/me/phone', protect, async (req, res, next) => {
+  try {
+    const user = await userService.updatePhone(req.user._id, req.body.phone);
+    res.status(200).json({
+      success: true,
+      message: 'Phone number updated successfully',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /api/v1/users/me/email — change email (local users, requires password)
+router.patch('/me/email', protect, async (req, res, next) => {
+  try {
+    const { newEmail, currentPassword } = req.body;
+    const user = await userService.updateEmail(req.user._id, {
+      newEmail,
+      currentPassword,
+    });
+    res.status(200).json({
+      success: true,
+      message: 'Email updated successfully',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/users/me/deactivate — temporarily hide account
+router.post('/me/deactivate', protect, async (req, res, next) => {
+  try {
+    const user = await userService.deactivateAccount(req.user._id);
+    res.status(200).json({
+      success: true,
+      message: 'Account deactivated',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/users/me/reactivate — restore a deactivated account
+router.post('/me/reactivate', protect, async (req, res, next) => {
+  try {
+    const user = await userService.reactivateAccount(req.user._id);
+    res.status(200).json({
+      success: true,
+      message: 'Account reactivated',
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/v1/users/me — permanently delete account + data
+router.delete('/me', protect, async (req, res, next) => {
+  try {
+    await userService.deleteAccount(req.user._id);
+    res.status(200).json({
+      success: true,
+      message: 'Account deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/users/me/export — download the user's information
+router.get('/me/export', protect, async (req, res, next) => {
+  try {
+    const data = await userService.exportData(req.user._id);
+
+    try {
+      const auditService = require('../../services/audit.service');
+      await auditService.logAccountEvent({
+        eventType: 'DATA_EXPORT_REQUESTED',
+        actor: { _id: req.user._id, role: req.user.role },
+        target: { _id: req.user._id, username: req.user.username },
+        changes: ['export'],
+      });
+    } catch (_) { /* audit logging is non-critical */ }
+
+    const filename = `nexora-export-${req.user.username}-${Date.now()}.json`;
+    res.status(200).json({
+      success: true,
+      message: 'Export generated successfully',
+      filename,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ─── List users (share/mention pickers) ─────────────────
 
 // GET /api/v1/users — real users excluding self and blocked users.

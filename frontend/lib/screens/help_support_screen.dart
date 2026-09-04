@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import 'settings_detail_screen.dart';
 
 class SupportRequest {
@@ -80,23 +84,23 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Help & Support',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -107,11 +111,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         children: [
           _heroCard(),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           _searchBar(),
 
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
 
           _sectionTitle('Get Help'),
 
@@ -139,7 +143,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             onTap: _openSupportRequests,
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           _sectionTitle('Frequently Asked Questions'),
 
@@ -151,7 +155,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                   _faqTile(question: faq['question']!, answer: faq['answer']!),
             ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           _sectionTitle('Safety'),
 
@@ -169,7 +173,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             onTap: _openCommunityGuidelines,
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           _sectionTitle('About'),
 
@@ -180,13 +184,13 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             onTap: _openAboutNexora,
           ),
 
-          const SizedBox(height: 30),
+          SizedBox(height: 30),
 
           Center(
             child: Text(
               'Nexora Support',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.35),
+                color: context.nexora.textPrimary.withValues(alpha: 0.35),
                 fontSize: 12,
               ),
             ),
@@ -245,21 +249,21 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+        gradient: LinearGradient(
+          colors: nexoraGradient(),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.support_agent_outlined, color: Colors.white, size: 27),
+          Icon(Icons.support_agent_outlined, color: context.nexora.textPrimary, size: 27),
           SizedBox(height: 14),
           Text(
             'How can we help?',
             style: TextStyle(
-              color: Colors.white,
+              color: context.nexora.textPrimary,
               fontSize: 19,
               fontWeight: FontWeight.w700,
             ),
@@ -267,7 +271,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           SizedBox(height: 5),
           Text(
             'Find answers, report problems, or get in touch with Nexora Support.',
-            style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
+            style: TextStyle(color: context.nexora.textSecondary, fontSize: 12, height: 1.4),
           ),
         ],
       ),
@@ -277,9 +281,9 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   Widget _searchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: context.nexora.textPrimary.withValues(alpha: 0.06)),
       ),
       child: TextField(
         controller: searchController,
@@ -288,11 +292,11 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             searchQuery = value;
           });
         },
-        style: const TextStyle(color: Colors.white, fontSize: 14),
-        decoration: const InputDecoration(
+        style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
+        decoration: InputDecoration(
           hintText: 'Search help',
-          hintStyle: TextStyle(color: Colors.white38, fontSize: 14),
-          prefixIcon: Icon(Icons.search, color: Colors.white54),
+          hintStyle: TextStyle(color: context.nexora.textHint, fontSize: 14),
+          prefixIcon: Icon(Icons.search, color: context.nexora.textMuted),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 15),
         ),
@@ -304,29 +308,29 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(15),
       ),
       child: ExpansionTile(
-        collapsedIconColor: Colors.white38,
+        collapsedIconColor: context.nexora.textHint,
         iconColor: const Color(0xFF8B7CFF),
         tilePadding: const EdgeInsets.symmetric(horizontal: 12),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 15),
         leading: Container(
           width: 40,
           height: 40,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(11)),
             gradient: LinearGradient(
-              colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+              colors: nexoraGradient(),
             ),
           ),
-          child: const Icon(Icons.help_outline, color: Colors.white, size: 20),
+          child: Icon(Icons.help_outline, color: context.nexora.textPrimary, size: 20),
         ),
         title: Text(
           question,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -336,8 +340,8 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               answer,
-              style: const TextStyle(
-                color: Colors.white54,
+              style: TextStyle(
+                color: context.nexora.textMuted,
                 fontSize: 12,
                 height: 1.5,
               ),
@@ -352,17 +356,17 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.search_off, color: Colors.white30, size: 40),
+          Icon(Icons.search_off, color: context.nexora.textHint, size: 40),
           SizedBox(height: 10),
           Text(
             'No help articles found',
             style: TextStyle(
-              color: Colors.white70,
+              color: context.nexora.textSecondary,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -370,20 +374,20 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           SizedBox(height: 4),
           Text(
             'Try another search.',
-            style: TextStyle(color: Colors.white38, fontSize: 12),
+            style: TextStyle(color: context.nexora.textHint, fontSize: 12),
           ),
         ],
       ),
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
@@ -392,7 +396,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     );
   }
 
-  static Widget _tile({
+  Widget _tile({
     required IconData icon,
     required String title,
     required String subtitle,
@@ -401,17 +405,17 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withValues(alpha: 0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         leading: _iconBox(icon),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -420,26 +424,25 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: onTap,
       ),
     );
   }
 
-  static Widget _iconBox(IconData icon) {
+  Widget _iconBox(IconData icon) {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         gradient: LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          colors: nexoraGradient(),
         ),
-      ),
-      child: Icon(icon, color: Colors.white, size: 21),
+      ),          child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 }
@@ -465,7 +468,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
 
     if (description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Describe the problem first.'),
           behavior: SnackBarBehavior.floating,
         ),
@@ -482,7 +485,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text('Problem reported successfully.'),
         behavior: SnackBarBehavior.floating,
       ),
@@ -528,27 +531,27 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF171D35),
-          title: const Text(
+          backgroundColor: context.nexora.card,
+          title: Text(
             'Describe the Problem',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: context.nexora.textPrimary),
           ),
           content: TextField(
             controller: controller,
             autofocus: true,
             maxLines: 6,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
+            style: TextStyle(color: context.nexora.textPrimary),
+            decoration: InputDecoration(
               hintText: 'Describe the problem...',
-              hintStyle: TextStyle(color: Colors.white38),
+              hintStyle: TextStyle(color: context.nexora.textHint),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: context.nexora.textSecondary),
               ),
             ),
             TextButton(
@@ -556,7 +559,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
                 setState(() {});
                 Navigator.pop(context);
               },
-              child: const Text(
+              child: Text(
                 'Done',
                 style: TextStyle(color: Color(0xFF8B7CFF)),
               ),
@@ -630,7 +633,7 @@ class EmailSupportScreen extends StatelessWidget {
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
                       'Email action ready for backend integration.',
                     ),
@@ -683,19 +686,19 @@ class _LiveChatScreenState extends State<LiveChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Live Chat',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -722,12 +725,12 @@ class _LiveChatScreenState extends State<LiveChatScreen> {
                     decoration: BoxDecoration(
                       color: isUser
                           ? const Color(0xFF3157D5)
-                          : const Color(0xFF171D35),
+                          : context.nexora.card,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       message['message']!,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      style: TextStyle(color: context.nexora.textPrimary, fontSize: 13),
                     ),
                   ),
                 );
@@ -742,15 +745,15 @@ class _LiveChatScreenState extends State<LiveChatScreen> {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFF171D35),
+                        color: context.nexora.card,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: TextField(
                         controller: controller,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
+                        style: TextStyle(color: context.nexora.textPrimary),
+                        decoration: InputDecoration(
                           hintText: 'Message support...',
-                          hintStyle: TextStyle(color: Colors.white38),
+                          hintStyle: TextStyle(color: context.nexora.textHint),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
@@ -761,21 +764,21 @@ class _LiveChatScreenState extends State<LiveChatScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Container(
                     width: 48,
                     height: 48,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                        colors: nexoraGradient(),
                       ),
                     ),
                     child: IconButton(
                       onPressed: _send,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.send,
-                        color: Colors.white,
+                        color: context.nexora.textPrimary,
                         size: 19,
                       ),
                     ),
@@ -1010,7 +1013,7 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
         newController.text.trim().isEmpty ||
         confirmController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Please complete all password fields.'),
           behavior: SnackBarBehavior.floating,
         ),
@@ -1020,7 +1023,7 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
 
     if (newController.text != confirmController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('New passwords do not match.'),
           behavior: SnackBarBehavior.floating,
         ),
@@ -1029,7 +1032,7 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text('Password update is ready for backend integration.'),
         behavior: SnackBarBehavior.floating,
       ),
@@ -1039,23 +1042,23 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Change Password',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -1068,28 +1071,28 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
             controller: currentController,
             label: 'Current Password',
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _passwordField(controller: newController, label: 'New Password'),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           _passwordField(
             controller: confirmController,
             label: 'Confirm New Password',
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Container(
             height: 52,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              gradient: const LinearGradient(
-                colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+              gradient: LinearGradient(
+                colors: nexoraGradient(),
               ),
             ),
             child: TextButton(
               onPressed: _updatePassword,
-              child: const Text(
+              child: Text(
                 'Update Password',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1107,17 +1110,17 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: context.nexora.textPrimary.withValues(alpha: 0.06)),
       ),
       child: TextField(
         controller: controller,
         obscureText: true,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.white54),
+          labelStyle: TextStyle(color: context.nexora.textMuted),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -1263,7 +1266,7 @@ class TextMessageAuthScreen extends StatelessWidget {
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
                       'Phone number management is ready for backend integration.',
                     ),
@@ -1279,7 +1282,7 @@ class TextMessageAuthScreen extends StatelessWidget {
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
                       'SMS verification is ready for backend integration.',
                     ),
@@ -1315,7 +1318,7 @@ class AuthenticatorAppScreen extends StatelessWidget {
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
                       'Authenticator setup is ready for backend integration.',
                     ),
@@ -1331,7 +1334,7 @@ class AuthenticatorAppScreen extends StatelessWidget {
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
                       'Authenticator verification is ready for backend integration.',
                     ),
@@ -1398,21 +1401,21 @@ class LoginActivityHelpScreen extends StatelessWidget {
                   context: context,
                   builder: (dialogContext) {
                     return AlertDialog(
-                      backgroundColor: const Color(0xFF171D35),
-                      title: const Text(
+                      backgroundColor: context.nexora.card,
+                      title: Text(
                         'Log Out Other Devices?',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: context.nexora.textPrimary),
                       ),
-                      content: const Text(
+                      content: Text(
                         'This will sign out all other active sessions on your Nexora account.',
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: context.nexora.textSecondary),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(dialogContext),
-                          child: const Text(
+                          child: Text(
                             'Cancel',
-                            style: TextStyle(color: Colors.white70),
+                            style: TextStyle(color: context.nexora.textSecondary),
                           ),
                         ),
                         TextButton(
@@ -1420,7 +1423,7 @@ class LoginActivityHelpScreen extends StatelessWidget {
                             Navigator.pop(dialogContext);
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
                                   'Device logout is ready for backend integration.',
                                 ),
@@ -1428,7 +1431,7 @@ class LoginActivityHelpScreen extends StatelessWidget {
                               ),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             'Log Out',
                             style: TextStyle(color: Color(0xFF8B7CFF)),
                           ),
@@ -1533,7 +1536,7 @@ class WindowsPCDeviceScreen extends StatelessWidget {
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
                       'Device logout is ready for backend integration.',
                     ),
@@ -1568,7 +1571,7 @@ class RecoveryCodesScreen extends StatelessWidget {
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
                       'Recovery code generation is ready for backend integration.',
                     ),

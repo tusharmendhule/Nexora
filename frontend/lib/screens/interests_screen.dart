@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import 'findpeople_screen.dart';
 
 class InterestsScreen extends StatefulWidget {
@@ -30,7 +32,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
 
       body: SafeArea(
         child: Padding(
@@ -45,35 +47,35 @@ class _InterestsScreenState extends State<InterestsScreen> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_back,
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     size: 25,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
 
               // Title
-              const Text(
+              Text(
                 'Set up your profile',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
 
-              const Text(
+              Text(
                 'Choose a few interests to personalize your feed.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white60, fontSize: 13),
+                style: TextStyle(color: context.nexora.textSecondary, fontSize: 13),
               ),
 
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               // Interest pills
               Expanded(
@@ -110,18 +112,18 @@ class _InterestsScreenState extends State<InterestsScreen> {
                                     end: Alignment.centerRight,
                                   )
                                 : null,
-                            color: selected ? null : const Color(0xFF171D35),
+                            color: selected ? null : context.nexora.card,
                             borderRadius: BorderRadius.circular(22),
                             border: Border.all(
                               color: selected
                                   ? Colors.transparent
-                                  : const Color(0xFF303653),
+                                  : context.nexora.surfaceSubtle,
                             ),
                           ),
                           child: Text(
                             interest,
                             style: TextStyle(
-                              color: selected ? Colors.white : Colors.white70,
+                              color: selected ? context.nexora.textPrimary : context.nexora.textSecondary,
                               fontSize: 13,
                               fontWeight: selected
                                   ? FontWeight.w600
@@ -135,7 +137,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // Continue button
               Container(
@@ -166,10 +168,10 @@ class _InterestsScreenState extends State<InterestsScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Continue',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.nexora.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -177,7 +179,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
             ],
           ),
         ),

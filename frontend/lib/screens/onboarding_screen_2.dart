@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../config/nexora_themes.dart';
 import 'onboarding_screen_3.dart';
 
 class OnboardingScreen2 extends StatelessWidget {
@@ -7,7 +9,7 @@ class OnboardingScreen2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -30,35 +32,35 @@ class OnboardingScreen2 extends StatelessWidget {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.people_alt_rounded,
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     size: 90,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 45),
+              SizedBox(height: 45),
 
-              const Text(
+              Text(
                 'Build Your Community',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
-              const Text(
+              Text(
                 'Connect with people, discover new communities, '
                 'and share what matters to you.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: context.nexora.textSecondary,
                   fontSize: 16,
                   height: 1.5,
                 ),
@@ -70,13 +72,13 @@ class OnboardingScreen2 extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _dot(false),
-                  _dot(true),
-                  _dot(false),
+                  _dot(context, false),
+                  _dot(context, true),
+                  _dot(context, false),
                 ],
               ),
 
-              const SizedBox(height: 25),
+              SizedBox(height: 25),
 
               SizedBox(
                 width: double.infinity,
@@ -92,12 +94,12 @@ class OnboardingScreen2 extends StatelessWidget {
 },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF6C63F),
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.nexora.textPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Next',
                     style: TextStyle(
                       fontSize: 17,
@@ -107,7 +109,7 @@ class OnboardingScreen2 extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
             ],
           ),
         ),
@@ -115,7 +117,7 @@ class OnboardingScreen2 extends StatelessWidget {
     );
   }
 
-  static Widget _dot(bool active) {
+  static Widget _dot(BuildContext context, bool active) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       height: 8,
@@ -123,7 +125,7 @@ class OnboardingScreen2 extends StatelessWidget {
       decoration: BoxDecoration(
         color: active
             ? const Color(0xFFF6C63F)
-            : Colors.white30,
+            : context.nexora.textHint,
         borderRadius: BorderRadius.circular(10),
       ),
     );

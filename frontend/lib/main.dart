@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'config/firebase_options.dart';
+import 'config/nexora_themes.dart';
+import 'services/appearance_controller.dart';
 import 'services/auth_service.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/main_nav.dart';
@@ -13,22 +15,65 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Load saved appearance settings (dark mode, gradient, animations,
+  // text size) before the first frame so the app never briefly shows the
+  // wrong theme. Failures fall back to safe defaults inside load().
+  await AppearanceController.instance.load();
+
   runApp(const NexoraApp());
 }
 
-class NexoraApp extends StatelessWidget {
+class NexoraApp extends StatefulWidget {
   const NexoraApp({super.key});
 
   @override
+  State<NexoraApp> createState() => _NexoraAppState();
+}
+
+class _NexoraAppState extends State<NexoraApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Rebuild the whole app when appearance settings change so the new
+    // theme/gradient/animations/text size apply immediately everywhere.
+    AppearanceController.instance.addListener(_onAppearanceChanged);
+  }
+
+  @override
+  void dispose() {
+    AppearanceController.instance.removeListener(_onAppearanceChanged);
+    super.dispose();
+  }
+
+  void _onAppearanceChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final appearance = AppearanceController.instance;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Nexora',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0B1020),
-        fontFamily: 'Arial',
-      ),
+      theme: NexoraThemes.light,
+      darkTheme: NexoraThemes.dark,
+      themeMode: appearance.themeMode,
+      // Apply Reduce Animations and Text Size app-wide via MediaQuery.
+      builder: (context, child) {
+        var data = MediaQuery.of(context);
+
+        if (appearance.reduceAnimations) {
+          data = data.copyWith(disableAnimations: true);
+        }
+
+        final scale = appearance.textScaleFactor;
+        if (scale != 1.0) {
+          data = data.copyWith(textScaler: TextScaler.linear(scale));
+        }
+
+        return MediaQuery(data: data, child: child!);
+      },
       home: const SplashScreen(),
     );
   }
@@ -108,20 +153,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
             const SizedBox(height: 24),
 
-            const Text(
+            Text(
               'Nexora',
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: context.nexora.textPrimary,
               ),
             ),
 
             const SizedBox(height: 8),
 
-            const Text(
+            Text(
               'Connect. Share. Verify.',
-              style: TextStyle(fontSize: 15, color: Colors.white70),
+              style: TextStyle(fontSize: 15, color: context.nexora.textSecondary),
             ),
           ],
         ),

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import '../models/user.dart';
 import '../services/user_service.dart';
 import 'main_nav.dart';
@@ -102,7 +106,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -114,40 +118,40 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                 children: [
                   _hero(),
 
-                  const SizedBox(height: 26),
+                  SizedBox(height: 26),
 
-                  const Text(
+                  Text(
                     'People you may know',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.nexora.textPrimary,
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
 
-                  const SizedBox(height: 5),
+                  SizedBox(height: 5),
 
-                  const Text(
+                  Text(
                     'Follow people to personalize your Nexora experience.',
-                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                    style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   if (_isLoading)
-                    const Center(
+                    Center(
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 40),
-                        child: CircularProgressIndicator(color: Colors.white),
+                        child: CircularProgressIndicator(color: context.nexora.textPrimary),
                       ),
                     )
                   else if (_people.isEmpty)
-                    const Center(
+                    Center(
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 40),
                         child: Text(
                           'No people to suggest yet',
-                          style: TextStyle(color: Colors.white54, fontSize: 14),
+                          style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
                         ),
                       ),
                     )
@@ -157,25 +161,25 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                       (index) => _personCard(user: _people[index]),
                     ),
 
-                  const SizedBox(height: 15),
+                  SizedBox(height: 15),
 
                   _continueButton(),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
 
                   TextButton(
                     onPressed: _skip,
-                    child: const Text(
+                    child: Text(
                       'Skip for now',
                       style: TextStyle(
-                        color: Colors.white54,
+                        color: context.nexora.textMuted,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  SizedBox(height: 15),
                 ],
               ),
             ),
@@ -196,10 +200,10 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
 
           TextButton(
             onPressed: _skip,
-            child: const Text(
+            child: Text(
               'Skip',
               style: TextStyle(
-                color: Colors.white54,
+                color: context.nexora.textMuted,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
@@ -216,15 +220,15 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
       height: 42,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(13),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+        gradient: LinearGradient(
+          colors: nexoraGradient(),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.auto_awesome_rounded,
-        color: Colors.white,
+        color: context.nexora.textPrimary,
         size: 22,
       ),
     );
@@ -238,8 +242,8 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
           height: 82,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+            gradient: LinearGradient(
+              colors: nexoraGradient(),
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -251,33 +255,33 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
               ),
             ],
           ),
-          child: const Icon(
+          child: Icon(
             Icons.people_alt_outlined,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 39,
           ),
         ),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
-        const Text(
+        Text(
           'Find your people',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 27,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.5,
           ),
         ),
 
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
 
-        const Text(
+        Text(
           'Connect with people, creators and friends\n'
           'who make Nexora more interesting.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white54, fontSize: 13, height: 1.45),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 13, height: 1.45),
         ),
       ],
     );
@@ -290,12 +294,12 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(17),
         border: Border.all(
           color: isFollowing
               ? const Color(0xFF7C3AED).withOpacity(0.35)
-              : Colors.white.withOpacity(0.05),
+              : context.nexora.textPrimary.withOpacity(0.05),
         ),
       ),
       child: Row(
@@ -309,11 +313,11 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                 ? NetworkImage(user.profileImageUrl!)
                 : null,
             child: user.profileImageUrl == null || user.profileImageUrl!.isEmpty
-                ? const Icon(Icons.person, color: Colors.white, size: 25)
+                ? Icon(Icons.person, color: context.nexora.textPrimary, size: 25)
                 : null,
           ),
 
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
 
           Expanded(
             child: Column(
@@ -326,49 +330,49 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                         user.displayName ?? user.username,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                     if (user.isVerified) ...[
-                      const SizedBox(width: 4),
-                      const Icon(Icons.verified, color: Color(0xFF6C8CFF), size: 14),
+                      SizedBox(width: 4),
+                      Icon(Icons.verified, color: Color(0xFF6C8CFF), size: 14),
                     ],
                   ],
                 ),
 
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
 
                 Text(
                   '@${user.username}',
-                  style: const TextStyle(color: Colors.white54, fontSize: 11),
+                  style: TextStyle(color: context.nexora.textMuted, fontSize: 11),
                 ),
 
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
 
                 if (user.bio != null && user.bio!.isNotEmpty)
                   Text(
                     user.bio!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white38, fontSize: 10),
+                    style: TextStyle(color: context.nexora.textHint, fontSize: 10),
                   ),
               ],
             ),
           ),
 
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
 
           SizedBox(
             height: 36,
             child: isFollowing
                 ? OutlinedButton.icon(
                     onPressed: () => _toggleFollow(user),
-                    icon: const Icon(Icons.check, size: 15),
-                    label: const Text(
+                    icon: Icon(Icons.check, size: 15),
+                    label: Text(
                       'Following',
                       style: TextStyle(
                         fontSize: 11,
@@ -389,14 +393,14 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                     onPressed: () => _toggleFollow(user),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF3157D5),
-                      foregroundColor: Colors.white,
+                      foregroundColor: context.nexora.textPrimary,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(11),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Follow',
                       style: TextStyle(
                         fontSize: 11,
@@ -419,8 +423,8 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          gradient: LinearGradient(
+            colors: nexoraGradient(),
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
@@ -444,8 +448,8 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
             count == 0
                 ? 'Continue'
                 : 'Continue with $count ${count == 1 ? 'follow' : 'follows'}',
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: context.nexora.textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w700,
             ),

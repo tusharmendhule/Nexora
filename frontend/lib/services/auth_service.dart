@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_client.dart';
+import 'socket_service.dart';
 
 /// Authentication service for Nexora.
 ///
@@ -27,6 +30,13 @@ class AuthService {
 
   /// Stream of Firebase auth state changes.
   Stream<fb.User?> get authStateChanges => _auth.authStateChanges();
+
+  /// Google serves profile photos at 96px by default (`=s96-c` suffix);
+  /// request a larger size so avatars stay sharp in circles and headers.
+  static String _googlePhotoUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return '';
+    return photoUrl.replaceFirst(RegExp(r'=s\d+-c'), '=s512-c');
+  }
 
   /// Whether a user is currently signed in (Firebase or local).
   Future<bool> get isSignedIn async {
@@ -71,6 +81,9 @@ class AuthService {
       // Store user data locally
       await _storeUserData(response.data!);
 
+      // Track this account in the device's saved-accounts list
+      await _saveCurrentAccountToSessionList(authMethod: 'local');
+
       return response.data!;
     } on AuthException {
       rethrow;
@@ -112,6 +125,9 @@ class AuthService {
       // Store user data locally
       await _storeUserData(response.data!);
 
+      // Track this account in the device's saved-accounts list
+      await _saveCurrentAccountToSessionList(authMethod: 'local');
+
       return response.data!;
     } on AuthException {
       rethrow;
@@ -151,16 +167,27 @@ class AuthService {
         throw AuthException('Failed to get authentication token');
       }
 
+      // The Google profile photo becomes the Nexora avatar (the backend
+      // backfills it only when the account doesn't have one yet).
+      final photoUrl = _googlePhotoUrl(user.photoURL ?? '');
+
       // Step 3: Try backend login first (uses Firebase token → looks up by firebaseUid)
       try {
         final loginResponse = await _api.post(
           '/auth/login',
-          body: {'idToken': idToken},
+          body: {
+            'idToken': idToken,
+            if (photoUrl.isNotEmpty) 'avatar': photoUrl,
+          },
           auth: false,
         );
 
         if (loginResponse.success) {
           await _storeUserData(loginResponse.data!);
+
+          // Track this account in the device's saved-accounts list
+          await _saveCurrentAccountToSessionList(authMethod: 'firebase');
+
           return loginResponse.data!;
         }
       } catch (_) {
@@ -189,6 +216,7 @@ class AuthService {
           'idToken': idToken,
           'name': displayName,
           'username': username,
+          if (photoUrl.isNotEmpty) 'avatar': photoUrl,
         },
       );
 
@@ -199,6 +227,10 @@ class AuthService {
       }
 
       await _storeUserData(registerResponse.data!);
+
+      // Track this account in the device's saved-accounts list
+      await _saveCurrentAccountToSessionList(authMethod: 'firebase');
+
       return registerResponse.data!;
     } on fb.FirebaseAuthException catch (e) {
       if (e.code == 'popup-blocked') {
@@ -215,13 +247,177 @@ class AuthService {
     }
   }
 
+  // ─── Saved accounts (Switch Account) ─────────────────
+
+  static const String _savedAccountsKey = 'saved_accounts';
+
+  /// Accounts previously signed in on this device.
+  /// Each entry: { username, name, avatar, authMethod, token? }
+  Future<List<Map<String, String>>> getSavedAccounts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_savedAccountsKey);
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final list = jsonDecode(raw) as List;
+      return list
+          .map((e) => Map<String, String>.from(e as Map))
+          .where((e) => (e['username'] ?? '').isNotEmpty)
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Username of the currently active account.
+  Future<String?> getCurrentUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString('user_username');
+    if (username != null && username.isNotEmpty) return username;
+    return null;
+  }
+
+  /// Record the just-signed-in account in the saved-accounts list.
+  /// Local (JWT) accounts keep their token so the user can switch back
+  /// without re-entering credentials; Firebase accounts don't (their
+  /// session lives in FirebaseAuth).
+  Future<void> _saveCurrentAccountToSessionList({
+    required String authMethod,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final username = prefs.getString('user_username') ?? '';
+      if (username.isEmpty) return;
+
+      final id = prefs.getString('user_id') ?? '';
+      final name = prefs.getString('user_name') ?? '';
+      final avatar = prefs.getString('user_avatar') ?? '';
+      final token =
+          authMethod == 'local' ? prefs.getString('auth_token') ?? '' : '';
+
+      final accounts = await getSavedAccounts();
+      accounts.removeWhere((a) => a['username'] == username);
+      accounts.insert(0, {
+        'username': username,
+        'id': id,
+        'name': name,
+        'avatar': avatar,
+        'authMethod': authMethod,
+        if (token.isNotEmpty) 'token': token,
+      });
+      await prefs.setString(_savedAccountsKey, jsonEncode(accounts));
+    } catch (_) {
+      // Non-critical — switching just won't be seamless for this account
+    }
+  }
+
+  /// Drop the current account's stored token (real logout) while keeping
+  /// the account listed so the user can sign back in via Switch Account.
+  Future<void> _removeCurrentAccountToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final username = prefs.getString('user_username') ?? '';
+      if (username.isEmpty) return;
+
+      final accounts = await getSavedAccounts();
+      bool changed = false;
+      for (final account in accounts) {
+        if (account['username'] == username && account.containsKey('token')) {
+          account.remove('token');
+          changed = true;
+        }
+      }
+      if (changed) {
+        await prefs.setString(_savedAccountsKey, jsonEncode(accounts));
+      }
+    } catch (_) {
+      // Non-critical
+    }
+  }
+
+  /// Switch to another saved account.
+  ///
+  /// Returns:
+  ///   'switched'    — session swapped and verified against the backend
+  ///   'needs-login' — no usable token (Firebase account or expired JWT)
+  ///   'error'       — unexpected failure
+  Future<String> switchToAccount(String username) async {
+    try {
+      final accounts = await getSavedAccounts();
+      final target = accounts.firstWhere(
+        (a) => a['username'] == username,
+        orElse: () => const {},
+      );
+      if (target.isEmpty) return 'error';
+
+      final token = target['token'] ?? '';
+      if (token.isEmpty) {
+        // Firebase account (or logged-out account): full re-auth required
+        return 'needs-login';
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+
+      // A local JWT session must not ride on top of a Firebase session —
+      // the API layer prefers Firebase tokens, which would authenticate as
+      // the wrong user.
+      try {
+        await _auth.signOut();
+      } catch (_) {}
+
+      // Swap the active JWT + cached profile to the target account
+      await prefs.setString('auth_token', token);
+      await prefs.setString('user_id', target['id'] ?? '');
+      await prefs.setString('user_username', username);
+      await prefs.setString('user_name', target['name'] ?? '');
+      if ((target['avatar'] ?? '').isNotEmpty) {
+        await prefs.setString('user_avatar', target['avatar']!);
+      }
+
+      // Verify the token is still valid and belongs to this account
+      final response = await _api.get('/auth/me');
+      if (!response.success || response.isUnauthorized) {
+        // Token expired → drop it, require re-login
+        await prefs.remove('auth_token');
+        return 'needs-login';
+      }
+
+      final me = response.data?['user'] as Map<String, dynamic>?;
+      if (me == null || me['username']?.toString() != username) {
+        await prefs.remove('auth_token');
+        return 'needs-login';
+      }
+
+      await _storeUserData({'user': me});
+
+      // Reconnect realtime sockets under the new identity
+      SocketService().disconnect();
+      await SocketService().connect();
+
+      return 'switched';
+    } catch (_) {
+      return 'error';
+    }
+  }
+
   // ─── Logout ───────────────────────────────────────────
 
-  /// Sign out from Firebase (if applicable) and clear all local auth data.
+  /// Sign out from Firebase (if applicable), notify the backend, drop the
+  /// account's stored token, disconnect realtime sockets, and clear all
+  /// local auth data.
   Future<void> logout() async {
     try {
-      await _auth.signOut();
+      // Notify backend (fire-and-forget; never blocks logout)
+      try {
+        await _api.post('/auth/logout');
+      } catch (_) {}
     } finally {
+      try {
+        await _auth.signOut();
+      } catch (_) {}
+      try {
+        await _removeCurrentAccountToken();
+      } catch (_) {}
+      SocketService().disconnect();
       // Always clear local data, even if Firebase sign-out fails
       await _clearUserData();
     }

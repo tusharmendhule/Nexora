@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import '../models/post.dart';
 import '../services/post_service.dart';
 
@@ -84,23 +88,23 @@ class _SavedScreenState extends State<SavedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Saved',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -115,15 +119,15 @@ class _SavedScreenState extends State<SavedScreen> {
             },
             icon: Icon(
               isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
-              color: Colors.white,
+              color: context.nexora.textPrimary,
               size: 22,
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
         ],
       ),
       body: _isLoading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(
                 color: Color(0xFF7C3AED),
               ),
@@ -149,13 +153,13 @@ class _SavedScreenState extends State<SavedScreen> {
       padding: const EdgeInsets.fromLTRB(18, 6, 18, 12),
       child: Row(
         children: [
-          const Icon(Icons.sort_rounded, color: Colors.white54, size: 18),
-          const SizedBox(width: 7),
+          Icon(Icons.sort_rounded, color: context.nexora.textMuted, size: 18),
+          SizedBox(width: 7),
           Expanded(
             child: Text(
               selectedSort,
-              style: const TextStyle(
-                color: Colors.white70,
+              style: TextStyle(
+                color: context.nexora.textSecondary,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
@@ -166,16 +170,16 @@ class _SavedScreenState extends State<SavedScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
-                color: const Color(0xFF171D35),
+                color: context.nexora.card,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white.withOpacity(0.06)),
+                border: Border.all(color: context.nexora.textPrimary.withOpacity(0.06)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Text(
                     'Sort',
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: context.nexora.textSecondary,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -183,7 +187,7 @@ class _SavedScreenState extends State<SavedScreen> {
                   SizedBox(width: 4),
                   Icon(
                     Icons.keyboard_arrow_down_rounded,
-                    color: Colors.white54,
+                    color: context.nexora.textMuted,
                     size: 17,
                   ),
                 ],
@@ -245,9 +249,9 @@ class _SavedScreenState extends State<SavedScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.06)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,7 +268,7 @@ class _SavedScreenState extends State<SavedScreen> {
                   image: NetworkImage(post.mediaUrl!),
                   fit: BoxFit.cover,
                 ),
-                color: const Color(0xFF252B45),
+                color: context.nexora.placeholder,
               ),
               child: Stack(
                 children: [
@@ -276,18 +280,18 @@ class _SavedScreenState extends State<SavedScreen> {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.nexora.textPrimary,
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
                         height: 1.15,
                       ),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     top: 14,
                     right: 14,
-                    child: Icon(Icons.bookmark, color: Colors.white, size: 22),
+                    child: Icon(Icons.bookmark, color: context.nexora.textPrimary, size: 22),
                   ),
                 ],
               ),
@@ -313,18 +317,18 @@ class _SavedScreenState extends State<SavedScreen> {
                     bottom: 18,
                     child: Text(
                       title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.nexora.textPrimary,
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
                         height: 1.15,
                       ),
                     ),
                   ),
-                  const Positioned(
+                  Positioned(
                     top: 14,
                     right: 14,
-                    child: Icon(Icons.bookmark, color: Colors.white, size: 22),
+                    child: Icon(Icons.bookmark, color: context.nexora.textPrimary, size: 22),
                   ),
                 ],
               ),
@@ -334,12 +338,12 @@ class _SavedScreenState extends State<SavedScreen> {
             child: Row(
               children: [
                 _avatar(gradient),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     '@$author',
-                    style: const TextStyle(
-                      color: Colors.white70,
+                    style: TextStyle(
+                      color: context.nexora.textSecondary,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -347,7 +351,7 @@ class _SavedScreenState extends State<SavedScreen> {
                 ),
                 IconButton(
                   onPressed: () => _unsavePost(post),
-                  icon: const Icon(Icons.more_horiz, color: Colors.white54),
+                  icon: Icon(Icons.more_horiz, color: context.nexora.textMuted),
                 ),
               ],
             ),
@@ -366,9 +370,9 @@ class _SavedScreenState extends State<SavedScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.06)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
@@ -384,7 +388,7 @@ class _SavedScreenState extends State<SavedScreen> {
                           image: NetworkImage(post.mediaUrl!),
                           fit: BoxFit.cover,
                         ),
-                        color: const Color(0xFF252B45),
+                        color: context.nexora.placeholder,
                       ),
                       child: Stack(
                         children: [
@@ -397,9 +401,9 @@ class _SavedScreenState extends State<SavedScreen> {
                                 color: Colors.black.withOpacity(0.16),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.bookmark,
-                                color: Colors.white,
+                                color: context.nexora.textPrimary,
                                 size: 18,
                               ),
                             ),
@@ -412,8 +416,8 @@ class _SavedScreenState extends State<SavedScreen> {
                               title,
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: context.nexora.textPrimary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 height: 1.15,
@@ -443,9 +447,9 @@ class _SavedScreenState extends State<SavedScreen> {
                                 color: Colors.black.withOpacity(0.16),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.bookmark,
-                                color: Colors.white,
+                                color: context.nexora.textPrimary,
                                 size: 18,
                               ),
                             ),
@@ -458,8 +462,8 @@ class _SavedScreenState extends State<SavedScreen> {
                               title,
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: context.nexora.textPrimary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 height: 1.15,
@@ -475,20 +479,20 @@ class _SavedScreenState extends State<SavedScreen> {
               child: Row(
                 children: [
                   _avatar(gradient, size: 28),
-                  const SizedBox(width: 7),
+                  SizedBox(width: 7),
                   Expanded(
                     child: Text(
                       '@$author',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: context.nexora.textSecondary,
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                  const Icon(Icons.more_horiz, color: Colors.white38, size: 19),
+                  Icon(Icons.more_horiz, color: context.nexora.textHint, size: 19),
                 ],
               ),
             ),
@@ -510,15 +514,15 @@ class _SavedScreenState extends State<SavedScreen> {
           end: Alignment.bottomRight,
         ),
       ),
-      child: Icon(Icons.person, color: Colors.white, size: size * 0.53),
+      child: Icon(Icons.person, color: context.nexora.textPrimary, size: size * 0.53),
     );
   }
 
   void _showSortOptions() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF11162A),
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.nexora.sheet,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
@@ -541,21 +545,21 @@ class _SavedScreenState extends State<SavedScreen> {
                     width: 38,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: context.nexora.textDim,
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
+                SizedBox(height: 20),
+                Text(
                   'Sort saved posts',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 ...options.map((option) {
                   final selected = option == selectedSort;
 
@@ -567,12 +571,12 @@ class _SavedScreenState extends State<SavedScreen> {
                           : Icons.radio_button_off,
                       color: selected
                           ? const Color(0xFF7C3AED)
-                          : Colors.white38,
+                          : context.nexora.textHint,
                     ),
                     title: Text(
                       option,
                       style: TextStyle(
-                        color: selected ? Colors.white : Colors.white70,
+                        color: selected ? context.nexora.textPrimary : context.nexora.textSecondary,
                         fontSize: 14,
                         fontWeight: selected
                             ? FontWeight.w600
@@ -605,10 +609,10 @@ class _SavedScreenState extends State<SavedScreen> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Post removed from saved posts'),
-          backgroundColor: Color(0xFF171D35),
-          duration: Duration(seconds: 2),
+          backgroundColor: context.nexora.card,
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -626,33 +630,33 @@ class _SavedScreenState extends State<SavedScreen> {
               height: 74,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                gradient: LinearGradient(
+                  colors: nexoraGradient(),
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.bookmark_border,
-                color: Colors.white,
+                color: context.nexora.textPrimary,
                 size: 34,
               ),
             ),
-            const SizedBox(height: 20),
-            const Text(
+            SizedBox(height: 20),
+            Text(
               'Nothing saved yet',
               style: TextStyle(
-                color: Colors.white,
+                color: context.nexora.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Posts you save will appear here so you can easily find them later.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white54,
+                color: context.nexora.textMuted,
                 fontSize: 13,
                 height: 1.4,
               ),

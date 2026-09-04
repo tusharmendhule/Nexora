@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import '../models/notification.dart';
 import '../services/notification_service.dart';
 import '../services/user_service.dart';
@@ -165,12 +167,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF080B1A),
-        foregroundColor: Colors.white,
+        backgroundColor: context.nexora.backgroundAlt,
+        foregroundColor: context.nexora.textPrimary,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Notifications',
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
@@ -178,14 +180,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           if (notifications.any((n) => !n.isRead))
             TextButton(
               onPressed: _markAllAsRead,
-              child: const Text(
+              child: Text(
                 'Mark all read',
                 style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 13),
               ),
             ),
           TextButton(
             onPressed: notifications.isEmpty ? null : _clearNotifications,
-            child: const Text(
+            child: Text(
               'Clear',
               style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 13),
             ),
@@ -193,12 +195,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          ? Center(child: CircularProgressIndicator(color: context.nexora.textPrimary))
           : notifications.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
                 'No notifications yet',
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
               ),
             )
           : ListView.builder(
@@ -214,8 +216,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: notification.isRead
-                          ? const Color(0xFF11162B)
-                          : const Color(0xFF151C36),
+                          ? context.nexora.sheet
+                          : context.nexora.surfaceSelected,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
@@ -223,9 +225,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         Container(
                           width: 48,
                           height: 48,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0xFF242A43),
+                            color: context.nexora.surfaceSelected,
                           ),
                           child: Icon(
                             notification.icon,
@@ -233,23 +235,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             size: 22,
                           ),
                         ),
-                        const SizedBox(width: 13),
+                        SizedBox(width: 13),
                         Expanded(
                           child: RichText(
                             text: TextSpan(
                               children: [
                                 TextSpan(
                                   text: notification.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: context.nexora.textPrimary,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
                                 ),
                                 TextSpan(
                                   text: ' ${notification.text}',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
+                                  style: TextStyle(
+                                    color: context.nexora.textSecondary,
                                     fontSize: 14,
                                   ),
                                 ),
@@ -257,11 +259,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(
                           _formatTime(notification.createdAt),
-                          style: const TextStyle(
-                            color: Colors.white38,
+                          style: TextStyle(
+                            color: context.nexora.textHint,
                             fontSize: 11,
                           ),
                         ),

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import '../models/conversation.dart';
 import '../models/user.dart';
 import '../services/conversation_service.dart';
@@ -205,7 +207,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080B1A),
+      backgroundColor: context.nexora.backgroundAlt,
       body: SafeArea(
         child: Column(
           children: [
@@ -214,17 +216,17 @@ class _MessagesScreenState extends State<MessagesScreen> {
               child: Container(
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF151A2E),
+                  color: context.nexora.field,
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: TextField(
                   controller: _searchController,
                   onChanged: _onSearchChanged,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                  decoration: const InputDecoration(
+                  style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
+                  decoration: InputDecoration(
                     hintText: 'Search messages...',
-                    hintStyle: TextStyle(color: Colors.white54, fontSize: 14),
-                    prefixIcon: Icon(Icons.search, color: Colors.white70),
+                    hintStyle: TextStyle(color: context.nexora.textMuted, fontSize: 14),
+                    prefixIcon: Icon(Icons.search, color: context.nexora.textSecondary),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -232,14 +234,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
               ),
             ),
 
-            const Padding(
+            Padding(
               padding: EdgeInsets.fromLTRB(20, 12, 20, 8),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Messages',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -260,8 +262,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
       final resultCount = _searchConversations.length + _searchUsers.length;
 
       if (_isSearchLoading && resultCount == 0) {
-        return const Center(
-          child: CircularProgressIndicator(color: Colors.white),
+        return Center(
+          child: CircularProgressIndicator(color: context.nexora.textPrimary),
         );
       }
 
@@ -269,16 +271,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
         return Center(
           child: Text(
             _searchError!,
-            style: const TextStyle(color: Colors.white54, fontSize: 14),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
           ),
         );
       }
 
       if (resultCount == 0) {
-        return const Center(
+        return Center(
           child: Text(
             'No users or conversations found',
-            style: TextStyle(color: Colors.white54, fontSize: 14),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
           ),
         );
       }
@@ -298,8 +300,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
     // Initial load
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+      return Center(
+        child: CircularProgressIndicator(color: context.nexora.textPrimary),
       );
     }
 
@@ -309,25 +311,25 @@ class _MessagesScreenState extends State<MessagesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.wifi_off, color: Colors.white24, size: 40),
-            const SizedBox(height: 12),
+            Icon(Icons.wifi_off, color: context.nexora.textDim, size: 40),
+            SizedBox(height: 12),
             Text(
               'Could not load conversations',
-              style: const TextStyle(color: Colors.white54, fontSize: 15),
+              style: TextStyle(color: context.nexora.textMuted, fontSize: 15),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
                 loadError!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                style: TextStyle(color: context.nexora.textHint, fontSize: 12),
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             TextButton(
               onPressed: _loadConversations,
-              child: const Text(
+              child: Text(
                 'Retry',
                 style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 14),
               ),
@@ -339,20 +341,20 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
     // Empty state (existing UI)
     if (conversations.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.chat_bubble_outline,
-              color: Colors.white24,
+              color: context.nexora.textDim,
               size: 48,
             ),
             SizedBox(height: 16),
             Text(
               'No conversations yet',
               style: TextStyle(
-                color: Colors.white54,
+                color: context.nexora.textMuted,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -361,7 +363,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             Text(
               'Start a conversation by messaging someone!',
               style: TextStyle(
-                color: Colors.white38,
+                color: context.nexora.textHint,
                 fontSize: 13,
               ),
             ),
@@ -452,7 +454,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
       margin: const EdgeInsets.symmetric(vertical: 3),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF10152A),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -462,11 +464,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
             height: 52,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF242A43),
+              color: context.nexora.surfaceSelected,
               border: Border.all(
                 color: unread
                     ? const Color(0xFF3157D5)
-                    : const Color(0xFF303653),
+                    : context.nexora.surfaceSubtle,
                 width: 2,
               ),
             ),
@@ -478,12 +480,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     height: 52,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.person, color: Colors.white54, size: 26),
+                        Icon(Icons.person, color: context.nexora.textMuted, size: 26),
                   )
-                : const Icon(Icons.person, color: Colors.white54, size: 26),
+                : Icon(Icons.person, color: context.nexora.textMuted, size: 26),
           ),
 
-          const SizedBox(width: 13),
+          SizedBox(width: 13),
 
           Expanded(
             child: Column(
@@ -491,19 +493,19 @@ class _MessagesScreenState extends State<MessagesScreen> {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: 5),
                 Text(
                   message,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: unread ? Colors.white70 : Colors.white38,
+                    color: unread ? context.nexora.textSecondary : context.nexora.textHint,
                     fontSize: 13,
                   ),
                 ),
@@ -512,21 +514,21 @@ class _MessagesScreenState extends State<MessagesScreen> {
           ),
 
           if (time.isNotEmpty || unread) ...[
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   time,
-                  style: const TextStyle(color: Colors.white54, fontSize: 11),
+                  style: TextStyle(color: context.nexora.textMuted, fontSize: 11),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 if (unread)
                   Container(
                     width: 7,
                     height: 7,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Color(0xFF5C7CFF),
                     ),

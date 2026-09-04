@@ -1,28 +1,19 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import '../services/auth_service.dart';
+import '../services/download_helper.dart';
 import '../services/user_service.dart';
+import '../models/user.dart';
 import 'login_screen.dart';
+import 'main_nav.dart';
 import 'settings_detail_screen.dart';
-
-class AccountData {
-  String name = 'Your Name';
-  String username = '@yourusername';
-  String email = 'rajat@example.com';
-  String? phone;
-
-  final List<Map<String, String>> accounts = [
-    {'name': 'Your Name', 'username': '@yourusername'},
-  ];
-
-  final List<String> accountHistory = [];
-
-  void addHistory(String change) {
-    accountHistory.insert(0, change);
-  }
-}
-
-final AccountData accountData = AccountData();
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -34,24 +25,90 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   final UserService _userService = UserService();
 
+  User? _user;
+  bool _loading = true;
+
+  List<Map<String, String>> _savedAccounts = [];
+  List<Map<String, dynamic>> _history = [];
+  bool _historyLoaded = false;
+
+  bool _exporting = false;
+  bool _deactivating = false;
+  bool _deleting = false;
+
+  // ─── Derived display values (real data only) ──────────
+
+  String get _name {
+    final user = _user;
+    if (user == null) return '';
+    final name = user.displayName;
+    if (name != null && name.isNotEmpty) return name;
+    return user.username;
+  }
+  String get _username {
+    final user = _user;
+    final username = user?.username;
+    if (username == null || username.isEmpty) return '';
+    return '@$username';
+  }
+  String get _email {
+    final email = _user?.email;
+    if (email == null || email.isEmpty) return 'No email';
+    return email;
+  }
+  String get _phone {
+    final phone = _user?.phone;
+    if (phone == null || phone.isEmpty) return '';
+    return phone;
+  }
+  bool get _hasPhone => _phone.isNotEmpty;
+  String get _accountStatus => _user?.accountStatus ?? 'active';
+
+  int get _accountCount =>
+      _savedAccounts.isEmpty ? 1 : _savedAccounts.length;
+
+  String get _historyCountText {
+    if (!_historyLoaded) return 'Loading…';
+    final n = _history.length;
+    return '$n recorded change${n == 1 ? '' : 's'}';
+  }
+
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    _loadData();
   }
 
-  Future<void> _loadProfile() async {
-    final user = await _userService.getMyProfile();
+  Future<void> _loadData() async {
+    final userFuture = _userService.getMyProfile();
+    final accountsFuture = AuthService().getSavedAccounts();
+    final historyFuture = _userService.getAccountHistory();
+
+    final user = await userFuture;
+    final accounts = await accountsFuture;
+    final history = await historyFuture;
+
     if (!mounted) return;
-    if (user != null) {
-      setState(() {
-        accountData.name = user.displayName ?? user.username;
-        accountData.username = '@${user.username}';
-        accountData.email = user.email ?? 'No email';
-        accountData.accounts.first['name'] = accountData.name;
-        accountData.accounts.first['username'] = accountData.username;
-      });
-    }
+
+    setState(() {
+      _user = user;
+      _savedAccounts = accounts;
+      _history = history;
+      _historyLoaded = true;
+      _loading = false;
+    });
+  }
+
+  void _showSnack(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.redAccent : null,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   void _open(
@@ -71,7 +128,7 @@ class _AccountScreenState extends State<AccountScreen> {
       ),
     ).then((_) {
       if (mounted) {
-        setState(() {});
+        _loadData();
       }
     });
   }
@@ -79,23 +136,23 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Account',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -106,7 +163,7 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           _profileHeader(),
 
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
 
           _sectionTitle('Account Information'),
 
@@ -126,14 +183,14 @@ class _AccountScreenState extends State<AccountScreen> {
                       SettingsItem(
                         icon: Icons.badge_outlined,
                         title: 'Name',
-                        subtitle: accountData.name,
+                        subtitle: _name,
                         type: SettingsItemType.navigation,
                         onTap: () => _editName(context),
                       ),
                       SettingsItem(
                         icon: Icons.alternate_email,
                         title: 'Username',
-                        subtitle: accountData.username,
+                        subtitle: _username,
                         type: SettingsItemType.navigation,
                         onTap: () => _editUsername(context),
                       ),
@@ -154,18 +211,18 @@ class _AccountScreenState extends State<AccountScreen> {
           _tile(
             icon: Icons.email_outlined,
             title: 'Email Address',
-            subtitle: accountData.email,
+            subtitle: _email,
             onTap: () => _emailScreen(context),
           ),
 
           _tile(
             icon: Icons.phone_outlined,
             title: 'Phone Number',
-            subtitle: accountData.phone ?? 'Not added',
+            subtitle: _hasPhone ? _phone : 'Not added',
             onTap: () => _phoneScreen(context),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           _sectionTitle('Account Management'),
 
@@ -173,8 +230,8 @@ class _AccountScreenState extends State<AccountScreen> {
             icon: Icons.person_add_alt_1_outlined,
             title: 'Switch Account',
             subtitle:
-                '${accountData.accounts.length} account'
-                '${accountData.accounts.length == 1 ? '' : 's'}',
+                '$_accountCount account'
+                '${_accountCount == 1 ? '' : 's'}',
             onTap: () => _switchAccount(context),
           ),
 
@@ -188,19 +245,17 @@ class _AccountScreenState extends State<AccountScreen> {
           _tile(
             icon: Icons.history_outlined,
             title: 'Account History',
-            subtitle:
-                '${accountData.accountHistory.length} recorded change'
-                '${accountData.accountHistory.length == 1 ? '' : 's'}',
+            subtitle: _historyCountText,
             onTap: () => _accountHistory(context),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           _sectionTitle('Account Status'),
 
           _statusCard(),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           _sectionTitle('Danger Zone'),
 
@@ -208,17 +263,17 @@ class _AccountScreenState extends State<AccountScreen> {
             icon: Icons.pause_circle_outline,
             title: 'Deactivate Account',
             subtitle: 'Temporarily hide your Nexora account',
-            onTap: () => _showDeactivateDialog(context),
+            onTap: _deactivating ? null : () => _showDeactivateDialog(context),
           ),
 
           _dangerTile(
             icon: Icons.delete_outline,
             title: 'Delete Account',
             subtitle: 'Permanently delete your Nexora account',
-            onTap: () => _showDeleteDialog(context),
+            onTap: _deleting ? null : () => _showDeleteDialog(context),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           _sectionTitle('Session'),
 
@@ -229,13 +284,13 @@ class _AccountScreenState extends State<AccountScreen> {
             onTap: () => _showLogoutDialog(context),
           ),
 
-          const SizedBox(height: 30),
+          SizedBox(height: 30),
 
           Center(
             child: Text(
               'Manage your Nexora account.',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.35),
+                color: context.nexora.textPrimary.withOpacity(0.35),
                 fontSize: 12,
               ),
             ),
@@ -245,9 +300,9 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void _editName(BuildContext context) {
-    final controller = TextEditingController(text: accountData.name);
+  // ─── Personal Information ─────────────────────────────
 
+  void _editName(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -255,29 +310,24 @@ class _AccountScreenState extends State<AccountScreen> {
           title: 'Name',
           description: 'Update your display name.',
           label: 'Display Name',
-          initialValue: accountData.name,
-          controller: controller,
-          onSave: (value) async {
-            if (value.trim().isEmpty) return;
+          initialValue: _name,
+          onSave: (value, _) async {
+            final name = value.trim();
+            if (name.isEmpty) return 'Enter a display name';
 
-            accountData.name = value.trim();
-            accountData.accounts.first['name'] = value.trim();
-            accountData.addHistory('Name changed');
-
-            // Persist to backend
-            await _userService.updateMyProfile(name: value.trim());
-            await _loadProfile();
+            final updated = await _userService.updateMyProfile(name: name);
+            if (updated == null) {
+              return 'Could not update your name. Please try again.';
+            }
+            await _loadData();
+            return null;
           },
         ),
       ),
-    ).then((_) {
-      if (mounted) setState(() {});
-    });
+    );
   }
 
   void _editUsername(BuildContext context) {
-    final controller = TextEditingController(text: accountData.username.replaceFirst('@', ''));
-
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -285,30 +335,22 @@ class _AccountScreenState extends State<AccountScreen> {
           title: 'Username',
           description: 'Update your Nexora username.',
           label: 'Username',
-          initialValue: accountData.username.replaceFirst('@', ''),
-          controller: controller,
-          onSave: (value) async {
-            if (value.trim().isEmpty) return;
+          initialValue: _user?.username ?? '',
+          onSave: (value, _) async {
+            var username = value.trim().replaceFirst('@', '');
+            if (username.isEmpty) return 'Enter a username';
 
-            String username = value.trim();
-
-            if (!username.startsWith('@')) {
-              username = '@$username';
+            final updated =
+                await _userService.updateMyProfile(username: username);
+            if (updated == null) {
+              return 'Username is already taken or could not be updated.';
             }
-
-            accountData.username = username;
-            accountData.accounts.first['username'] = username;
-            accountData.addHistory('Username changed');
-
-            // Persist to backend
-            await _userService.updateMyProfile(username: value.trim());
-            await _loadProfile();
+            await _loadData();
+            return null;
           },
         ),
       ),
-    ).then((_) {
-      if (mounted) setState(() {});
-    });
+    );
   }
 
   void _profileDetails(BuildContext context) {
@@ -323,14 +365,14 @@ class _AccountScreenState extends State<AccountScreen> {
             SettingsItem(
               icon: Icons.person_outline,
               title: 'Name',
-              subtitle: accountData.name,
+              subtitle: _name,
               type: SettingsItemType.action,
               onTap: () => _editName(context),
             ),
             SettingsItem(
               icon: Icons.alternate_email,
               title: 'Username',
-              subtitle: accountData.username,
+              subtitle: _username,
               type: SettingsItemType.action,
               onTap: () => _editUsername(context),
             ),
@@ -339,6 +381,8 @@ class _AccountScreenState extends State<AccountScreen> {
       ],
     );
   }
+
+  // ─── Email Address ────────────────────────────────────
 
   void _emailScreen(BuildContext context) {
     _open(
@@ -352,7 +396,7 @@ class _AccountScreenState extends State<AccountScreen> {
             SettingsItem(
               icon: Icons.email_outlined,
               title: 'Current Email',
-              subtitle: accountData.email,
+              subtitle: _email,
               type: SettingsItemType.navigation,
               onTap: () {
                 _open(
@@ -367,7 +411,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         SettingsItem(
                           icon: Icons.email_outlined,
                           title: 'Email Address',
-                          subtitle: accountData.email,
+                          subtitle: _email,
                           type: SettingsItemType.action,
                           onTap: () {},
                         ),
@@ -376,54 +420,50 @@ class _AccountScreenState extends State<AccountScreen> {
                   ],
                 );
               },
-            ),                      SettingsItem(
-                        icon: Icons.edit_outlined,
-                        title: 'Change Email',
-                        subtitle: 'Update your connected email address',
-                        type: SettingsItemType.navigation,
-                        onTap: () {
-                          final controller = TextEditingController(
-                            text: accountData.email,
-                          );
+            ),
+            SettingsItem(
+              icon: Icons.edit_outlined,
+              title: 'Change Email',
+              subtitle: 'Update your connected email address',
+              type: SettingsItemType.navigation,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => _InputScreen(
+                      title: 'Change Email',
+                      description:
+                          'Update the email address connected to your account. '
+                          'Enter your current password to confirm.',
+                      label: 'New Email Address',
+                      initialValue: '',
+                      keyboardType: TextInputType.emailAddress,
+                      secondaryLabel: 'Current Password',
+                      secondaryObscure: true,
+                      onSave: (value, secondaryValue) async {
+                        final newEmail = value.trim();
+                        if (newEmail.isEmpty) return 'Enter your new email address';
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => _InputScreen(
-                                title: 'Change Email',
-                                description:
-                                    'Update the email address connected to your account.',
-                                label: 'Email Address',
-                                initialValue: accountData.email,
-                                controller: controller,
-                                keyboardType: TextInputType.emailAddress,
-                                onSave: (value) async {
-                                  if (value.trim().isEmpty) return;
-
-                                  accountData.email = value.trim();
-                                  accountData.addHistory('Email address changed');
-
-                                  // Email change requires backend support
-                                  // (currently not exposed via API)
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Email update requires re-authentication. Please contact support.'),
-                                        behavior: SnackBarBehavior.floating,
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                          );
-                        },
+                        final error = await _userService.updateEmail(
+                          newEmail: newEmail,
+                          currentPassword: secondaryValue,
+                        );
+                        if (error != null) return error;
+                        await _loadData();
+                        return null;
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
       ],
     );
   }
+
+  // ─── Phone Number ─────────────────────────────────────
 
   void _phoneScreen(BuildContext context) {
     _open(
@@ -437,7 +477,7 @@ class _AccountScreenState extends State<AccountScreen> {
             SettingsItem(
               icon: Icons.phone_outlined,
               title: 'Phone Number',
-              subtitle: accountData.phone ?? 'Not added',
+              subtitle: _hasPhone ? _phone : 'Not added',
               type: SettingsItemType.navigation,
               onTap: () {
                 _open(
@@ -451,7 +491,7 @@ class _AccountScreenState extends State<AccountScreen> {
                         SettingsItem(
                           icon: Icons.phone_outlined,
                           title: 'Phone Number',
-                          subtitle: accountData.phone ?? 'Not added',
+                          subtitle: _hasPhone ? _phone : 'Not added',
                           type: SettingsItemType.action,
                           onTap: () {},
                         ),
@@ -463,36 +503,28 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             SettingsItem(
               icon: Icons.add_call,
-              title: accountData.phone == null
-                  ? 'Add Phone Number'
-                  : 'Change Phone Number',
-              subtitle: accountData.phone == null
-                  ? 'Connect a phone number to your account'
-                  : 'Update your connected phone number',
+              title: _hasPhone ? 'Change Phone Number' : 'Add Phone Number',
+              subtitle: _hasPhone
+                  ? 'Update your connected phone number'
+                  : 'Connect a phone number to your account',
               type: SettingsItemType.navigation,
               onTap: () {
-                final controller = TextEditingController(
-                  text: accountData.phone ?? '',
-                );
-
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => _InputScreen(
-                      title: accountData.phone == null
-                          ? 'Add Phone Number'
-                          : 'Change Phone Number',
+                      title: _hasPhone ? 'Change Phone Number' : 'Add Phone Number',
                       description:
                           'Connect a phone number to your Nexora account.',
                       label: 'Phone Number',
-                      initialValue: accountData.phone ?? '',
-                      controller: controller,
+                      initialValue: _phone,
                       keyboardType: TextInputType.phone,
-                      onSave: (value) {
-                        if (value.trim().isEmpty) return;
-
-                        accountData.phone = value.trim();
-                        accountData.addHistory('Phone number changed');
+                      onSave: (value, _) async {
+                        if (value.trim().isEmpty) return 'Enter a phone number';
+                        final error = await _userService.updatePhone(value);
+                        if (error != null) return error;
+                        await _loadData();
+                        return null;
                       },
                     ),
                   ),
@@ -505,7 +537,37 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
+  // ─── Switch Account ───────────────────────────────────
+
+  Future<void> _performSwitch(BuildContext context, String username) async {
+    final result = await AuthService().switchToAccount(username);
+    if (!mounted) return;
+
+    if (result == 'switched') {
+      // Fresh MainNavigation so every tab reloads under the new session
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const MainNavigation()),
+        (route) => false,
+      );
+      _showSnack('Switched to @$username');
+    } else if (result == 'needs-login') {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LoginScreen(initialUsername: username),
+        ),
+        (route) => false,
+      );
+    } else {
+      _showSnack('Could not switch accounts. Please try again.', isError: true);
+    }
+  }
+
   void _switchAccount(BuildContext context) {
+    final currentUsername = _user?.username ?? '';
+
     _open(
       context,
       title: 'Switch Account',
@@ -514,30 +576,42 @@ class _AccountScreenState extends State<AccountScreen> {
         SettingsSection(
           title: 'Your Accounts',
           items: [
-            for (final account in accountData.accounts)
+            for (final account in _savedAccounts)
               SettingsItem(
                 icon: Icons.person_outline,
-                title: account['name']!,
-                subtitle: account['username']!,
+                title: account['name'] ?? account['username'] ?? '',
+                subtitle: '@${account['username'] ?? ''}',
                 type: SettingsItemType.selection,
-                valueText: account['username'] == accountData.username
+                valueText: account['username'] == currentUsername
                     ? 'Current'
                     : 'Switch',
-                onTap: () {
-                  accountData.username = account['username']!;
-                  accountData.name = account['name']!;
-                  accountData.addHistory('Switched to ${account['username']}');
+                onTap: account['username'] == currentUsername
+                    ? () {}
+                    : () => _performSwitch(context, account['username']!),
+              ),
 
-                  Navigator.pop(context);
-                },
+            if (_savedAccounts.isEmpty)
+              SettingsItem(
+                icon: Icons.person_outline,
+                title: _name.isEmpty ? 'Current Account' : _name,
+                subtitle: _username,
+                type: SettingsItemType.selection,
+                valueText: 'Current',
+                onTap: () {},
               ),
 
             SettingsItem(
               icon: Icons.add_circle_outline,
               title: 'Add Account',
-              subtitle: 'Add another Nexora account',
+              subtitle: 'Sign in with another Nexora account',
               type: SettingsItemType.navigation,
-              onTap: () => _addAccount(context),
+              onTap: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              },
             ),
           ],
         ),
@@ -545,13 +619,36 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  void _addAccount(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => _AddAccountScreen()),
-    ).then((_) {
-      if (mounted) setState(() {});
-    });
+  // ─── Download Your Information ────────────────────────
+
+  Future<void> _performExport(BuildContext context) async {
+    if (_exporting) return;
+    setState(() => _exporting = true);
+
+    try {
+      final export = await _userService.exportAccountData();
+      if (!mounted) return;
+
+      if (export == null) {
+        _showSnack('Could not generate your information. Please try again.',
+            isError: true);
+        return;
+      }
+
+      final filename = export['filename'] as String? ?? 'nexora-export.json';
+      final data = export['data'] as Map<String, dynamic>? ?? const {};
+      final content = const JsonEncoder.withIndent('  ').convert(data);
+
+      final savedPath = await saveJsonDownload(filename, content);
+      if (!mounted) return;
+
+      _showSnack('Downloaded: $savedPath');
+      await _loadData();
+    } finally {
+      if (mounted) {
+        setState(() => _exporting = false);
+      }
+    }
   }
 
   void _downloadInformation(BuildContext context) {
@@ -583,21 +680,22 @@ class _AccountScreenState extends State<AccountScreen> {
                           icon: Icons.person_outline,
                           title: 'Profile',
                           subtitle:
-                              '${accountData.name} · ${accountData.username}',
+                              '${_name.isEmpty ? _username : _name}'
+                              '${_username.isNotEmpty ? ' · $_username' : ''}',
                           type: SettingsItemType.action,
                           onTap: () {},
                         ),
                         SettingsItem(
                           icon: Icons.email_outlined,
                           title: 'Email',
-                          subtitle: accountData.email,
+                          subtitle: _email,
                           type: SettingsItemType.action,
                           onTap: () {},
                         ),
                         SettingsItem(
                           icon: Icons.phone_outlined,
                           title: 'Phone',
-                          subtitle: accountData.phone ?? 'Not added',
+                          subtitle: _hasPhone ? _phone : 'Not added',
                           type: SettingsItemType.action,
                           onTap: () {},
                         ),
@@ -610,40 +708,9 @@ class _AccountScreenState extends State<AccountScreen> {
             SettingsItem(
               icon: Icons.download_outlined,
               title: 'Request Information',
-              subtitle: 'Request a downloadable copy',
+              subtitle: _exporting ? 'Generating your file…' : 'Download a copy of your information',
               type: SettingsItemType.navigation,
-              onTap: () {
-                _open(
-                  context,
-                  title: 'Request Information',
-                  description: 'Request a copy of your Nexora information.',
-                  sections: [
-                    SettingsSection(
-                      title: 'Request',
-                      items: [
-                        SettingsItem(
-                          icon: Icons.download_outlined,
-                          title: 'Request Download',
-                          subtitle: 'Start a request for your information',
-                          type: SettingsItemType.action,
-                          onTap: () {
-                            accountData.addHistory(
-                              'Information download requested',
-                            );
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Information request submitted'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
+              onTap: () => _performExport(context),
             ),
           ],
         ),
@@ -651,7 +718,38 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
+  // ─── Account History ──────────────────────────────────
+
+  static const Map<String, String> _historyLabels = {
+    'PROFILE_UPDATED': 'Profile updated',
+    'AVATAR_CHANGED': 'Profile picture changed',
+    'USERNAME_CHANGED': 'Username changed',
+    'EMAIL_CHANGED': 'Email address changed',
+    'PHONE_CHANGED': 'Phone number changed',
+    'ACCOUNT_DEACTIVATED': 'Account deactivated',
+    'ACCOUNT_REACTIVATED': 'Account reactivated',
+    'ACCOUNT_DELETED': 'Account deleted',
+    'DATA_EXPORT_REQUESTED': 'Information download requested',
+    'PRIVACY_TOGGLED': 'Privacy setting changed',
+    'ACCOUNT_DISABLED': 'Account disabled',
+    'ACCOUNT_ENABLED': 'Account enabled',
+  };
+
+  static String _formatHistoryDate(DateTime date) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    final h = date.hour.toString().padLeft(2, '0');
+    final m = date.minute.toString().padLeft(2, '0');
+    return '${months[date.month - 1]} ${date.day}, ${date.year} · $h:$m';
+  }
+
   void _accountHistory(BuildContext context) {
+    if (!_historyLoaded) {
+      _loadData();
+    }
+
     _open(
       context,
       title: 'Account History',
@@ -659,7 +757,7 @@ class _AccountScreenState extends State<AccountScreen> {
       sections: [
         SettingsSection(
           title: 'Account Changes',
-          items: accountData.accountHistory.isEmpty
+          items: _history.isEmpty
               ? [
                   const SettingsItem(
                     icon: Icons.history_outlined,
@@ -669,11 +767,17 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                 ]
               : [
-                  for (final change in accountData.accountHistory)
+                  for (final record in _history)
                     SettingsItem(
                       icon: Icons.history_outlined,
-                      title: change,
-                      subtitle: 'Account activity',
+                      title: _historyLabels[record['eventType']] ??
+                          (record['description']?.toString() ?? 'Account activity'),
+                      subtitle: record['createdAt'] != null
+                          ? _formatHistoryDate(
+                              DateTime.tryParse(record['createdAt'].toString()) ??
+                                  DateTime.now(),
+                            )
+                          : 'Account activity',
                       type: SettingsItemType.action,
                     ),
                 ],
@@ -682,45 +786,243 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  static Widget _profileHeader() {
+  // ─── Status / Deactivate / Reactivate ─────────────────
+
+  Future<void> _showDeactivateDialog(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: context.nexora.card,
+        title: Text(
+          'Deactivate Account?',
+          style: TextStyle(color: context.nexora.textPrimary),
+        ),
+        content: Text(
+          'Your account will be temporarily hidden.\n'
+          'You can return to Nexora later.',
+          style: TextStyle(color: context.nexora.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: context.nexora.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Deactivate',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _deactivating = true);
+    final error = await _userService.deactivateAccount();
+    setState(() => _deactivating = false);
+
+    if (!mounted) return;
+
+    if (error != null) {
+      _showSnack(error, isError: true);
+      return;
+    }
+
+    await _loadData();
+    _showSnack('Your account has been deactivated');
+  }
+
+  Future<void> _showReactivateDialog(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: context.nexora.card,
+        title: Text(
+          'Reactivate Account?',
+          style: TextStyle(color: context.nexora.textPrimary),
+        ),
+        content: Text(
+          'Welcome back! Your Nexora account and its content will be visible again.',
+          style: TextStyle(color: context.nexora.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: context.nexora.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Reactivate',
+              style: TextStyle(color: Colors.greenAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _deactivating = true);
+    final error = await _userService.reactivateAccount();
+    setState(() => _deactivating = false);
+
+    if (!mounted) return;
+
+    if (error != null) {
+      _showSnack(error, isError: true);
+      return;
+    }
+
+    await _loadData();
+    _showSnack('Your account has been reactivated');
+  }
+
+  // ─── Delete Account ───────────────────────────────────
+
+  Future<void> _showDeleteDialog(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: context.nexora.card,
+        title: Text(
+          'Delete Account?',
+          style: TextStyle(color: context.nexora.textPrimary),
+        ),
+        content: Text(
+          'This action is permanent. Your Nexora account '
+          'and its associated information will be deleted.',
+          style: TextStyle(color: context.nexora.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: context.nexora.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _deleting = true);
+    final error = await _userService.deleteUser();
+    if (!mounted) return;
+
+    if (error != null) {
+      setState(() => _deleting = false);
+      _showSnack(error, isError: true);
+      return;
+    }
+
+    // Account deleted — clear the session and return to the auth screen
+    await AuthService().logout();
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
+  // ─── Log Out ──────────────────────────────────────────
+
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: context.nexora.card,
+        title: Text(
+          'Log Out?',
+          style: TextStyle(color: context.nexora.textPrimary),
+        ),
+        content: Text(
+          'You will be signed out of your Nexora account.',
+          style: TextStyle(color: context.nexora.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: context.nexora.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Log Out',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final authService = AuthService();
+    await authService.logout();
+    if (!mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
+  // ─── Widgets ──────────────────────────────────────────
+
+  Widget _profileHeader() {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.06)),
       ),
       child: Row(
         children: [
-          Container(
-            width: 62,
-            height: 62,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
-              ),
-            ),
-            child: const Icon(Icons.person, color: Colors.white, size: 31),
-          ),
-          const SizedBox(width: 15),
+          _profileAvatar(),
+          SizedBox(width: 15),
           Expanded(
             child: Builder(
               builder: (_) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    accountData.name,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    _loading ? '' : _name,
+                    style: TextStyle(
+                      color: context.nexora.textPrimary,
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
-                    accountData.username,
-                    style: const TextStyle(color: Colors.white54, fontSize: 13),
+                    _loading ? '' : _username,
+                    style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                   ),
                 ],
               ),
@@ -731,13 +1033,73 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  static Widget _sectionTitle(String title) {
+  /// 62×62 circular avatar: shows the real profile picture when one is set,
+  /// otherwise the original gradient circle with the person icon.
+  Widget _profileAvatar() {
+    final avatarUrl = _user?.profileImageUrl;
+    final hasImage = avatarUrl != null && avatarUrl.isNotEmpty;
+
+    if (!hasImage) {
+      return Container(
+        width: 62,
+        height: 62,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: nexoraGradient(),
+          ),
+        ),
+        child: Icon(Icons.person, color: Colors.white, size: 31),
+      );
+    }
+
+    return Container(
+      width: 62,
+      height: 62,
+      padding: const EdgeInsets.all(2.5),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: nexoraGradient(),
+        ),
+      ),
+      child: ClipOval(
+        child: avatarUrl.startsWith('http')
+            ? Image.network(
+                avatarUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _avatarImageFallback(),
+              )
+            : Image.file(
+                File(avatarUrl),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _avatarImageFallback(),
+              ),
+      ),
+    );
+  }
+
+  /// Fallback shown if the profile image fails to load.
+  Widget _avatarImageFallback() {
+    return ColoredBox(
+      color: context.nexora.card,
+      child: Center(
+        child: Icon(
+          Icons.person,
+          color: context.nexora.textSecondary,
+          size: 31,
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.white54,
+        style: TextStyle(
+          color: context.nexora.textMuted,
           fontSize: 13,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
@@ -746,7 +1108,7 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  static Widget _tile({
+  Widget _tile({
     required IconData icon,
     required String title,
     required String subtitle,
@@ -755,17 +1117,17 @@ class _AccountScreenState extends State<AccountScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.05)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         leading: _iconBox(icon),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -774,73 +1136,108 @@ class _AccountScreenState extends State<AccountScreen> {
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: onTap,
       ),
     );
   }
 
-  static Widget _iconBox(IconData icon) {
+  Widget _iconBox(IconData icon) {
     return Container(
       width: 42,
       height: 42,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(12)),
         gradient: LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          colors: nexoraGradient(),
         ),
       ),
       child: Icon(icon, color: Colors.white, size: 21),
     );
   }
 
-  static Widget _statusCard() {
+  Widget _statusCard() {
+    final bool isActive = _accountStatus == 'active';
+    final bool isDeactivated = _accountStatus == 'deactivated';
+
+    final Color iconColor = isDeactivated
+        ? Colors.amber
+        : isActive
+            ? Colors.greenAccent
+            : Colors.redAccent;
+    final IconData icon = isDeactivated
+        ? Icons.pause_circle_outline
+        : isActive
+            ? Icons.verified_outlined
+            : Icons.gpp_bad_outlined;
+    final String title = isDeactivated
+        ? 'Account deactivated'
+        : isActive
+            ? 'Account active'
+            : 'Account $_accountStatus';
+    final String subtitle = isDeactivated
+        ? 'Your account is temporarily hidden. Tap to reactivate.'
+        : isActive
+            ? 'Your account is in good standing.'
+            : 'Your account is currently $_accountStatus.';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.verified_outlined, color: Colors.greenAccent, size: 28),
+          Icon(icon, color: iconColor, size: 28),
           SizedBox(width: 13),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Account active',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              SizedBox(height: 3),
-              Text(
-                'Your account is in good standing.',
-                style: TextStyle(color: Colors.white54, fontSize: 12),
-              ),
-            ],
+                SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
+                ),
+              ],
+            ),
           ),
+          if (isDeactivated)
+            TextButton(
+              onPressed:
+                  _deactivating ? null : () => _showReactivateDialog(context),
+              child: Text(
+                _deactivating ? 'Reactivating…' : 'Reactivate',
+                style: TextStyle(color: Colors.greenAccent, fontSize: 12),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  static Widget _dangerTile({
+  Widget _dangerTile({
     required IconData icon,
     required String title,
     required String subtitle,
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF211724),
+        color: context.nexora.dangerSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.redAccent.withOpacity(0.12)),
       ),
@@ -857,7 +1254,7 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.redAccent,
             fontSize: 15,
             fontWeight: FontWeight.w600,
@@ -867,175 +1264,111 @@ class _AccountScreenState extends State<AccountScreen> {
           padding: const EdgeInsets.only(top: 3),
           child: Text(
             subtitle,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
         onTap: onTap,
-      ),
-    );
-  }
-
-  static void _showDeactivateDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF171D35),
-        title: const Text(
-          'Deactivate Account?',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
-          'Your account will be temporarily hidden.\n'
-          'You can return to Nexora later.',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              accountData.addHistory('Account deactivated');
-              Navigator.pop(context);
-            },
-            child: const Text(
-              'Deactivate',
-              style: TextStyle(color: Colors.redAccent),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static void _showDeleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF171D35),
-        title: const Text(
-          'Delete Account?',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
-          'This action is permanent. Your Nexora account '
-          'and its associated information will be deleted.',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              accountData.addHistory('Account deletion requested');
-              Navigator.pop(context);
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.redAccent),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF171D35),
-        title: const Text(
-          'Log Out?',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
-          'You will be signed out of your Nexora account.',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context); // close dialog
-              final authService = AuthService();
-              await authService.logout();
-              if (context.mounted) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const LoginScreen(),
-                  ),
-                  (route) => false,
-                );
-              }
-            },
-            child: const Text(
-              'Log Out',
-              style: TextStyle(color: Colors.redAccent),
-            ),
-          ),
-        ],
       ),
     );
   }
 }
 
-class _InputScreen extends StatelessWidget {
+class _InputScreen extends StatefulWidget {
   final String title;
   final String description;
   final String label;
   final String initialValue;
-  final TextEditingController controller;
   final TextInputType? keyboardType;
-  final void Function(String) onSave;
+
+  /// Optional second field (e.g. current password for email changes).
+  final String? secondaryLabel;
+  final bool secondaryObscure;
+
+  /// Returns an error message on failure, or null on success.
+  final Future<String?> Function(String value, String? secondaryValue) onSave;
 
   const _InputScreen({
     required this.title,
     required this.description,
     required this.label,
     required this.initialValue,
-    required this.controller,
-    required this.onSave,
     this.keyboardType,
+    this.secondaryLabel,
+    this.secondaryObscure = false,
+    required this.onSave,
   });
+
+  @override
+  State<_InputScreen> createState() => _InputScreenState();
+}
+
+class _InputScreenState extends State<_InputScreen> {
+  late final TextEditingController _controller;
+  final TextEditingController _secondaryController = TextEditingController();
+
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _secondaryController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_saving) return;
+    setState(() => _saving = true);
+
+    final error = await widget.onSave(
+      _controller.text,
+      widget.secondaryLabel != null ? _secondaryController.text : null,
+    );
+
+    if (!mounted) return;
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      setState(() => _saving = false);
+      return;
+    }
+
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
+          widget.title,
+          style: TextStyle(
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -1045,44 +1378,69 @@ class _InputScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(18, 15, 18, 30),
         children: [
           Text(
-            description,
-            style: const TextStyle(
-              color: Colors.white54,
+            widget.description,
+            style: TextStyle(
+              color: context.nexora.textMuted,
               fontSize: 13,
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 25),
+          SizedBox(height: 25),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xFF171D35),
+              color: context.nexora.card,
               borderRadius: BorderRadius.circular(18),
             ),
-            child: TextField(
-              controller: controller,
-              keyboardType: keyboardType,
-              style: const TextStyle(color: Colors.white, fontSize: 15),
-              decoration: InputDecoration(
-                labelText: label,
-                labelStyle: const TextStyle(color: Colors.white54),
-                enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _controller,
+                  keyboardType: widget.keyboardType,
+                  style:
+                      TextStyle(color: context.nexora.textPrimary, fontSize: 15),
+                  decoration: InputDecoration(
+                    labelText: widget.label,
+                    labelStyle: TextStyle(color: context.nexora.textMuted),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: context.nexora.textDim),
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF7C3AED)),
+                    ),
+                  ),
                 ),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF7C3AED)),
-                ),
-              ),
+                if (widget.secondaryLabel != null) ...[
+                  SizedBox(height: 18),
+                  TextField(
+                    controller: _secondaryController,
+                    obscureText: widget.secondaryObscure,
+                    style: TextStyle(
+                        color: context.nexora.textPrimary, fontSize: 15),
+                    decoration: InputDecoration(
+                      labelText: widget.secondaryLabel,
+                      labelStyle: TextStyle(color: context.nexora.textMuted),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: context.nexora.textDim),
+                      ),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFF7C3AED)),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          const SizedBox(height: 22),
+          SizedBox(height: 22),
           SizedBox(
             height: 52,
             child: DecoratedBox(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(16)),
                 gradient: LinearGradient(
-                  colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                  colors: nexoraGradient(),
                 ),
               ),
               child: ElevatedButton(
@@ -1090,17 +1448,23 @@ class _InputScreen extends StatelessWidget {
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
                 ),
-                onPressed: () {
-                  onSave(controller.text);
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Save',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                onPressed: _saving ? null : _save,
+                child: _saving
+                    ? SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Text(
+                        'Save',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -1108,134 +1472,4 @@ class _InputScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _AddAccountScreen extends StatefulWidget {
-  @override
-  State<_AddAccountScreen> createState() => _AddAccountScreenState();
-}
-
-class _AddAccountScreenState extends State<_AddAccountScreen> {
-  final nameController = TextEditingController();
-  final usernameController = TextEditingController();
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    usernameController.dispose();
-    super.dispose();
-  }
-
-  void _addAccount() {
-    final name = nameController.text.trim();
-    var username = usernameController.text.trim();
-
-    if (name.isEmpty || username.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enter both name and username'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    if (!username.startsWith('@')) {
-      username = '@$username';
-    }
-
-    accountData.accounts.add({'name': name, 'username': username});
-
-    accountData.addHistory('Added account $username');
-
-    Navigator.pop(context);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Add Account',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(18),
-        children: [
-          const Text(
-            'Add another Nexora account.',
-            style: TextStyle(color: Colors.white54, fontSize: 13),
-          ),
-          const SizedBox(height: 25),
-          _field(controller: nameController, label: 'Name'),
-          const SizedBox(height: 12),
-          _field(controller: usernameController, label: 'Username'),
-          const SizedBox(height: 22),
-          SizedBox(
-            height: 52,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                gradient: LinearGradient(
-                  colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
-                ),
-              ),
-              child: ElevatedButton(
-                onPressed: _addAccount,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                ),
-                child: const Text(
-                  'Add Account',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _field({
-    required TextEditingController controller,
-    required String label,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: TextField(
-        controller: controller,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white54),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 17,
-          ),
-        ),
-      ),
-    );
-  }
-}
+}

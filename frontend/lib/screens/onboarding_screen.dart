@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../config/nexora_themes.dart';
 import 'onboarding_screen_2.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -7,51 +9,51 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B1020),
+      backgroundColor: context.nexora.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              const SizedBox(height: 60),
+              SizedBox(height: 60),
 
               // Illustration placeholder
               Container(
                 height: 280,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF171D35),
+                  color: context.nexora.card,
                   borderRadius: BorderRadius.circular(24),
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.people_alt_outlined,
                     size: 100,
-                    color: Colors.white70,
+                    color: context.nexora.textSecondary,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 45),
+              SizedBox(height: 45),
 
-              const Text(
+              Text(
                 'Share Your Moments',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
-              const Text(
+              Text(
                 'Connect with people, share your moments, '
                 'and express yourself freely.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: context.nexora.textSecondary,
                   fontSize: 16,
                   height: 1.5,
                 ),
@@ -63,13 +65,13 @@ class OnboardingScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _dot(true),
-                  _dot(false),
-                  _dot(false),
+                  _dot(context, true),
+                  _dot(context, false),
+                  _dot(context, false),
                 ],
               ),
 
-              const SizedBox(height: 30),
+              SizedBox(height: 30),
 
               // Next button
               SizedBox(
@@ -86,12 +88,12 @@ class OnboardingScreen extends StatelessWidget {
 },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6C63FF),
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.nexora.textPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Next',
                     style: TextStyle(
                       fontSize: 17,
@@ -101,7 +103,7 @@ class OnboardingScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
             ],
           ),
         ),
@@ -109,13 +111,13 @@ class OnboardingScreen extends StatelessWidget {
     );
   }
 
-  static Widget _dot(bool active) {
+  static Widget _dot(BuildContext context, bool active) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       height: 8,
       width: active ? 24 : 8,
       decoration: BoxDecoration(
-        color: active ? const Color(0xFF6C63FF) : Colors.white30,
+        color: active ? const Color(0xFF6C63FF) : context.nexora.textHint,
         borderRadius: BorderRadius.circular(10),
       ),
     );

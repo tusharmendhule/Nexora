@@ -73,11 +73,11 @@ exports.loginLocal = async (req, res, next) => {
  * POST /api/v1/auth/register
  *
  * Register a new user via Firebase Authentication.
- * Body: { idToken, name, username }
+ * Body: { idToken, name, username, avatar? }
  */
 exports.register = async (req, res, next) => {
   try {
-    const { idToken, name, username } = req.body;
+    const { idToken, name, username, avatar } = req.body;
 
     if (!idToken) {
       return res.status(400).json({
@@ -93,7 +93,7 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    const result = await authService.register({ idToken, name, username });
+    const result = await authService.register({ idToken, name, username, avatar });
 
     res.status(201).json({
       success: true,
@@ -109,11 +109,11 @@ exports.register = async (req, res, next) => {
  * POST /api/v1/auth/login
  *
  * Login an existing user via Firebase Authentication.
- * Body: { idToken }
+ * Body: { idToken, avatar? }
  */
 exports.login = async (req, res, next) => {
   try {
-    const { idToken } = req.body;
+    const { idToken, avatar } = req.body;
 
     if (!idToken) {
       return res.status(400).json({
@@ -122,7 +122,7 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    const result = await authService.login({ idToken });
+    const result = await authService.login({ idToken, avatar });
 
     res.status(200).json({
       success: true,

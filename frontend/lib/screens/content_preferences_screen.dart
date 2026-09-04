@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import '../services/settings_service.dart';
 import 'settings_detail_screen.dart';
 
@@ -50,10 +52,10 @@ class _ContentPreferencesScreenState extends State<ContentPreferencesScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF0B0B1A),
+      return Scaffold(
+        backgroundColor: context.nexora.background,
         body: Center(
-          child: CircularProgressIndicator(color: Colors.white),
+          child: CircularProgressIndicator(color: context.nexora.textPrimary),
         ),
       );
     }
@@ -228,21 +230,21 @@ class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF171D35),
-          title: const Text(
+          backgroundColor: context.nexora.card,
+          title: Text(
             'Remove Hidden Word?',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: context.nexora.textPrimary),
           ),
           content: Text(
             'Remove "$word" from your hidden words?',
-            style: const TextStyle(color: Colors.white70),
+            style: TextStyle(color: context.nexora.textSecondary),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: context.nexora.textSecondary),
               ),
             ),
             TextButton(
@@ -250,7 +252,7 @@ class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
                 _removeHiddenWord(word);
                 Navigator.pop(context);
               },
-              child: const Text(
+              child: Text(
                 'Remove',
                 style: TextStyle(color: Color(0xFF8B7CFF)),
               ),
@@ -310,26 +312,26 @@ class _AddHiddenWordScreenState extends State<AddHiddenWordScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF171D35),
-          title: const Text(
+          backgroundColor: context.nexora.card,
+          title: Text(
             'Add Hidden Word',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: context.nexora.textPrimary),
           ),
           content: TextField(
             controller: controller,
             autofocus: true,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
+            style: TextStyle(color: context.nexora.textPrimary),
+            decoration: InputDecoration(
               hintText: 'Word or phrase',
-              hintStyle: TextStyle(color: Colors.white38),
+              hintStyle: TextStyle(color: context.nexora.textHint),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: context.nexora.textSecondary),
               ),
             ),
             TextButton(
@@ -345,7 +347,7 @@ class _AddHiddenWordScreenState extends State<AddHiddenWordScreen> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: const Text(
+              child: Text(
                 'Add',
                 style: TextStyle(color: Color(0xFF8B7CFF)),
               ),
@@ -460,26 +462,26 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF171D35),
-          title: const Text(
+          backgroundColor: context.nexora.card,
+          title: Text(
             'Follow Creator',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: context.nexora.textPrimary),
           ),
           content: TextField(
             controller: controller,
             autofocus: true,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
+            style: TextStyle(color: context.nexora.textPrimary),
+            decoration: InputDecoration(
               hintText: '@username',
-              hintStyle: TextStyle(color: Colors.white38),
+              hintStyle: TextStyle(color: context.nexora.textHint),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: context.nexora.textSecondary),
               ),
             ),
             TextButton(
@@ -503,7 +505,7 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
 
                 Navigator.pop(context);
               },
-              child: const Text(
+              child: Text(
                 'Follow',
                 style: TextStyle(color: Color(0xFF8B7CFF)),
               ),
@@ -567,8 +569,8 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
   void _showCreatorOptions(String creator) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF171D35),
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.nexora.card,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
@@ -579,25 +581,25 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.person_outline,
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                   ),
                   title: Text(
                     creator,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.nexora.textPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                const Divider(color: Colors.white12),
+                Divider(color: context.nexora.surfaceSubtle),
                 ListTile(
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.person_remove_outlined,
                     color: Colors.redAccent,
                   ),
-                  title: const Text(
+                  title: Text(
                     'Unfollow',
                     style: TextStyle(color: Colors.redAccent),
                   ),

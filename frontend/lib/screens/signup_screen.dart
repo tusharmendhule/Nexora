@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 import 'main_nav.dart';
@@ -90,44 +92,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 55),
+              SizedBox(height: 55),
 
-              const Text(
+              Text(
                 'Create Account',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
-              const Text(
+              Text(
                 'Join Nexora and start connecting.',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+                style: TextStyle(color: context.nexora.textSecondary, fontSize: 16),
               ),
 
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
 
-              const Text('Name', style: TextStyle(color: Colors.white)),
+              Text('Name', style: TextStyle(color: context.nexora.textPrimary)),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               _field('Enter your name', controller: _nameController),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
-              const Text('Email', style: TextStyle(color: Colors.white)),
+              Text('Email', style: TextStyle(color: context.nexora.textPrimary)),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               _field(
                 'Enter your email',
@@ -135,11 +137,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 keyboardType: TextInputType.emailAddress,
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
-              const Text('Password', style: TextStyle(color: Colors.white)),
+              Text('Password', style: TextStyle(color: context.nexora.textPrimary)),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               _field(
                 'Create a password',
@@ -147,7 +149,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 obscureText: true,
               ),
 
-              const SizedBox(height: 35),
+              SizedBox(height: 35),
 
               SizedBox(
                 width: double.infinity,
@@ -156,21 +158,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   onPressed: _isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6C63FF),
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.nexora.textPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
-                            color: Colors.white,
+                            color: context.nexora.textPrimary,
                             strokeWidth: 2.5,
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Create Account',
                           style: TextStyle(
                             fontSize: 17,
@@ -180,15 +182,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
 
-              const SizedBox(height: 25),
+              SizedBox(height: 25),
 
               Center(
                 child: RichText(
                   text: TextSpan(
                     children: [
-                      const TextSpan(
+                      TextSpan(
                         text: 'Already have an account? ',
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                        style: TextStyle(color: context.nexora.textSecondary, fontSize: 14),
                       ),
                       WidgetSpan(
                         child: GestureDetector(
@@ -200,7 +202,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             'Sign In',
                             style: TextStyle(
                               color: Color(0xFF8B7CFF),
@@ -231,12 +233,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: context.nexora.textPrimary),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white38),
+        hintStyle: TextStyle(color: context.nexora.textHint),
         filled: true,
-        fillColor: const Color(0xFF171D35),
+        fillColor: context.nexora.card,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,

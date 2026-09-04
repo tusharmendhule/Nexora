@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../config/nexora_themes.dart';
 import 'package:flutter/services.dart';
 
 import '../models/user.dart';
@@ -106,7 +108,7 @@ class _ShareScreenState extends State<ShareScreen> {
   Future<void> _copyLink() async {
     if (widget.postId == null || widget.postId!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nothing to copy')),
+        SnackBar(content: Text('Nothing to copy')),
       );
       return;
     }
@@ -206,14 +208,14 @@ class _ShareScreenState extends State<ShareScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Share',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
@@ -227,13 +229,13 @@ class _ShareScreenState extends State<ShareScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: _onSearchChanged,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: context.nexora.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Search people',
-                hintStyle: const TextStyle(color: Colors.white38),
-                prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                hintStyle: TextStyle(color: context.nexora.textHint),
+                prefixIcon: Icon(Icons.search, color: context.nexora.textMuted),
                 filled: true,
-                fillColor: const Color(0xFF171D35),
+                fillColor: context.nexora.card,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -242,14 +244,14 @@ class _ShareScreenState extends State<ShareScreen> {
             ),
           ),
 
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 'Send to',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: context.nexora.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -267,20 +269,20 @@ class _ShareScreenState extends State<ShareScreen> {
                 children: [
                   OutlinedButton.icon(
                     onPressed: _copyLink,
-                    icon: const Icon(Icons.link, color: Colors.white70),
-                    label: const Text(
+                    icon: Icon(Icons.link, color: context.nexora.textSecondary),
+                    label: Text(
                       'Copy link',
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(color: context.nexora.textSecondary),
                     ),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 48),
-                      side: BorderSide(color: Colors.white.withOpacity(0.12)),
+                      side: BorderSide(color: context.nexora.textPrimary.withOpacity(0.12)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -290,26 +292,26 @@ class _ShareScreenState extends State<ShareScreen> {
                           : _send,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3157D5),
-                        disabledBackgroundColor: const Color(0xFF20243A),
+                        disabledBackgroundColor: context.nexora.disabled,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       child: isSending
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 22,
                               height: 22,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: context.nexora.textPrimary,
                               ),
                             )
                           : Text(
                               selectedUserIds.isEmpty
                                   ? 'Select people'
                                   : 'Send (${selectedUserIds.length})',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: context.nexora.textPrimary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -326,8 +328,8 @@ class _ShareScreenState extends State<ShareScreen> {
 
   Widget _buildUserList() {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+      return Center(
+        child: CircularProgressIndicator(color: context.nexora.textPrimary),
       );
     }
 
@@ -336,20 +338,20 @@ class _ShareScreenState extends State<ShareScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.wifi_off, color: Colors.white24, size: 40),
-            const SizedBox(height: 12),
+            Icon(Icons.wifi_off, color: context.nexora.textDim, size: 40),
+            SizedBox(height: 12),
             Text(
               loadError!,
-              style: const TextStyle(color: Colors.white54, fontSize: 14),
+              style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextButton(
               onPressed: () => _loadUsers(
                 query: _searchController.text.trim().isEmpty
                     ? null
                     : _searchController.text.trim(),
               ),
-              child: const Text(
+              child: Text(
                 'Retry',
                 style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 14),
               ),
@@ -360,10 +362,10 @@ class _ShareScreenState extends State<ShareScreen> {
     }
 
     if (users.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No users found',
-          style: TextStyle(color: Colors.white54, fontSize: 14),
+          style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
         ),
       );
     }
@@ -385,8 +387,8 @@ class _ShareScreenState extends State<ShareScreen> {
             ),
             decoration: BoxDecoration(
               color: selected
-                  ? const Color(0xFF20294A)
-                  : const Color(0xFF171D35),
+                  ? context.nexora.surfaceSelected
+                  : context.nexora.card,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: selected
@@ -405,10 +407,10 @@ class _ShareScreenState extends State<ShareScreen> {
                           : null,
                   child: (user.profileImageUrl == null ||
                           user.profileImageUrl!.isEmpty)
-                      ? const Icon(Icons.person, color: Colors.white)
+                      ? Icon(Icons.person, color: context.nexora.textPrimary)
                       : null,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,17 +419,17 @@ class _ShareScreenState extends State<ShareScreen> {
                         user.displayName?.isNotEmpty == true
                             ? user.displayName!
                             : user.username,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         '@${user.username}',
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style: TextStyle(
+                          color: context.nexora.textHint,
                           fontSize: 12,
                         ),
                       ),
@@ -440,7 +442,7 @@ class _ShareScreenState extends State<ShareScreen> {
                       : Icons.radio_button_unchecked,
                   color: selected
                       ? const Color(0xFF6C63FF)
-                      : Colors.white38,
+                      : context.nexora.textHint,
                 ),
               ],
             ),

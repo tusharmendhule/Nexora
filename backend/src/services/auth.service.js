@@ -6,6 +6,21 @@ const { generateToken } = require('../utils/generateToken');
 const ageVerificationService = require('./age-verification/age-verification.service');
 const auditService = require('./audit.service');
 
+/**
+ * Normalize an avatar URL supplied by the client (e.g. a Google photo
+ * URL from Firebase Auth). Only http(s) URLs are accepted; anything else
+ * is treated as "no avatar".
+ */
+function normalizeAvatar(avatar) {
+  if (typeof avatar === 'string') {
+    const trimmed = avatar.trim();
+    if (/^https?:\/\/.+$/i.test(trimmed) && trimmed.length <= 2048) {
+      return trimmed;
+    }
+  }
+  return '';
+}
+
 class AuthService {
   // ─── Local (email/password) Registration ────────────────
 
@@ -172,8 +187,9 @@ class AuthService {
    * @param {string} params.idToken   - Firebase ID token
    * @param {string} params.name      - Display name
    * @param {string} params.username  - Unique username
+   * @param {string} [params.avatar]  - Profile photo URL (e.g. Google photo)
    */
-  async register({ idToken, name, username }) {
+  async register({ idToken, name, username, avatar }) {
     // ── Verify Firebase ID token ────────────────────────
     let decoded;
     try {
@@ -207,6 +223,7 @@ class AuthService {
       name: name.trim(),
       username: cleanUsername,
       email: email.toLowerCase().trim(),
+      avatar: normalizeAvatar(avatar),
       authMethod: 'firebase',
       role: 'USER',
     });
@@ -260,8 +277,10 @@ class AuthService {
    *
    * @param {Object} params
    * @param {string} params.idToken - Firebase ID token
+   * @param {string} [params.avatar] - Profile photo URL (e.g. Google photo);
+   *   backfills the account's avatar when it doesn't have one yet.
    */
-  async login({ idToken }) {
+  async login({ idToken, avatar }) {
     // ── Verify Firebase ID token ────────────────────────
     let decoded;
     try {
@@ -322,6 +341,17 @@ class AuthService {
         });
       } catch (_) { /* audit logging is non-critical */ }
       throw new ApiError(401, 'Account has been disabled');
+    }
+
+    // Backfill the profile photo (Google photoURL) for accounts created
+    // before avatar support was wired in. Never overwrites a photo the
+    // user has already chosen themselves.
+    const photo = normalizeAvatar(avatar);
+    if (!user.avatar && photo) {
+      user.avatar = photo;
+      try {
+        await user.save();
+      } catch (_) { /* non-critical — the photo can be set on a later login */ }
     }
 
     // Audit: log successful login (non-critical)

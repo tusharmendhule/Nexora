@@ -724,6 +724,16 @@ class AuditService {
         return `Role changed for user "${username}" to "${changes?.newRole || 'unknown'}"`;
       case 'EMAIL_CHANGED':
         return `Email changed for user "${username}"`;
+      case 'PHONE_CHANGED':
+        return `Phone number changed for user "${username}"`;
+      case 'ACCOUNT_DEACTIVATED':
+        return `Account deactivated for user "${username}"`;
+      case 'ACCOUNT_REACTIVATED':
+        return `Account reactivated for user "${username}"`;
+      case 'ACCOUNT_DELETED':
+        return `Account deleted for user "${username}"`;
+      case 'DATA_EXPORT_REQUESTED':
+        return `Data export requested for user "${username}"`;
       case 'PRIVACY_TOGGLED':
         return `Privacy setting toggled for user "${username}"`;
       default:

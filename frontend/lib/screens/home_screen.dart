@@ -2,6 +2,10 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import 'findpeople_screen.dart';
 import 'post_screen.dart';
 import 'notifications_screen.dart';
@@ -198,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _savedPosts[post.id] = previousSaved;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save post. Please try again.')),
+        SnackBar(content: Text('Could not save post. Please try again.')),
       );
       return;
     }
@@ -226,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _resharedPosts[post.id] = previousReshared;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not reshare post. Please try again.')),
+        SnackBar(content: Text('Could not reshare post. Please try again.')),
       );
       return;
     }
@@ -259,8 +263,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF11162B),
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.nexora.sheet,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
@@ -275,18 +279,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: context.nexora.textDim,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
                 if (isOwner)
                   ListTile(
-                    leading: const Icon(
+                    leading: Icon(
                       Icons.delete_outline,
                       color: Color(0xFFE74C3C),
                       size: 22,
                     ),
-                    title: const Text(
+                    title: Text(
                       'Delete post',
                       style: TextStyle(
                         color: Color(0xFFE74C3C),
@@ -301,15 +305,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 if (!isOwner) ...[
                   ListTile(
-                    leading: const Icon(
+                    leading: Icon(
                       Icons.flag_outlined,
                       color: Color(0xFFF39C12),
                       size: 22,
                     ),
-                    title: const Text(
+                    title: Text(
                       'Report post',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.nexora.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                       ),
@@ -332,31 +336,31 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF171D35),
+        backgroundColor: context.nexora.card,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
         ),
-        title: const Text(
+        title: Text(
           'Delete post',
           style: TextStyle(
-            color: Colors.white,
+            color: context.nexora.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
-        content: const Text(
+        content: Text(
           'Are you sure you want to delete this post? This action cannot be undone.',
           style: TextStyle(
-            color: Colors.white70,
+            color: context.nexora.textSecondary,
             fontSize: 14,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(color: context.nexora.textMuted),
             ),
           ),
           TextButton(
@@ -364,7 +368,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pop(context);
               await _deletePost(post);
             },
-            child: const Text(
+            child: Text(
               'Delete',
               style: TextStyle(
                 color: Color(0xFFE74C3C),
@@ -387,11 +391,11 @@ class _HomeScreenState extends State<HomeScreen> {
         posts.removeWhere((p) => p.id == post.id);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Post deleted')),
+        SnackBar(content: Text('Post deleted')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Could not delete post. Please try again.'),
         ),
       );
@@ -415,9 +419,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF11162B),
+      backgroundColor: context.nexora.sheet,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
@@ -441,29 +445,29 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 4,
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white24,
+                            color: context.nexora.textDim,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                       ),
 
-                      const Text(
+                      Text(
                         'Report post',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: context.nexora.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
 
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
 
-                      const Text(
+                      Text(
                         'Why are you reporting this post?',
-                        style: TextStyle(color: Colors.white54, fontSize: 13),
+                        style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       // Reason selection
                       ...reasons.map((r) => RadioListTile<String>(
@@ -474,8 +478,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             title: Text(
                               r['label']!,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: context.nexora.textPrimary,
                                 fontSize: 14,
                               ),
                             ),
@@ -484,51 +488,51 @@ class _HomeScreenState extends State<HomeScreen> {
                             dense: true,
                           )),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // Optional description
                       TextField(
                         controller: descriptionController,
                         maxLines: 3,
                         maxLength: 1000,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.nexora.textPrimary,
                           fontSize: 14,
                         ),
                         decoration: InputDecoration(
                           hintText: 'Additional details (optional)',
-                          hintStyle: const TextStyle(
-                            color: Colors.white30,
+                          hintStyle: TextStyle(
+                            color: context.nexora.textHint,
                             fontSize: 13,
                           ),
                           filled: true,
-                          fillColor: const Color(0xFF171D35),
+                          fillColor: context.nexora.card,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(
-                              color: Colors.white.withOpacity(0.1),
+                              color: context.nexora.textPrimary.withOpacity(0.1),
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(
-                              color: Colors.white.withOpacity(0.1),
+                              color: context.nexora.textPrimary.withOpacity(0.1),
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: Color(0xFF3157D5),
                             ),
                           ),
-                          counterStyle: const TextStyle(
-                            color: Colors.white30,
+                          counterStyle: TextStyle(
+                            color: context.nexora.textHint,
                             fontSize: 11,
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       // Submit button
                       SizedBox(
@@ -538,7 +542,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             color: selectedReason == null
-                                ? Colors.white10
+                                ? context.nexora.surfaceSubtle
                                 : const Color(0xFFE74C3C),
                           ),
                           child: ElevatedButton(
@@ -564,7 +568,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     if (success) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
                                           content: Text(
                                             'Report submitted. Thank you for keeping Nexora safe.',
                                           ),
@@ -573,7 +577,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     } else {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
                                           content: Text(
                                             'Could not submit report. Please try again.',
                                           ),
@@ -590,18 +594,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             child: isSubmitting
-                                ? const SizedBox(
+                                ? SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: context.nexora.textPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : const Text(
+                                : Text(
                                     'Submit report',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: context.nexora.textPrimary,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -623,23 +627,23 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0B1A),
+        backgroundColor: context.nexora.background,
         elevation: 0,
         title: ShaderMask(
           shaderCallback: (bounds) {
-            return const LinearGradient(
-              colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+            return LinearGradient(
+              colors: nexoraGradient(),
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ).createShader(bounds);
           },
-          child: const Text(
+          child: Text(
             'N',
             style: TextStyle(
-              color: Colors.white,
+              color: context.nexora.textPrimary,
               fontSize: 38,
               fontWeight: FontWeight.bold,
             ),
@@ -664,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _loadPosts();
               }
             },
-            icon: const Icon(Icons.add),
+            icon: Icon(Icons.add),
           ),
 
           IconButton(
@@ -676,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             },
-            icon: const Icon(Icons.notifications_none),
+            icon: Icon(Icons.notifications_none),
           ),
         ],
       ),
@@ -688,28 +692,28 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _normalHome() {
     return RefreshIndicator(
       onRefresh: _loadPosts,
-      backgroundColor: const Color(0xFF171D35),
+      backgroundColor: context.nexora.card,
       color: const Color(0xFF3157D5),
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text(
+          Text(
             'Welcome to Nexora 👋',
             style: TextStyle(
-              color: Colors.white,
+              color: context.nexora.textPrimary,
               fontSize: 26,
               fontWeight: FontWeight.bold,
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
-          const Text(
+          Text(
             'Connect, share and discover.',
-            style: TextStyle(color: Colors.white70, fontSize: 15),
+            style: TextStyle(color: context.nexora.textSecondary, fontSize: 15),
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           SizedBox(
             height: 82,
@@ -772,11 +776,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // Loading indicator
           if (_isLoadingPosts && posts.isEmpty)
-            const Center(
+            Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 40),
                 child: CircularProgressIndicator(
@@ -793,24 +797,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 40),
                 child: Column(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.article_outlined,
-                      color: Colors.white24,
+                      color: context.nexora.textDim,
                       size: 48,
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'No posts yet',
                       style: TextStyle(
-                        color: Colors.white54,
+                        color: context.nexora.textMuted,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       'Be the first to share something!',
-                      style: TextStyle(color: Colors.white38, fontSize: 13),
+                      style: TextStyle(color: context.nexora.textHint, fontSize: 13),
                     ),
                   ],
                 ),
@@ -832,7 +836,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       )
                     : GestureDetector(
                         onTap: _loadMorePosts,
-                        child: const Text(
+                        child: Text(
                           'Load more',
                           style: TextStyle(
                             color: Color(0xFF3157D5),
@@ -860,8 +864,8 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 92,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                gradient: LinearGradient(
+                  colors: nexoraGradient(),
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -873,40 +877,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.people_alt_outlined,
-                color: Colors.white,
+                color: context.nexora.textPrimary,
                 size: 42,
               ),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
-            const Text(
+            Text(
               'Your Nexora starts here',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white,
+                color: context.nexora.textPrimary,
                 fontSize: 25,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.4,
               ),
             ),
 
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
 
-            const Text(
+            Text(
               'Your feed is empty for now. Follow people and creators '
               'to start seeing posts, moments and conversations here.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white54,
+                color: context.nexora.textMuted,
                 fontSize: 13,
                 height: 1.5,
               ),
             ),
 
-            const SizedBox(height: 28),
+            SizedBox(height: 28),
 
             SizedBox(
               width: double.infinity,
@@ -914,8 +918,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                  gradient: LinearGradient(
+                    colors: nexoraGradient(),
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -936,10 +940,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Find People',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: context.nexora.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -948,7 +952,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
             SizedBox(
               width: double.infinity,
@@ -956,16 +960,16 @@ class _HomeScreenState extends State<HomeScreen> {
               child: OutlinedButton(
                 onPressed: widget.onExploreClips,
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: const Color(0xFF171D35),
-                  side: BorderSide(color: Colors.white.withOpacity(0.07)),
+                  backgroundColor: context.nexora.card,
+                  side: BorderSide(color: context.nexora.textPrimary.withOpacity(0.07)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   'Explore Clips',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: context.nexora.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1008,9 +1012,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             fit: BoxFit.cover,
                           ),
                         )
-                      : const CircleAvatar(
+                      : CircleAvatar(
                           backgroundColor: Color(0xFFE5E5E5),
-                          child: Icon(Icons.person, color: Colors.white),
+                          child: Icon(Icons.person, color: context.nexora.textPrimary),
                         ),
                 ),
 
@@ -1038,17 +1042,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 20,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+                          gradient: LinearGradient(
+                            colors: nexoraGradient(),
                           ),
                           border: Border.all(
-                            color: const Color(0xFF0B0B1A),
+                            color: context.nexora.background,
                             width: 2,
                           ),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.add,
-                          color: Colors.white,
+                          color: context.nexora.textPrimary,
                           size: 13,
                         ),
                       ),
@@ -1057,12 +1061,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
 
             if (isFirst)
-              const Text(
+              Text(
                 'You',
-                style: TextStyle(fontSize: 11, color: Colors.white),
+                style: TextStyle(fontSize: 11, color: context.nexora.textPrimary),
               ),
           ],
         ),
@@ -1088,7 +1092,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(18),
       ),
       clipBehavior: Clip.antiAlias,
@@ -1109,11 +1113,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           : null)
                       : null,
                   child: authorAvatar == null || authorAvatar.isEmpty
-                      ? const Icon(Icons.person, color: Colors.white)
+                      ? Icon(Icons.person, color: context.nexora.textPrimary)
                       : null,
                 ),
 
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
 
                 Expanded(
                   child: Row(
@@ -1132,8 +1136,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text(
                             username,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: context.nexora.textPrimary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1141,15 +1145,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       if (isVerified) ...[
-                        const SizedBox(width: 4),
-                        const Icon(
+                        SizedBox(width: 4),
+                        Icon(
                           Icons.verified,
                           color: Color(0xFF6C8CFF),
                           size: 16,
                         ),
                       ],
 
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
 
                       // Trust label badge — tapping opens detail sheet
                       GestureDetector(
@@ -1174,7 +1178,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 IconButton(
                   onPressed: () => _showPostOptions(context, post),
-                  icon: const Icon(Icons.more_vert, color: Colors.white70),
+                  icon: Icon(Icons.more_vert, color: context.nexora.textSecondary),
                 ),
               ],
             ),
@@ -1189,7 +1193,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               width: double.infinity,
               height: 260,
-              color: const Color(0xFF252B45),
+              color: context.nexora.placeholder,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -1202,22 +1206,22 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: double.infinity,
                               height: 200,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(
+                              errorBuilder: (_, __, ___) => Icon(
                                 Icons.videocam_outlined,
-                                color: Colors.white38,
+                                color: context.nexora.textHint,
                                 size: 55,
                               ),
                             )
-                          : const Icon(
+                          : Icon(
                               Icons.videocam_outlined,
-                              color: Colors.white38,
+                              color: context.nexora.textHint,
                               size: 55,
                             ),
                     )
                   else
-                    const Icon(
+                    Icon(
                       Icons.videocam_outlined,
-                      color: Colors.white38,
+                      color: context.nexora.textHint,
                       size: 55,
                     ),
                 ],
@@ -1229,11 +1233,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               width: double.infinity,
               height: 120,
-              color: const Color(0xFF252B45),
-              child: const Center(
+              color: context.nexora.placeholder,
+              child: Center(
                 child: Icon(
                   Icons.headphones_outlined,
-                  color: Colors.white38,
+                  color: context.nexora.textHint,
                   size: 55,
                 ),
               ),
@@ -1244,33 +1248,33 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
-              color: const Color(0xFF252B45),
+              color: context.nexora.placeholder,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (post.linkTitle != null)
                     Text(
                       post.linkTitle!,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.nexora.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     post.linkUrl!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF7D8CFF),
                       fontSize: 12,
                     ),
                   ),
                   if (post.linkDescription != null) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       post.linkDescription!,
-                      style: const TextStyle(
-                        color: Colors.white54,
+                      style: TextStyle(
+                        color: context.nexora.textMuted,
                         fontSize: 12,
                       ),
                     ),
@@ -1290,7 +1294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _likedPosts[post.id] == true
                         ? Icons.favorite
                         : Icons.favorite_border,
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                   ),
                 ),
 
@@ -1306,9 +1310,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.chat_bubble_outline,
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                   ),
                 ),
 
@@ -1318,13 +1322,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     Icons.repeat,
                     color: (_resharedPosts[post.id] ?? false)
                         ? const Color(0xFF6C8CFF)
-                        : Colors.white,
+                        : context.nexora.textPrimary,
                   ),
                 ),
 
                 IconButton(
                   onPressed: () => _sharePost(context, post),
-                  icon: const Icon(Icons.send_outlined, color: Colors.white),
+                  icon: Icon(Icons.send_outlined, color: context.nexora.textPrimary),
                 ),
 
                 const Spacer(),
@@ -1335,7 +1339,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     (_savedPosts[post.id] ?? false)
                         ? Icons.bookmark
                         : Icons.bookmark_border,
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                   ),
                 ),
               ],
@@ -1350,18 +1354,18 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   '$displayLikeCount likes',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 Text(
                   '$username  $text',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.nexora.textPrimary,
                     fontSize: 14,
                     height: 1.4,
                   ),
@@ -1369,30 +1373,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // Tags
                 if (tags != null && tags.isNotEmpty) ...[
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   Wrap(
                     spacing: 6,
                     children: tags.map((tag) => Text(
                       '#$tag',
-                      style: const TextStyle(color: Color(0xFF7D8CFF), fontSize: 13),
+                      style: TextStyle(color: Color(0xFF7D8CFF), fontSize: 13),
                     )).toList(),
                   ),
                 ],
 
                 // Hashtags
                 if (hashtags != null && hashtags.isNotEmpty) ...[
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   Wrap(
                     spacing: 6,
                     children: hashtags.map((tag) => Text(
                       '#$tag',
-                      style: const TextStyle(color: Color(0xFF7D8CFF), fontSize: 13),
+                      style: TextStyle(color: Color(0xFF7D8CFF), fontSize: 13),
                     )).toList(),
                   ),
                 ],
 
                 if ((tags == null || tags.isEmpty) && (hashtags == null || hashtags.isEmpty))
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 6),
                     child: Text(
                       '#Nexora #Community',
@@ -1400,7 +1404,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
 
                 // ── Trust Score inline strip ────────────────────────
                 _trustScoreStrip(
@@ -1420,7 +1424,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 GestureDetector(
                   onTap: () {
@@ -1434,9 +1438,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     'View all comments',
-                    style: TextStyle(color: Colors.white54, fontSize: 13),
+                    style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                   ),
                 ),
               ],
@@ -1492,7 +1496,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: label.color,
               ),
             ),
-            const SizedBox(width: 7),
+            SizedBox(width: 7),
             // Label name — always visible, never color-only
             Text(
               label.name,
@@ -1502,24 +1506,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             // Trust score number
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.07),
+                color: context.nexora.textPrimary.withOpacity(0.07),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 '$trustScore/100',
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: context.nexora.textSecondary,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             // Verification status chip
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -1592,7 +1596,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'REJECTED':
         return const Color(0xFFE74C3C);
       default:
-        return Colors.white54;
+        return context.nexora.textMuted;
     }
   }
 
@@ -1607,8 +1611,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF11162B),
-      shape: const RoundedRectangleBorder(
+      backgroundColor: context.nexora.sheet,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
@@ -1628,7 +1632,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       shape: BoxShape.circle,
                       color: label.color,
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.55),
+                        color: context.nexora.textPrimary.withOpacity(0.55),
                         width: 1.2,
                       ),
                       boxShadow: [
@@ -1640,13 +1644,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   // Label name — always visible alongside color
                   Expanded(
                     child: Text(
                       label.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.nexora.textPrimary,
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1674,83 +1678,83 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
 
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
 
               // ── Explanation ──────────────────────────
-              const Text(
+              Text(
                 'Why this label?',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 label.explanation,
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: context.nexora.textSecondary,
                   fontSize: 13,
                   height: 1.4,
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // ── Verification status ──────────────────
-              const Text(
+              Text(
                 'Verification status',
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: context.nexora.textMuted,
                   fontSize: 12,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               _buildStatusRow(
                 _verificationStatusText(verificationStatus, moderationStatus),
                 _verificationStatusColor(verificationStatus, moderationStatus),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // ── Content type ─────────────────────────
-              const Text(
+              Text(
                 'Content type',
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: context.nexora.textMuted,
                   fontSize: 12,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 post.contentType,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: context.nexora.textPrimary,
                   fontSize: 13,
                 ),
               ),
 
               // ── Component scores (if available) ──────
               if (post.trustAuthenticity != null) ...[
-                const SizedBox(height: 16),
-                const Text(
+                SizedBox(height: 16),
+                Text(
                   'Score breakdown',
                   style: TextStyle(
-                    color: Colors.white54,
+                    color: context.nexora.textMuted,
                     fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 _buildComponentBar('Authenticity', post.trustAuthenticity!),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 _buildComponentBar('Factual Verification', post.trustFactualVerification!),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 _buildComponentBar('Source Credibility', post.trustSourceCredibility!),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 _buildComponentBar('Model Confidence', post.trustModelConfidence!),
               ],
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // ── Moderator override note ──────────────
               if (post.trustOverrideApplied == true) ...[
@@ -1763,7 +1767,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: const Color(0xFFF39C12).withOpacity(0.3),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(
                         Icons.admin_panel_settings_outlined,
@@ -1787,7 +1791,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // ── Request review button ────────────────
               if (verificationStatus != 'verified') ...[
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   height: 42,
@@ -1813,16 +1817,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(
-                        color: Colors.white.withOpacity(0.15),
+                        color: context.nexora.textPrimary.withOpacity(0.15),
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Request Moderator Review',
                       style: TextStyle(
-                        color: Colors.white70,
+                        color: context.nexora.textSecondary,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1841,7 +1845,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       children: [
         Icon(Icons.circle, color: color, size: 8),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text(
           text,
           style: TextStyle(
@@ -1868,7 +1872,7 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 140,
           child: Text(
             label,
-            style: const TextStyle(color: Colors.white60, fontSize: 11),
+            style: TextStyle(color: context.nexora.textSecondary, fontSize: 11),
           ),
         ),
         Expanded(
@@ -1876,17 +1880,17 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(3),
             child: LinearProgressIndicator(
               value: value,
-              backgroundColor: Colors.white.withOpacity(0.08),
+              backgroundColor: context.nexora.textPrimary.withOpacity(0.08),
               valueColor: AlwaysStoppedAnimation<Color>(barColor),
               minHeight: 5,
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Text(
           '$percent%',
-          style: const TextStyle(
-            color: Colors.white70,
+          style: TextStyle(
+            color: context.nexora.textSecondary,
             fontSize: 11,
             fontWeight: FontWeight.w600,
           ),
@@ -1904,11 +1908,11 @@ class _HomeScreenState extends State<HomeScreen> {
         errorBuilder: (_, __, ___) => Container(
           width: double.infinity,
           height: 260,
-          color: const Color(0xFF252B45),
-          child: const Center(
+          color: context.nexora.placeholder,
+          child: Center(
             child: Icon(
               Icons.image_outlined,
-              color: Colors.white38,
+              color: context.nexora.textHint,
               size: 55,
             ),
           ),
@@ -1924,11 +1928,11 @@ class _HomeScreenState extends State<HomeScreen> {
       errorBuilder: (_, __, ___) => Container(
         width: double.infinity,
         height: 260,
-        color: const Color(0xFF252B45),
-        child: const Center(
+        color: context.nexora.placeholder,
+        child: Center(
           child: Icon(
             Icons.image_outlined,
-            color: Colors.white38,
+            color: context.nexora.textHint,
             size: 55,
           ),
         ),

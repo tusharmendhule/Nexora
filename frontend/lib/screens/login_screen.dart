@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+
+import '../services/appearance_controller.dart';
+
 import '../services/auth_service.dart';
 import 'main_nav.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  /// Optional username/email to prefill (e.g. when switching accounts).
+  final String? initialUsername;
+
+  const LoginScreen({super.key, this.initialUsername});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
+  late final TextEditingController emailController =
+      TextEditingController(text: widget.initialUsername ?? '');
   final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
@@ -105,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0B1A),
+      backgroundColor: context.nexora.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 35, 24, 30),
@@ -114,37 +122,37 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               _logo(),
 
-              const SizedBox(height: 34),
+              SizedBox(height: 34),
 
-              const Text(
+              Text(
                 'Welcome back',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.nexora.textPrimary,
                   fontSize: 30,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
-              const Text(
+              Text(
                 'Sign in to continue to Nexora.',
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
               ),
 
-              const SizedBox(height: 34),
+              SizedBox(height: 34),
 
-              const Text(
+              Text(
                 'Email or username',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: context.nexora.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               _textField(
                 controller: emailController,
@@ -153,18 +161,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
-              const Text(
+              Text(
                 'Password',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: context.nexora.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
 
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
 
               _textField(
                 controller: passwordController,
@@ -181,13 +189,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscurePassword
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
-                    color: Colors.white38,
+                    color: context.nexora.textHint,
                     size: 21,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               Align(
                 alignment: Alignment.centerRight,
@@ -197,38 +205,38 @@ class _LoginScreenState extends State<LoginScreen> {
                     final result = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        backgroundColor: const Color(0xFF171D35),
-                        title: const Text('Reset Password', style: TextStyle(color: Colors.white)),
+                        backgroundColor: context.nexora.card,
+                        title: Text('Reset Password', style: TextStyle(color: context.nexora.textPrimary)),
                         content: TextField(
                           controller: controller,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
+                          style: TextStyle(color: context.nexora.textPrimary),
+                          decoration: InputDecoration(
                             hintText: 'Enter your email',
-                            hintStyle: TextStyle(color: Colors.white38),
+                            hintStyle: TextStyle(color: context.nexora.textHint),
                           ),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                            child: Text('Cancel', style: TextStyle(color: context.nexora.textSecondary)),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text('Send', style: TextStyle(color: Color(0xFF8B7CFF))),
+                            child: Text('Send', style: TextStyle(color: Color(0xFF8B7CFF))),
                           ),
                         ],
                       ),
                     );
                     if (result == true && mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                        SnackBar(
                           content: Text('Password reset email sent. Check your inbox.'),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
                     }
                   },
-                  child: const Text(
+                  child: Text(
                     'Forgot password?',
                     style: TextStyle(
                       color: Color(0xFF8B7CFF),
@@ -239,35 +247,35 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               _loginButton(),
 
-              const SizedBox(height: 25),
+              SizedBox(height: 25),
 
               Row(
                 children: [
                   Expanded(
-                    child: Divider(color: Colors.white.withOpacity(0.08)),
+                    child: Divider(color: context.nexora.textPrimary.withOpacity(0.08)),
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 14),
                     child: Text(
                       'OR',
                       style: TextStyle(
-                        color: Colors.white30,
+                        color: context.nexora.textHint,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Divider(color: Colors.white.withOpacity(0.08)),
+                    child: Divider(color: context.nexora.textPrimary.withOpacity(0.08)),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               _socialButton(
                 icon: Icons.g_mobiledata_rounded,
@@ -275,14 +283,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: isLoading ? () {} : _handleGoogleSignIn,
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               _socialButton(
                 icon: Icons.apple,
                 label: 'Continue with Apple',
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
                       content: Text('Apple Sign-In is not yet available'),
                       behavior: SnackBarBehavior.floating,
                     ),
@@ -290,15 +298,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               Center(
                 child: Wrap(
                   alignment: WrapAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       "Don't have an account? ",
-                      style: TextStyle(color: Colors.white54, fontSize: 13),
+                      style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -309,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       },
-                      child: const Text(
+                      child: Text(
                         'Create Account',
                         style: TextStyle(
                           color: Color(0xFF8B7CFF),
@@ -334,15 +342,15 @@ class _LoginScreenState extends State<LoginScreen> {
       height: 58,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+        gradient: LinearGradient(
+          colors: nexoraGradient(),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Icon(
+      child: Icon(
         Icons.auto_awesome_rounded,
-        color: Colors.white,
+        color: context.nexora.textPrimary,
         size: 30,
       ),
     );
@@ -358,21 +366,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF171D35),
+        color: context.nexora.card,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: context.nexora.textPrimary.withOpacity(0.06)),
       ),
       child: TextField(
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.white30, fontSize: 13),
+          hintStyle: TextStyle(color: context.nexora.textHint, fontSize: 13),
           prefixIcon: Icon(
             icon,
-            color: Colors.white.withOpacity(0.45),
+            color: context.nexora.textPrimary.withOpacity(0.45),
             size: 21,
           ),
           suffixIcon: suffixIcon,
@@ -393,8 +401,8 @@ class _LoginScreenState extends State<LoginScreen> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF3157D5), Color(0xFF7C3AED)],
+          gradient: LinearGradient(
+            colors: nexoraGradient(),
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
@@ -409,18 +417,18 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           child: isLoading
-              ? const SizedBox(
+              ? SizedBox(
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     strokeWidth: 2.5,
                   ),
                 )
-              : const Text(
+              : Text(
                   'Sign In',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: context.nexora.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -440,18 +448,18 @@ class _LoginScreenState extends State<LoginScreen> {
       height: 52,
       child: OutlinedButton.icon(
         onPressed: onTap,
-        icon: Icon(icon, color: Colors.white70, size: 23),
+        icon: Icon(icon, color: context.nexora.textSecondary, size: 23),
         label: Text(
           label,
-          style: const TextStyle(
-            color: Colors.white70,
+          style: TextStyle(
+            color: context.nexora.textSecondary,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
         ),
         style: OutlinedButton.styleFrom(
-          backgroundColor: const Color(0xFF171D35),
-          side: BorderSide(color: Colors.white.withOpacity(0.07)),
+          backgroundColor: context.nexora.card,
+          side: BorderSide(color: context.nexora.textPrimary.withOpacity(0.07)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),

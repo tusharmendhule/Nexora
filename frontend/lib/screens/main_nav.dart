@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../config/nexora_themes.dart';
+import '../services/appearance_controller.dart';
 import 'home_screen.dart';
 import 'msg_screen.dart';
 import 'explore_screen.dart';
@@ -24,6 +26,10 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   void initState() {
     super.initState();
+
+    // Refresh appearance settings now that a user is signed in, so their
+    // per-account theme/gradient/animations/text size apply.
+    AppearanceController.instance.load();
 
     currentIndex = 0;
 
@@ -66,7 +72,7 @@ class _MainNavigationState extends State<MainNavigation> {
         child: Container(
           height: 64,
           decoration: BoxDecoration(
-            color: const Color(0xFF171D35),
+            color: context.nexora.card,
             borderRadius: BorderRadius.circular(32),
           ),
           child: Row(
@@ -92,7 +98,7 @@ class _MainNavigationState extends State<MainNavigation> {
       child: Icon(
         icon,
         size: 25,
-        color: selected ? const Color(0xFF6C63FF) : Colors.white70,
+        color: selected ? const Color(0xFF6C63FF) : context.nexora.textSecondary,
       ),
     );
   }

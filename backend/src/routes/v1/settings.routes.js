@@ -15,7 +15,7 @@ const ALLOWED_FIELDS = [
   // Security
   'twoFactorEnabled', 'authenticationMethod',
   // Appearance
-  'theme', 'darkMode', 'reduceAnimations', 'selectedGradient',
+  'theme', 'darkMode', 'reduceAnimations', 'selectedGradient', 'textSize',
   // Language
   'language',
   // Content Preferences

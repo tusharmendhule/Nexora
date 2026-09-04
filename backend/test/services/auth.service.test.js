@@ -204,6 +204,38 @@ describe('Auth Service', () => {
 
       expect(result.user.name).toBe('Test User');
     });
+
+    it('should store the Google photo as the avatar when provided', async () => {
+      firebaseAdmin._mockVerifyIdToken.mockResolvedValue({
+        uid: 'uid_photo',
+        email: 'photo@example.com',
+      });
+
+      const result = await authService.register({
+        idToken: 'token',
+        name: 'Photo User',
+        username: 'photouser',
+        avatar: 'https://lh3.googleusercontent.com/a/abc123=s512-c',
+      });
+
+      expect(result.user.avatar).toBe('https://lh3.googleusercontent.com/a/abc123=s512-c');
+    });
+
+    it('should ignore non-http avatar values', async () => {
+      firebaseAdmin._mockVerifyIdToken.mockResolvedValue({
+        uid: 'uid_badphoto',
+        email: 'badphoto@example.com',
+      });
+
+      const result = await authService.register({
+        idToken: 'token',
+        name: 'Bad Photo',
+        username: 'badphoto',
+        avatar: 'data:image/png;base64,AAAA',
+      });
+
+      expect(result.user.avatar).toBe('');
+    });
   });
 
   // ─── Login ────────────────────────────────────────────────────────
@@ -310,6 +342,52 @@ describe('Auth Service', () => {
       const result = await authService.login({ idToken: 'token' });
       expect(result.user).toBeDefined();
       expect(result.user.username).toBe('fbfail');
+    });
+
+    it('should backfill the Google photo for accounts without an avatar', async () => {
+      firebaseAdmin._mockVerifyIdToken.mockResolvedValue({
+        uid: 'backfill_uid',
+        email: 'backfill@example.com',
+      });
+      firebaseAdmin._mockGetUser.mockResolvedValue({ disabled: false });
+
+      await User.create({
+        firebaseUid: 'backfill_uid',
+        name: 'Backfill User',
+        username: 'backfill',
+        email: 'backfill@example.com',
+        avatar: '',
+      });
+
+      const result = await authService.login({
+        idToken: 'token',
+        avatar: 'https://lh3.googleusercontent.com/a/xyz=s512-c',
+      });
+
+      expect(result.user.avatar).toBe('https://lh3.googleusercontent.com/a/xyz=s512-c');
+    });
+
+    it('should not overwrite an avatar the user already set', async () => {
+      firebaseAdmin._mockVerifyIdToken.mockResolvedValue({
+        uid: 'keep_uid',
+        email: 'keep@example.com',
+      });
+      firebaseAdmin._mockGetUser.mockResolvedValue({ disabled: false });
+
+      await User.create({
+        firebaseUid: 'keep_uid',
+        name: 'Keep User',
+        username: 'keepuser',
+        email: 'keep@example.com',
+        avatar: 'https://res.cloudinary.com/x/avatar.jpg',
+      });
+
+      const result = await authService.login({
+        idToken: 'token',
+        avatar: 'https://lh3.googleusercontent.com/a/xyz=s512-c',
+      });
+
+      expect(result.user.avatar).toBe('https://res.cloudinary.com/x/avatar.jpg');
     });
   });
 
