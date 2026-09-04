@@ -13,9 +13,26 @@ const messageSchema = new mongoose.Schema({
   },
   text: {
     type: String,
-    required: true,
     trim: true,
-    maxlength: 5000
+    maxlength: 5000,
+    default: ''
+  },
+  // Cloudinary URL for image messages (empty for text-only messages)
+  image: {
+    type: String,
+    default: ''
+  },
+  // Message kind: regular text, image, or a shared post
+  type: {
+    type: String,
+    enum: ['text', 'image', 'share'],
+    default: 'text'
+  },
+  // Reference to a post shared through the messaging system
+  sharedPostId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Post',
+    default: null
   },
   // Delivery status: 'sent', 'delivered', 'read'
   status: {
@@ -61,5 +78,6 @@ messageSchema.index({ recipient: 1, sender: 1, createdAt: -1 });
 messageSchema.index({ sender: 1, createdAt: -1 });
 messageSchema.index({ recipient: 1, createdAt: -1 });
 messageSchema.index({ idempotencyKey: 1 }, { sparse: true });
+messageSchema.index({ sharedPostId: 1 });
 
 module.exports = mongoose.model('Message', messageSchema);

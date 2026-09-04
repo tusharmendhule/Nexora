@@ -95,18 +95,22 @@ class PostService {
       trustScoreMap[ts.post.toString()] = ts;
     });
 
-    // Determine which posts the current user has liked
+    // Determine which posts the current user has liked, saved or reshared
     let likedPostIds = new Set();
     let savedPostIds = new Set();
+    let resharedPostIds = new Set();
     if (userId && postIds.length > 0) {
       const Like = require('../models/like.model');
       const SavedPost = require('../models/saved-post.model');
-      const [userLikes, userSaves] = await Promise.all([
+      const Reshare = require('../models/reshare.model');
+      const [userLikes, userSaves, userReshares] = await Promise.all([
         Like.find({ post: { $in: postIds }, user: userId }).select('post'),
         SavedPost.find({ post: { $in: postIds }, user: userId }).select('post'),
+        Reshare.find({ originalPost: { $in: postIds }, user: userId }).select('originalPost'),
       ]);
       likedPostIds = new Set(userLikes.map((l) => l.post.toString()));
       savedPostIds = new Set(userSaves.map((s) => s.post.toString()));
+      resharedPostIds = new Set(userReshares.map((r) => r.originalPost.toString()));
     }
 
     const enrichedPosts = posts.map((p) => {
@@ -128,6 +132,7 @@ class PostService {
       }
       obj.isLiked = likedPostIds.has(p._id.toString());
       obj.isSaved = savedPostIds.has(p._id.toString());
+      obj.isReshared = resharedPostIds.has(p._id.toString());
       return obj;
     });
 
@@ -173,11 +178,19 @@ class PostService {
       obj.trustScore = tsDetail.score;
     }
 
-    // Attach isSaved flag if user is provided
+    // Attach per-user interaction flags if user is provided
     if (userId) {
       const SavedPost = require('../models/saved-post.model');
-      const saved = await SavedPost.findOne({ user: userId, post: postId });
+      const Reshare = require('../models/reshare.model');
+      const Like = require('../models/like.model');
+      const [saved, reshared, liked] = await Promise.all([
+        SavedPost.findOne({ user: userId, post: postId }),
+        Reshare.findOne({ user: userId, originalPost: postId }),
+        Like.findOne({ user: userId, post: postId }),
+      ]);
       obj.isSaved = !!saved;
+      obj.isReshared = !!reshared;
+      obj.isLiked = !!liked;
     }
 
     return obj;
@@ -277,18 +290,22 @@ class PostService {
       trustScoreMap[ts.post.toString()] = ts;
     });
 
-    // Determine which posts the current user has liked or saved
+    // Determine which posts the current user has liked, saved or reshared
     let likedPostIds = new Set();
     let savedPostIds = new Set();
+    let resharedPostIds = new Set();
     if (userId && postIds.length > 0) {
       const Like = require('../models/like.model');
       const SavedPost = require('../models/saved-post.model');
-      const [userLikes, userSaves] = await Promise.all([
+      const Reshare = require('../models/reshare.model');
+      const [userLikes, userSaves, userReshares] = await Promise.all([
         Like.find({ post: { $in: postIds }, user: userId }).select('post'),
         SavedPost.find({ post: { $in: postIds }, user: userId }).select('post'),
+        Reshare.find({ originalPost: { $in: postIds }, user: userId }).select('originalPost'),
       ]);
       likedPostIds = new Set(userLikes.map((l) => l.post.toString()));
       savedPostIds = new Set(userSaves.map((s) => s.post.toString()));
+      resharedPostIds = new Set(userReshares.map((r) => r.originalPost.toString()));
     }
 
     const enrichedPosts = posts.map((p) => {
@@ -309,6 +326,7 @@ class PostService {
       }
       obj.isLiked = likedPostIds.has(p._id.toString());
       obj.isSaved = savedPostIds.has(p._id.toString());
+      obj.isReshared = resharedPostIds.has(p._id.toString());
       return obj;
     });
 
@@ -351,15 +369,17 @@ class PostService {
 
     await Post.findByIdAndDelete(postId);
 
-    // Clean up associated likes, comments, and saved posts
+    // Clean up associated likes, comments, saved posts, and reshares
     const Like = require('../models/like.model');
     const Comment = require('../models/comment.model');
     const SavedPost = require('../models/saved-post.model');
+    const Reshare = require('../models/reshare.model');
 
     await Promise.all([
       Like.deleteMany({ post: postId }),
       Comment.deleteMany({ post: postId }),
       SavedPost.deleteMany({ post: postId }),
+      Reshare.deleteMany({ originalPost: postId }),
     ]);
 
     return { message: 'Post deleted successfully' };

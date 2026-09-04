@@ -183,9 +183,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
     if (confirmed != true || !mounted) return;
 
-    await _commentService.deleteComment(comment.id);
+    final deleted = await _commentService.deleteComment(comment.id);
 
     if (!mounted) return;
+
+    if (!deleted) {
+      _showMessage('Could not delete comment. Please try again.');
+      return;
+    }
 
     setState(() {
       comments.removeWhere((c) => c.id == comment.id);

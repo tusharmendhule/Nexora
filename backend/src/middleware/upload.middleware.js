@@ -181,6 +181,44 @@ const uploadMedia = async (req, _res, next) => {
 };
 
 /**
+ * Upload a single chat image to Cloudinary.
+ *
+ * Expects a multipart form with a field named "image".
+ * Attaches `req.fileUrl` with the Cloudinary secure URL on success.
+ */
+const uploadChatImage = async (req, _res, next) => {
+  try {
+    if (!req.file) {
+      return next(new ApiError(400, 'No image file provided'));
+    }
+
+    const dataUri = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload(
+        dataUri,
+        {
+          folder: 'nexora/chat',
+          transformation: [
+            { width: 1600, crop: 'limit', quality: 'auto', fetch_format: 'auto' },
+          ],
+          resource_type: 'image',
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        },
+      );
+    });
+
+    req.fileUrl = result.secure_url;
+    next();
+  } catch (error) {
+    next(new ApiError(500, 'Image upload failed'));
+  }
+};
+
+/**
  * Upload a single image to Cloudinary (avatar).
  *
  * Expects a multipart form with a field named "avatar".
@@ -262,6 +300,7 @@ module.exports = {
   uploadImageOnly,
   uploadMedia,
   uploadAvatar,
+  uploadChatImage,
   uploadImage,
   cloudinary,
   getMediaCategory,

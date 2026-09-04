@@ -6,10 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/api_config.dart';
 import '../models/conversation.dart';
+import 'api_exception.dart';
 
 /// Backend-connected conversation service.
 ///
-/// All conversation operations go through the Nexora backend backed by MongoDB.
+/// All conversation operations go through the Nexora backend backed by MongoDB:
+///  - GET  /api/messages/inbox        → inbox with real contacts + unread counts
+///  - POST /api/conversations         → create-or-find conversation (no duplicates)
 class ConversationService {
   ConversationService._internal();
 
@@ -57,49 +60,116 @@ class ConversationService {
     return token;
   }
 
+  /// Build a [Conversation] from an inbox item returned by
+  /// GET /api/messages/inbox. `contact` is the real other participant.
+  Conversation _fromInboxItem(Map<String, dynamic> item) {
+    final contact = item['contact'] is Map<String, dynamic>
+        ? item['contact'] as Map<String, dynamic>
+        : null;
+
+    return Conversation(
+      id: item['_id']?.toString() ?? '',
+      otherUserId: contact?['_id']?.toString() ?? '',
+      otherUsername: contact?['username']?.toString() ?? '',
+      otherName: contact?['name']?.toString() ?? '',
+      otherAvatar: contact?['avatar']?.toString() ?? '',
+      lastMessageText: item['lastMessagePreview']?.toString(),
+      lastMessageAt: item['lastMessageTime'] != null
+          ? DateTime.tryParse(item['lastMessageTime'].toString())
+          : null,
+      unreadCount: (item['unreadCount'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  /// Build a [Conversation] from a conversation document returned by
+  /// POST/GET /api/conversations. The other participant is the one matching
+  /// [otherUserId] (the receiver we asked the backend to chat with).
+  Conversation _fromConversationDoc(
+    Map<String, dynamic> doc,
+    String otherUserId,
+  ) {
+    final participants = doc['participants'] is List
+        ? doc['participants'] as List
+        : <dynamic>[];
+
+    Map<String, dynamic>? other;
+    for (final p in participants) {
+      if (p is! Map<String, dynamic>) continue;
+      if (p['_id']?.toString() == otherUserId) {
+        other = p;
+        break;
+      }
+    }
+    // Fallback: first participant (shouldn't happen for 2-party chats).
+    other ??= participants.isNotEmpty && participants.first is Map<String, dynamic>
+        ? participants.first as Map<String, dynamic>
+        : null;
+
+    final lastMessageSenderId = doc['lastMessageSender'] is Map<String, dynamic>
+        ? (doc['lastMessageSender'] as Map<String, dynamic>)['_id']?.toString()
+        : doc['lastMessageSender']?.toString();
+
+    return Conversation(
+      id: doc['_id']?.toString() ?? '',
+      otherUserId: other?['_id']?.toString() ?? '',
+      otherUsername: other?['username']?.toString() ?? '',
+      otherName: other?['name']?.toString() ?? '',
+      otherAvatar: other?['avatar']?.toString() ?? '',
+      lastMessageText: doc['lastMessage']?.toString(),
+      lastMessageAt: doc['lastMessageAt'] != null
+          ? DateTime.tryParse(doc['lastMessageAt'].toString())
+          : null,
+      lastMessageSenderId: lastMessageSenderId,
+      unreadCount: 0,
+    );
+  }
+
   // ─── GET /api/messages/inbox ─────────────────────────
 
-  /// Fetch all conversations for the current user from the backend.
+  /// Fetch all real conversations for the current user from the backend.
+  ///
+  /// Throws [ApiException] on network/server errors so screens can surface
+  /// them instead of silently showing an empty list.
   Future<List<Conversation>> fetchConversations() async {
+    final url = Uri.parse('${ApiConfig.legacyBaseUrl}/messages/inbox');
+    final http.Response response;
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/../../api/messages/inbox');
-      final response = await http
+      response = await http
           .get(url, headers: await _headers())
           .timeout(ApiConfig.timeout);
+    } catch (e) {
+      throw ApiException('Network error loading conversations', statusCode: 0);
+    }
 
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        if (body['success'] == true && body['inbox'] != null) {
-          final inboxList = body['inbox'] as List;
-          return inboxList.map((item) {
-            final contact = item['contact'] as Map<String, dynamic>?;
-            final participantIds = contact != null
-                ? [contact['_id']?.toString() ?? '', contact['username']?.toString() ?? '']
-                : <String>[];
+    if (response.statusCode != 200) {
+      throw ApiException(
+        'Failed to load conversations (${response.statusCode})',
+        statusCode: response.statusCode,
+      );
+    }
 
-            return Conversation(
-              id: item['_id']?.toString() ?? '',
-              participantIds: participantIds,
-              lastMessageText: item['lastMessagePreview']?.toString() ?? '',
-              lastMessageAt: item['lastMessageTime'] != null
-                  ? DateTime.tryParse(item['lastMessageTime'].toString())
-                  : null,
-              unreadCount: item['unreadCount'] as int? ?? 0,
-            );
-          }).toList();
-        }
-      }
-    } catch (_) {}
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    if (body['success'] != true) {
+      throw ApiException(
+        body['message']?.toString() ?? 'Failed to load conversations',
+        statusCode: response.statusCode,
+      );
+    }
 
-    return [];
+    final inboxList = body['inbox'] as List? ?? [];
+    return inboxList
+        .whereType<Map<String, dynamic>>()
+        .map(_fromInboxItem)
+        .toList();
   }
 
   // ─── POST /api/conversations ─────────────────────────
 
   /// Create or find an existing conversation with another user.
+  /// Returns null on failure (caller decides how to surface it).
   Future<Conversation?> createOrFindConversation(String receiverId) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/../../api/conversations');
+      final url = Uri.parse('${ApiConfig.legacyBaseUrl}/conversations');
       final response = await http
           .post(
             url,
@@ -112,59 +182,11 @@ class ConversationService {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         if (body['success'] == true && body['conversation'] != null) {
           final conv = body['conversation'] as Map<String, dynamic>;
-          final participants = conv['participants'] as List? ?? [];
-          final participantIds = participants
-              .map((p) => (p as Map<String, dynamic>)['_id']?.toString() ?? '')
-              .toList();
-
-          return Conversation(
-            id: conv['_id']?.toString() ?? '',
-            participantIds: participantIds,
-            lastMessageText: conv['lastMessage']?.toString() ?? '',
-            lastMessageAt: conv['lastMessageAt'] != null
-                ? DateTime.tryParse(conv['lastMessageAt'].toString())
-                : null,
-          );
+          return _fromConversationDoc(conv, receiverId);
         }
       }
     } catch (_) {}
 
     return null;
   }
-
-  // ─── GET /api/conversations ──────────────────────────
-
-  /// Fetch all conversations (legacy format).
-  Future<List<Conversation>> fetchConversationsLegacy() async {
-    try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/../../api/conversations');
-      final response = await http
-          .get(url, headers: await _headers())
-          .timeout(ApiConfig.timeout);
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        if (body['success'] == true && body['conversations'] != null) {
-          final convList = body['conversations'] as List;
-          return convList.map((conv) {
-            final participants = conv['participants'] as List? ?? [];
-            final participantIds = participants
-                .map((p) => (p as Map<String, dynamic>)['_id']?.toString() ?? '')
-                .toList();
-
-            return Conversation(
-              id: conv['_id']?.toString() ?? '',
-              participantIds: participantIds,
-              lastMessageText: conv['lastMessage']?.toString() ?? '',
-              lastMessageAt: conv['lastMessageAt'] != null
-                  ? DateTime.tryParse(conv['lastMessageAt'].toString())
-                  : null,
-            );
-          }).toList();
-        }
-      }
-    } catch (_) {}
-
-    return [];
-  }
-}
+}

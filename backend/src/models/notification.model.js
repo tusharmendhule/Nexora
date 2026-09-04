@@ -24,6 +24,7 @@ const NOTIFICATION_TYPE = {
   NEW_FOLLOWER: 'NEW_FOLLOWER',
   POST_LIKED: 'POST_LIKED',
   POST_COMMENTED: 'POST_COMMENTED',
+  POST_RESHARED: 'POST_RESHARED',
   NEW_MESSAGE: 'NEW_MESSAGE',
   // Content moderation notifications
   POST_VERIFIED: 'POST_VERIFIED',
@@ -84,7 +85,7 @@ const notificationSchema = new mongoose.Schema(
     // ─── Target Reference ───────────────────────────────
     targetType: {
       type: String,
-      enum: ['Post', 'Report', 'User', 'System', null],
+      enum: ['Post', 'Report', 'User', 'Message', 'System', null],
       default: null,
     },
 

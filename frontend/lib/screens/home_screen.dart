@@ -15,6 +15,7 @@ import '../models/nexora_label.dart';
 import '../models/post.dart';
 import '../services/post_service.dart';
 import '../services/like_service.dart';
+import '../services/reshare_service.dart';
 import '../services/user_service.dart';
 import '../services/trust_score_service.dart';
 import '../services/report_service.dart';
@@ -34,6 +35,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final LikeService _likeService = LikeService();
   final PostService _postService = PostService();
+  final ReshareService _reshareService = ReshareService();
   final MomentService _momentService = MomentService();
   final UserService _userService = UserService();
   final ReportService _reportService = ReportService();
@@ -124,17 +126,19 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {}
   }
 
-  // Maps tracking per-post like state, initialized from backend data
+  // Maps tracking per-post interaction state, initialized from backend data
   final Map<String, bool> _likedPosts = {};
   final Map<String, int> _postLikeCounts = {};
   final Map<String, bool> _savedPosts = {};
+  final Map<String, bool> _resharedPosts = {};
 
-  /// Initialize local like/save state from the fetched post data.
+  /// Initialize local interaction state from the fetched post data.
   void _initLikeStates(List<Post> fetchedPosts) {
     for (final post in fetchedPosts) {
       _likedPosts[post.id] = post.isLiked;
       _postLikeCounts[post.id] = post.likeCount;
       _savedPosts[post.id] = post.isSaved;
+      _resharedPosts[post.id] = post.isReposted;
     }
   }
 
@@ -161,12 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
 
-    // Check if the API failed (returned fallback default values)
-    final apiFailed = result['likesCount'] == 0 &&
-        result['isLiked'] == false &&
-        newLiked; // we tried to like but got back false+0
-
-    if (apiFailed) {
+    if (result['error'] == true) {
       // Rollback on failure
       setState(() {
         _likedPosts[post.id] = previousLiked;
@@ -193,22 +192,60 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
 
+    if (result['error'] == true) {
+      // Roll back — never mark the post saved if the backend failed
+      setState(() {
+        _savedPosts[post.id] = previousSaved;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not save post. Please try again.')),
+      );
+      return;
+    }
+
     setState(() {
       _savedPosts[post.id] = result['isSaved'] as bool;
     });
   }
 
+  Future<void> _togglePostReshare(Post post) async {
+    final previousReshared = _resharedPosts[post.id] ?? false;
+
+    if (!mounted) return;
+    setState(() {
+      _resharedPosts[post.id] = !previousReshared;
+    });
+
+    final result = await _reshareService.toggleReshare(postId: post.id);
+
+    if (!mounted) return;
+
+    if (result == null) {
+      // Roll back — never show the post as reshared if the backend failed
+      setState(() {
+        _resharedPosts[post.id] = previousReshared;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not reshare post. Please try again.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _resharedPosts[post.id] = result['isReshared'] as bool;
+    });
+  }
+
   void _sharePost(BuildContext context, Post post) {
-    final text = post.text ?? '';
-    final author = post.authorUsername;
-    final shareText = text.isNotEmpty ? '$author: $text' : 'Check out this post by $author on Nexora';
-
-    Clipboard.setData(ClipboardData(text: shareText));
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Post text copied to clipboard'),
-        duration: Duration(seconds: 2),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ShareScreen(
+          postId: post.id,
+          postText: post.text ?? '',
+          postAuthor: post.authorUsername,
+          postImageUrl: post.mediaUrl,
+        ),
       ),
     );
   }
@@ -1276,21 +1313,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 IconButton(
-                  onPressed: () => _sharePost(context, post),
-                  icon: const Icon(Icons.repeat, color: Colors.white),
+                  onPressed: () => _togglePostReshare(post),
+                  icon: Icon(
+                    Icons.repeat,
+                    color: (_resharedPosts[post.id] ?? false)
+                        ? const Color(0xFF6C8CFF)
+                        : Colors.white,
+                  ),
                 ),
 
                 IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-
-                      MaterialPageRoute(
-                        builder: (_) => ShareScreen(username: username),
-                      ),
-                    );
-                  },
-
+                  onPressed: () => _sharePost(context, post),
                   icon: const Icon(Icons.send_outlined, color: Colors.white),
                 ),
 

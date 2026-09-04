@@ -175,6 +175,9 @@ class Post {
 
     final isSaved = json['isSaved'] as bool? ?? false;
 
+    // Parse isReshared from backend (enriched per-user flag)
+    final isReshared = json['isReshared'] as bool? ?? false;
+
     return Post(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       authorId: authorId,
@@ -188,6 +191,7 @@ class Post {
       repostCount: json['sharesCount'] as int? ?? 0,
       isLiked: isLiked,
       isSaved: isSaved,
+      isReposted: isReshared,
       createdAt: createdAt,
       authorAvatar: authorAvatar,
       authorIsVerified: authorIsVerified,

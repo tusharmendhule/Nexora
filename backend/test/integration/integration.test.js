@@ -13,6 +13,12 @@ jest.mock('../../src/config/firebase', () => {
   const mockVerifyIdToken = jest.fn();
   const mockGetUser = jest.fn();
   return {
+    // auth.service.js consumes `firebaseAuth` — expose it so the mock
+    // matches the real module's exports.
+    firebaseAuth: {
+      verifyIdToken: mockVerifyIdToken,
+      getUser: mockGetUser,
+    },
     auth: jest.fn(() => ({
       verifyIdToken: mockVerifyIdToken,
       getUser: mockGetUser,

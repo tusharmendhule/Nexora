@@ -131,14 +131,17 @@ class CommentService {
   /// Legacy: update comment (no backend endpoint — not critical).
   Future<void> updateComment(Comment updatedComment) async {}
 
-  /// Legacy: delete comment.
-  Future<void> deleteComment(String commentId) async {
+  /// Delete a comment (owner, MODERATOR or ADMIN). Returns true on success.
+  Future<bool> deleteComment(String commentId) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/../api/v1/comments/$commentId');
-      await http
+      final url = Uri.parse('${ApiConfig.baseUrl}/comments/$commentId');
+      final response = await http
           .delete(url, headers: await _headers())
           .timeout(ApiConfig.timeout);
-    } catch (_) {}
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Legacy: fetch replies.

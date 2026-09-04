@@ -252,7 +252,8 @@ class PostService {
   /// Toggle save / bookmark on a post.
   ///
   /// Returns `{ isSaved: bool, message: String }` on success,
-  /// or `{ isSaved: previousValue, message: '' }` on failure.
+  /// or `{ error: true }` on failure so screens can roll back
+  /// instead of marking the post permanently saved.
   Future<Map<String, dynamic>> toggleSave({required String postId}) async {
     try {
       final url = Uri.parse('${ApiConfig.baseUrl}/posts/$postId/save');
@@ -271,7 +272,7 @@ class PostService {
       }
     } catch (_) {}
 
-    return {'isSaved': false, 'message': ''};
+    return {'error': true};
   }
 
   // ─── GET /api/v1/posts/saved ───────────────────────

@@ -473,7 +473,9 @@ class _ClipsScreenState extends State<ClipsScreen> {
 
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => ShareScreen(username: creator)),
+              MaterialPageRoute(
+                builder: (_) => ShareScreen(postAuthor: creator),
+              ),
             );
           },
         ),

@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/conversation.dart';
 import '../models/message.dart';
 import '../services/conversation_service.dart';
 import '../services/message_service.dart';
+import '../services/socket_service.dart';
 import '../services/user_service.dart';
+import 'user_profile_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final String username;
@@ -14,7 +18,19 @@ class ChatScreen extends StatefulWidget {
   /// The MongoDB _id of the target user (preferred over username lookup).
   final String? targetUserId;
 
-  const ChatScreen({super.key, required this.username, this.targetUserId});
+  /// Real display name of the target user (falls back to username).
+  final String name;
+
+  /// Real avatar URL of the target user (empty → default avatar).
+  final String avatarUrl;
+
+  const ChatScreen({
+    super.key,
+    required this.username,
+    this.targetUserId,
+    this.name = '',
+    this.avatarUrl = '',
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -22,96 +38,232 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   final ConversationService _conversationService = ConversationService();
   final MessageService _messageService = MessageService();
   final UserService _userService = UserService();
+  final SocketService _socketService = SocketService();
 
   List<Message> messages = [];
   Conversation? conversation;
   bool isLoading = true;
+  String? _loadError;
   String _currentUserId = '';
   String _targetUserId = '';
-  Timer? _pollTimer;
   bool _isSending = false;
+  bool _isSendingImage = false;
+
+  /// Real presence of the other user (null = unknown until checked).
+  bool? _isOnline;
+
+  final ImagePicker _picker = ImagePicker();
+
+  /// Local bytes of optimistic image messages (keyed by temp message id)
+  /// so they render instantly before the Cloudinary URL arrives.
+  final Map<String, Uint8List> _pendingImages = {};
+
+  StreamSubscription? _newMsgSub;
+  StreamSubscription? _readSub;
+  StreamSubscription? _deletedSub;
+  StreamSubscription? _clearedSub;
+  StreamSubscription? _presenceSub;
 
   @override
   void initState() {
     super.initState();
+    _setupSocket();
     _loadChat();
   }
 
   Future<void> _loadChat() async {
-    // Get current user ID
-    final currentId = await _userService.getCurrentUserId();
+    setState(() {
+      isLoading = true;
+      _loadError = null;
+    });
+
+    try {
+      // Get current user ID
+      final currentId = await _userService.getCurrentUserId();
+      if (!mounted) return;
+      _currentUserId = currentId ?? '';
+
+      // Resolve target user ID
+      if (widget.targetUserId != null && widget.targetUserId!.isNotEmpty) {
+        _targetUserId = widget.targetUserId!;
+      } else {
+        // Look up by username
+        final targetUser = await _userService.getUserByUsername(widget.username);
+        if (!mounted) return;
+        _targetUserId = targetUser?.id ?? '';
+      }
+
+      if (_targetUserId.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          isLoading = false;
+          _loadError = 'User not found';
+        });
+        return;
+      }
+
+      // Real presence — checked once on open, then kept fresh via socket
+      _checkPresence();
+
+      // Create or find conversation (backend prevents duplicates)
+      final foundConversation =
+          await _conversationService.createOrFindConversation(_targetUserId);
+
+      if (foundConversation == null) {
+        if (!mounted) return;
+        setState(() {
+          isLoading = false;
+          _loadError = 'Could not open conversation';
+        });
+        return;
+      }
+
+      // Join the conversation room for real-time events
+      _socketService.joinConversation(foundConversation.id);
+
+      // Fetch real chat history
+      final loadedMessages = await _messageService.fetchMessages(_targetUserId);
+
+      if (!mounted) return;
+
+      setState(() {
+        conversation = foundConversation;
+        messages = loadedMessages;
+        isLoading = false;
+      });
+
+      // Mark messages as read (persists to backend)
+      await _messageService.markAsRead(_targetUserId);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+        _loadError = e.toString();
+      });
+    }
+  }
+
+  void _setupSocket() {
+    _socketService.connect();
+
+    _newMsgSub = _socketService.newMessages.listen(_handleNewMessage);
+    _readSub = _socketService.messagesRead.listen(_handleMessagesRead);
+    _deletedSub = _socketService.messageDeleted.listen(_handleMessageDeleted);
+    _clearedSub = _socketService.conversationCleared.listen(_handleConversationCleared);
+    _presenceSub = _socketService.presence.listen(_handlePresence);
+  }
+
+  void _handlePresence(Map<String, dynamic> payload) {
+    if (payload['userId']?.toString() != _targetUserId) return;
     if (!mounted) return;
-    _currentUserId = currentId ?? '';
+    setState(() {
+      _isOnline = payload['online'] == true;
+    });
+  }
 
-    // Resolve target user ID
-    if (widget.targetUserId != null && widget.targetUserId!.isNotEmpty) {
-      _targetUserId = widget.targetUserId!;
-    } else {
-      // Look up by username
-      final targetUser = await _userService.getUserByUsername(widget.username);
-      if (!mounted) return;
-      _targetUserId = targetUser?.id ?? '';
-    }
+  Future<void> _checkPresence() async {
+    final online = await _messageService.checkPresence(_targetUserId);
+    if (!mounted || online == null) return;
+    setState(() {
+      _isOnline = online;
+    });
+  }
 
-    if (_targetUserId.isEmpty) {
-      if (!mounted) return;
-      setState(() {
-        conversation = null;
-        messages = [];
-        isLoading = false;
-      });
-      return;
-    }
+  void _handleNewMessage(Map<String, dynamic> payload) {
+    final messageData = payload['message'];
+    if (messageData is! Map<String, dynamic>) return;
 
-    // Create or find conversation
-    final foundConversation = await _conversationService.createOrFindConversation(_targetUserId);
+    final message = Message.fromJson(messageData);
 
-    if (foundConversation == null) {
-      if (!mounted) return;
-      setState(() {
-        conversation = null;
-        messages = [];
-        isLoading = false;
-      });
-      return;
-    }
+    // Only handle messages belonging to this conversation
+    final bool belongs = message.senderId == _targetUserId ||
+        (message.senderId == _currentUserId && message.receiverId == _targetUserId);
+    if (!belongs) return;
 
-    // Fetch messages
-    final loadedMessages = await _messageService.fetchMessages(_targetUserId);
+    // Duplicate prevention — the real MongoDB _id is the source of truth
+    if (messages.any((m) => m.id == message.id)) return;
 
     if (!mounted) return;
 
     setState(() {
-      conversation = foundConversation;
-      messages = loadedMessages;
-      isLoading = false;
+      if (message.senderId == _currentUserId) {
+        // Our own message echoed back via the conversation room: the socket
+        // event can beat the HTTP response, so replace the matching
+        // optimistic message instead of appending a duplicate.
+        final optimisticIdx = messages.indexWhere(
+          (m) => m.id.startsWith('temp_') && m.text == message.text,
+        );
+        if (optimisticIdx != -1) {
+          messages[optimisticIdx] = message;
+          return;
+        }
+      }
+
+      messages.add(message);
+      if (conversation != null) {
+        conversation = Conversation(
+          id: conversation!.id,
+          otherUserId: conversation!.otherUserId,
+          otherUsername: conversation!.otherUsername,
+          otherName: conversation!.otherName,
+          otherAvatar: conversation!.otherAvatar,
+          lastMessageText: message.text,
+          lastMessageAt: message.createdAt,
+          lastMessageSenderId: message.senderId,
+          unreadCount: 0,
+        );
+      }
     });
 
-    // Mark messages as read
-    await _messageService.markAsRead(_targetUserId);
+    _scrollToBottomIfNear();
 
-    // Start polling for new messages
-    _startPolling();
+    // We're viewing the chat, so mark incoming messages as read immediately
+    if (message.senderId == _targetUserId) {
+      _messageService.markAsRead(_targetUserId);
+    }
   }
 
-  void _startPolling() {
-    _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      if (!mounted || _targetUserId.isEmpty) return;
-      final newMessages = await _messageService.fetchMessages(_targetUserId);
-      if (!mounted) return;
+  void _handleMessagesRead(Map<String, dynamic> payload) {
+    // payload: { readBy, count } — the other user read our messages
+    if (payload['readBy']?.toString() != _targetUserId) return;
+    if (!mounted) return;
 
-      setState(() {
-        messages = newMessages;
-      });
-
-      // Mark new messages as read
-      await _messageService.markAsRead(_targetUserId);
+    setState(() {
+      messages = messages
+          .map((m) =>
+              m.senderId == _currentUserId ? m.copyWith(isRead: true, status: 'read') : m)
+          .toList();
     });
+  }
+
+  void _handleMessageDeleted(Map<String, dynamic> payload) {
+    final messageId = payload['messageId']?.toString();
+    if (messageId == null || messageId.isEmpty) return;
+    if (!mounted) return;
+
+    setState(() {
+      messages.removeWhere((m) => m.id == messageId);
+    });
+  }
+
+  void _handleConversationCleared(Map<String, dynamic> payload) {
+    // The other user cleared the thread on their side
+    if (payload['clearedBy']?.toString() != _targetUserId) return;
+    if (!mounted) return;
+    setState(() => messages.clear());
+  }
+
+  void _scrollToBottomIfNear() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.maxScrollExtent - position.pixels < 200) {
+      _scrollController.jumpTo(position.maxScrollExtent);
+    }
   }
 
   Future<void> _sendMessage() async {
@@ -131,7 +283,6 @@ class _ChatScreenState extends State<ChatScreen> {
     // Optimistically add the message to the list
     final optimisticMessage = Message(
       id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-      conversationId: conversation?.id ?? '',
       senderId: _currentUserId,
       receiverId: _targetUserId,
       text: text,
@@ -143,6 +294,8 @@ class _ChatScreenState extends State<ChatScreen> {
       messages.add(optimisticMessage);
     });
 
+    _scrollToBottomIfNear();
+
     // Send to backend
     final sentMessage = await _messageService.sendMessage(
       recipientId: _targetUserId,
@@ -152,15 +305,28 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!mounted) return;
 
     if (sentMessage != null) {
-      // Replace optimistic message with real one
+      // Replace optimistic message with the real one (real MongoDB ID)
       setState(() {
         final idx = messages.indexWhere((m) => m.id == optimisticMessage.id);
         if (idx != -1) {
           messages[idx] = sentMessage;
         }
+        if (conversation != null) {
+          conversation = Conversation(
+            id: conversation!.id,
+            otherUserId: conversation!.otherUserId,
+            otherUsername: conversation!.otherUsername,
+            otherName: conversation!.otherName,
+            otherAvatar: conversation!.otherAvatar,
+            lastMessageText: sentMessage.text,
+            lastMessageAt: sentMessage.createdAt,
+            lastMessageSenderId: sentMessage.senderId,
+            unreadCount: 0,
+          );
+        }
       });
     } else {
-      // Failed to send - remove optimistic message and show error
+      // Failed to send — remove optimistic message and show error
       setState(() {
         messages.removeWhere((m) => m.id == optimisticMessage.id);
         _isSending = false;
@@ -177,11 +343,124 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  Future<void> _sendImageMessage() async {
+    if (_targetUserId.isEmpty || _isSendingImage) return;
+
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (picked == null || !mounted) return;
+
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+
+    setState(() {
+      _isSendingImage = true;
+    });
+
+    // Optimistic message rendered from local bytes
+    final optimisticMessage = Message(
+      id: 'temp_img_${DateTime.now().millisecondsSinceEpoch}',
+      senderId: _currentUserId,
+      receiverId: _targetUserId,
+      text: '',
+      createdAt: DateTime.now(),
+      isRead: false,
+    );
+    _pendingImages[optimisticMessage.id] = bytes;
+
+    setState(() {
+      messages.add(optimisticMessage);
+    });
+    _scrollToBottomIfNear();
+
+    // Upload to backend (Cloudinary via /api/messages/image)
+    final sentMessage = await _messageService.sendImageMessage(
+      recipientId: _targetUserId,
+      imagePath: picked.path,
+    );
+
+    if (!mounted) return;
+
+    if (sentMessage != null) {
+      setState(() {
+        final idx = messages.indexWhere((m) => m.id == optimisticMessage.id);
+        if (idx != -1) {
+          messages[idx] = sentMessage;
+        }
+        if (conversation != null) {
+          conversation = Conversation(
+            id: conversation!.id,
+            otherUserId: conversation!.otherUserId,
+            otherUsername: conversation!.otherUsername,
+            otherName: conversation!.otherName,
+            otherAvatar: conversation!.otherAvatar,
+            lastMessageText: sentMessage.text.isNotEmpty ? sentMessage.text : '📷 Photo',
+            lastMessageAt: sentMessage.createdAt,
+            lastMessageSenderId: sentMessage.senderId,
+            unreadCount: 0,
+          );
+        }
+      });
+    } else {
+      setState(() {
+        messages.removeWhere((m) => m.id == optimisticMessage.id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send image. Please try again.')),
+      );
+    }
+
+    _pendingImages.remove(optimisticMessage.id);
+    setState(() {
+      _isSendingImage = false;
+    });
+  }
+
+  Future<void> _blockUser() async {
+    final blocked = await _userService.blockUser(_targetUserId);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(blocked ? 'User blocked' : 'Failed to block user. Please try again.'),
+      ),
+    );
+  }
+
+  Future<void> _clearConversation() async {
+    final cleared = await _messageService.clearThread(_targetUserId);
+    if (!mounted) return;
+    if (cleared) {
+      setState(() => messages.clear());
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Conversation cleared')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to clear conversation. Please try again.')),
+      );
+    }
+  }
+
   @override
   void dispose() {
-    _pollTimer?.cancel();
+    if (conversation != null) {
+      _socketService.leaveConversation(conversation!.id);
+    }
+    _newMsgSub?.cancel();
+    _readSub?.cancel();
+    _deletedSub?.cancel();
+    _clearedSub?.cancel();
+    _presenceSub?.cancel();
+    _scrollController.dispose();
     _messageController.dispose();
     super.dispose();
+  }
+
+  String get _displayName {
+    if (widget.name.isNotEmpty) return widget.name;
+    return widget.username;
   }
 
   @override
@@ -201,26 +480,27 @@ class _ChatScreenState extends State<ChatScreen> {
         titleSpacing: 0,
         title: Row(
           children: [
-            const CircleAvatar(
-              radius: 20,
-              backgroundColor: Color(0xFF242A43),
-              child: Icon(Icons.person, color: Colors.white54),
-            ),
+            _ChatAvatar(url: widget.avatarUrl, size: 40),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.username,
+                  _displayName,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const Text(
-                  'Active now',
-                  style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 11),
+                Text(
+                  _isOnline == true ? 'Active now' : 'Offline',
+                  style: TextStyle(
+                    color: _isOnline == true
+                        ? const Color(0xFF6C8CFF)
+                        : Colors.white38,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),
@@ -255,23 +535,15 @@ class _ChatScreenState extends State<ChatScreen> {
                           title: const Text('Block user', style: TextStyle(color: Colors.white, fontSize: 15)),
                           onTap: () {
                             Navigator.pop(ctx);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('User blocked')),
-                            );
+                            _blockUser();
                           },
                         ),
                         ListTile(
                           leading: const Icon(Icons.delete_outline, color: Color(0xFFF39C12), size: 22),
                           title: const Text('Clear conversation', style: TextStyle(color: Colors.white, fontSize: 15)),
-                          onTap: () async {
+                          onTap: () {
                             Navigator.pop(ctx);
-                            await _messageService.clearThread(_targetUserId);
-                            if (mounted) {
-                              setState(() => messages.clear());
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Conversation cleared')),
-                              );
-                            }
+                            _clearConversation();
                           },
                         ),
                       ],
@@ -286,22 +558,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          Expanded(
-            child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      final bool isMine = message.senderId == _currentUserId;
-
-                      return _messageBubble(message.text, isMine);
-                    },
-                  ),
-          ),
+          Expanded(child: _buildMessagesArea()),
 
           SafeArea(
             top: false,
@@ -310,11 +567,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('File sharing coming soon')),
-                      );
-                    },
+                    onPressed: _sendImageMessage,
                     icon: const Icon(
                       Icons.add_circle_outline,
                       color: Colors.white70,
@@ -377,13 +630,172 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _messageBubble(String text, bool isMine) {
+  Widget _buildMessagesArea() {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    }
+
+    if (_loadError != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white24, size: 40),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Text(
+                _loadError!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white54, fontSize: 14),
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextButton(
+              onPressed: _loadChat,
+              child: const Text(
+                'Retry',
+                style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        final message = messages[index];
+        final bool isMine = message.senderId == _currentUserId;
+
+        return _messageBubble(message, isMine);
+      },
+    );
+  }
+
+  /// Inline preview of a shared post inside a message bubble.
+  Widget _sharedPostBlock(Message message) {
+    final post = message.sharedPost;
+    final postUser = post?['user'] is Map<String, dynamic>
+        ? post!['user'] as Map<String, dynamic>
+        : null;
+    final postAuthor = postUser?['name']?.toString() ??
+        postUser?['username']?.toString() ??
+        '';
+    final postAuthorUsername = postUser?['username']?.toString() ?? '';
+    final postText = post?['text']?.toString() ?? '';
+    final postMedia = post?['media'] is List ? post!['media'] as List : const [];
+    String? thumbUrl;
+    if (postMedia.isNotEmpty && postMedia.first is Map<String, dynamic>) {
+      thumbUrl = (postMedia.first as Map<String, dynamic>)['url']?.toString();
+    }
+
+    return GestureDetector(
+      onTap: postAuthorUsername.isNotEmpty
+          ? () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      UserProfileScreen(username: postAuthorUsername),
+                ),
+              );
+            }
+          : null,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.black26,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.repeat, size: 13, color: Colors.white70),
+                const SizedBox(width: 5),
+                const Text(
+                  'Shared a post',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            if (postAuthor.isNotEmpty) ...[
+              const SizedBox(height: 7),
+              Text(
+                postAuthor,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+            if (postText.isNotEmpty) ...[
+              const SizedBox(height: 3),
+              Text(
+                postText,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  height: 1.3,
+                ),
+              ),
+            ],
+            if (thumbUrl != null && thumbUrl.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  thumbUrl,
+                  width: 180,
+                  height: 100,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _messageBubble(Message message, bool isMine) {
+    final bool hasImage = message.image.isNotEmpty ||
+        _pendingImages.containsKey(message.id);
+    final bool isShare = message.type == 'share' &&
+        message.sharedPostId.isNotEmpty;
+    // Custom caption on a share (backend default text is 'Shared a post')
+    final bool showShareText = isShare &&
+        message.text.isNotEmpty &&
+        message.text != 'Shared a post';
+
     return Align(
       alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 280),
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 11),
+        padding: EdgeInsets.symmetric(
+          // Text-only bubbles keep the original 15/11 padding; image
+          // bubbles use a tighter 6px frame around the picture.
+          horizontal: hasImage ? 6 : 15,
+          vertical: hasImage ? 6 : 11,
+        ),
         decoration: BoxDecoration(
           gradient: isMine
               ? const LinearGradient(
@@ -398,15 +810,87 @@ class _ChatScreenState extends State<ChatScreen> {
             bottomRight: Radius.circular(isMine ? 4 : 18),
           ),
         ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            height: 1.3,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isShare) _sharedPostBlock(message),
+            if (isShare && showShareText) const SizedBox(height: 6),
+            if (hasImage)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: message.image.isNotEmpty
+                    ? Image.network(
+                        message.image,
+                        width: 220,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 220,
+                          height: 120,
+                          color: Colors.black26,
+                          child: const Icon(Icons.broken_image_outlined,
+                              color: Colors.white38),
+                        ),
+                      )
+                    : Image.memory(
+                        _pendingImages[message.id]!,
+                        width: 220,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            if (hasImage && message.text.isNotEmpty && !isShare)
+              const SizedBox(height: 6),
+            // Render text for plain/image bubbles and for share captions,
+            // but not the redundant default 'Shared a post' text.
+            if (message.text.isNotEmpty &&
+                !(isShare && !showShareText))
+              Padding(
+                padding: hasImage
+                    ? const EdgeInsets.symmetric(horizontal: 9, vertical: 5)
+                    : EdgeInsets.zero,
+                child: Text(
+                  message.text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+/// Avatar with real profile image, falling back to the existing
+/// default avatar (person icon on a colored circle).
+class _ChatAvatar extends StatelessWidget {
+  final String url;
+  final double size;
+
+  const _ChatAvatar({required this.url, this.size = 40});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget fallback() => Container(
+          width: size,
+          height: size,
+          color: const Color(0xFF242A43),
+          child: const Icon(Icons.person, color: Colors.white54),
+        );
+
+    return ClipOval(
+      child: url.isEmpty
+          ? fallback()
+          : Image.network(
+              url,
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => fallback(),
+            ),
     );
   }
 }

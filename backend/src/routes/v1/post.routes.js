@@ -24,6 +24,9 @@ const { uploadMedia: uploadMediaController } = require('../../controllers/v1/upl
 // Like controllers
 const { toggleLike, removeLike } = require('../../controllers/v1/like.controller');
 
+// Reshare controllers
+const { toggleReshare, removeReshare } = require('../../controllers/v1/reshare.controller');
+
 // Comment controllers
 const {
   createComment,
@@ -74,6 +77,14 @@ router.post('/:id/like', protect, validateObjectId('id'), toggleLike);
 
 // DELETE /api/v1/posts/:id/like
 router.delete('/:id/like', protect, validateObjectId('id'), removeLike);
+
+// ─── Reshare routes ────────────────────────────────────
+
+// POST /api/v1/posts/:id/reshare — toggle reshare/unreshare
+router.post('/:id/reshare', protect, validateObjectId('id'), toggleReshare);
+
+// DELETE /api/v1/posts/:id/reshare — explicit remove
+router.delete('/:id/reshare', protect, validateObjectId('id'), removeReshare);
 
 // ─── Bookmark / Save routes ────────────────────────────
 

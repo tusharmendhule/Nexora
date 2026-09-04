@@ -186,6 +186,33 @@ class UserService {
     }
   }
 
+  // ─── User list (share/mention pickers) ──────────────
+
+  /// Fetch real users (excluding self and blocked) for share pickers.
+  /// Optional [query] filters by name/username on the backend.
+  Future<List<User>> fetchAllUsers({String? query}) async {
+    try {
+      final q = query?.trim() ?? '';
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}/users${q.isNotEmpty ? '?q=${Uri.encodeComponent(q)}' : ''}',
+      );
+      final response = await http
+          .get(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true && body['users'] != null) {
+          return (body['users'] as List)
+              .map((u) => User.fromJson(u as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
   // ─── Search ─────────────────────────────────────────
 
   /// Search users by name or username via the backend.

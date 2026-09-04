@@ -101,6 +101,15 @@ jest.mock('../../src/models/comment.model', () => ({
   deleteMany: jest.fn().mockResolvedValue({}),
 }));
 
+jest.mock('../../src/models/saved-post.model', () => ({
+  deleteMany: jest.fn().mockResolvedValue({}),
+}));
+
+jest.mock('../../src/models/reshare.model', () => ({
+  find: jest.fn().mockResolvedValue([]),
+  deleteMany: jest.fn().mockResolvedValue({}),
+}));
+
 // ─── Imports ──────────────────────────────────────────────────────────
 
 const Post = require('../../src/models/post.model');

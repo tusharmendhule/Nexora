@@ -240,6 +240,11 @@ const io = new Server(server, {
 // Make io accessible to route handlers via req.app.locals.io
 app.locals.io = io;
 
+// In-memory set of currently-connected user IDs (real-time presence).
+// Populated by the socket connection handler below; queried by
+// GET /api/messages/:userId/presence.
+app.locals.onlineUsers = new Set();
+
 // Socket.IO authentication middleware
 io.use(async (socket, next) => {
   try {
@@ -287,6 +292,10 @@ io.on('connection', (socket) => {
   // Join a room named after the user for targeted messaging
   socket.join(`user:${socket.userId}`);
 
+  // Track presence and broadcast the change to all connected clients
+  app.locals.onlineUsers.add(socket.userId);
+  io.emit('presence', { userId: socket.userId, online: true });
+
   // Handle joining a specific conversation room
   socket.on('join_conversation', (conversationId) => {
     if (conversationId) {
@@ -323,6 +332,10 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log(`[Socket] User disconnected: ${socket.userId}`);
+
+    // Remove from presence tracking and broadcast the change
+    app.locals.onlineUsers.delete(socket.userId);
+    io.emit('presence', { userId: socket.userId, online: false });
   });
 });
 

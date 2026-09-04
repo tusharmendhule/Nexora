@@ -49,7 +49,9 @@ class LikeService {
 
   // ─── Like / Unlike ──────────────────────────────────
 
-  /// Toggle like on a post. Returns { isLiked, likesCount }.
+  /// Toggle like on a post. Returns { isLiked, likesCount }
+  /// on success, or `{ error: true }` on failure so screens can roll back
+  /// instead of trusting a fake result.
   Future<Map<String, dynamic>> toggleLike({
     required String postId,
   }) async {
@@ -61,14 +63,16 @@ class LikeService {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
-        return {
-          'isLiked': json['isLiked'] as bool? ?? false,
-          'likesCount': json['likesCount'] as int? ?? 0,
-        };
+        if (json['success'] == true) {
+          return {
+            'isLiked': json['isLiked'] as bool? ?? false,
+            'likesCount': json['likesCount'] as int? ?? 0,
+          };
+        }
       }
     } catch (_) {}
 
-    return {'isLiked': false, 'likesCount': 0};
+    return {'error': true};
   }
 
   /// Remove a like from a post.
@@ -83,14 +87,16 @@ class LikeService {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
-        return {
-          'isLiked': json['isLiked'] as bool? ?? false,
-          'likesCount': json['likesCount'] as int? ?? 0,
-        };
+        if (json['success'] == true) {
+          return {
+            'isLiked': json['isLiked'] as bool? ?? false,
+            'likesCount': json['likesCount'] as int? ?? 0,
+          };
+        }
       }
     } catch (_) {}
 
-    return {'isLiked': false, 'likesCount': 0};
+    return {'error': true};
   }
 
   /// Check if the current user has liked a post.

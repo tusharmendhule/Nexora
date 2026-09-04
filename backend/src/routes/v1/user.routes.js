@@ -106,6 +106,40 @@ router.get('/me/network', protect, async (req, res) => {
   }
 });
 
+// ─── List users (share/mention pickers) ─────────────────
+
+// GET /api/v1/users — real users excluding self and blocked users.
+// Optional ?q= filters by name/username (same as search).
+// MUST be registered before /:id.
+router.get('/', protect, async (req, res) => {
+  try {
+    const query = req.query.q;
+    const currentUserId = req.user._id;
+
+    const blockService = require('../../services/block.service');
+    const excludedIds = await blockService.getExcludedIds(currentUserId);
+    excludedIds.push(currentUserId.toString());
+
+    const filter = { _id: { $nin: excludedIds } };
+    if (query && query.trim() !== '') {
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { name: { $regex: escaped, $options: 'i' } },
+        { username: { $regex: escaped, $options: 'i' } },
+      ];
+    }
+
+    const users = await User.find(filter)
+      .select('name username avatar bio isVerified reputationBadge')
+      .limit(50)
+      .sort({ name: 1 });
+
+    res.status(200).json({ success: true, count: users.length, users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // ─── Search ──────────────────────────────────────────────
 
 // GET /api/v1/users/search?q=...

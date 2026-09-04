@@ -194,6 +194,12 @@ jest.mock('../../src/models/post.model', () => {
   return MockPost;
 });
 
+// Block service is lazily required inside comment.service — mock it so the
+// real Block model (ObjectId-cast) never sees fake test ids.
+jest.mock('../../src/services/block.service', () => ({
+  hasAnyBlock: jest.fn().mockResolvedValue(false),
+}));
+
 // ─── Imports ──────────────────────────────────────────────────────────
 
 const Comment = require('../../src/models/comment.model');

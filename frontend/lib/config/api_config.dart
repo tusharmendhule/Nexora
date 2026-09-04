@@ -19,6 +19,21 @@ class ApiConfig {
     return 'http://$host:5000/api/v1';
   }
 
+  /// Legacy API base URL (pre-v1 endpoints such as /api/messages and
+  /// /api/conversations that the messaging module uses).
+  static String get legacyBaseUrl {
+    if (kIsWeb) return '/api';
+    final host = Platform.isAndroid ? '10.0.2.2' : 'localhost';
+    return 'http://$host:5000/api';
+  }
+
+  /// Origin used for the Socket.IO connection (no path).
+  static String get socketUrl {
+    if (kIsWeb) return Uri.base.origin;
+    final host = Platform.isAndroid ? '10.0.2.2' : 'localhost';
+    return 'http://$host:5000';
+  }
+
   /// Timeout for HTTP requests.
   static const Duration timeout = Duration(seconds: 15);
 

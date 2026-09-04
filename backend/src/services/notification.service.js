@@ -348,6 +348,32 @@ class NotificationService {
   }
 
   /**
+   * Notify a post owner when someone reshares their post.
+   */
+  async notifyPostReshared({ postOwnerId, resharerId, postId }) {
+    if (postOwnerId.toString() === resharerId.toString()) return null;
+
+    const User = require('../models/user.model');
+    let resharerName = 'Someone';
+    try {
+      const resharer = await User.findById(resharerId).select('name username');
+      if (resharer) {
+        resharerName = resharer.name || resharer.username || 'Someone';
+      }
+    } catch (_) {}
+
+    return this.create({
+      recipientId: postOwnerId,
+      senderId: resharerId,
+      type: 'POST_RESHARED',
+      title: 'Post Reshared',
+      body: `${resharerName} reshared your post`,
+      targetType: 'Post',
+      targetId: postId,
+    });
+  }
+
+  /**
    * Notify a user when they receive a new message.
    */
   async notifyNewMessage({ recipientId, senderId, messageId }) {
