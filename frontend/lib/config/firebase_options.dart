@@ -39,8 +39,8 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDgZ0s8UCvYINHgeOjYFWuuvIum9j6uljI',
-    appId: '1:873751705022:web:1f65f7f87af53f9b8c35ef',
+    apiKey: 'AIzaSyCkNuba_C9geGJqC_BYbngZm6GUHfK9JRM',
+    appId: '1:873751705022:android:f1ceee6e7e34d6408c35ef',
     messagingSenderId: '873751705022',
     projectId: 'nexora-e79a7',
     storageBucket: 'nexora-e79a7.firebasestorage.app',

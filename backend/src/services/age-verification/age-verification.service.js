@@ -129,10 +129,18 @@ class AgeVerificationService {
       verification.providerReferenceId = result.providerReferenceId;
       await verification.save();
 
+      // Some providers (and the isolated test provider) return a terminal
+      // status directly from initiate() — settle the record immediately
+      // instead of leaving it PENDING until a later status poll.
+      if (result.status && result.status !== AGE_VERIFICATION_STATUS.PENDING) {
+        await this._processResult(verification, result);
+      }
+
       return {
         verificationId: verification._id.toString(),
         providerReferenceId: result.providerReferenceId,
         status: verification.status,
+        ageCategory: verification.ageCategory || null,
         sessionUrl: result.sessionUrl || null,
       };
     } catch (err) {
@@ -285,10 +293,17 @@ class AgeVerificationService {
       existing.providerReferenceId = result.providerReferenceId;
       await existing.save();
 
+      // Settle immediately when the provider returns a terminal status
+      // (same contract as initiate()).
+      if (result.status && result.status !== AGE_VERIFICATION_STATUS.PENDING) {
+        await this._processResult(existing, result);
+      }
+
       return {
         verificationId: existing._id.toString(),
         providerReferenceId: result.providerReferenceId,
         status: existing.status,
+        ageCategory: existing.ageCategory || null,
         sessionUrl: result.sessionUrl || null,
       };
     } catch (err) {

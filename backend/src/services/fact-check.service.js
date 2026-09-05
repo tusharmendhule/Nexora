@@ -34,6 +34,11 @@ const CACHE_TTL_HOURS = 24;
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
 
+// Minimum token-overlap relevance for a fact-check review to influence the
+// verdict. Reviews that are clearly unrelated to the user's claim are noise
+// and must not drive the result (spec: do not blindly accept API results).
+const MIN_RELEVANCE = 0.15;
+
 // ─── Verification Status Enum ─────────────────────────────────────────
 
 const VerificationStatus = Object.freeze({
@@ -107,6 +112,36 @@ function normalizeClaim(text) {
     .replace(/[.!?]+$/, '') // strip trailing sentence punctuation
     .replace(/[""]/g, '"')  // normalize smart quotes
     .replace(/['']/g, "'");
+}
+
+/**
+ * Tokenize text into lowercase alphanumeric tokens.
+ */
+function tokenize(text) {
+  if (!text || typeof text !== 'string') return [];
+  return text.toLowerCase().match(/[a-z0-9]+/g) || [];
+}
+
+/**
+ * Compute the relevance between the user's claim and a fact-check claim
+ * using token-overlap (Jaccard) similarity. Returns a value in [0, 1].
+ *
+ * This prevents blindly accepting the first API result: reviews about a
+ * different subject must not count as evidence for this claim.
+ */
+function computeRelevance(query, claimText) {
+  const qTokens = new Set(tokenize(query));
+  const cTokens = new Set(tokenize(claimText));
+
+  if (qTokens.size === 0 || cTokens.size === 0) return 0;
+
+  let overlap = 0;
+  for (const token of qTokens) {
+    if (cTokens.has(token)) overlap++;
+  }
+
+  const union = new Set([...qTokens, ...cTokens]).size;
+  return union > 0 ? overlap / union : 0;
 }
 
 /**
@@ -194,6 +229,8 @@ function determineVerificationStatus(classifiedRatings) {
 
 /**
  * Extract structured data from a Google ClaimReview object.
+ * Also surfaces claimText/relevanceScore when they were attached
+ * (fresh API results or cached entries).
  */
 function extractClaimReviewData(review) {
   if (!review || typeof review !== 'object') return null;
@@ -208,6 +245,9 @@ function extractClaimReviewData(review) {
     url: review.url || null,
     reviewDate: review.reviewDate || null,
     languageCode: review.languageCode || null,
+    claimText: review.claimText || null,
+    relevanceScore:
+      typeof review.relevanceScore === 'number' ? review.relevanceScore : null,
   };
 }
 
@@ -394,7 +434,11 @@ async function factCheckClaim(claimText, options = {}) {
   const cached = await getCachedResult(normalized);
   if (cached) {
     const reviews = (cached.factCheckRatings || []).map(extractClaimReviewData).filter(Boolean);
-    const classifiedRatings = reviews.map((r) => ({
+    // Apply the same relevance filter as fresh API results.
+    const relevantReviews = reviews.filter(
+      (r) => r.relevanceScore == null || r.relevanceScore >= MIN_RELEVANCE
+    );
+    const classifiedRatings = relevantReviews.map((r) => ({
       rating: r.textualRating,
       category: classifyRating(r.textualRating),
     }));
@@ -402,7 +446,7 @@ async function factCheckClaim(claimText, options = {}) {
 
     return buildResult(claimText, claimId, postId, {
       status,
-      reviews,
+      reviews: relevantReviews,
       classifiedRatings,
       source: 'cache',
       processingTimeMs: Date.now() - startTime,
@@ -435,27 +479,43 @@ async function factCheckClaim(claimText, options = {}) {
     });
   }
 
-  // 5. Extract review data from all matching claims
+  // 5. Extract review data from all matching claims, attaching the API's
+  //    fact-checked claim text and its relevance to the user's claim.
   const allReviews = [];
   for (const apiClaim of apiResult.claims) {
     if (apiClaim.claimReview && Array.isArray(apiClaim.claimReview)) {
       for (const review of apiClaim.claimReview) {
         const extracted = extractClaimReviewData(review);
-        if (extracted) allReviews.push(extracted);
+        if (extracted) {
+          extracted.claimText = apiClaim.text || null;
+          extracted.relevanceScore = computeRelevance(normalized, apiClaim.text || '');
+          allReviews.push(extracted);
+        }
       }
     }
   }
 
+  // 5b. Keep only reviews sufficiently relevant to the user's claim. If
+  //     nothing is relevant, the claim is treated as having NO evidence —
+  //     never as "verified" by unrelated fact-checks.
+  const relevantReviews = allReviews.filter(
+    (r) => r.relevanceScore >= MIN_RELEVANCE
+  );
+  const droppedIrrelevantCount = allReviews.length - relevantReviews.length;
+
   // 6. Classify ratings
-  const classifiedRatings = allReviews.map((r) => ({
+  const classifiedRatings = relevantReviews.map((r) => ({
     rating: r.textualRating,
     category: classifyRating(r.textualRating),
   }));
 
   // 7. Determine status
-  const status = determineVerificationStatus(classifiedRatings);
+  const status = relevantReviews.length > 0
+    ? determineVerificationStatus(classifiedRatings)
+    : VerificationStatus.NO_EVIDENCE;
 
-  // 8. Cache the raw API results
+  // 8. Cache the raw API results (with relevance so cache reads filter the
+  //    same way as fresh API results)
   const claimResults = apiResult.claims.map((item) => ({
     text: item.text,
     claimant: item.claimant,
@@ -466,6 +526,8 @@ async function factCheckClaim(claimText, options = {}) {
       url: rev.url,
       title: rev.title,
       rating: rev.textualRating,
+      claimText: item.text || null,
+      relevanceScore: computeRelevance(normalized, item.text || ''),
     })),
   }));
 
@@ -473,10 +535,11 @@ async function factCheckClaim(claimText, options = {}) {
 
   return buildResult(claimText, claimId, postId, {
     status,
-    reviews: allReviews,
+    reviews: relevantReviews,
     classifiedRatings,
     source: 'api',
     matchCount: apiResult.claims.length,
+    droppedIrrelevantCount,
     processingTimeMs: Date.now() - startTime,
   });
 }
@@ -726,12 +789,15 @@ module.exports = {
 
   // Core pipeline
   normalizeClaim,
+  tokenize,
+  computeRelevance,
   classifyRating,
   determineVerificationStatus,
   extractClaimReviewData,
   queryFactCheckAPI,
   factCheckClaim,
   factCheckClaims,
+  MIN_RELEVANCE,
 
   // Trust score integration
   verificationStatusToScore,

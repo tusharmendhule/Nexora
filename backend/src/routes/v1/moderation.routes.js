@@ -34,6 +34,7 @@ const {
   rejectPost,
   overrideLabel,
   flagForReview,
+  requestReview,
   removeContent,
   restoreContent,
   resolveReport,
@@ -44,7 +45,13 @@ const {
   getActions,
 } = require('../../controllers/v1/moderation.controller');
 
-// ─── All routes require auth + MODERATOR or ADMIN ────────
+// ─── User-facing route (any authenticated user) ──────────
+// MUST be registered before the role guard below.
+
+// POST /api/v1/moderation/requests — any user can request moderator review
+router.post('/requests', protect, sanitizeBody(['reason']), requestReview);
+
+// ─── All routes below require auth + MODERATOR or ADMIN ──
 router.use(protect, requireRole('MODERATOR', 'ADMIN'));
 
 // ─── Posts ──────────────────────────────────────────────

@@ -129,15 +129,18 @@ class TrustScoreService {
   // ─── Request moderation review ────────────────────────
 
   /// Request that a post's trust score be reviewed by a moderator.
-  /// Returns true if the request was accepted.
+  /// Creates a REAL moderation-review request on the backend
+  /// (POST /api/v1/moderation/requests) with the post id and reason, and a
+  /// snapshot of the current AI analysis. Returns true if accepted.
   Future<bool> requestModeratorReview(String postId, {String? reason}) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/moderation/posts/$postId/flag');
+      final url = Uri.parse('${ApiConfig.baseUrl}/moderation/requests');
       final response = await http
           .post(
             url,
             headers: await _headers(),
             body: jsonEncode({
+              'postId': postId,
               'reason': reason ?? 'User-requested review',
             }),
           )

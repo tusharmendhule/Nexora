@@ -137,14 +137,16 @@ const postSchema = new mongoose.Schema(
     // ==========================================
     // AI Trust Score & Verification Fields
     // ==========================================
+    // NOTE: No fabricated defaults. A post starts with NO trust score;
+    // the AI pipeline computes trustScore/trustBadge and persists them.
     trustScore: {
       type: Number,
-      default: 75.0
+      default: null
     },
     trustBadge: {
       type: String,
-      enum: ['Green', 'Blue', 'Purple', 'Orange', 'Red'],
-      default: 'Blue'
+      enum: ['Green', 'Blue', 'Purple', 'Orange', 'Red', null],
+      default: null
     },
     trustBreakdown: {
       factualVerification: { type: Number, default: 0 },

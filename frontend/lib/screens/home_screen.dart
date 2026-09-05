@@ -1148,8 +1148,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final hashtags = post.hashtags;
     final displayLikeCount = _postLikeCounts[post.id] ?? post.likeCount;
 
-    // Trust score info
-    final trustScore = post.trustScore ?? 75;
+    // Trust score info — nullable: null means the backend has not computed
+    // a real score yet (analysis pending/failed), so the UI shows a pending
+    // state instead of a fabricated value.
+    final int? trustScore = post.trustScore;
     final verificationStatus = post.verificationStatus ?? 'unverified';
     final moderationStatus = post.moderationStatus ?? 'pending';
 
@@ -1521,7 +1523,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Color is never the only information shown.
   Widget _trustScoreStrip({
     required NexoraLabel label,
-    required int trustScore,
+    required int? trustScore,
     required String verificationStatus,
     required String moderationStatus,
     required VoidCallback onTap,
@@ -1571,22 +1573,24 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(width: 8),
-            // Trust score number
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              decoration: BoxDecoration(
-                color: context.nexora.textPrimary.withOpacity(0.07),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                '$trustScore/100',
-                style: TextStyle(
-                  color: context.nexora.textSecondary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
+            // Trust score number — hidden when the backend has not computed
+            // one yet (analysis pending/failed); no fabricated value.
+            if (trustScore != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: context.nexora.textPrimary.withOpacity(0.07),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '$trustScore/100',
+                  style: TextStyle(
+                    color: context.nexora.textSecondary,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
             SizedBox(width: 8),
             // Verification status chip
             Container(
@@ -1669,7 +1673,7 @@ class _HomeScreenState extends State<HomeScreen> {
     BuildContext context, {
     required Post post,
     required NexoraLabel label,
-    required int trustScore,
+    required int? trustScore,
     required String verificationStatus,
     required String moderationStatus,
   }) {
@@ -1720,7 +1724,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  // Trust score number
+                  // Trust score number — real backend value only; shows a
+                  // pending state when analysis has not completed.
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -1731,7 +1736,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '$trustScore / 100',
+                      trustScore != null ? '$trustScore / 100' : 'Pending',
                       style: TextStyle(
                         color: label.color,
                         fontSize: 14,

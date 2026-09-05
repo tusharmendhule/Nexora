@@ -5,6 +5,7 @@ import '../config/nexora_themes.dart';
 import '../services/appearance_controller.dart';
 
 import '../services/auth_service.dart';
+import '../widgets/server_address_dialog.dart';
 import 'main_nav.dart';
 import 'signup_screen.dart';
 
@@ -120,7 +121,23 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _logo(),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _logo(),
+                  const Spacer(),
+                  // Backend server address — reachable even before sign-in,
+                  // since network failures happen right here on this screen.
+                  IconButton(
+                    tooltip: 'Server address',
+                    onPressed: () => showServerAddressDialog(context),
+                    icon: Icon(
+                      Icons.settings_outlined,
+                      color: context.nexora.textHint,
+                    ),
+                  ),
+                ],
+              ),
 
               SizedBox(height: 34),
 

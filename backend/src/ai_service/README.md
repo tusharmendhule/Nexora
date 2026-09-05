@@ -217,6 +217,27 @@ Environment variables:
 |----------|---------|-------------|
 | `AI_SERVICE_URL` | `http://127.0.0.1:8000` | Python AI service URL |
 | `PORT` | `5000` | Node.js backend port |
+| `NEXORA_MISINFO_MODEL` | *(unset)* | Directory of a fine-tuned misinformation model from `training/train.py --task text`. When set, text analysis uses it; otherwise zero-shot classification is used and reported in the response. |
+| `NEXORA_CLAIM_MODEL` | *(unset)* | Directory of a fine-tuned FEVER claim model (`--task claim`). Attaches per-claim SUPPORTS/REFUTES verification evidence. |
+| `NEXORA_IMAGE_MODEL` | *(unset)* | Directory of a fine-tuned GenImage AI-image detector (`--task image`). Adds real `aiGeneratedProbability` to image analysis. |
+| `NEXORA_VIDEO_MODEL` | *(unset)* | Directory of a fine-tuned FaceForensics++ detector (`--task video`). Blended into per-frame manipulation score. |
+| `NEXORA_AUDIO_MODEL` | *(unset)* | Directory of a fine-tuned ASVspoof detector (`--task audio`). Primary synthetic-speech probability. |
+
+## Training Pipeline
+
+A reproducible fine-tuning pipeline lives in `training/` covering all 7
+real datasets (LIAR, FEVER, FakeNewsNet, NELA-GT, Fakeddit, GenImage,
+FaceForensics++, ASVspoof) across six tasks (text, claim, image, video,
+audio, multimodal). Train/val/test splits are created before tokenization
+(no leakage); evaluation happens only on the held-out TEST split. See
+`training/README.md` for the full dataset matrix, licenses, and commands:
+
+```bash
+python training/download_datasets.py --datasets liar fever
+python training/preprocess.py --datasets liar fever --output-dir training/preprocessed
+python training/train.py --task text --data-dir training/preprocessed --output-dir training/models/nexora-text-v1
+python training/evaluate.py --task text --model-dir training/models/nexora-text-v1 --data-dir training/preprocessed
+```
 
 ## Video Analysis (Module 9)
 

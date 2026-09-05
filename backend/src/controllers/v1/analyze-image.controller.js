@@ -15,7 +15,6 @@
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const ImageAnalysis = require('../../models/image-analysis.model');
-const TrustScore = require('../../models/trust-score.model');
 const { ApiError } = require('../../middleware/error.middleware');
 
 // -- Configuration ----------------------------------------------------------
@@ -149,33 +148,27 @@ async function processImageInBackground(jobId, analysisId, mediaUrl, postId) {
       })),
     });
 
-    // Create TrustScore document if postId is provided
+    // Create TrustScore through the rule engine (documented Nexora formula)
+    // if postId is provided. Media alone cannot verify factual claims, so
+    // factualVerification/sourceCredibility stay neutral (0.5) — never
+    // assumed true or false.
     if (postId) {
       try {
-        const authenticityScore = 1 - ai.manipulationProbability;
-        const tsLabel = getTrustLabel(finalScore);
-        const tsExplanation = generateExplanation(
-          ai.manipulationProbability,
-          ai.faceManipulationProbability,
-          ai.hasFace,
-          ai.faceDetectionCount
-        );
-
-        await TrustScore.findOneAndUpdate(
-          { post: postId },
+        const trustScoreService = require('../../services/trust-score.service');
+        await trustScoreService.computeAndStoreTrustScore(
+          postId,
           {
-            post: postId,
-            authenticity: Math.max(0, Math.min(1, authenticityScore)),
-            factualVerification: 0.5,
-            sourceCredibility: 0.5,
-            modelConfidence: confidenceFactor,
-            score: Math.max(0, Math.min(100, finalScore)),
-            label: tsLabel,
-            explanation: tsExplanation,
-            isOverrideApplied: false,
+            authenticityScore: 1 - ai.manipulationProbability,
+            factualVerificationScore: 0.5,
+            sourceCredibilityScore: 0.5,
+            modelConfidenceScore: confidenceFactor,
+            contentType: 'image',
+            manipulationProbability: Math.max(
+              ai.manipulationProbability || 0,
+              ai.faceManipulationProbability || 0
+            ),
             modelVersion: ai.modelVersion || 'nexora-image-v1.0.0',
-          },
-          { upsert: true, new: true }
+          }
         );
       } catch (tsErr) {
         console.error('[ImageAnalysis] TrustScore creation failed:', tsErr.message);
@@ -515,44 +508,6 @@ function formatAnalysisResult(analysis) {
   };
 }
 
-function getTrustLabel(score) {
-  if (score >= 80) return 'Green';
-  if (score >= 60) return 'Blue';
-  if (score >= 40) return 'Purple';
-  if (score >= 20) return 'Orange';
-  return 'Red';
-}
-
-function generateExplanation(manipulation, faceManip, hasFace, faceCount) {
-  const parts = [];
-
-  if (manipulation > 0.6) {
-    parts.push(
-      `High manipulation probability detected (${(manipulation * 100).toFixed(1)}%). `
-    );
-  } else if (manipulation > 0.3) {
-    parts.push(
-      `Moderate manipulation indicators found (${(manipulation * 100).toFixed(1)}%). `
-    );
-  } else {
-    parts.push(
-      `Low manipulation probability (${(manipulation * 100).toFixed(1)}%). `
-    );
-  }
-
-  if (faceManip > 0.5) {
-    parts.push(
-      `Face manipulation detected (${(faceManip * 100).toFixed(1)}%). `
-    );
-  }
-
-  if (hasFace && faceCount > 0) {
-    parts.push(`${faceCount} face(s) detected in the image. `);
-  }
-
-  if (parts.length === 0) {
-    parts.push('Image analysis completed with limited indicators.');
-  }
-
-  return parts.join('').trim();
-}
+// Trust labels are NOT derived from ad-hoc score thresholds here — they are
+// computed by the trust-score service rule engine using the documented
+// weighted formula. See trust-score.service.js.

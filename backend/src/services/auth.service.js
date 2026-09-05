@@ -62,11 +62,14 @@ class AuthService {
       role: 'USER',
     });
 
-    // ── Initiate age verification (PENDING) ─────────────
+    // ── Initiate age verification ────────────────────────
+    // The backend (not the client) starts the assurance flow and is the
+    // authority on its outcome. If initiation fails, the account is simply
+    // not age-assured yet (status stays null) — never auto-approved.
     let ageVerificationStatus = null;
     try {
-      await ageVerificationService.initiate({ userId: user._id });
-      ageVerificationStatus = 'PENDING';
+      const initiated = await ageVerificationService.initiate({ userId: user._id });
+      ageVerificationStatus = initiated.status || 'PENDING';
     } catch (err) {
       console.error('[AuthService] Age verification initiation failed:', err.message);
     }
@@ -228,11 +231,14 @@ class AuthService {
       role: 'USER',
     });
 
-    // ── Initiate age verification (PENDING) ──────────────
+    // ── Initiate age verification ────────────────────────
+    // Same contract as local registration: the backend initiates and owns
+    // the outcome; a failed initiation leaves the account un-assured (null),
+    // never verified.
     let ageVerificationStatus = null;
     try {
-      await ageVerificationService.initiate({ userId: user._id });
-      ageVerificationStatus = 'PENDING';
+      const initiated = await ageVerificationService.initiate({ userId: user._id });
+      ageVerificationStatus = initiated.status || 'PENDING';
     } catch (err) {
       // Age verification failure should not block account creation;
       // the user can retry later. Log and continue.

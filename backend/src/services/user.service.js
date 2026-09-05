@@ -13,6 +13,19 @@ function _toPlain(doc) {
   return Object.assign({}, doc);
 }
 
+/**
+ * Strip private age-assurance fields from a profile payload.
+ *
+ * ageVerificationStatus / ageCategory must not leak through normal
+ * profile, search or feed APIs to other users. The fields are only ever
+ * returned to the account owner through explicit auth payloads.
+ */
+function _stripAgeAssurance(obj) {
+  delete obj.ageVerificationStatus;
+  delete obj.ageCategory;
+  return obj;
+}
+
 class UserService {
   /**
    * Get user by ID.
@@ -22,7 +35,7 @@ class UserService {
     if (!user) {
       throw new ApiError(404, 'User not found');
     }
-    const obj = _toPlain(user);
+    const obj = _stripAgeAssurance(_toPlain(user));
     // Attach real-time post count (non-critical — fail gracefully)
     try {
       obj.postsCount = await Post.countDocuments({ user: id, isArchived: false });
@@ -55,7 +68,7 @@ class UserService {
     if (!user) {
       throw new ApiError(404, 'User not found');
     }
-    const obj = _toPlain(user);
+    const obj = _stripAgeAssurance(_toPlain(user));
     // Attach real-time post count (non-critical — fail gracefully)
     try {
       obj.postsCount = await Post.countDocuments({ user: user._id, isArchived: false });
@@ -350,6 +363,7 @@ class UserService {
     const Highlight = require('../models/highlight.model');
     const Story = require('../models/story.model');
     const Report = require('../models/report.model');
+    const AgeVerification = require('../models/age-verification.model');
 
     // Log before deletion (audit logs are immutable, so this must happen first)
     try {
@@ -384,6 +398,13 @@ class UserService {
       Story.deleteMany({ user: userId }),
       Report.deleteMany({ reporter: userId }),
     ]);
+
+    // Age-assurance records hold only eligibility state (no PII), but they
+    // belong to the account and are removed with it. Cleanup is non-critical:
+    // a cast failure on a malformed id must never block account deletion.
+    try {
+      await AgeVerification.deleteMany({ user: userId });
+    } catch (_) { /* non-critical cleanup */ }
 
     await User.findByIdAndDelete(userId);
 

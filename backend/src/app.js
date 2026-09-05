@@ -196,6 +196,20 @@ if (hasFlutterBuild) {
 
 app.use(errorHandler);
 
+// ─── Fail fast on age-assurance misconfiguration ───────
+// If production is running without a real age-assurance provider (or with
+// the mock/test provider unguarded), refuse to start instead of silently
+// "verifying" users. No-op for development/test environments.
+try {
+  const {
+    assertProviderConfigured,
+  } = require('./services/age-verification/age-verification-provider.factory');
+  assertProviderConfigured();
+} catch (err) {
+  console.error(err.message);
+  process.exit(1);
+}
+
 // ─── Start Server ───────────────────────────────────────
 
 const PORT = process.env.PORT || 5000;

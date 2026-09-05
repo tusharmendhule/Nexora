@@ -673,6 +673,12 @@ async function executeTrustScore(pipeline, post, contentType, aiResult, factChec
         input.sourceCredibilityScore = aiData.sourceCredibility || 0.5;
         input.authenticityScore = 1 - (aiData.misinformationProbability || 0);
         input.modelConfidenceScore = aiData.confidence || 0.5;
+        // Link analysis verifies the article's claims against the Fact Check
+        // API internally; feed that real evidence into the factual component.
+        // Neutral (0.5) when no ratings were found — never assumed true.
+        if (typeof aiData.factCheckScore === 'number') {
+          input.factualVerificationScore = aiData.factCheckScore;
+        }
       }
     }
 

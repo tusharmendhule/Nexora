@@ -20,7 +20,11 @@ const factCheckCacheSchema = new mongoose.Schema(
             publisherSite: String,
             url: String,
             title: String,
-            rating: String
+            rating: String,
+            // The fact-checked claim text as returned by the API, plus the
+            // relevance of that claim to the user's query (token overlap).
+            claimText: String,
+            relevanceScore: Number
           }
         ]
       }

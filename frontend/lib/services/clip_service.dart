@@ -85,7 +85,7 @@ class ClipService {
               videoUrl: map['mediaUrl']?.toString() ?? '',
               caption: map['caption']?.toString() ?? '',
               music: null,
-              label: NexoraLabel.editedContent,
+              label: NexoraLabel.pendingVerification,
               createdAt: map['createdAt'] != null
                   ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
                   : DateTime.now(),
@@ -120,7 +120,7 @@ class ClipService {
             videoUrl: map['mediaUrl']?.toString() ?? '',
             caption: map['caption']?.toString() ?? '',
             music: null,
-            label: NexoraLabel.editedContent,
+            label: NexoraLabel.pendingVerification,
             createdAt: map['createdAt'] != null
                 ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
                 : DateTime.now(),

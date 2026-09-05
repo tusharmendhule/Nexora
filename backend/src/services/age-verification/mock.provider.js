@@ -1,13 +1,19 @@
 /**
  * MockAgeVerificationProvider
  *
- * A deterministic, in-memory provider for development and testing.
+ * A deterministic, in-memory provider for development and testing ONLY.
+ * The provider factory refuses to use it as production verification
+ * (see age-verification-provider.factory.js).
  *
  * Behavior (configurable via constructor options):
  *  - By default, all verifications succeed with ADULT category.
  *  - Pass { failFor: ['user_id'] } to make specific users fail.
  *  - Pass { reviewFor: ['user_id'] } to make specific users require review.
  *  - Pass { available: false } to simulate provider unavailability.
+ *
+ * initiate() returns its terminal result inline (a resolved age category),
+ * mirroring an instant, stateless age-estimation provider, so the service
+ * layer can settle the record without an extra poll round-trip.
  *
  * This provider stores nothing externally — the service layer persists
  * results in MongoDB via the AgeVerification model.
@@ -49,25 +55,36 @@ class MockAgeVerificationProvider extends AgeVerificationProvider {
 
     const providerReferenceId = `mock_ref_${referenceId || Date.now()}`;
 
-    // Pre-compute the result based on user configuration
+    // Pre-compute the result based on user configuration and store it so
+    // checkStatus() can answer future polls consistently.
+    let result;
     if (this._failFor.has(userId)) {
-      this._results.set(providerReferenceId, {
+      result = {
         status: 'FAILED',
         failureReason: 'Age verification failed: unable to confirm age',
-      });
+      };
     } else if (this._reviewFor.has(userId)) {
-      this._results.set(providerReferenceId, {
+      result = {
         status: 'REQUIRES_REVIEW',
         failureReason: null,
-      });
+      };
     } else {
-      this._results.set(providerReferenceId, {
+      result = {
         status: 'VERIFIED',
         ageCategory: this._defaultCategory,
-      });
+      };
     }
+    this._results.set(providerReferenceId, result);
 
-    return { providerReferenceId };
+    // Return the terminal result inline so the service settles immediately;
+    // interactive providers omit status/session fields here and stay PENDING
+    // until the user completes the external flow.
+    return {
+      providerReferenceId,
+      status: result.status,
+      ageCategory: result.ageCategory,
+      failureReason: result.failureReason,
+    };
   }
 
   async checkStatus({ providerReferenceId }) {

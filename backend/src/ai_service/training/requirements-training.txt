@@ -1,0 +1,9 @@
+# Training pipeline dependencies (in addition to ../requirements.txt)
+datasets>=2.20.0
+scikit-learn>=1.4.0
+scipy>=1.10.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+soundfile>=0.12.0
+# For ConvNeXt / timm image backbones (optional)
+timm>=1.0.0

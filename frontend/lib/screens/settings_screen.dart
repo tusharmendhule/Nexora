@@ -4,6 +4,7 @@ import '../config/nexora_themes.dart';
 import '../services/appearance_controller.dart';
 
 import '../services/auth_service.dart';
+import '../widgets/server_address_dialog.dart';
 import 'login_screen.dart';
 import 'language_screen.dart';
 import 'about_nexora_screen.dart';
@@ -149,6 +150,18 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+          _sectionTitle(context, 'Developer'),
+
+          _settingsTile(
+            context,
+            icon: Icons.dns_outlined,
+            title: 'Server Address',
+            subtitle: 'Backend host for API calls (for testing on a phone)',
+            onTap: () => showServerAddressDialog(context),
+          ),
+
+          const SizedBox(height: 24),
+
           _sectionTitle(context, 'Support'),
 
           _settingsTile(
@@ -192,78 +205,86 @@ class SettingsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.redAccent.withOpacity(0.12)),
             ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-              leading: Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.redAccent.withOpacity(0.12),
-                ),
-                child: Icon(Icons.logout, color: Colors.redAccent.withOpacity(0.85)),
+            // Material wrapper keeps the ListTile ink ripple visible.
+            child: Material(
+              color: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              title: const Text(
-                'Log Out',
-                style: TextStyle(
-                  color: Colors.redAccent,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 3),
-                child: Text(
-                  'Sign out of your Nexora account',
-                  style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
-                ),
-              ),
-              trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    backgroundColor: context.nexora.card,
-                    title: Text(
-                      'Log Out?',
-                      style: TextStyle(color: context.nexora.textPrimary),
-                    ),
-                    content: Text(
-                      'You will be signed out of your Nexora account.',
-                      style: TextStyle(color: context.nexora.textSecondary),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(color: context.nexora.textSecondary),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          final authService = AuthService();
-                          await authService.logout();
-                          if (context.mounted) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LoginScreen(),
-                              ),
-                              (route) => false,
-                            );
-                          }
-                        },
-                        child: const Text(
-                          'Log Out',
-                          style: TextStyle(color: Colors.redAccent),
-                        ),
-                      ),
-                    ],
+              clipBehavior: Clip.antiAlias,
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                leading: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.redAccent.withOpacity(0.12),
                   ),
-                );
-              },
+                  child: Icon(Icons.logout, color: Colors.redAccent.withOpacity(0.85)),
+                ),
+                title: const Text(
+                  'Log Out',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 3),
+                  child: Text(
+                    'Sign out of your Nexora account',
+                    style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
+                  ),
+                ),
+                trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      backgroundColor: context.nexora.card,
+                      title: Text(
+                        'Log Out?',
+                        style: TextStyle(color: context.nexora.textPrimary),
+                      ),
+                      content: Text(
+                        'You will be signed out of your Nexora account.',
+                        style: TextStyle(color: context.nexora.textSecondary),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(color: context.nexora.textSecondary),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final authService = AuthService();
+                            await authService.logout();
+                            if (context.mounted) {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            }
+                          },
+                          child: const Text(
+                            'Log Out',
+                            style: TextStyle(color: Colors.redAccent),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
 
@@ -329,38 +350,47 @@ class SettingsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: context.nexora.textPrimary.withOpacity(0.05)),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-        leading: Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              colors: nexoraGradient(),
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+      // A Material is required between the colored DecoratedBox and the
+      // ListTile so ink ripples and focus states stay visible.
+      child: Material(
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          leading: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                colors: nexoraGradient(),
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Icon(icon, color: Colors.white, size: 21),
+          ),
+          title: Text(
+            title,
+            style: TextStyle(
+              color: context.nexora.textPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             ),
           ),
-          child: Icon(icon, color: Colors.white, size: 21),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: context.nexora.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Text(
+              subtitle,
+              style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
+            ),
           ),
+          trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
+          onTap: onTap,
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 3),
-          child: Text(
-            subtitle,
-            style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
-          ),
-        ),
-        trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
-        onTap: onTap,
       ),
     );
   }

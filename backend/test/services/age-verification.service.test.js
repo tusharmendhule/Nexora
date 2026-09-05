@@ -1174,4 +1174,112 @@ describe('Age Verification Service (Module 18)', () => {
       expect(Object.keys(AGE_CATEGORY)).toHaveLength(4);
     });
   });
+
+  // ─── 13. Immediate Provider Result (initiate settles directly) ────────
+
+  describe('Immediate provider result', () => {
+    it('should settle a VERIFIED result returned inline from initiate()', async () => {
+      mockFindOneWith(null);
+      const mockDoc = new AgeVerification({
+        user: 'user_instant',
+        status: 'PENDING',
+        provider: 'mock',
+        attemptCount: 1,
+        maxAttempts: 3,
+      });
+      AgeVerification.create.mockResolvedValue(mockDoc);
+      mockProvider.initiate.mockResolvedValue({
+        providerReferenceId: 'mock_ref_instant',
+        status: 'VERIFIED',
+        ageCategory: 'ADULT',
+      });
+
+      const result = await ageVerificationService.initiate({ userId: 'user_instant' });
+
+      expect(result.status).toBe('VERIFIED');
+      expect(result.ageCategory).toBe('ADULT');
+      expect(mockDoc.status).toBe('VERIFIED');
+      expect(User.findByIdAndUpdate).toHaveBeenCalledWith('user_instant', {
+        ageVerificationStatus: 'VERIFIED',
+        ageCategory: 'ADULT',
+      });
+    });
+
+    it('should settle a FAILED result returned inline from initiate()', async () => {
+      mockFindOneWith(null);
+      const mockDoc = new AgeVerification({
+        user: 'user_instant_fail',
+        status: 'PENDING',
+        provider: 'mock',
+        attemptCount: 1,
+        maxAttempts: 3,
+      });
+      AgeVerification.create.mockResolvedValue(mockDoc);
+      mockProvider.initiate.mockResolvedValue({
+        providerReferenceId: 'mock_ref_fail',
+        status: 'FAILED',
+        failureReason: 'Unable to confirm age',
+      });
+
+      const result = await ageVerificationService.initiate({ userId: 'user_instant_fail' });
+
+      expect(result.status).toBe('FAILED');
+      expect(mockDoc.status).toBe('FAILED');
+      expect(User.findByIdAndUpdate).toHaveBeenCalledWith('user_instant_fail', {
+        ageVerificationStatus: 'FAILED',
+      });
+    });
+
+    it('should keep PENDING when initiate() returns no terminal status', async () => {
+      mockFindOneWith(null);
+      const mockDoc = new AgeVerification({
+        user: 'user_interactive',
+        status: 'PENDING',
+        provider: 'mock',
+        attemptCount: 1,
+        maxAttempts: 3,
+      });
+      AgeVerification.create.mockResolvedValue(mockDoc);
+      mockProvider.initiate.mockResolvedValue({
+        providerReferenceId: 'mock_ref_session',
+        sessionUrl: 'https://provider.example/session/xyz',
+      });
+
+      const result = await ageVerificationService.initiate({ userId: 'user_interactive' });
+
+      expect(result.status).toBe('PENDING');
+      expect(result.sessionUrl).toBe('https://provider.example/session/xyz');
+      expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
+    });
+
+    it('should settle a VERIFIED result returned inline from retry()', async () => {
+      const mockDoc = new AgeVerification({
+        user: 'user_retry_instant',
+        status: 'FAILED',
+        provider: 'mock',
+        providerReferenceId: 'mock_ref_old',
+        attemptCount: 1,
+        maxAttempts: 3,
+        failureReason: 'First attempt failed',
+      });
+
+      mockFindOneWith(mockDoc);
+      mockProvider.initiate.mockResolvedValue({
+        providerReferenceId: 'mock_ref_retry_ok',
+        status: 'VERIFIED',
+        ageCategory: 'TEEN',
+      });
+
+      const result = await ageVerificationService.retry({ userId: 'user_retry_instant' });
+
+      expect(result.status).toBe('VERIFIED');
+      expect(result.ageCategory).toBe('TEEN');
+      expect(mockDoc.attemptCount).toBe(2);
+      expect(mockDoc.failureReason).toBeNull();
+      expect(User.findByIdAndUpdate).toHaveBeenCalledWith('user_retry_instant', {
+        ageVerificationStatus: 'VERIFIED',
+        ageCategory: 'TEEN',
+      });
+    });
+  });
 });

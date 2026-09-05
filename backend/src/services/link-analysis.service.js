@@ -19,7 +19,6 @@ const net = require('net');
 const { URL } = require('url');
 const cheerio = require('cheerio');
 const LinkAnalysis = require('../models/link-analysis.model');
-const TrustScore = require('../models/trust-score.model');
 const FactCheckCache = require('../models/fact-check-cache.model');
 
 // ─── Configuration ────────────────────────────────────────────────
@@ -814,63 +813,9 @@ function computeConfidence(
 }
 
 // ─── Trust Score Helpers ──────────────────────────────────────────
-
-function getTrustLabel(score) {
-  if (score >= 80) return 'Green';
-  if (score >= 60) return 'Blue';
-  if (score >= 40) return 'Purple';
-  if (score >= 20) return 'Orange';
-  return 'Red';
-}
-
-function generateExplanation(
-  sourceCredibility,
-  misinformationProbability,
-  claimsCount,
-  factCheckCount
-) {
-  const parts = [];
-
-  if (sourceCredibility > 0.7) {
-    parts.push(
-      `Source has high credibility (${(sourceCredibility * 100).toFixed(0)}%). `
-    );
-  } else if (sourceCredibility > 0.4) {
-    parts.push(
-      `Source has moderate credibility (${(sourceCredibility * 100).toFixed(0)}%). `
-    );
-  } else {
-    parts.push(
-      `Source has low credibility (${(sourceCredibility * 100).toFixed(0)}%). `
-    );
-  }
-
-  if (misinformationProbability > 0.6) {
-    parts.push(
-      `High misinformation indicators detected (${(misinformationProbability * 100).toFixed(1)}%). `
-    );
-  } else if (misinformationProbability > 0.3) {
-    parts.push(
-      `Moderate misinformation indicators found (${(misinformationProbability * 100).toFixed(1)}%). `
-    );
-  } else {
-    parts.push(
-      `Low misinformation probability (${(misinformationProbability * 100).toFixed(1)}%). `
-    );
-  }
-
-  if (claimsCount > 0) {
-    parts.push(`${claimsCount} claim(s) extracted. `);
-  }
-
-  if (factCheckCount > 0) {
-    parts.push(`${factCheckCount} fact-check rating(s) found. `);
-  } else {
-    parts.push('No external fact-check ratings found. ');
-  }
-
-  return parts.join('').trim();
-}
+// NOTE: Trust labels are NOT derived from ad-hoc score thresholds here.
+// They are computed by the trust-score service rule engine using the
+// documented weighted formula. See trust-score.service.js.
 
 // ─── Main Analysis Pipeline ───────────────────────────────────────
 
@@ -1093,32 +1038,23 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
     errors,
   });
 
-  // Step 14: Create TrustScore document if postId is provided
+  // Step 14: Create TrustScore through the rule engine (documented formula)
+  // if postId is provided. Real components: source credibility from the
+  // domain analysis, factual verification from actual fact-check ratings
+  // (neutral 0.5 when no ratings were found — never assumed true).
   if (postId) {
     try {
-      const tsLabel = getTrustLabel(finalScore);
-      const tsExplanation = generateExplanation(
-        sourceCredibility,
-        misinformationProbability,
-        claims.length,
-        factCheckResults.length
-      );
-
-      await TrustScore.findOneAndUpdate(
-        { post: postId },
+      const trustScoreService = require('./trust-score.service');
+      await trustScoreService.computeAndStoreTrustScore(
+        postId,
         {
-          post: postId,
-          authenticity: Math.max(0, Math.min(1, sourceCredibility)),
-          factualVerification: Math.max(0, Math.min(1, factCheckScore)),
-          sourceCredibility: Math.max(0, Math.min(1, sourceCredibility)),
-          modelConfidence: Math.max(0, Math.min(1, confidence)),
-          score: Math.max(0, Math.min(100, finalScore)),
-          label: tsLabel,
-          explanation: tsExplanation,
-          isOverrideApplied: false,
+          authenticityScore: 1 - misinformationProbability,
+          factualVerificationScore: factCheckScore,
+          sourceCredibilityScore: sourceCredibility,
+          modelConfidenceScore: confidence,
+          contentType: 'link',
           modelVersion: MODEL_VERSION,
-        },
-        { upsert: true, new: true }
+        }
       );
     } catch (tsErr) {
       console.error('[LinkAnalysis] TrustScore creation failed:', tsErr.message);
@@ -1143,6 +1079,9 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
       misinformationProbability,
       sourceCredibility,
       confidence,
+      // Real fact-check score (0-1) derived from actual ratings — used by
+      // the pipeline trust-score stage for LINK content.
+      factCheckScore,
       finalScore: Math.max(0, Math.min(100, finalScore)),
     },
     modelVersion: MODEL_VERSION,

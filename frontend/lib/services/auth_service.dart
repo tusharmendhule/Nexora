@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_client.dart';
@@ -22,6 +24,20 @@ class AuthService {
 
   final fb.FirebaseAuth _auth = fb.FirebaseAuth.instance;
   final ApiClient _api = ApiClient();
+
+  /// OAuth web client id (client_type 3 in google-services.json). The
+  /// Android/iOS GoogleSignIn plugin uses this as the serverClientId so the
+  /// account picker returns an ID token the backend can verify.
+  static const String _googleServerClientId =
+      '873751705022-um0tlper3s93aif0u283pt1qmuvp12o8.apps.googleusercontent.com';
+
+  /// Native Google Sign-In (Android/iOS/macOS). On web, sign-in goes
+  /// through the Firebase popup flow instead (`signInWithPopup` is a
+  /// web-only API and throws UnimplementedError on mobile).
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    serverClientId: _googleServerClientId,
+  );
 
   // ─── Current User ─────────────────────────────────────
 
@@ -141,7 +157,7 @@ class AuthService {
   /// Sign in with Google using Firebase Auth.
   ///
   /// Flow:
-  ///  1. Opens Google sign-in popup via Firebase SDK
+  ///  1. Signs in with Google (native account picker on mobile, popup on web)
   ///  2. Gets the Firebase ID token
   ///  3. Tries backend login first
   ///  4. If user doesn't exist in backend, registers them (stored in both Firebase & MongoDB)
@@ -149,13 +165,41 @@ class AuthService {
   /// Returns the user profile from the backend on success.
   Future<Map<String, dynamic>> signInWithGoogle() async {
     try {
-      // Step 1: Create Google provider and sign in via popup
-      final googleProvider = fb.GoogleAuthProvider();
-      googleProvider.addScope('email');
-      googleProvider.addScope('profile');
+      // Step 1: Sign in with Google for the current platform
+      final fb.User? user;
 
-      final userCredential = await _auth.signInWithPopup(googleProvider);
-      final user = userCredential.user;
+      if (kIsWeb) {
+        final googleProvider = fb.GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+
+        final userCredential = await _auth.signInWithPopup(googleProvider);
+        user = userCredential.user;
+      } else {
+        // Native: GoogleSignIn returns an ID token that we exchange for a
+        // Firebase credential. This replaces signInWithPopup(), which only
+        // exists on web.
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          throw AuthException('Google sign-in was cancelled');
+        }
+
+        final googleAuth = await googleUser.authentication;
+        if (googleAuth.idToken == null) {
+          throw AuthException(
+            'Google sign-in failed: no ID token received. '
+            'Check that the Firebase Android app has your SHA-1 registered.',
+          );
+        }
+
+        final credential = fb.GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+          accessToken: googleAuth.accessToken,
+        );
+
+        final userCredential = await _auth.signInWithCredential(credential);
+        user = userCredential.user;
+      }
 
       if (user == null) {
         throw AuthException('Google sign-in was cancelled');
@@ -236,7 +280,7 @@ class AuthService {
       if (e.code == 'popup-blocked') {
         throw AuthException('Pop-up was blocked. Please allow pop-ups for this site.');
       }
-      if (e.code == 'popup-closed-by-user') {
+      if (e.code == 'popup-closed-by-user' || e.code == 'canceled') {
         throw AuthException('Sign-in cancelled');
       }
       throw AuthException(_firebaseAuthErrorMessage(e));
@@ -414,6 +458,13 @@ class AuthService {
       try {
         await _auth.signOut();
       } catch (_) {}
+      // Release the native Google session so the next sign-in can pick a
+      // different account.
+      if (!kIsWeb) {
+        try {
+          await _googleSignIn.signOut();
+        } catch (_) {}
+      }
       try {
         await _removeCurrentAccountToken();
       } catch (_) {}

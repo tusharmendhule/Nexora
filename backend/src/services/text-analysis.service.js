@@ -52,7 +52,10 @@ async function analyzeText(job) {
       claims: [],
       entities: [],
       confidence: 0.2,
-      finalScore: 75, // neutral default for trivial text
+      // No fabricated score: text is too short for meaningful analysis,
+      // so there is no finalScore — the trust-score engine decides.
+      finalScore: null,
+      insufficientEvidence: true,
     };
 
     const saved = await TextAnalysis.create({

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
@@ -93,22 +95,22 @@ class ApiClient {
 
   /// GET request.
   Future<ApiResponse> get(String path, {bool auth = true}) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}$path');
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}$path');
       final response = await http
           .get(url, headers: await _headers(includeAuth: auth))
           .timeout(ApiConfig.timeout);
       return _handleResponse(response);
     } catch (e) {
-      return _handleError(e);
+      return _handleError(e, url);
     }
   }
 
   /// POST request.
   Future<ApiResponse> post(String path,
       {Map<String, dynamic>? body, bool auth = true}) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}$path');
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}$path');
       final response = await http
           .post(url,
               headers: await _headers(includeAuth: auth),
@@ -116,15 +118,15 @@ class ApiClient {
           .timeout(ApiConfig.timeout);
       return _handleResponse(response);
     } catch (e) {
-      return _handleError(e);
+      return _handleError(e, url);
     }
   }
 
   /// PATCH request.
   Future<ApiResponse> patch(String path,
       {Map<String, dynamic>? body, bool auth = true}) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}$path');
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}$path');
       final response = await http
           .patch(url,
               headers: await _headers(includeAuth: auth),
@@ -132,20 +134,20 @@ class ApiClient {
           .timeout(ApiConfig.timeout);
       return _handleResponse(response);
     } catch (e) {
-      return _handleError(e);
+      return _handleError(e, url);
     }
   }
 
   /// DELETE request.
   Future<ApiResponse> delete(String path, {bool auth = true}) async {
+    final url = Uri.parse('${ApiConfig.baseUrl}$path');
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}$path');
       final response = await http
           .delete(url, headers: await _headers(includeAuth: auth))
           .timeout(ApiConfig.timeout);
       return _handleResponse(response);
     } catch (e) {
-      return _handleError(e);
+      return _handleError(e, url);
     }
   }
 
@@ -169,11 +171,19 @@ class ApiClient {
     }
   }
 
-  ApiResponse _handleError(Object error) {
+  ApiResponse _handleError(Object error, Uri url) {
+    final String detail;
+    if (error is TimeoutException) {
+      detail = 'No response from $url within ${ApiConfig.timeout.inSeconds}s. '
+          'Make sure the backend is running and reachable — check the Server '
+          'address (gear icon on the login screen).';
+    } else {
+      detail = 'Request to $url failed: ${error.toString()}';
+    }
     return ApiResponse(
       success: false,
       statusCode: 0,
-      message: 'Network error: ${error.toString()}',
+      message: 'Network error: $detail',
     );
   }
 }

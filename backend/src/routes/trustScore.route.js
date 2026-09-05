@@ -37,13 +37,35 @@ router.post('/:postId', protect, async (req, res) => {
     try {
       factCheckEvidence = await getFactCheckResultsByPost(postId);
     } catch {
-      // Fact-check lookup failed — fall back to defaults
+      // Fact-check lookup failed — treated as no evidence, never as "true"
     }
 
-    const A = authenticityScore ?? 0.8;
-    const F = explicitF ?? factCheckEvidence?.factualVerificationScore ?? 0.8;
-    const S = sourceCredibilityScore ?? 0.9;
-    const K = modelConfidenceScore ?? 0.85;
+    // No fabricated scores: every component must come from a real analysis
+    // result (client-supplied AI output, or stored fact-check evidence).
+    // Absent evidence stays neutral (0.5) — it is never upgraded to a
+    // positive or negative value.
+    const A = authenticityScore ?? null;
+    const F = explicitF ?? factCheckEvidence?.factualVerificationScore ?? null;
+    const S = sourceCredibilityScore ?? null;
+    const K = modelConfidenceScore ?? null;
+
+    const missing = [];
+    if (A === null) missing.push('authenticityScore');
+    if (F === null) missing.push('factualVerificationScore');
+    if (S === null) missing.push('sourceCredibilityScore');
+    if (K === null) missing.push('modelConfidenceScore');
+
+    if (missing.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Cannot compute a trust score without real analysis inputs. ' +
+          `Missing: ${missing.join(', ')}. ` +
+          'Run the analysis pipeline (POST /api/v1/content/analyze/:postId) ' +
+          'or provide the component scores from actual AI/fact-check output.',
+      });
+    }
+
     const confirmedFalse = explicitConfirmedFalse ?? factCheckEvidence?.confirmedFalse ?? false;
 
     // Determine content type for rule evaluation

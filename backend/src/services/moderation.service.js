@@ -427,6 +427,121 @@ class ModerationService {
     return log;
   }
 
+  // ─── User-Requested Review ────────────────────────────
+
+  /**
+   * Create a real moderation-review request from a regular user
+   * (the "Request Moderator Review" action in the app).
+   *
+   * The request:
+   *   - stores the requester + reason,
+   *   - snapshots the current AI analysis (TrustScore + AI detection),
+   *   - moves the post into the moderator queue.
+   *
+   * The AI result is never overwritten — a human moderator decision is
+   * recorded separately on top of it.
+   *
+   * @param {Object} params
+   * @param {string} params.postId
+   * @param {string} params.requesterId
+   * @param {string} params.reason
+   * @returns {Promise<Object>} Audit log entry
+   */
+  async requestUserReview({ postId, requesterId, reason }) {
+    if (!postId) {
+      throw new ApiError(400, 'Post ID is required');
+    }
+    if (!requesterId) {
+      throw new ApiError(401, 'Requester is not authenticated');
+    }
+    if (!reason || !reason.trim()) {
+      throw new ApiError(400, 'Reason is required');
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      throw new ApiError(404, 'Post not found');
+    }
+
+    const previousStatus = post.moderationStatus;
+    const previousLabel = post.trustBadge || 'None';
+
+    // Snapshot the real AI analysis so the moderator can inspect exactly
+    // what the pipeline produced when the request was filed.
+    const [trustScore, textAnalysis] = await Promise.all([
+      TrustScore.findOne({ post: postId }),
+      (async () => {
+        try {
+          return await TextAnalysis.findOne({ post: postId }).sort({ createdAt: -1 });
+        } catch {
+          try {
+            return await TextAnalysis.findOne({ post: postId });
+          } catch {
+            return null; // snapshot is best-effort, never fatal
+          }
+        }
+      })(),
+    ]);
+
+    const analysisSnapshot = {
+      trustScore: trustScore
+        ? {
+            score: trustScore.score,
+            label: trustScore.label,
+            authenticity: trustScore.authenticity,
+            factualVerification: trustScore.factualVerification,
+            sourceCredibility: trustScore.sourceCredibility,
+            modelConfidence: trustScore.modelConfidence,
+            explanation: trustScore.explanation,
+            modelVersion: trustScore.modelVersion,
+            ruleVersion: trustScore.ruleVersion,
+          }
+        : null,
+      aiDetection: textAnalysis
+        ? {
+            aiGeneratedProbability: textAnalysis.aiGeneratedProbability,
+            misinformationProbability: textAnalysis.misinformationProbability,
+            modelVersion: textAnalysis.modelVersion,
+            confidence: textAnalysis.confidence,
+          }
+        : null,
+    };
+
+    // Move the post into the moderator queue for review.
+    post.moderationStatus = 'flagged';
+    post.verificationStatus = 'REVIEW_REQUIRED';
+    await post.save();
+
+    // Create audit log entry with the snapshot.
+    const log = await ModerationLog.create({
+      postId,
+      moderatorId: requesterId,
+      action: MODERATION_ACTION.REVIEW_REQUESTED,
+      reason: reason.trim(),
+      previousStatus,
+      newStatus: 'flagged',
+      previousLabel,
+      newLabel: previousLabel,
+      metadata: {
+        reviewType: 'USER_REQUESTED',
+        analysisSnapshot,
+      },
+    });
+
+    // Audit: log the review request (non-critical)
+    try {
+      await auditService.logModerationEvent({
+        eventType: 'REVIEW_REQUESTED',
+        moderator: { _id: requesterId, username: null, role: null },
+        post: { _id: postId, trustBadge: previousLabel, moderationStatus: previousStatus },
+        reason: reason.trim(),
+        changes: { previousLabel, newLabel: previousLabel, previousStatus, newStatus: 'flagged' },
+      });
+    } catch (_) { /* audit logging is non-critical */ }
+
+    return log;
+  }
+
   // ─── Remove Content ───────────────────────────────────
 
   /**

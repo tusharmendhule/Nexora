@@ -58,8 +58,10 @@ router.get('/me', protect, async (req, res) => {
 // @access  Private
 router.get('/:id', protect, async (req, res) => {
   try {
+    // Private age-assurance fields are never exposed through other users'
+    // profile views (ageVerificationStatus / ageCategory stay server-side).
     const user = await User.findById(req.params.id)
-      .select('-password')
+      .select('-password -ageVerificationStatus -ageCategory')
       .populate('followers', 'name avatar handle')
       .populate('following', 'name avatar handle');
 

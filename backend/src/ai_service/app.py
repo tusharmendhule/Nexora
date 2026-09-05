@@ -18,6 +18,7 @@ never fabricates results.
 
 import re
 import time
+import json
 import logging
 import tempfile
 import os
@@ -39,6 +40,20 @@ NER_MODEL = "dbmdz/bert-large-cased-finetuned-conll03-english"
 AI_DETECT_MODEL = "gpt2"
 DEVICE = -1  # CPU; set to 0 for CUDA if available
 
+# Optional fine-tuned misinformation classifier produced by
+# training/train.py. Point NEXORA_MISINFO_MODEL at the model directory;
+# when unset (or unloadable) the service falls back to zero-shot
+# classification and reports the fallback in the response.
+FINETUNED_MISINFO_MODEL = os.environ.get("NEXORA_MISINFO_MODEL") or None
+
+# Optional fine-tuned models produced by training/train.py (task dispatcher).
+# Each is loaded lazily; when unset (or unloadable) the service falls back
+# to its built-in analysis and reports the fallback — never fabricated.
+FINETUNED_IMAGE_MODEL = os.environ.get("NEXORA_IMAGE_MODEL") or None       # GenImage: AI-image detector
+FINETUNED_AUDIO_MODEL = os.environ.get("NEXORA_AUDIO_MODEL") or None       # ASVspoof: synthetic speech
+FINETUNED_VIDEO_MODEL = os.environ.get("NEXORA_VIDEO_MODEL") or None       # FaceForensics++: manipulation
+FINETUNED_CLAIM_MODEL = os.environ.get("NEXORA_CLAIM_MODEL") or None       # FEVER: claim verification
+
 logger = logging.getLogger("nexora-ai")
 logging.basicConfig(level=logging.INFO)
 
@@ -49,6 +64,11 @@ _models = {
     "ner": None,
     "ai_detect_tokenizer": None,
     "ai_detect_model": None,
+    "finetuned_misinfo": None,
+    "finetuned_image": None,
+    "finetuned_audio": None,
+    "finetuned_video": None,
+    "finetuned_claim": None,
 }
 
 # Track which models failed to load so we don't retry endlessly
@@ -71,6 +91,211 @@ def _load_zero_shot():
             logger.error("Failed to load zero-shot model: %s", exc)
             raise
     return _models["zero_shot"]
+
+
+def _load_finetuned_misinfo():
+    """Load the fine-tuned misinformation classifier (training/train.py).
+    Returns None when not configured or when loading fails — the caller
+    then falls back to zero-shot classification (no fabricated results).
+    """
+    if not FINETUNED_MISINFO_MODEL:
+        return None
+    if _models["finetuned_misinfo"] is not None:
+        return _models["finetuned_misinfo"]
+    if "finetuned_misinfo" in _model_failures:
+        return None
+    try:
+        import json as _json
+        from transformers import pipeline
+        logger.info(
+            "Loading fine-tuned misinformation model: %s", FINETUNED_MISINFO_MODEL
+        )
+        label_map_path = os.path.join(FINETUNED_MISINFO_MODEL, "label_map.json")
+        labels = None
+        if os.path.exists(label_map_path):
+            with open(label_map_path, "r", encoding="utf-8") as f:
+                labels = list(_json.load(f).keys())
+        pipe = pipeline(
+            "text-classification",
+            model=FINETUNED_MISINFO_MODEL,
+            tokenizer=FINETUNED_MISINFO_MODEL,
+            device=DEVICE,
+            top_k=None,  # return full probability distribution
+        )
+        info = {"labels": labels, "pipe": pipe}
+        _models["finetuned_misinfo"] = info
+        logger.info("Fine-tuned misinformation model loaded (labels=%s).", labels)
+        return info
+    except Exception as exc:
+        _model_failures.add("finetuned_misinfo")
+        logger.error(
+            "Failed to load fine-tuned misinformation model, falling back to "
+            "zero-shot: %s", exc
+        )
+        return None
+
+
+def _load_finetuned_image_model():
+    """Load the fine-tuned AI-image detector (training/train.py --task image).
+    Returns None when not configured / unloadable — callers fall back to the
+    built-in heuristic image analysis (no fabricated results).
+    """
+    if not FINETUNED_IMAGE_MODEL:
+        return None
+    if _models.get("finetuned_image") is not None:
+        return _models["finetuned_image"]
+    if "finetuned_image" in _model_failures:
+        return None
+    try:
+        from transformers import (
+            AutoImageProcessor,
+            AutoModelForImageClassification,
+        )
+        logger_image = logging.getLogger("nexora-image")
+        logger_image.info("Loading fine-tuned AI-image detector: %s", FINETUNED_IMAGE_MODEL)
+        processor = AutoImageProcessor.from_pretrained(FINETUNED_IMAGE_MODEL)
+        model = AutoModelForImageClassification.from_pretrained(FINETUNED_IMAGE_MODEL)
+        model.eval()
+        info = {"processor": processor, "model": model}
+        _models["finetuned_image"] = info
+        return info
+    except Exception as exc:
+        _model_failures.add("finetuned_image")
+        logger.error(
+            "Failed to load fine-tuned image model, falling back to built-in "
+            "analysis: %s", exc
+        )
+        return None
+
+
+def _load_finetuned_audio_model():
+    """Load the fine-tuned synthetic-speech detector (train.py --task audio)."""
+    if not FINETUNED_AUDIO_MODEL:
+        return None
+    if _models.get("finetuned_audio") is not None:
+        return _models["finetuned_audio"]
+    if "finetuned_audio" in _model_failures:
+        return None
+    try:
+        from transformers import (
+            AutoFeatureExtractor,
+            AutoModelForAudioClassification,
+        )
+        logger_audio = logging.getLogger("nexora-audio")
+        logger_audio.info("Loading fine-tuned synthetic-speech detector: %s", FINETUNED_AUDIO_MODEL)
+        extractor = AutoFeatureExtractor.from_pretrained(FINETUNED_AUDIO_MODEL)
+        model = AutoModelForAudioClassification.from_pretrained(FINETUNED_AUDIO_MODEL)
+        model.eval()
+        info = {"extractor": extractor, "model": model}
+        _models["finetuned_audio"] = info
+        return info
+    except Exception as exc:
+        _model_failures.add("finetuned_audio")
+        logger.error(
+            "Failed to load fine-tuned audio model, falling back to built-in "
+            "analysis: %s", exc
+        )
+        return None
+
+
+def _load_finetuned_video_model():
+    """Load the fine-tuned video-manipulation detector (train.py --task video)."""
+    if not FINETUNED_VIDEO_MODEL:
+        return None
+    if _models.get("finetuned_video") is not None:
+        return _models["finetuned_video"]
+    if "finetuned_video" in _model_failures:
+        return None
+    try:
+        from transformers import (
+            AutoImageProcessor,
+            AutoModelForImageClassification,
+        )
+        logger_video = logging.getLogger("nexora-video")
+        logger_video.info("Loading fine-tuned video manipulation detector: %s", FINETUNED_VIDEO_MODEL)
+        processor = AutoImageProcessor.from_pretrained(FINETUNED_VIDEO_MODEL)
+        model = AutoModelForImageClassification.from_pretrained(FINETUNED_VIDEO_MODEL)
+        model.eval()
+        info = {"processor": processor, "model": model}
+        _models["finetuned_video"] = info
+        return info
+    except Exception as exc:
+        _model_failures.add("finetuned_video")
+        logger.error(
+            "Failed to load fine-tuned video model, falling back to built-in "
+            "analysis: %s", exc
+        )
+        return None
+
+
+def _load_finetuned_claim_model():
+    """Load the fine-tuned FEVER claim-verification model (train.py --task claim).
+    Returns None when unconfigured/unloadable — claim verification then relies
+    on the fact-check pipeline only.
+    """
+    if not FINETUNED_CLAIM_MODEL:
+        return None
+    if _models.get("finetuned_claim") is not None:
+        return _models["finetuned_claim"]
+    if "finetuned_claim" in _model_failures:
+        return None
+    try:
+        import json as _json
+        from transformers import pipeline
+        logger.info("Loading fine-tuned claim model: %s", FINETUNED_CLAIM_MODEL)
+        label_map_path = os.path.join(FINETUNED_CLAIM_MODEL, "label_map.json")
+        labels = None
+        if os.path.exists(label_map_path):
+            with open(label_map_path, "r", encoding="utf-8") as f:
+                labels = list(_json.load(f).keys())
+        pipe = pipeline(
+            "text-classification",
+            model=FINETUNED_CLAIM_MODEL,
+            tokenizer=FINETUNED_CLAIM_MODEL,
+            device=DEVICE,
+            top_k=None,
+        )
+        info = {"labels": labels, "pipe": pipe}
+        _models["finetuned_claim"] = info
+        logger.info("Fine-tuned claim model loaded (labels=%s).", labels)
+        return info
+    except Exception as exc:
+        _model_failures.add("finetuned_claim")
+        logger.error(
+            "Failed to load fine-tuned claim model: %s", exc
+        )
+        return None
+
+
+def active_model_labels() -> dict:
+    """Report which model each pipeline actually uses (traceability)."""
+    misinfo = FINETUNED_MISINFO_MODEL
+    if misinfo:
+        try:
+            meta_path = os.path.join(misinfo, "model_meta.json")
+            if os.path.exists(meta_path):
+                with open(meta_path, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                misinfo = f"{meta.get('model', 'finetuned')}@{meta.get('version', 'unknown')}"
+        except Exception:
+            pass
+    return {
+        "misinformation": misinfo or MISINFO_MODEL,
+        "aiDetection": AI_DETECT_MODEL,
+        "ner": NER_MODEL,
+        "claimVerification": (
+            _read_model_label(FINETUNED_CLAIM_MODEL) if FINETUNED_CLAIM_MODEL else "not-configured"
+        ),
+        "imageAI": (
+            _read_model_label(FINETUNED_IMAGE_MODEL) if FINETUNED_IMAGE_MODEL else "built-in-heuristics"
+        ),
+        "audioSynthetic": (
+            _read_model_label(FINETUNED_AUDIO_MODEL) if FINETUNED_AUDIO_MODEL else "built-in-spectral"
+        ),
+        "videoManipulation": (
+            _read_model_label(FINETUNED_VIDEO_MODEL) if FINETUNED_VIDEO_MODEL else "built-in-heuristics"
+        ),
+    }
 
 
 def _load_ner():
@@ -180,6 +405,7 @@ class Claim(BaseModel):
     claimType: Optional[str] = None
     misinformationProbability: float = 0.0
     confidence: float = 0.0
+    claimVerification: Optional[dict] = None
 
 
 class Entity(BaseModel):
@@ -211,6 +437,19 @@ class TextAnalysisResponse(BaseModel):
     modelVersion: str
     processingTimeMs: int
     errors: List[dict] = []
+    # Which concrete model produced each signal (traceability, spec: model
+    # versioning for every AI result).
+    models: dict = {}
+
+
+# Labels that indicate negative/false/misleading content for a fine-tuned
+# classifier. The misinformation probability is the max probability over
+# these labels when a fine-tuned model is active.
+NEGATIVE_LABELS = {
+    "FALSE", "FAKE", "REFUTES", "MISINFORMATION", "MISLEADING",
+    "false", "fake", "pants-fire", "pants_fire", "mostly-false",
+    "mostly_false", "UNRELIABLE", "misleading",
+}
 
 
 # -- Preprocessing -----------------------------------------------------------
@@ -263,14 +502,48 @@ MISINFO_LABELS = [
 
 
 async def classify_misinformation(text: str) -> float:
-    """Return probability that text contains misinformation (0-1)."""
+    """Return probability that text contains misinformation (0-1).
+
+    Uses the fine-tuned classifier when NEXORA_MISINFO_MODEL is configured
+    (training/train.py); otherwise falls back to zero-shot classification.
+    The result is a real model output — never a fabricated number.
+    """
+    truncated = text[:4000]
+
+    finetuned = _load_finetuned_misinfo()
+    if finetuned is not None:
+        try:
+            pipe = finetuned["pipe"]
+            result = pipe(truncated, truncation=True, max_length=256)
+            # pipeline(top_k=None) -> list of dicts
+            if isinstance(result, list) and result and isinstance(result[0], list):
+                probs = {item["label"]: item["score"] for item in result[0]}
+            elif isinstance(result, list) and result and isinstance(result[0], dict):
+                probs = {item["label"]: item["score"] for item in result}
+            else:
+                probs = {}
+            negative = [
+                p for label, p in probs.items() if label in NEGATIVE_LABELS
+            ]
+            if negative:
+                return round(float(max(negative)), 4)
+            if probs:
+                # No explicit negative label — use the max over all labels,
+                # capped so a non-negative classifier cannot claim certainty.
+                return round(float(max(probs.values())) * 0.5, 4)
+            return 0.0
+        except Exception as exc:
+            logger.error(
+                "Fine-tuned misinformation classification failed, falling "
+                "back to zero-shot: %s", exc
+            )
+
     try:
         pipe = _load_zero_shot()
         if pipe is None:
             raise RuntimeError(
                 "Zero-shot classification model is not available"
             )
-        truncated = text[:4000]
         result = pipe(
             truncated,
             candidate_labels=MISINFO_LABELS,
@@ -732,8 +1005,14 @@ def compute_confidence(
 async def _classify_claims(
     claims: List[dict], zero_shot_pipe
 ) -> List[dict]:
-    """Run misinformation classification on each extracted claim."""
+    """Run misinformation classification on each extracted claim.
+
+    When a fine-tuned FEVER claim-verification model is configured
+    (NEXORA_CLAIM_MODEL), its SUPPORTS/REFUTES prediction is attached as real
+    claim-level verification evidence alongside the misinformation score.
+    """
     enriched = []
+    finetuned_claim = _load_finetuned_claim_model()
     for claim in claims:
         try:
             result = zero_shot_pipe(
@@ -750,6 +1029,27 @@ async def _classify_claims(
             claim["confidence"] = round(float(max(result["scores"])), 4)
         except Exception:
             pass
+
+        if finetuned_claim is not None:
+            try:
+                pipe = finetuned_claim["pipe"]
+                result = pipe(claim["text"], truncation=True, max_length=256)
+                if isinstance(result, list) and result and isinstance(result[0], list):
+                    probs = {item["label"]: item["score"] for item in result[0]}
+                elif isinstance(result, list) and result and isinstance(result[0], dict):
+                    probs = {item["label"]: item["score"] for item in result}
+                else:
+                    probs = {}
+                if probs:
+                    top_label = max(probs, key=probs.get)
+                    claim["claimVerification"] = {
+                        "prediction": top_label,
+                        "confidence": round(float(probs[top_label]), 4),
+                        "model": _read_model_label(FINETUNED_CLAIM_MODEL),
+                    }
+            except Exception as exc:
+                logger.error("Fine-tuned claim classification failed: %s", exc)
+
         enriched.append(claim)
     return enriched
 
@@ -858,6 +1158,7 @@ async def analyze_text(request: TextAnalysisRequest):
         modelVersion=MODEL_VERSION,
         processingTimeMs=processing_time_ms,
         errors=errors,
+        models=active_model_labels(),
     )
 
 
@@ -1427,12 +1728,43 @@ def analyze_frame_manipulation(frame, faces: list, anomaly_info: dict) -> dict:
         + face_manipulation * 0.35
     )
 
+    # Optional fine-tuned FaceForensics++ frame classifier. When configured
+    # and loaded, its MANIPULATED probability is a real model output blended
+    # into the frame score (50% weight). When absent, only heuristics are used.
+    finetuned_video = _load_finetuned_video_model()
+    model_synthetic = None
+    if finetuned_video is not None:
+        try:
+            import torch as _torch
+            from PIL import Image as _PILImage
+            pil_frame = _PILImage.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            enc = finetuned_video["processor"](images=pil_frame, return_tensors="pt")
+            with _torch.no_grad():
+                logits = finetuned_video["model"](
+                    pixel_values=enc["pixel_values"]
+                ).logits
+                probs = _torch.softmax(logits, dim=-1)[0].tolist()
+            index_to_label = _load_label_map_for(FINETUNED_VIDEO_MODEL)
+            label_probs = {
+                index_to_label[i]: round(float(p), 4) for i, p in enumerate(probs)
+            }
+            model_synthetic = label_probs.get("MANIPULATED") or label_probs.get("FAKE")
+        except Exception as exc:
+            logger_video = logging.getLogger("nexora-video")
+            logger_video.error("Fine-tuned video detector failed: %s", exc)
+
+    if model_synthetic is not None:
+        overall = overall * 0.5 + float(model_synthetic) * 0.5
+
     return {
         "manipulationScore": round(float(np.clip(overall, 0, 1)), 4),
         "frequencyAnomaly": round(frequency_anomaly, 4),
         "colorAnomaly": round(color_anomaly, 4),
         "textureAnomaly": round(texture_anomaly, 4),
         "faceManipulation": round(face_manipulation, 4),
+        "fineTunedModelSyntheticProbability": (
+            round(float(model_synthetic), 4) if model_synthetic is not None else None
+        ),
     }
 
 
@@ -1998,6 +2330,42 @@ def detect_synthetic_speech(
     """
     import librosa
 
+    # Optional fine-tuned ASVspoof synthetic-speech detector. When configured
+    # and loaded, its SPOOF probability is the primary real model output;
+    # the heuristic analysis below supplements it. When absent, only the
+    # heuristic signals are used (never fabricated).
+    finetuned_audio = _load_finetuned_audio_model()
+    if finetuned_audio is not None:
+        try:
+            audio_mono = y
+            if sr != 16000:
+                num_samples = int(len(audio_mono) * 16000 / sr)
+                audio_mono = np.interp(
+                    np.linspace(0, len(audio_mono), num_samples, endpoint=False),
+                    np.arange(len(audio_mono)), audio_mono,
+                ).astype(np.float32)
+            max_samples = 16000 * 10
+            if len(audio_mono) > max_samples:
+                audio_mono = audio_mono[:max_samples]
+            feats = finetuned_audio["extractor"](
+                audio_mono, sampling_rate=16000, return_tensors="pt"
+            )
+            with torch.no_grad():
+                logits = finetuned_audio["model"](
+                    input_values=feats["input_values"]
+                ).logits
+                probs = torch.softmax(logits, dim=-1)[0].tolist()
+            index_to_label = _load_label_map_for(FINETUNED_AUDIO_MODEL)
+            label_probs = {
+                index_to_label[i]: round(float(p), 4) for i, p in enumerate(probs)
+            }
+            spoof_prob = label_probs.get("SPOOF")
+            if spoof_prob is not None:
+                return round(float(spoof_prob), 4)
+        except Exception as exc:
+            logger_audio = logging.getLogger("nexora-audio")
+            logger_audio.error("Fine-tuned audio detector failed: %s", exc)
+
     scores = []
     weights = []
 
@@ -2475,6 +2843,8 @@ class ImageAnalysisResponse(BaseModel):
     modelVersion: str
     processingTimeMs: int
     errors: List[dict] = []
+    aiGeneratedProbability: Optional[float] = None
+    aiDetectionModel: Optional[str] = None
 
 
 # -- Image download and validation ----------------------------------------
@@ -2527,6 +2897,44 @@ def validate_image(file_path: str) -> dict:
 # -- Image analysis --------------------------------------------------------
 
 
+def _load_label_map_for(model_dir):
+    """Read label_map.json from any fine-tuned model dir (index -> label)."""
+    import json as _json
+    label_map_path = os.path.join(model_dir or "", "label_map.json")
+    if not os.path.exists(label_map_path):
+        return {0: "0", 1: "1"}
+    with open(label_map_path, "r", encoding="utf-8") as f:
+        raw = _json.load(f)
+    return {int(v): k for k, v in raw.items()}
+
+
+def _load_image_label_map():
+    """Read label_map.json from the fine-tuned image model dir (index -> label)."""
+    import json as _json
+    label_map_path = os.path.join(FINETUNED_IMAGE_MODEL or "", "label_map.json")
+    if not os.path.exists(label_map_path):
+        return {0: "0", 1: "1"}
+    with open(label_map_path, "r", encoding="utf-8") as f:
+        raw = _json.load(f)
+    return {int(v): k for k, v in raw.items()}
+
+
+def _read_model_label(model_dir):
+    """Best-effort model@version label from model_meta.json (traceability)."""
+    import json as _json
+    meta_path = os.path.join(model_dir or "", "model_meta.json")
+    if not os.path.exists(meta_path):
+        return model_dir
+    try:
+        with open(meta_path, "r", encoding="utf-8") as f:
+            meta = _json.load(f)
+        name = meta.get("model") or "finetuned"
+        version = meta.get("version") or "unknown"
+        return f"{name}@{version}"
+    except Exception:
+        return model_dir
+
+
 def analyze_single_image(file_path: str) -> dict:
     """
     Analyze a single image for manipulation indicators.
@@ -2549,6 +2957,33 @@ def analyze_single_image(file_path: str) -> dict:
     # Run frame-level manipulation analysis
     analysis = analyze_frame_manipulation(img, faces, anomaly_info)
 
+    # Optional fine-tuned AI-image detector (training/train.py --task image).
+    # When configured and loaded, its probability is a REAL model output that
+    # supplements the heuristic signals. When absent, aiGeneratedProbability
+    # stays None — the caller must NOT assume a value.
+    ai_generated = None
+    ai_detection_model = None
+    finetuned_image = _load_finetuned_image_model()
+    if finetuned_image is not None:
+        try:
+            import torch as _torch
+            from PIL import Image as _PILImage
+            pil_image = _PILImage.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            enc = finetuned_image["processor"](images=pil_image, return_tensors="pt")
+            with _torch.no_grad():
+                logits = finetuned_image["model"](
+                    pixel_values=enc["pixel_values"]
+                ).logits
+                probs = _torch.softmax(logits, dim=-1)[0].tolist()
+            index_to_label = _load_image_label_map()
+            label_probs = {
+                index_to_label[i]: round(float(p), 4) for i, p in enumerate(probs)
+            }
+            ai_generated = label_probs.get("AI_GENERATED")
+            ai_detection_model = _read_model_label(FINETUNED_IMAGE_MODEL)
+        except Exception as exc:
+            logger_image.error("Fine-tuned image detector failed: %s", exc)
+
     return {
         "manipulationScore": analysis["manipulationScore"],
         "frequencyAnomaly": analysis["frequencyAnomaly"],
@@ -2557,6 +2992,8 @@ def analyze_single_image(file_path: str) -> dict:
         "faceManipulation": analysis["faceManipulation"],
         "faceDetectionCount": len(faces),
         "hasFace": len(faces) > 0,
+        "aiGeneratedProbability": ai_generated,
+        "aiDetectionModel": ai_detection_model,
     }
 
 
@@ -2658,6 +3095,8 @@ async def analyze_image(request: ImageAnalysisRequest):
             modelVersion=IMAGE_MODEL_VERSION,
             processingTimeMs=processing_time_ms,
             errors=errors,
+            aiGeneratedProbability=analysis.get("aiGeneratedProbability"),
+            aiDetectionModel=analysis.get("aiDetectionModel"),
         )
 
     except HTTPException:

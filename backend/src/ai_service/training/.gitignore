@@ -1,0 +1,10 @@
+# Downloaded raw datasets and processed splits
+datasets/
+preprocessed/
+
+# Trained model artifacts and evaluation reports
+models/
+evaluation/
+
+__pycache__/
+*.pyc

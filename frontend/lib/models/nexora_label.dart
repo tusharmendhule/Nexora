@@ -63,6 +63,18 @@ class NexoraLabel {
         'This content has been determined to be fake, misleading, or materially false. Exercise extreme caution.',
   );
 
+  /// Pre-analysis state: the backend has not produced a trust result yet.
+  /// This is NOT one of the five trust labels — it is the honest display
+  /// for content that is still awaiting real analysis (or whose analysis
+  /// failed), so the app never fabricates a score or label.
+  static const NexoraLabel pendingVerification = NexoraLabel(
+    code: 'pending_verification',
+    name: 'Verification Pending',
+    color: Color(0xFF7F8C9B),
+    explanation:
+        'This content has not been analyzed yet. The trust score and label will appear once the analysis pipeline completes.',
+  );
+
   // ─── From code ────────────────────────────────────────────────
 
   static NexoraLabel fromCode(String code) {

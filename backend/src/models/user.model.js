@@ -112,7 +112,7 @@ const userSchema = new mongoose.Schema(
     },
     overallTrustRating: {
       type: Number,
-      default: 75,
+      default: null,
       min: 0,
       max: 100,
     },

@@ -168,7 +168,7 @@ function evaluateRules(score, options = {}) {
     label = Label.RED;
     isOverrideApplied = true;
     reasoning.push(
-      'Rule 1: Confirmed false fact-check result forces RED label.'
+      'Rule 1 (CONFIRMED_FALSE_FACT_CHECK): An external fact-check identified this claim as false, so the content is labeled RED.'
     );
     if (evidence.length > 0) {
       const falseEvidence = evidence.filter(
@@ -190,7 +190,7 @@ function evaluateRules(score, options = {}) {
     label = Label.RED;
     isOverrideApplied = true;
     reasoning.push(
-      `Rule 2: High manipulation probability (${(manipulationProbability * 100).toFixed(1)}%) forces RED label.`
+      `Rule 2 (HIGH_MANIPULATION_PROBABILITY): Media manipulation indicators are strong (${(manipulationProbability * 100).toFixed(1)}%), so the content is labeled RED.`
     );
   }
 
@@ -201,7 +201,7 @@ function evaluateRules(score, options = {}) {
       label = Label.PURPLE;
       isOverrideApplied = true;
       reasoning.push(
-        `Rule 3: Content type "${contentType}" is classified as opinion/satire/edited → PURPLE label.`
+        `Rule 3 (OPINION_SATIRE_EDITED): Analysis indicates this is opinion, satire, or substantially edited content rather than ordinary factual reporting (content type "${contentType}"), so it is labeled PURPLE.`
       );
     }
   }
@@ -210,7 +210,7 @@ function evaluateRules(score, options = {}) {
   if (!label && isDisclosedAI && score >= THRESHOLDS.moderateTrust) {
     label = Label.BLUE;
     reasoning.push(
-      `Rule 4: Disclosed AI-generated content with factually supported claims (score ${score}) → BLUE label.`
+      `Rule 4 (AI_GENERATED_BUT_VERIFIED): AI-generated content indicators were detected, but the underlying claim was supported by available fact-check evidence (score ${score}), so it is labeled BLUE.`
     );
   }
 
@@ -218,7 +218,7 @@ function evaluateRules(score, options = {}) {
   if (!label && score >= THRESHOLDS.highTrust) {
     label = Label.GREEN;
     reasoning.push(
-      `Rule 5: High-trust content (score ${score} >= ${THRESHOLDS.highTrust}) → GREEN label.`
+      `Rule 5 (VERIFIED_AND_AUTHENTIC): Evidence supports the claim and no significant manipulation or misinformation indicators were detected (score ${score}), so it is labeled GREEN.`
     );
   }
 
@@ -226,7 +226,7 @@ function evaluateRules(score, options = {}) {
   if (!label && score >= THRESHOLDS.lowTrust) {
     label = Label.ORANGE;
     reasoning.push(
-      `Rule 6: Content has moderate trust signals (score ${score}, between ${THRESHOLDS.lowTrust} and ${THRESHOLDS.highTrust}) → ORANGE label.`
+      `Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score ${score}, between ${THRESHOLDS.lowTrust} and ${THRESHOLDS.highTrust}), so this content should be treated with caution — labeled ORANGE.`
     );
     // Add nuance: what makes it uncertain?
     const hasNegativeEvidence = evidence.some(
@@ -248,7 +248,7 @@ function evaluateRules(score, options = {}) {
     label = Label.RED;
     isOverrideApplied = true;
     reasoning.push(
-      `Rule 7: Low credibility signals (score ${score} < ${THRESHOLDS.lowTrust}) → RED label.`
+      `Rule 7 (LOW_TRUST_SIGNALS): Credibility signals are too low (score ${score} < ${THRESHOLDS.lowTrust}), so the content is labeled RED.`
     );
   }
 
@@ -332,6 +332,11 @@ async function computeAndStoreTrustScore(postId, input, evidenceRefs = []) {
 
   const explanation = result.reasoning.join('\n');
 
+  // Allow the caller to record the analysis model that produced the
+  // component scores (e.g. 'nexora-image-v1.0.0'); otherwise the trust
+  // engine's own version is recorded.
+  const analysisModelVersion = input.modelVersion || result.modelVersion;
+
   const trustScore = await TrustScore.findOneAndUpdate(
     { post: postId },
     {
@@ -344,7 +349,7 @@ async function computeAndStoreTrustScore(postId, input, evidenceRefs = []) {
       label: result.label,
       evidenceRefs,
       explanation,
-      modelVersion: result.modelVersion,
+      modelVersion: analysisModelVersion,
       ruleVersion: result.ruleVersion,
       isOverrideApplied: result.isOverrideApplied,
     },

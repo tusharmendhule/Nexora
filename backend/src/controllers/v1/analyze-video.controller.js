@@ -15,7 +15,6 @@
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const VideoAnalysis = require('../../models/video-analysis.model');
-const TrustScore = require('../../models/trust-score.model');
 const { ApiError } = require('../../middleware/error.middleware');
 
 // -- Configuration ----------------------------------------------------------
@@ -162,36 +161,28 @@ async function processVideoInBackground(jobId, analysisId, mediaUrl, postId) {
       })),
     });
 
-    // Create TrustScore document if postId is provided
+    // Create TrustScore through the rule engine (documented Nexora formula)
+    // if postId is provided. Video alone cannot verify factual claims, so
+    // factualVerification/sourceCredibility stay neutral (0.5) — never
+    // assumed true or false.
     if (postId) {
       try {
-        const authenticityScore = 1 - Math.max(
-          ai.deepfakeProbability,
-          ai.manipulationProbability
+        const trustScoreService = require('../../services/trust-score.service');
+        const manipulationProbability = Math.max(
+          ai.deepfakeProbability || 0,
+          ai.manipulationProbability || 0
         );
-        const tsLabel = getTrustLabel(finalScore);
-        const tsExplanation = generateExplanation(
-          ai.deepfakeProbability,
-          ai.manipulationProbability,
-          ai.faceDetectionRate,
-          ai.temporalConsistency
-        );
-
-        await TrustScore.findOneAndUpdate(
-          { post: postId },
+        await trustScoreService.computeAndStoreTrustScore(
+          postId,
           {
-            post: postId,
-            authenticity: Math.max(0, Math.min(1, authenticityScore)),
-            factualVerification: 0.5,
-            sourceCredibility: 0.5,
-            modelConfidence: confidenceFactor,
-            score: Math.max(0, Math.min(100, finalScore)),
-            label: tsLabel,
-            explanation: tsExplanation,
-            isOverrideApplied: false,
+            authenticityScore: 1 - manipulationProbability,
+            factualVerificationScore: 0.5,
+            sourceCredibilityScore: 0.5,
+            modelConfidenceScore: confidenceFactor,
+            contentType: 'video',
+            manipulationProbability,
             modelVersion: ai.modelVersion || 'nexora-video-v1.0.0',
-          },
-          { upsert: true, new: true }
+          }
         );
       } catch (tsErr) {
         console.error('[VideoAnalysis] TrustScore creation failed:', tsErr.message);
@@ -394,48 +385,6 @@ function formatAnalysisResult(analysis) {
   };
 }
 
-function getTrustLabel(score) {
-  if (score >= 80) return 'Green';
-  if (score >= 60) return 'Blue';
-  if (score >= 40) return 'Purple';
-  if (score >= 20) return 'Orange';
-  return 'Red';
-}
-
-function generateExplanation(deepfake, manipulation, faceRate, temporal) {
-  const parts = [];
-
-  if (deepfake > 0.6) {
-    parts.push(
-      `High deepfake probability detected (${(deepfake * 100).toFixed(1)}%). `
-    );
-  } else if (deepfake > 0.3) {
-    parts.push(
-      `Moderate deepfake indicators found (${(deepfake * 100).toFixed(1)}%). `
-    );
-  } else {
-    parts.push(
-      `Low deepfake probability (${(deepfake * 100).toFixed(1)}%). `
-    );
-  }
-
-  if (manipulation > 0.5) {
-    parts.push(
-      `Significant manipulation detected (${(manipulation * 100).toFixed(1)}%). `
-    );
-  }
-
-  if (faceRate > 0.5) {
-    parts.push(`Faces detected in ${(faceRate * 100).toFixed(0)}% of frames. `);
-  }
-
-  if (temporal && temporal.consistentManipulation) {
-    parts.push('Consistent manipulation pattern across frames. ');
-  }
-
-  if (parts.length === 0) {
-    parts.push('Video analysis completed with limited indicators.');
-  }
-
-  return parts.join('').trim();
-}
+// Trust labels are NOT derived from ad-hoc score thresholds here — they are
+// computed by the trust-score service rule engine using the documented
+// weighted formula. See trust-score.service.js.

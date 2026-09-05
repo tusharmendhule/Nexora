@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'config/api_config.dart';
 import 'config/firebase_options.dart';
 import 'config/nexora_themes.dart';
 import 'services/appearance_controller.dart';
@@ -20,6 +21,11 @@ void main() async {
   // text size) before the first frame so the app never briefly shows the
   // wrong theme. Failures fall back to safe defaults inside load().
   await AppearanceController.instance.load();
+
+  // Load the saved backend server-address override (gear icon on the login
+  // screen / Settings → Server Address) before anything makes a network
+  // call, so a phone can reach the backend without a rebuild.
+  await ApiConfig.loadServerHostOverride();
 
   runApp(const NexoraApp());
 }

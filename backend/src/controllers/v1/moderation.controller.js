@@ -116,6 +116,38 @@ exports.overrideLabel = async (req, res, next) => {
 };
 
 /**
+ * POST /api/v1/moderation/requests
+ * Regular user requests moderator review of a post's analysis.
+ * This is the real implementation behind the app's
+ * "Request Moderator Review" button. Any authenticated user may call it.
+ */
+exports.requestReview = async (req, res, next) => {
+  try {
+    const { postId, reason } = req.body;
+    if (!postId || !reason || !reason.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'postId and reason are required',
+      });
+    }
+
+    const log = await moderationService.requestUserReview({
+      postId,
+      requesterId: req.user._id,
+      reason,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Review requested. A moderator will evaluate this content.',
+      log,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * POST /api/v1/moderation/posts/:id/flag
  * Flag a post for further review.
  */

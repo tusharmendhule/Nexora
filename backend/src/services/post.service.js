@@ -1,7 +1,48 @@
 const Post = require('../models/post.model');
 const TrustScore = require('../models/trust-score.model');
+const TextAnalysis = require('../models/text-analysis.model');
 const { ApiError } = require('../middleware/error.middleware');
 const { escapeRegex } = require('../middleware/validate.middleware');
+
+/**
+ * Attach the latest text-analysis AI-detection summary to a post object
+ * (aiGeneratedProbability, detection model, detection confidence).
+ * Only attached when a real analysis exists — never fabricated.
+ */
+function _attachAIAnalysis(postObj, textAnalysis) {
+  if (!postObj || !textAnalysis) return;
+  postObj.aiAnalysis = {
+    aiGeneratedProbability: textAnalysis.aiGeneratedProbability ?? null,
+    aiDetectionModel: textAnalysis.modelVersion || null,
+    aiDetectionConfidence: textAnalysis.confidence ?? null,
+  };
+}
+
+/**
+ * Map the latest TextAnalysis document per post id.
+ * Enrichment is non-critical: query failures or invalid ids never break
+ * the feed — the map is simply empty and posts show no aiAnalysis.
+ */
+async function _getTextAnalysisMap(postIds) {
+  if (!postIds || postIds.length === 0) return {};
+  try {
+    const mongoose = require('mongoose');
+    const validIds = postIds.filter((id) => mongoose.isValidObjectId(id));
+    if (validIds.length === 0) return {};
+    const analyses = await TextAnalysis.find({ post: { $in: validIds } });
+    const map = {};
+    for (const ta of analyses) {
+      const key = ta.post.toString();
+      const existing = map[key];
+      if (!existing || (ta.createdAt && (!existing.createdAt || ta.createdAt > existing.createdAt))) {
+        map[key] = ta;
+      }
+    }
+    return map;
+  } catch (_) {
+    return {};
+  }
+}
 
 class PostService {
   /**
@@ -103,6 +144,9 @@ class PostService {
       trustScoreMap[ts.post.toString()] = ts;
     });
 
+    // Attach real AI-generated detection summary per post
+    const textAnalysisMap = await _getTextAnalysisMap(postIds);
+
     // Determine which posts the current user has liked, saved or reshared
     let likedPostIds = new Set();
     let savedPostIds = new Set();
@@ -138,6 +182,7 @@ class PostService {
         // Also update the numeric trustScore from the computed value
         obj.trustScore = tsDetail.score;
       }
+      _attachAIAnalysis(obj, textAnalysisMap[p._id.toString()]);
       obj.isLiked = likedPostIds.has(p._id.toString());
       obj.isSaved = savedPostIds.has(p._id.toString());
       obj.isReshared = resharedPostIds.has(p._id.toString());
@@ -185,6 +230,12 @@ class PostService {
       };
       obj.trustScore = tsDetail.score;
     }
+
+    // Attach real AI-generated detection summary (non-critical)
+    try {
+      const latestTextAnalysis = await TextAnalysis.findOne({ post: postId }).sort({ createdAt: -1 });
+      _attachAIAnalysis(obj, latestTextAnalysis);
+    } catch (_) { /* enrichment must never break the post response */ }
 
     // Attach per-user interaction flags if user is provided
     if (userId) {
@@ -298,6 +349,9 @@ class PostService {
       trustScoreMap[ts.post.toString()] = ts;
     });
 
+    // Attach real AI-generated detection summary
+    const textAnalysisMap = await _getTextAnalysisMap(postIds);
+
     // Determine which posts the current user has liked, saved or reshared
     let likedPostIds = new Set();
     let savedPostIds = new Set();
@@ -332,6 +386,7 @@ class PostService {
         };
         obj.trustScore = tsDetail.score;
       }
+      _attachAIAnalysis(obj, textAnalysisMap[p._id.toString()]);
       obj.isLiked = likedPostIds.has(p._id.toString());
       obj.isSaved = savedPostIds.has(p._id.toString());
       obj.isReshared = resharedPostIds.has(p._id.toString());
@@ -452,10 +507,13 @@ class PostService {
       trustScoreMap[ts.post.toString()] = ts;
     });
 
+    const textAnalysisMap = await _getTextAnalysisMap(postIds);
+
     const enriched = savedEntries.map((sp) => {
       const obj = sp.toObject();
       if (obj.post) {
-        const tsDetail = trustScoreMap[obj.post._id?.toString()];
+        const postIdStr = obj.post._id?.toString();
+        const tsDetail = trustScoreMap[postIdStr];
         if (tsDetail) {
           obj.post.trustScoreDetail = {
             score: tsDetail.score,
@@ -469,6 +527,7 @@ class PostService {
           };
           obj.post.trustScore = tsDetail.score;
         }
+        _attachAIAnalysis(obj.post, textAnalysisMap[postIdStr]);
         // Saved posts are always saved
         obj.post.isSaved = true;
       }

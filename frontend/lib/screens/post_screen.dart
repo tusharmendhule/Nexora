@@ -335,7 +335,8 @@ class _PostScreenState extends State<PostScreen> {
               videoUrl: clipVideoUrl,
               caption: text,
               music: null,
-              label: NexoraLabel.editedContent,
+              // Honest pre-analysis state — no fabricated label for clips.
+              label: NexoraLabel.pendingVerification,
               createdAt: now,
             ),
           );

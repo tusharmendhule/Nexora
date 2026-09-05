@@ -10,7 +10,6 @@
 
 const axios = require('axios');
 const VideoAnalysis = require('../models/video-analysis.model');
-const TrustScore = require('../models/trust-score.model');
 
 // ─── Configuration ────────────────────────────────────────────────
 
@@ -139,40 +138,26 @@ async function analyzeVideo(job) {
     })),
   });
 
-  // Create TrustScore document
+  // Create TrustScore through the rule engine (documented Nexora formula).
+  // Video alone cannot verify factual claims, so factualVerification and
+  // sourceCredibility stay neutral (0.5) — never assumed true or false.
   try {
-    // Map deepfake/manipulation to trust score components
-    const authenticityScore = 1 - Math.max(
-      ai.deepfakeProbability,
-      ai.manipulationProbability
+    const trustScoreService = require('./trust-score.service');
+    const manipulationProbability = Math.max(
+      ai.deepfakeProbability || 0,
+      ai.manipulationProbability || 0
     );
-    const factualScore = 0.5; // video alone can't verify factual claims
-    const sourceScore = 0.5; // unknown source without additional context
-    const confidenceScore = ai.confidence;
-
-    const tsLabel = getTrustLabel(finalScore);
-    const tsExplanation = generateExplanation(
-      ai.deepfakeProbability,
-      ai.manipulationProbability,
-      ai.faceDetectionRate,
-      ai.temporalConsistency
-    );
-
-    await TrustScore.findOneAndUpdate(
-      { post: job.post },
+    await trustScoreService.computeAndStoreTrustScore(
+      job.post,
       {
-        post: job.post,
-        authenticity: Math.max(0, Math.min(1, authenticityScore)),
-        factualVerification: factualScore,
-        sourceCredibility: sourceScore,
-        modelConfidence: confidenceScore,
-        score: Math.max(0, Math.min(100, finalScore)),
-        label: tsLabel,
-        explanation: tsExplanation,
-        isOverrideApplied: false,
+        authenticityScore: 1 - manipulationProbability,
+        factualVerificationScore: 0.5, // no factual claims verified for video
+        sourceCredibilityScore: 0.5,   // no source evidence for video
+        modelConfidenceScore: ai.confidence,
+        contentType: 'video',
+        manipulationProbability,
         modelVersion: ai.modelVersion || 'nexora-video-v1.0.0',
-      },
-      { upsert: true, new: true }
+      }
     );
   } catch (tsErr) {
     console.error('[VideoAnalysis] Failed to create TrustScore:', tsErr.message);
@@ -211,58 +196,9 @@ async function getAnalysisForJob(jobId) {
 }
 
 // ─── Trust Score helpers ───────────────────────────────────────────────
-
-/**
- * Map a final score (0-100) to a 5-tier trust label.
- */
-function getTrustLabel(score) {
-  if (score >= 80) return 'Green';
-  if (score >= 60) return 'Blue';
-  if (score >= 40) return 'Purple';
-  if (score >= 20) return 'Orange';
-  return 'Red';
-}
-
-/**
- * Generate a human-readable explanation for the trust score.
- */
-function generateExplanation(deepfake, manipulation, faceRate, temporal) {
-  const parts = [];
-
-  if (deepfake > 0.6) {
-    parts.push(
-      `High deepfake probability detected (${(deepfake * 100).toFixed(1)}%). `
-    );
-  } else if (deepfake > 0.3) {
-    parts.push(
-      `Moderate deepfake indicators found (${(deepfake * 100).toFixed(1)}%). `
-    );
-  } else {
-    parts.push(
-      `Low deepfake probability (${(deepfake * 100).toFixed(1)}%). `
-    );
-  }
-
-  if (manipulation > 0.5) {
-    parts.push(
-      `Significant manipulation detected (${(manipulation * 100).toFixed(1)}%). `
-    );
-  }
-
-  if (faceRate > 0.5) {
-    parts.push(`Faces detected in ${(faceRate * 100).toFixed(0)}% of frames. `);
-  }
-
-  if (temporal && temporal.consistentManipulation) {
-    parts.push('Consistent manipulation pattern across frames. ');
-  }
-
-  if (parts.length === 0) {
-    parts.push('Video analysis completed with limited indicators.');
-  }
-
-  return parts.join('').trim();
-}
+// NOTE: Trust labels are NOT derived from ad-hoc score thresholds here.
+// They are computed by the trust-score service rule engine using the
+// documented weighted formula. See trust-score.service.js.
 
 module.exports = {
   analyzeVideo,

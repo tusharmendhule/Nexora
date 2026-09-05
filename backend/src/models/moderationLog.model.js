@@ -10,6 +10,8 @@ const MODERATION_ACTION = {
   DISMISS_REPORT: 'DISMISS_REPORT',
   REMOVE_CONTENT: 'REMOVE_CONTENT',
   RESTORE_CONTENT: 'RESTORE_CONTENT',
+  // A regular user requested that a moderator re-review a post's analysis.
+  REVIEW_REQUESTED: 'REVIEW_REQUESTED',
 };
 
 // ─── Moderation Log Schema ───────────────────────────────────────────

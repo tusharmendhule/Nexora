@@ -144,10 +144,11 @@ class Post {
     final trustLabelStr = trustScoreDetail?['label']?.toString();
     final trustExplanationStr = trustScoreDetail?['explanation']?.toString();
 
-    // Numeric trust score — prefer detail's score, then post model's field
+    // Numeric trust score — prefer detail's score, then post model's field.
+    // NO fabricated fallback: null means the backend has not computed a
+    // score yet, and the UI shows a pending state instead of a fake value.
     final trustScoreValue = (trustScoreDetail?['score'] as num?)?.toInt()
-        ?? (json['trustScore'] as num?)?.toInt()
-        ?? 75;
+        ?? (json['trustScore'] as num?)?.toInt();
 
     // Verification & moderation status
     final verificationStatus = json['verificationStatus']?.toString();
@@ -225,7 +226,11 @@ class Post {
   ///
   /// Priority:
   ///   1. Backend TrustScore label (authoritative — from the rule engine)
-  ///   2. Heuristic based on verificationStatus / moderationStatus / trustScore
+  ///   2. Honest pending state when the backend has no TrustScore record.
+  ///
+  /// Labels are NEVER derived from score ranges here — that would fabricate
+  /// a verdict. The verification status (verified/failed/pending) is shown
+  /// separately by the UI from the backend's real value.
   static NexoraLabel _parseLabel(
     Map<String, dynamic> json,
     String? backendLabel,
@@ -236,32 +241,8 @@ class Post {
       return NexoraLabel.fromBackendLabel(backendLabel, explanation: backendExplanation);
     }
 
-    // 2. Heuristic fallback for posts without a TrustScore record yet
-    final verificationStatus = json['verificationStatus']?.toString();
-    final moderationStatus = json['moderationStatus']?.toString();
-    final trustScore = (json['trustScore'] as num?)?.toDouble() ?? 75.0;
-
-    if (moderationStatus == 'rejected' || moderationStatus == 'flagged') {
-      return NexoraLabel.falseOrMisleading;
-    }
-
-    if (verificationStatus == 'failed') {
-      return NexoraLabel.falseOrMisleading;
-    }
-
-    if (verificationStatus == 'pending' || verificationStatus == 'processing') {
-      return NexoraLabel.disputedNeedsContext;
-    }
-
-    if (trustScore < 40) {
-      return NexoraLabel.falseOrMisleading;
-    } else if (trustScore < 60) {
-      return NexoraLabel.disputedNeedsContext;
-    } else if (trustScore < 80) {
-      return NexoraLabel.editedContent;
-    }
-
-    return NexoraLabel.verifiedAuthentic;
+    // 2. No backend TrustScore record — show the honest pre-analysis state.
+    return NexoraLabel.pendingVerification;
   }
 
   /// Parse a list of posts from the backend response.
