@@ -465,7 +465,15 @@ async function executeEntityExtraction(pipeline, post, contentType, claimResult)
 
 /**
  * Stage: FACT_VERIFICATION
- * Verify extracted claims against external fact-check databases.
+ * Verify extracted claims using Google Fact Check API as PRIMARY method.
+ * 
+ * Google Fact Check is attempted FIRST. If it succeeds (even with no
+ * matching result), fallback models are NOT called. Fallback is only
+ * activated when the Google Fact Check SERVICE itself fails.
+ *
+ * Provider Priority:
+ *   PRIMARY: Google Fact Check API
+ *   FALLBACK: Gemini / Python / ML models (only on service failure)
  */
 async function executeFactVerification(pipeline, post, contentType, claimResult) {
   await startStage(pipeline.pipelineId, 'FACT_VERIFICATION');
@@ -486,13 +494,20 @@ async function executeFactVerification(pipeline, post, contentType, claimResult)
     return null;
   }
 
+  // ── PRIMARY: Google Fact Check API ──────────────────────────────
   try {
     const factCheckService = require('./fact-check.service');
     const claimTexts = claims.map((c) => ({ text: c.text, id: c.textHash }));
+    
+    console.log('[TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)');
     const result = await factCheckService.factCheckClaims(claimTexts, {
       postId: post._id.toString(),
     });
 
+    // Google Fact Check succeeded (even if no matches found)
+    // This is NOT an error — "no match" means UNVERIFIED
+    console.log('[TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS');
+    
     await completeStage(
       pipeline.pipelineId,
       'FACT_VERIFICATION',
@@ -500,14 +515,85 @@ async function executeFactVerification(pipeline, post, contentType, claimResult)
         aggregateStatus: result.aggregateStatus,
         summary: result.summary,
         claimCount: result.results.length,
+        providerUsed: 'GOOGLE_FACT_CHECK',
       },
       null,
       'google-fact-check-api'
     );
     return result;
   } catch (err) {
-    console.warn(`[Pipeline] Fact verification failed: ${err.message}`);
-    await skipStage(pipeline.pipelineId, 'FACT_VERIFICATION', `Verification failed: ${err.message}`);
+    // Google Fact Check SERVICE failed — activate fallback
+    console.error(`[TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check FAILED: ${err.message}`);
+    console.log('[TrustAnalysis] Pipeline FACT_VERIFICATION: Activating fallback providers');
+
+    // ── FALLBACK: Gemini / Python / ML models ──────────────────────
+    let fallbackResult = null;
+
+    // Fallback 1: Gemini API
+    try {
+      const geminiService = require('./gemini-analysis.service');
+      console.log('[TrustAnalysis] Pipeline FALLBACK: GEMINI Status: ANALYZING');
+      const geminiAnalysis = await geminiService.analyzeWithGemini(post.text || '', post._id.toString());
+      if (geminiAnalysis.status === 'COMPLETED' && geminiAnalysis.result) {
+        fallbackResult = {
+          aggregateStatus: 'UNKNOWN',
+          results: (geminiAnalysis.result.claims || []).map(c => ({
+            status: 'UNKNOWN',
+            reviews: [],
+            claimText: c.text || '',
+          })),
+          summary: { total: 0, verified: 0, false: 0, mixed: 0, noEvidence: 0, unknown: 0 },
+          providerUsed: 'GEMINI',
+          geminiAnalysis: geminiAnalysis.result,
+        };
+        console.log('[TrustAnalysis] Pipeline FALLBACK: GEMINI Status: SUCCESS');
+      } else {
+        console.warn('[TrustAnalysis] Pipeline FALLBACK: GEMINI Status: FAILED');
+      }
+    } catch (geminiErr) {
+      console.warn(`[TrustAnalysis] Pipeline FALLBACK: GEMINI Status: ERROR - ${geminiErr.message}`);
+    }
+
+    // Fallback 2: Python AI service (if Gemini failed)
+    if (!fallbackResult) {
+      try {
+        const textAnalysisService = require('./text-analysis.service');
+        console.log('[TrustAnalysis] Pipeline FALLBACK: PYTHON_MODEL Status: ANALYZING');
+        const pythonResult = await textAnalysisService.analyzeText({ post: post._id, _id: post._id });
+        if (pythonResult.status === 'COMPLETED' && pythonResult.results) {
+          fallbackResult = {
+            aggregateStatus: 'UNKNOWN',
+            results: [],
+            summary: { total: 0, verified: 0, false: 0, mixed: 0, noEvidence: 0, unknown: 0 },
+            providerUsed: 'PYTHON_MODEL',
+            pythonAnalysis: pythonResult.results,
+          };
+          console.log('[TrustAnalysis] Pipeline FALLBACK: PYTHON_MODEL Status: SUCCESS');
+        }
+      } catch (pyErr) {
+        console.warn(`[TrustAnalysis] Pipeline FALLBACK: PYTHON_MODEL Status: ERROR - ${pyErr.message}`);
+      }
+    }
+
+    if (fallbackResult) {
+      await completeStage(
+        pipeline.pipelineId,
+        'FACT_VERIFICATION',
+        {
+          aggregateStatus: fallbackResult.aggregateStatus,
+          summary: fallbackResult.summary,
+          claimCount: fallbackResult.results.length,
+          providerUsed: fallbackResult.providerUsed,
+        },
+        null,
+        fallbackResult.providerUsed?.toLowerCase() || 'fallback'
+      );
+      return fallbackResult;
+    }
+
+    // All providers failed — skip fact verification
+    console.warn('[TrustAnalysis] Pipeline FACT_VERIFICATION: All providers failed, skipping');
+    await skipStage(pipeline.pipelineId, 'FACT_VERIFICATION', 'All verification providers failed');
     return null;
   }
 }

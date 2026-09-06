@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -465,10 +465,10 @@ class _MomentsScreenState extends State<MomentsScreen>
               ),
             ),
 
-          // Local file image (fallback)
-          if (moment.mediaType == 'image' && !_isNetworkUrl(moment.mediaUrl))
+          // Local file image (fallback) — not supported on web
+          if (moment.mediaType == 'image' && !_isNetworkUrl(moment.mediaUrl) && !kIsWeb)
             Positioned.fill(
-              child: Image.file(File(moment.mediaUrl), fit: BoxFit.cover),
+              child: const SizedBox.shrink(),
             ),
 
           // Network video — plays muted, auto-advancing like Instagram
@@ -600,14 +600,10 @@ class _MomentsScreenState extends State<MomentsScreen>
                               size: 23,
                             ),
                           )
-                        : Image.file(
-                            File(avatarUrl),
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 23,
-                            ),
+                        : const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 23,
                           ))
                     : const Icon(Icons.person, color: Colors.white, size: 23),
               ),

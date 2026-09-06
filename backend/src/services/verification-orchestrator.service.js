@@ -1,44 +1,78 @@
 /**
  * Verification Orchestrator Service
  * ==================================
- * Coordinates the sequential verification pipeline:
- *   1. Gemini Analysis (content understanding, claim extraction)
- *   2. Google Fact Check (external verification of claims)
- *   3. Trust Score calculation (backend engine)
+ * Coordinates the verification pipeline with Google Fact Check as the
+ * PRIMARY and FIRST verification method.
  *
- * CRITICAL: Only ONE provider runs at a time.
- * Gemini and Google Fact Check are NEVER simultaneous.
+ * CRITICAL PRIORITY:
+ *   1. Google Fact Check API (FIRST)
+ *   2. Fallback: Gemini / Python / ML models (ONLY on service failure)
  *
  * Flow:
  *   CONTENT
  *     ↓
- *   GEMINI ANALYSIS (sequential, completes first)
+ *   CLAIM EXTRACTION (heuristic, no external API needed)
  *     ↓
- *   CLAIM EXTRACTION (from Gemini or heuristics)
- *     ↓
- *   GOOGLE FACT CHECK (only if claims exist, runs after Gemini)
+ *   GOOGLE FACT CHECK API (FIRST PRIORITY)
+ *     ├── SUCCESS + RESULT → use fact check, skip fallback
+ *     ├── SUCCESS + NO MATCH → UNVERIFIED, skip fallback
+ *     └── SERVICE ERROR → fallback to Gemini/Python/ML
  *     ↓
  *   EVIDENCE NORMALIZATION
  *     ↓
  *   TRUST SCORE ENGINE (backend calculation)
  *     ↓
  *   TRUST LABEL (rule-based)
+ *     ↓
+ *   MongoDB persistence
+ *
+ * RULES:
+ *   - Google Fact Check and fallback providers NEVER run simultaneously
+ *   - When Google Fact Check succeeds, NO other provider runs
+ *   - Fallback activates ONLY when Google Fact Check SERVICE fails
+ *   - "No match" from Google Fact Check is NOT a service failure
  */
 
-const geminiService = require('./gemini-analysis.service');
 const factCheckService = require('./fact-check.service');
 const trustScoreService = require('./trust-score.service');
 const evidenceNormalizationService = require('./evidence-normalization.service');
 const claimEntityService = require('./claim-entity-extraction.service');
 
+// ─── Lazy-loaded services (avoid circular deps) ───────────────────────
+
+let geminiService = null;
+
+function _getGeminiService() {
+  if (!geminiService) {
+    try {
+      geminiService = require('./gemini-analysis.service');
+    } catch (_) {
+      // Gemini not available — fallback will use other providers
+    }
+  }
+  return geminiService;
+}
+
+let textAnalysisService = null;
+
+function _getTextAnalysisService() {
+  if (!textAnalysisService) {
+    try {
+      textAnalysisService = require('./text-analysis.service');
+    } catch (_) {}
+  }
+  return textAnalysisService;
+}
+
 // ─── Verification Status ───────────────────────────────────────────────
 
 const VerificationStatus = Object.freeze({
   PENDING: 'PENDING',
-  GEMINI_ANALYZING: 'GEMINI_ANALYZING',
-  GEMINI_COMPLETED: 'GEMINI_COMPLETED',
-  FACT_CHECK_ANALYZING: 'FACT_CHECK_ANALYZING',
-  FACT_CHECK_COMPLETED: 'FACT_CHECK_COMPLETED',
+  CLAIM_EXTRACTION: 'CLAIM_EXTRACTION',
+  GOOGLE_FACT_CHECK: 'GOOGLE_FACT_CHECK',
+  GOOGLE_FACT_CHECK_COMPLETED: 'GOOGLE_FACT_CHECK_COMPLETED',
+  FALLBACK_ANALYZING: 'FALLBACK_ANALYZING',
+  FALLBACK_COMPLETED: 'FALLBACK_COMPLETED',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED',
 });
@@ -46,8 +80,10 @@ const VerificationStatus = Object.freeze({
 // ─── Provider Types ─────────────────────────────────────────────────────
 
 const ProviderType = Object.freeze({
-  GEMINI: 'GEMINI',
   GOOGLE_FACT_CHECK: 'GOOGLE_FACT_CHECK',
+  GEMINI: 'GEMINI',
+  PYTHON_MODEL: 'PYTHON_MODEL',
+  FALLBACK: 'FALLBACK',
   NONE: 'NONE',
 });
 
@@ -57,18 +93,19 @@ class VerificationResult {
   constructor() {
     this.providerUsed = ProviderType.NONE;
     this.providerStatus = 'PENDING';
-    this.geminiAnalysis = null;
+    this.claims = [];
     this.factCheckResults = null;
+    this.fallbackAnalysis = null;
     this.evidenceItems = [];
     this.trustScoreResult = null;
     this.verificationStatus = VerificationStatus.PENDING;
     this.error = null;
     this.processingTimeMs = 0;
+    this.analyzedAt = null;
   }
 }
 
 // ─── In-Memory Analysis State (for duplicate prevention) ──────────────
-// In production, this should be backed by MongoDB/Redis.
 
 const _analysisState = new Map();
 const STATE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
@@ -103,9 +140,13 @@ function cleanupStaleStates() {
 
 /**
  * Orchestrate the full verification pipeline for a post.
- * Executes providers SEQUENTIALLY, never in parallel.
  *
- * @param {Object} params - Orchestration parameters
+ * Google Fact Check is attempted FIRST. If it succeeds (even with no
+ * matching result), fallback models are NOT called. Fallback is only
+ * activated when the Google Fact Check SERVICE itself is unavailable
+ * or errors.
+ *
+ * @param {Object} params
  * @param {string} params.postId - MongoDB post ID
  * @param {string} params.text - Content text to analyze
  * @param {string} params.contentType - Content type (TEXT, IMAGE, VIDEO, etc.)
@@ -116,17 +157,17 @@ async function orchestrateVerification({ postId, text, contentType = 'TEXT', ski
   const result = new VerificationResult();
   const startTime = Date.now();
 
-  // Check for existing analysis (duplicate prevention)
+  // ─── Duplicate prevention ──────────────────────────────────────────
   const existingState = getAnalysisState(postId);
   if (existingState) {
-    if (existingState.providerStatus === 'ANALYZING') {
+    if (existingState.providerStatus === 'ANALYZING' || existingState.providerStatus === 'GOOGLE_FACT_CHECK') {
       return {
         ...result,
         verificationStatus: 'ANALYZING',
+        providerStatus: 'ANALYZING',
         error: 'Analysis already in progress for this post',
       };
     }
-    // Return cached result if complete
     if (existingState.verificationStatus === 'COMPLETED' || existingState.verificationStatus === 'FAILED') {
       return existingState;
     }
@@ -137,8 +178,9 @@ async function orchestrateVerification({ postId, text, contentType = 'TEXT', ski
     postId,
     providerUsed: ProviderType.NONE,
     providerStatus: 'PENDING',
-    geminiAnalysis: null,
+    claims: [],
     factCheckResults: null,
+    fallbackAnalysis: null,
     evidenceItems: [],
     trustScoreResult: null,
     verificationStatus: VerificationStatus.PENDING,
@@ -148,200 +190,314 @@ async function orchestrateVerification({ postId, text, contentType = 'TEXT', ski
   setAnalysisState(postId, state);
 
   try {
-    // ─────────────────────────────────────────────────────────────
-    // STEP 1: Gemini Analysis (content understanding, claim extraction)
-    // ─────────────────────────────────────────────────────────────
-    result.providerStatus = 'GEMINI_ANALYZING';
-    result.verificationStatus = VerificationStatus.GEMINI_ANALYZING;
-
-    const geminiResult = await geminiService.analyzeWithGemini(text, postId);
-
-    if (geminiResult.status === 'COMPLETED') {
-      result.geminiAnalysis = geminiResult.result;
-      result.providerUsed = ProviderType.GEMINI;
-      result.providerStatus = 'COMPLETED';
-      result.verificationStatus = VerificationStatus.GEMINI_COMPLETED;
-      state.geminiAnalysis = result.geminiAnalysis;
-    } else if (geminiResult.status === 'FAILED') {
-      // Gemini failed - still continue with heuristic analysis
-      console.warn('[Orchestrator] Gemini analysis failed, using fallback:', geminiResult.error);
-      result.error = `Gemini analysis failed: ${geminiResult.error}`;
-      // Continue with fallback - don't fail the whole pipeline
-    }
-
-    // Update state
-    state.geminiAnalysis = result.geminiAnalysis;
-    state.providerUsed = result.providerUsed;
-    state.providerStatus = result.providerStatus;
+    // ═══════════════════════════════════════════════════════════════════
+    // STEP 1: CLAIM EXTRACTION (heuristic, no external API needed)
+    // ═══════════════════════════════════════════════════════════════════
+    result.verificationStatus = VerificationStatus.CLAIM_EXTRACTION;
+    result.providerStatus = 'CLAIM_EXTRACTION';
+    state.verificationStatus = VerificationStatus.CLAIM_EXTRACTION;
+    state.providerStatus = 'CLAIM_EXTRACTION';
     setAnalysisState(postId, state);
 
-    // ─────────────────────────────────────────────────────────────
-    // STEP 2: Claim Extraction (from Gemini or heuristics)
-    // ─────────────────────────────────────────────────────────────
-    // Claims are extracted as part of Gemini analysis or via heuristics
-
     let claims = [];
-    if (result.geminiAnalysis?.claims?.length > 0) {
-      claims = result.geminiAnalysis.claims;
-    } else {
-      // Fallback: Use heuristic claim extraction
-      try {
-        const heuristicResult = await claimEntityService.extractClaimsAndEntities(
-          text,
-          postId,
-          null // contentJobId
-        );
-        if (heuristicResult?.savedAnalysis?.claims) {
-          claims = heuristicResult.savedAnalysis.claims;
+    try {
+      const heuristicResult = await claimEntityService.extractClaimsAndEntities(
+        text,
+        postId,
+        null // contentJobId
+      );
+      if (heuristicResult?.savedAnalysis?.claims) {
+        claims = heuristicResult.savedAnalysis.claims;
+      }
+    } catch (claimErr) {
+      console.warn('[TrustAnalysis] Heuristic claim extraction failed:', claimErr.message);
+    }
+
+    // If no claims from heuristics, try Gemini for claim extraction only
+    if (claims.length === 0) {
+      const geminiSvc = _getGeminiService();
+      if (geminiSvc) {
+        try {
+          const geminiClaimsResult = await geminiSvc.extractClaimsWithGemini(text, postId);
+          if (geminiClaimsResult.status === 'COMPLETED' && geminiClaimsResult.claims?.length > 0) {
+            claims = geminiClaimsResult.claims.map(c => ({
+              text: c.text || '',
+              textHash: require('../models/claim-entity.model').hashClaimText(c.text || ''),
+              ...c,
+            }));
+          }
+        } catch (geminiClaimErr) {
+          console.warn('[TrustAnalysis] Gemini claim extraction failed:', geminiClaimErr.message);
         }
-      } catch (claimErr) {
-        console.warn('[Orchestrator] Claim extraction fallback failed:', claimErr.message);
       }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // STEP 3: Google Fact Check (SEQUENTIAL - after Gemini completes)
-    // Only run if there are claims to verify
-    // ─────────────────────────────────────────────────────────────
+    result.claims = claims;
+    state.claims = claims;
+    setAnalysisState(postId, state);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // STEP 2: GOOGLE FACT CHECK API (FIRST PRIORITY)
+    // ═══════════════════════════════════════════════════════════════════
+    let factCheckSuccess = false;
+    let factCheckError = false;
+    let factCheckResult = null;
+
     if (!skipFactCheck && claims.length > 0) {
-      result.providerStatus = 'FACT_CHECK_ANALYZING';
-      result.verificationStatus = VerificationStatus.FACT_CHECK_ANALYZING;
+      result.verificationStatus = VerificationStatus.GOOGLE_FACT_CHECK;
+      result.providerStatus = 'GOOGLE_FACT_CHECK_ANALYZING';
       result.providerUsed = ProviderType.GOOGLE_FACT_CHECK;
-
-      // Update state to show fact-check is starting
-      state.providerStatus = 'FACT_CHECK_ANALYZING';
-      state.verificationStatus = VerificationStatus.FACT_CHECK_ANALYZING;
+      state.verificationStatus = VerificationStatus.GOOGLE_FACT_CHECK;
+      state.providerStatus = 'GOOGLE_FACT_CHECK_ANALYZING';
+      state.providerUsed = ProviderType.GOOGLE_FACT_CHECK;
       setAnalysisState(postId, state);
 
-      // Fact check claims - this is sequential, NOT parallel with Gemini
-      const factCheckResult = await factCheckService.factCheckClaims(
-        claims.map((c) => ({ text: c.text, id: c.text })),
-        { postId }
-      );
+      try {
+        console.log('[TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: ANALYZING');
 
-      result.factCheckResults = factCheckResult.results;
-      result.providerStatus = 'COMPLETED';
-      result.verificationStatus = VerificationStatus.FACT_CHECK_COMPLETED;
+        factCheckResult = await factCheckService.factCheckClaims(
+          claims.map((c) => ({ text: c.text, id: c.textHash || c.text })),
+          { postId }
+        );
 
-      // Update state
-      state.factCheckResults = result.factCheckResults;
-      state.providerStatus = 'COMPLETED';
-      state.verificationStatus = VerificationStatus.FACT_CHECK_COMPLETED;
-      setAnalysisState(postId, state);
+        // Google Fact Check returned successfully (even if no matches found)
+        // This is a SUCCESS, not an error — "no match" means UNVERIFIED
+        factCheckSuccess = true;
+        result.factCheckResults = factCheckResult.results;
+        result.providerStatus = 'GOOGLE_FACT_CHECK_COMPLETED';
+        result.verificationStatus = VerificationStatus.GOOGLE_FACT_CHECK_COMPLETED;
+
+        state.factCheckResults = factCheckResult.results;
+        state.providerStatus = 'GOOGLE_FACT_CHECK_COMPLETED';
+        state.verificationStatus = VerificationStatus.GOOGLE_FACT_CHECK_COMPLETED;
+        setAnalysisState(postId, state);
+
+        console.log('[TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: SUCCESS');
+
+        // Store fact-check results in claim entities for persistence
+        await _persistFactCheckResults(postId, claims, factCheckResult).catch(err => {
+          console.warn('[TrustAnalysis] Failed to persist fact-check results:', err.message);
+        });
+
+      } catch (fcError) {
+        // Google Fact Check SERVICE failed (timeout, network error, API error)
+        factCheckError = true;
+        console.error('[TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: ERROR');
+        console.error('[TrustAnalysis] Error:', fcError.message);
+        result.error = `Google Fact Check failed: ${fcError.message}`;
+      }
+    } else if (!skipFactCheck && claims.length === 0) {
+      // No claims to verify — skip fact check entirely
+      console.log('[TrustAnalysis] No claims to fact-check, proceeding with other signals');
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // STEP 4: Evidence Normalization
-    // ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+    // STEP 3: FALLBACK — ONLY if Google Fact Check SERVICE failed
+    // ═══════════════════════════════════════════════════════════════════
+    // IMPORTANT: When Google Fact Check succeeds (even with NO match),
+    // fallback is NEVER activated.
+    if (factCheckError) {
+      result.verificationStatus = VerificationStatus.FALLBACK_ANALYZING;
+      result.providerStatus = 'FALLBACK_ANALYZING';
+      state.verificationStatus = VerificationStatus.FALLBACK_ANALYZING;
+      state.providerStatus = 'FALLBACK_ANALYZING';
+      setAnalysisState(postId, state);
+
+      console.log('[TrustAnalysis] Falling back to alternative analysis providers');
+
+      let fallbackResult = null;
+
+      // Fallback 1: Gemini API
+      const geminiSvc = _getGeminiService();
+      if (geminiSvc) {
+        try {
+          console.log('[TrustAnalysis] Fallback: GEMINI Status: ANALYZING');
+          const geminiAnalysis = await geminiSvc.analyzeWithGemini(text, postId);
+          if (geminiAnalysis.status === 'COMPLETED' && geminiAnalysis.result) {
+            fallbackResult = {
+              provider: ProviderType.GEMINI,
+              analysis: geminiAnalysis.result,
+              claims: geminiAnalysis.result.claims || [],
+            };
+            result.providerUsed = ProviderType.GEMINI;
+            result.fallbackAnalysis = fallbackResult;
+            console.log('[TrustAnalysis] Fallback: GEMINI Status: SUCCESS');
+          } else {
+            console.warn('[TrustAnalysis] Fallback: GEMINI Status: FAILED -', geminiAnalysis.error);
+          }
+        } catch (geminiErr) {
+          console.warn('[TrustAnalysis] Fallback: GEMINI Status: ERROR -', geminiErr.message);
+        }
+      }
+
+      // Fallback 2: Python AI service (if Gemini failed)
+      if (!fallbackResult) {
+        const textSvc = _getTextAnalysisService();
+        if (textSvc) {
+          try {
+            console.log('[TrustAnalysis] Fallback: PYTHON_MODEL Status: ANALYZING');
+            // Create a minimal job-like object for text analysis
+            const fakeJob = {
+              post: postId,
+              _id: postId,
+            };
+            const pythonResult = await textSvc.analyzeText(fakeJob);
+            if (pythonResult.status === 'COMPLETED' && pythonResult.results) {
+              fallbackResult = {
+                provider: ProviderType.PYTHON_MODEL,
+                analysis: pythonResult.results,
+                claims: pythonResult.results.claims || [],
+              };
+              result.providerUsed = ProviderType.PYTHON_MODEL;
+              result.fallbackAnalysis = fallbackResult;
+              console.log('[TrustAnalysis] Fallback: PYTHON_MODEL Status: SUCCESS');
+            }
+          } catch (pyErr) {
+            console.warn('[TrustAnalysis] Fallback: PYTHON_MODEL Status: ERROR -', pyErr.message);
+          }
+        }
+      }
+
+      if (fallbackResult) {
+        result.providerStatus = 'FALLBACK_COMPLETED';
+        result.verificationStatus = VerificationStatus.FALLBACK_COMPLETED;
+        state.providerStatus = 'FALLBACK_COMPLETED';
+        state.verificationStatus = VerificationStatus.FALLBACK_COMPLETED;
+        state.fallbackAnalysis = fallbackResult;
+        setAnalysisState(postId, state);
+      } else {
+        // All fallback providers also failed
+        console.error('[TrustAnalysis] All fallback providers failed');
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // STEP 4: EVIDENCE NORMALIZATION
+    // ═══════════════════════════════════════════════════════════════════
     let evidenceItems = [];
     try {
-      // Build evidence inputs from Gemini analysis and fact-check results
+      const primaryClaim = text ? text.substring(0, 200) : `${contentType} content`;
+
       const evidenceInputs = {
-        claim: text.substring(0, 200),
+        claim: primaryClaim,
         postId: postId,
         modelConfidence: {
-          overallConfidence: result.geminiAnalysis?.confidence || 0.5,
-          modelVersion: result.geminiAnalysis?.modelVersion || 'gemini-' + geminiService.GEMINI_MODEL,
-          processingTimeMs: result.geminiAnalysis?.processingTimeMs || 0,
+          overallConfidence: 0.5,
+          modelVersion: 'nexora-trust-v1.0.0',
+          processingTimeMs: 0,
         },
         contentMetadata: {
           contentType,
           hasMedia: false,
         },
         sourceAnalysis: {
-          credibilityScore: 0.5, // Will be updated by source analysis if available
+          credibilityScore: 0.5,
           publisherName: null,
         },
       };
 
-      // Add Gemini signals
-      if (result.geminiAnalysis) {
-        evidenceInputs.geminiAnalysis = {
-          contentType: result.geminiAnalysis.contentType,
-          opinionProbability: result.geminiAnalysis.opinionProbability,
-          satireProbability: result.geminiAnalysis.satireProbability,
-          editedProbability: result.geminiAnalysis.editedProbability,
-          contextConcerns: result.geminiAnalysis.contextConcerns,
+      // Add Google Fact Check evidence (primary source)
+      if (factCheckSuccess && factCheckResult?.results?.length > 0) {
+        const fcData = factCheckResult.results[0];
+        evidenceInputs.factCheckResults = {
+          status: fcData.status,
+          reviews: (fcData.reviews || []).map((r) => ({
+            publisher: { name: r.publisher?.name || r.publisherName },
+            textualRating: r.textualRating || r.rating,
+            url: r.url,
+          })),
+          factualVerificationScore: factCheckService.verificationStatusToScore(fcData.status),
         };
       }
 
-      // Add fact-check evidence if available
-      if (result.factCheckResults?.length > 0) {
-        const factCheckData = result.factCheckResults[0];
-        evidenceInputs.factCheckResults = {
-          status: factCheckData.status,
-          reviews: (factCheckData.reviews || []).map((r) => ({
-            publisher: { name: r.publisher?.name },
-            textualRating: r.textualRating,
-            url: r.url,
-          })),
-          factualVerificationScore: factCheckService.verificationStatusToScore(
-            factCheckData.status
-          ),
-        };
+      // Add fallback analysis evidence (only if Google Fact Check failed)
+      if (factCheckError && result.fallbackAnalysis) {
+        const fb = result.fallbackAnalysis;
+        if (fb.provider === ProviderType.GEMINI && fb.analysis) {
+          evidenceInputs.geminiAnalysis = {
+            contentType: fb.analysis.contentType,
+            opinionProbability: fb.analysis.opinionProbability,
+            satireProbability: fb.analysis.satireProbability,
+            editedProbability: fb.analysis.editedProbability,
+            contextConcerns: fb.analysis.contextConcerns,
+          };
+          evidenceInputs.modelConfidence.overallConfidence = fb.analysis.confidence || 0.5;
+          evidenceInputs.modelConfidence.modelVersion = fb.analysis.modelVersion || 'gemini';
+        } else if (fb.provider === ProviderType.PYTHON_MODEL && fb.analysis) {
+          evidenceInputs.aiDetectorResults = {
+            misinfoProbability: fb.analysis.misinformationProbability || 0,
+            aiGeneratedProbability: fb.analysis.aiGeneratedProbability || 0,
+            confidence: fb.analysis.confidence || 0.5,
+            modelVersion: fb.analysis.modelVersion || 'python-model',
+          };
+        }
       }
 
       evidenceItems = await evidenceNormalizationService.normalizeEvidence(evidenceInputs);
       result.evidenceItems = evidenceItems;
       state.evidenceItems = evidenceItems;
     } catch (evidenceErr) {
-      console.warn('[Orchestrator] Evidence normalization failed:', evidenceErr.message);
-      result.error = `Evidence normalization failed: ${evidenceErr.message}`;
+      console.warn('[TrustAnalysis] Evidence normalization failed:', evidenceErr.message);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // STEP 5: Trust Score Calculation (backend engine)
-    // ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+    // STEP 5: TRUST SCORE CALCULATION (backend engine)
+    // ═══════════════════════════════════════════════════════════════════
     const trustScoreInput = {
-      authenticityScore: 0.5, // Default neutral
-      factualVerificationScore: 0.5, // Default neutral
-      sourceCredibilityScore: 0.5, // Default neutral
-      modelConfidenceScore: result.geminiAnalysis?.confidence || 0.5,
+      authenticityScore: 0.5,
+      factualVerificationScore: 0.5,
+      sourceCredibilityScore: 0.5,
+      modelConfidenceScore: 0.5,
       contentType: contentType.toLowerCase(),
       evidence: [],
     };
-    void trustScoreInput;
-    // (Legacy `trustScoreInput` is replaced below by `trustScoreService`
-    // inputs built from the collected signals; kept minimal by design.)
 
-    // Adjust scores based on Gemini analysis
-    if (result.geminiAnalysis) {
-      // Authenticity signal from Gemini (inverse of manipulation concerns)
-      const manipulationConcern = Math.max(
-        result.geminiAnalysis.satireProbability || 0,
-        result.geminiAnalysis.editedProbability || 0,
-        (result.geminiAnalysis.contextConcerns?.length || 0) * 0.1
-      );
-      trustScoreInput.authenticityScore = 1 - manipulationConcern;
-
-      // Model confidence from Gemini
-      trustScoreInput.modelConfidenceScore = result.geminiAnalysis.confidence;
-
-      // Content type signals
-      if (result.geminiAnalysis.contentType === 'OPINION') {
-        trustScoreInput.contentType = 'opinion';
-      } else if (result.geminiAnalysis.contentType === 'SATIRE') {
-        trustScoreInput.contentType = 'satire';
-      } else if (result.geminiAnalysis.contentType === 'EDITED') {
-        trustScoreInput.contentType = 'edited';
-      }
-    }
-
-    // Adjust scores based on fact-check results
-    if (result.factCheckResults?.length > 0) {
-      // Use fact-check service to compute factual verification score
-      const factualScore = factCheckService.computeFactualVerificationScore(
-        result.factCheckResults
-      );
+    // ── Set scores based on Google Fact Check results (primary) ────
+    if (factCheckSuccess && factCheckResult?.results?.length > 0) {
+      // Use real fact-check data for factual verification
+      const factualScore = factCheckService.computeFactualVerificationScore(factCheckResult.results);
       trustScoreInput.factualVerificationScore = factualScore;
 
-      // Check for confirmed false
-      if (factCheckService.isConfirmedFalse(result.factCheckResults)) {
+      if (factCheckService.isConfirmedFalse(factCheckResult.results)) {
         trustScoreInput.isConfirmedFalse = true;
+      }
+
+      // Source credibility from fact-check publisher reviews
+      const reviews = factCheckResult.results.flatMap(r => r.reviews || []);
+      if (reviews.length > 0) {
+        // Higher credibility if reputable publishers reviewed it
+        trustScoreInput.sourceCredibilityScore = Math.min(0.9, 0.5 + reviews.length * 0.05);
       }
     }
 
-    // Add evidence items
+    // ── Set scores based on fallback analysis (only if Google Fact Check failed) ──
+    if (factCheckError && result.fallbackAnalysis) {
+      const fb = result.fallbackAnalysis;
+
+      if (fb.provider === ProviderType.GEMINI && fb.analysis) {
+        // Authenticity signal from Gemini (inverse of manipulation concerns)
+        const manipulationConcern = Math.max(
+          fb.analysis.satireProbability || 0,
+          fb.analysis.editedProbability || 0,
+          (fb.analysis.contextConcerns?.length || 0) * 0.1
+        );
+        trustScoreInput.authenticityScore = 1 - manipulationConcern;
+        trustScoreInput.modelConfidenceScore = fb.analysis.confidence || 0.5;
+
+        if (fb.analysis.contentType === 'OPINION') {
+          trustScoreInput.contentType = 'opinion';
+        } else if (fb.analysis.contentType === 'SATIRE') {
+          trustScoreInput.contentType = 'satire';
+        } else if (fb.analysis.contentType === 'EDITED') {
+          trustScoreInput.contentType = 'edited';
+        }
+      } else if (fb.provider === ProviderType.PYTHON_MODEL && fb.analysis) {
+        trustScoreInput.authenticityScore = 1 - (fb.analysis.misinformationProbability || 0);
+        trustScoreInput.modelConfidenceScore = fb.analysis.confidence || 0.5;
+      }
+    }
+
+    // ── Add evidence items to trust score input ──
     if (evidenceItems.length > 0) {
       for (const evidence of evidenceItems) {
         if (evidence.evidenceItems) {
@@ -350,34 +506,38 @@ async function orchestrateVerification({ postId, text, contentType = 'TEXT', ski
       }
     }
 
-    // Calculate trust score using backend engine. The input used is the
-    // same one the stage-based pipeline builds (defaults then adjusted by
-    // the Gemini + fact-check signals gathered above) so results persist
-    // consistently with the rest of Nexora.
+    // Compute trust score using backend engine
     const trustScoreResult = trustScoreService.computeTrustScore(trustScoreInput);
     result.trustScoreResult = trustScoreResult;
     state.trustScoreResult = trustScoreResult;
 
-    // Persist the REAL computed result (TrustScore document + post fields)
-    // so the feed badge, post detail and "Why this label?" sheet show the
-    // actual Gemini-derived analysis — not a neutral default.
-    await persistVerificationResult(postId, trustScoreResult).catch((err) => {
-      console.warn('[Orchestrator] Failed to persist verification result:', err.message);
+    // ═══════════════════════════════════════════════════════════════════
+    // STEP 6: PERSIST TO MONGODB
+    // ═══════════════════════════════════════════════════════════════════
+    await persistVerificationResult(postId, trustScoreResult, {
+      providerUsed: result.providerUsed,
+      factCheckResults: result.factCheckResults,
+      fallbackAnalysis: result.fallbackAnalysis,
+      claims: result.claims,
+    }).catch((err) => {
+      console.warn('[TrustAnalysis] Failed to persist verification result:', err.message);
     });
 
-    // ─────────────────────────────────────────────────────────────
-    // Finalize
-    // ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════
+    // FINALIZE
+    // ═══════════════════════════════════════════════════════════════════
     result.verificationStatus = VerificationStatus.COMPLETED;
     result.processingTimeMs = Date.now() - startTime;
+    result.analyzedAt = new Date();
     state.verificationStatus = VerificationStatus.COMPLETED;
     state.processingTimeMs = result.processingTimeMs;
+    state.analyzedAt = result.analyzedAt;
     setAnalysisState(postId, state);
 
     return result;
 
   } catch (error) {
-    console.error('[Orchestrator] Verification failed:', error.message);
+    console.error('[TrustAnalysis] Verification failed:', error.message);
     result.verificationStatus = VerificationStatus.FAILED;
     result.error = error.message;
     result.processingTimeMs = Date.now() - startTime;
@@ -390,6 +550,136 @@ async function orchestrateVerification({ postId, text, contentType = 'TEXT', ski
     return result;
   }
 }
+
+// ─── Persistence ──────────────────────────────────────────────────────
+
+/**
+ * Persist the verification result to MongoDB.
+ * Updates the TrustScore document and the Post document.
+ */
+async function persistVerificationResult(postId, trustScoreResult, metadata = {}) {
+  const TrustScore = require('../models/trust-score.model');
+  const Post = require('../models/post.model');
+
+  const explanation = trustScoreResult.reasoning.join('\n');
+
+  // Build the explanation with real data
+  let enrichedExplanation = explanation;
+
+  // Add Google Fact Check specific explanation
+  if (metadata.providerUsed === ProviderType.GOOGLE_FACT_CHECK && metadata.factCheckResults?.length > 0) {
+    const fcExplanations = metadata.factCheckResults.map(r => {
+      const reviews = r.reviews || [];
+      if (reviews.length > 0) {
+        const publisherNames = reviews.map(rev => rev.publisher?.name || rev.publisherName).filter(Boolean).join(', ');
+        const ratings = reviews.map(rev => rev.textualRating || rev.rating).filter(Boolean).join(', ');
+        return `Google Fact Check found a review from ${publisherNames || 'a publisher'} rating this claim as ${ratings || 'unavailable'}.`;
+      }
+      return `Google Fact Check returned status: ${r.status}.`;
+    });
+    enrichedExplanation = fcExplanations.join(' ') + '\n' + explanation;
+  }
+
+  // Add fallback explanation
+  if (metadata.providerUsed === ProviderType.GEMINI) {
+    enrichedExplanation = 'Analysis performed using Gemini AI (Google Fact Check was unavailable).\n' + explanation;
+  } else if (metadata.providerUsed === ProviderType.PYTHON_MODEL) {
+    enrichedExplanation = 'Analysis performed using Python AI model (Google Fact Check was unavailable).\n' + explanation;
+  }
+
+  // Determine verification status for the post
+  let verificationStatus = 'VERIFIED';
+  if (trustScoreResult.label === 'Red') {
+    verificationStatus = 'REJECTED';
+  } else if (trustScoreResult.label === 'Orange') {
+    verificationStatus = 'REVIEW_REQUIRED';
+  }
+
+  // Save TrustScore document
+  await TrustScore.findOneAndUpdate(
+    { post: postId },
+    {
+      post: postId,
+      score: trustScoreResult.trustScore,
+      authenticity: trustScoreResult.componentScores.authenticity,
+      factualVerification: trustScoreResult.componentScores.factualVerification,
+      sourceCredibility: trustScoreResult.componentScores.sourceCredibility,
+      modelConfidence: trustScoreResult.componentScores.modelConfidence,
+      label: trustScoreResult.label,
+      explanation: enrichedExplanation,
+      modelVersion: trustScoreResult.modelVersion,
+      ruleVersion: trustScoreResult.ruleVersion,
+      isOverrideApplied: trustScoreResult.isOverrideApplied,
+      // New fields for provider tracking
+      providerUsed: metadata.providerUsed || ProviderType.NONE,
+      analyzedAt: new Date(),
+      factCheckData: metadata.factCheckResults ? {
+        aggregateStatus: metadata.factCheckResults.length > 0 ? metadata.factCheckResults[0].status : 'NO_EVIDENCE',
+        claimCount: metadata.claims?.length || 0,
+        reviewCount: metadata.factCheckResults.reduce((sum, r) => sum + (r.reviews?.length || 0), 0),
+        publisherNames: metadata.factCheckResults
+          .flatMap(r => (r.reviews || []).map(rev => rev.publisher?.name || rev.publisherName))
+          .filter(Boolean),
+      } : null,
+    },
+    { upsert: true, new: true }
+  );
+
+  // Update Post document
+  await Post.findByIdAndUpdate(postId, {
+    trustScore: trustScoreResult.trustScore,
+    trustBadge: trustScoreResult.label,
+    trustBreakdown: {
+      factualVerification: trustScoreResult.componentScores.factualVerification,
+      authenticity: trustScoreResult.componentScores.authenticity,
+      sourceCredibility: trustScoreResult.componentScores.sourceCredibility,
+      modelConfidence: trustScoreResult.componentScores.modelConfidence,
+    },
+    verificationStatus,
+    pipelineCompletedAt: new Date(),
+  });
+}
+
+/**
+ * Persist Google Fact Check results to ClaimEntity documents.
+ */
+async function _persistFactCheckResults(postId, claims, factCheckResult) {
+  const ClaimEntity = require('../models/claim-entity.model');
+  const crypto = require('crypto');
+
+  for (let i = 0; i < claims.length; i++) {
+    const claim = claims[i];
+    const fcResult = factCheckResult.results?.[i];
+
+    if (fcResult && fcResult.reviews?.length > 0) {
+      const textHash = claim.textHash || crypto
+        .createHash('sha256')
+        .update((claim.text || '').toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim())
+        .digest('hex')
+        .slice(0, 32);
+
+      await ClaimEntity.findOneAndUpdate(
+        { post: postId, 'claims.textHash': textHash },
+        {
+          $set: {
+            'claims.$.factCheckStatus': fcResult.status === 'VERIFIED_TRUE' ? 'verified' :
+              fcResult.status === 'VERIFIED_FALSE' ? 'failed' : 'verifying',
+            'claims.$.factCheckResults': (fcResult.reviews || []).map(r => ({
+              publisherName: r.publisher?.name || r.publisherName || null,
+              publisherSite: r.publisher?.site || r.publisherSite || null,
+              url: r.url || null,
+              title: r.title || null,
+              rating: r.textualRating || r.rating || null,
+            })),
+          },
+        },
+        { upsert: false }
+      );
+    }
+  }
+}
+
+// ─── Query Helpers ────────────────────────────────────────────────────
 
 /**
  * Get the current verification state for a post.
@@ -418,6 +708,9 @@ module.exports = {
 
   // Main orchestration
   orchestrateVerification,
+
+  // Persistence
+  persistVerificationResult,
 
   // State management
   getVerificationState,

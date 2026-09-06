@@ -55,6 +55,10 @@ router.get('/', protect, async (req, res) => {
           factualVerification: tsDetail.factualVerification,
           sourceCredibility: tsDetail.sourceCredibility,
           modelConfidence: tsDetail.modelConfidence,
+          // Provider tracking fields
+          providerUsed: tsDetail.providerUsed || 'NONE',
+          analyzedAt: tsDetail.analyzedAt || null,
+          factCheckData: tsDetail.factCheckData || null,
         };
         // Override the post's default trustScore with the computed value
         obj.trustScore = tsDetail.score;
@@ -186,6 +190,10 @@ router.get('/saved', protect, async (req, res) => {
             factualVerification: tsDetail.factualVerification,
             sourceCredibility: tsDetail.sourceCredibility,
             modelConfidence: tsDetail.modelConfidence,
+            // Provider tracking fields
+            providerUsed: tsDetail.providerUsed || 'NONE',
+            analyzedAt: tsDetail.analyzedAt || null,
+            factCheckData: tsDetail.factCheckData || null,
           };
           obj.post.trustScore = tsDetail.score;
         }
@@ -220,25 +228,28 @@ router.get('/:id', protect, async (req, res) => {
 
     // Attach TrustScore detail
     const obj = post.toObject();
-    const tsDetail = await TrustScore.findOne({ post: req.params.id });
-    if (tsDetail) {
-      obj.trustScoreDetail = {
-        score: tsDetail.score,
-        label: tsDetail.label,
-        explanation: tsDetail.explanation,
-        isOverrideApplied: tsDetail.isOverrideApplied,
-        authenticity: tsDetail.authenticity,
-        factualVerification: tsDetail.factualVerification,
-        sourceCredibility: tsDetail.sourceCredibility,
-        modelConfidence: tsDetail.modelConfidence,
-      };
-      obj.trustScore = tsDetail.score;
-    }
+    const tsDetail = await TrustScore.findOne({ post: req.params.id });      if (tsDetail) {
+        obj.trustScoreDetail = {
+          score: tsDetail.score,
+          label: tsDetail.label,
+          explanation: tsDetail.explanation,
+          isOverrideApplied: tsDetail.isOverrideApplied,
+          authenticity: tsDetail.authenticity,
+          factualVerification: tsDetail.factualVerification,
+          sourceCredibility: tsDetail.sourceCredibility,
+          modelConfidence: tsDetail.modelConfidence,
+          // Provider tracking fields
+          providerUsed: tsDetail.providerUsed || 'NONE',
+          analyzedAt: tsDetail.analyzedAt || null,
+          factCheckData: tsDetail.factCheckData || null,
+        };
+        obj.trustScore = tsDetail.score;
+      }
 
-    res.status(200).json({
-      success: true,
-      post: obj
-    });
+      res.status(200).json({
+        success: true,
+        post: obj
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }

@@ -82,6 +82,42 @@ const trustScoreSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    // ── Provider tracking (Google Fact Check integration) ────────────
+    // Which provider actually produced the verification
+    providerUsed: {
+      type: String,
+      enum: ['GOOGLE_FACT_CHECK', 'GEMINI', 'PYTHON_MODEL', 'FALLBACK', 'NONE'],
+      default: 'NONE',
+    },
+
+    // When the analysis was performed
+    analyzedAt: {
+      type: Date,
+      default: null,
+    },
+
+    // Google Fact Check specific data (when provider is GOOGLE_FACT_CHECK)
+    factCheckData: {
+      aggregateStatus: {
+        type: String,
+        enum: ['VERIFIED_TRUE', 'VERIFIED_FALSE', 'MIXED', 'NO_EVIDENCE', 'UNKNOWN', null],
+        default: null,
+      },
+      claimCount: {
+        type: Number,
+        default: 0,
+      },
+      reviewCount: {
+        type: Number,
+        default: 0,
+      },
+      publisherNames: [
+        {
+          type: String,
+        },
+      ],
+    },
   },
   { timestamps: true }
 );

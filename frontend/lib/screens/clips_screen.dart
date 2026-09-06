@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -959,10 +959,8 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
     super.initState();
 
     final url = mediaPlaybackUrl(widget.videoUrl);
-    final isNetwork = url.startsWith('http://') || url.startsWith('https://');
-    _controller = isNetwork
-        ? VideoPlayerController.networkUrl(Uri.parse(url))
-        : VideoPlayerController.file(File(url));
+    final isNetwork = kIsWeb || url.startsWith('http://') || url.startsWith('https://');
+    _controller = VideoPlayerController.networkUrl(Uri.parse(url));
 
     _controller.initialize().then((_) {
       if (!mounted) return;

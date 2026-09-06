@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart' as fb;
@@ -210,80 +209,7 @@ class UploadService {
     }
   }
 
-  /// Validate a file before upload. Returns null if valid, error message if invalid.
-  String? validateFile(File file, String? mimeType) {
-    final filePath = file.path;
-    final mediaType = getMediaType(filePath, mimeType);
-
-    if (mediaType == null) {
-      return 'Unsupported file type. Allowed: images (JPEG, PNG, GIF, WebP), videos (MP4, MOV, WebM), audio (MP3, WAV, OGG, AAC, FLAC).';
-    }
-
-    final fileLength = file.lengthSync();
-    int maxSize;
-    switch (mediaType) {
-      case 'image':
-        maxSize = maxImageSize;
-        break;
-      case 'video':
-        maxSize = maxVideoSize;
-        break;
-      case 'audio':
-        maxSize = maxAudioSize;
-        break;
-      default:
-        maxSize = maxImageSize;
-    }
-
-    if (fileLength > maxSize) {
-      final maxMB = (maxSize / (1024 * 1024)).round();
-      final fileMB = (fileLength / (1024 * 1024)).round();
-      return 'File too large: ${fileMB}MB. Maximum allowed for $mediaType: ${maxMB}MB.';
-    }
-
-    return null;
-  }
-
   // ─── Upload ──────────────────────────────────────────
-
-  /// Upload a single media file to the backend.
-  ///
-  /// [file] is the local file to upload (mobile only).
-  /// [onProgress] is an optional callback for tracking upload progress.
-  ///
-  /// Returns an [UploadResult] on success, throws [UploadError] on failure.
-  Future<UploadResult> uploadFile({
-    required File file,
-    UploadProgressCallback? onProgress,
-  }) async {
-    // Validate file
-    final mimeType = getMimeType(file.path);
-    final validationError = validateFile(file, mimeType);
-    if (validationError != null) {
-      throw UploadError(message: validationError);
-    }
-
-    // Get auth token
-    final token = await _getIdToken();
-    if (token == null) {
-      throw UploadError(
-        statusCode: 401,
-        message: 'Not authenticated. Please log in again.',
-      );
-    }
-
-    final fileLength = await file.length();
-    final filename = file.path.split(Platform.pathSeparator).last;
-
-    return _doUpload(
-      fileBytes: await file.readAsBytes(),
-      filename: filename,
-      mimeType: mimeType,
-      fileLength: fileLength,
-      token: token,
-      onProgress: onProgress,
-    );
-  }
 
   /// Upload an XFile to the backend — works on both web and mobile.
   ///
@@ -395,10 +321,6 @@ class UploadService {
         statusCode: response.statusCode,
         message: errorMessage,
       );
-    } on SocketException {
-      throw UploadError(
-        message: 'No internet connection. Please check your network and try again.',
-      );
     } on TimeoutException {
       throw UploadError(
         message: 'Upload timed out. Please check your connection and try again.',
@@ -410,24 +332,6 @@ class UploadService {
         message: 'Unexpected error during upload: ${e.toString()}',
       );
     }
-  }
-
-  /// Upload multiple files sequentially.
-  ///
-  /// Returns a list of [UploadResult] for each successfully uploaded file.
-  /// Throws [UploadError] on the first failure.
-  Future<List<UploadResult>> uploadFiles({
-    required List<File> files,
-    UploadProgressCallback? onProgress,
-  }) async {
-    final results = <UploadResult>[];
-
-    for (final file in files) {
-      final result = await uploadFile(file: file, onProgress: onProgress);
-      results.add(result);
-    }
-
-    return results;
   }
 
   // ─── Helpers ─────────────────────────────────────────

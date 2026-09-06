@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
@@ -1094,17 +1094,13 @@ class _AccountScreenState extends State<AccountScreen> {
         ),
       ),
       child: ClipOval(
-        child: avatarUrl.startsWith('http')
+        child: kIsWeb || avatarUrl.startsWith('http')
             ? Image.network(
                 avatarUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => _avatarImageFallback(),
               )
-            : Image.file(
-                File(avatarUrl),
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _avatarImageFallback(),
-              ),
+            : _avatarImageFallback(),
       ),
     );
   }

@@ -105,7 +105,13 @@ router.post('/:postId', protect, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      trustScore,
+      trustScore: {
+        ...trustScore.toObject(),
+        // Ensure new fields are included
+        providerUsed: trustScore.providerUsed || 'NONE',
+        analyzedAt: trustScore.analyzedAt || null,
+        factCheckData: trustScore.factCheckData || null,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -129,7 +135,13 @@ router.get('/:postId', protect, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      trustScore,
+      trustScore: {
+        ...trustScore.toObject(),
+        // Ensure new fields are included in response
+        providerUsed: trustScore.providerUsed || 'NONE',
+        analyzedAt: trustScore.analyzedAt || null,
+        factCheckData: trustScore.factCheckData || null,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });

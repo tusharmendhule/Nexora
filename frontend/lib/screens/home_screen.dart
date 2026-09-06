@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +23,7 @@ import '../services/reshare_service.dart';
 import '../services/user_service.dart';
 import '../services/trust_score_service.dart';
 import '../services/report_service.dart';
+import '../utils/web_image_helper.dart';
 import '../widgets/nexora_label_badge.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -1131,18 +1131,15 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Render a story media URL: network images for http(s) URLs (what the
   /// backend returns), local files otherwise.
   Widget _storyImage(String url) {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+    if (isNetworkUrl(url)) {
       return Image.network(
         url,
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => _storyPlaceholderAvatar(),
       );
     }
-    return Image.file(
-      File(url),
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => _storyPlaceholderAvatar(),
-    );
+    // On web, local file paths are not supported — show placeholder
+    return _storyPlaceholderAvatar();
   }
 
   Widget _postCard(BuildContext context, Post post) {
@@ -2013,23 +2010,19 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Local file path
-    return Image.file(
-      File(mediaUrl),
+    // Local file path    // On web, local file paths are not supported — show placeholder
+    return Container(
       width: double.infinity,
-      fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => Container(
-        width: double.infinity,
-        height: 260,
-        color: context.nexora.placeholder,
-        child: Center(
-          child: Icon(
-            Icons.image_outlined,
-            color: context.nexora.textHint,
-            size: 55,
-          ),
+      height: 260,
+      color: context.nexora.placeholder,
+      child: Center(
+        child: Icon(
+          Icons.image_outlined,
+          color: context.nexora.textHint,
+          size: 55,
         ),
       ),
     );
   }
+
 }

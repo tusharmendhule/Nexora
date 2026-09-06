@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
@@ -752,12 +751,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
         );
       }
-      return Image.file(
-        File(url),
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Center(
-          child: Icon(Icons.person, color: context.nexora.textDim, size: 110),
-        ),
+      // On web, local file paths are not supported
+      return Center(
+        child: Icon(Icons.person, color: context.nexora.textDim, size: 110),
       );
     }
 

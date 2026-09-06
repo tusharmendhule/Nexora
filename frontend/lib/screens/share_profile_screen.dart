@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
@@ -150,17 +149,13 @@ class ShareProfileScreen extends StatelessWidget {
       ),
       child: ClipOval(
         child: user.profileImageUrl != null && user.profileImageUrl!.isNotEmpty
-            ? (user.profileImageUrl!.startsWith('http')
+            ? (kIsWeb || user.profileImageUrl!.startsWith('http')
                 ? Image.network(
                     user.profileImageUrl!,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => _avatarPlaceholder(context),
                   )
-                : Image.file(
-                    File(user.profileImageUrl!),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _avatarPlaceholder(context),
-                  ))
+                : _avatarPlaceholder(context))
             : _avatarPlaceholder(context),
       ),
     );
