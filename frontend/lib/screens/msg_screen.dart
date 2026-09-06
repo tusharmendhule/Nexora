@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../models/conversation.dart';
 import '../models/user.dart';
@@ -168,6 +169,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
         _isSearchLoading = false;
         _searchError = 'Search failed. Please try again.';
       });
+      // Error text is translated at render time below.
+
     }
   }
 
@@ -224,7 +227,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   onChanged: _onSearchChanged,
                   style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: 'Search messages...',
+                    hintText: tr(context, 'Search messages...'),
                     hintStyle: TextStyle(color: context.nexora.textMuted, fontSize: 14),
                     prefixIcon: Icon(Icons.search, color: context.nexora.textSecondary),
                     border: InputBorder.none,
@@ -239,7 +242,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Messages',
+                  tr(context, 'Messages'),
                   style: TextStyle(
                     color: context.nexora.textPrimary,
                     fontSize: 28,
@@ -270,7 +273,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
       if (_searchError != null && resultCount == 0) {
         return Center(
           child: Text(
-            _searchError!,
+            tr(context, _searchError!),
             style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
           ),
         );
@@ -279,7 +282,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
       if (resultCount == 0) {
         return Center(
           child: Text(
-            'No users or conversations found',
+            tr(context, 'No users or conversations found'),
             style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
           ),
         );
@@ -314,7 +317,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             Icon(Icons.wifi_off, color: context.nexora.textDim, size: 40),
             SizedBox(height: 12),
             Text(
-              'Could not load conversations',
+              tr(context, 'Could not load conversations'),
               style: TextStyle(color: context.nexora.textMuted, fontSize: 15),
             ),
             SizedBox(height: 4),
@@ -330,7 +333,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             TextButton(
               onPressed: _loadConversations,
               child: Text(
-                'Retry',
+                tr(context, 'Retry'),
                 style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 14),
               ),
             ),
@@ -352,7 +355,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              'No conversations yet',
+              tr(context, 'No conversations yet'),
               style: TextStyle(
                 color: context.nexora.textMuted,
                 fontSize: 16,
@@ -361,7 +364,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             ),
             SizedBox(height: 8),
             Text(
-              'Start a conversation by messaging someone!',
+              tr(context, 'Start a conversation by messaging someone!'),
               style: TextStyle(
                 color: context.nexora.textHint,
                 fontSize: 13,

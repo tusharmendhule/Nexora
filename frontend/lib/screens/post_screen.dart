@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 import 'package:image_picker/image_picker.dart';
@@ -115,7 +116,7 @@ class _PostScreenState extends State<PostScreen> {
     if (picked == null) return;
 
     if (_type == CreationType.clip && !_isVideoFile(picked)) {
-      _showMessage('Clips require a video.');
+      _showMessage(tr(context, 'Clips require a video.'));
       return;
     }
 
@@ -251,7 +252,8 @@ class _PostScreenState extends State<PostScreen> {
             Navigator.pop(context, createdPost);
           } else {
             setState(() => _publishing = false);
-            _showMessage('Could not create post. Please try again.');
+            _showMessage(
+                tr(context, 'Could not create post. Please try again.'));
           }
           return;
 
@@ -351,7 +353,7 @@ class _PostScreenState extends State<PostScreen> {
 
       if (!mounted) return;
       setState(() => _publishing = false);
-      _showMessage('Could not publish. Please try again.');
+      _showMessage(tr(context, 'Could not publish. Please try again.'));
     }
   }
 
@@ -395,7 +397,7 @@ class _PostScreenState extends State<PostScreen> {
           onPressed: _publishing ? null : () => Navigator.pop(context),
         ),
         title: Text(
-          _title,
+          tr(context, _title),
           style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
         ),
       ),
@@ -439,10 +441,10 @@ class _PostScreenState extends State<PostScreen> {
                         ),
                         decoration: InputDecoration(
                           hintText: _type == CreationType.clip
-                              ? 'Write a caption for your Clip...'
+                              ? tr(context, 'Write a caption for your Clip...')
                               : _type == CreationType.moment
-                              ? 'Add a caption to your Moment...'
-                              : "What's on your mind?",
+                              ? tr(context, 'Add a caption to your Moment...')
+                              : tr(context, "What's on your mind?"),
                           hintStyle: TextStyle(
                             color: context.nexora.textMuted,
                             fontSize: 16,
@@ -508,7 +510,7 @@ class _PostScreenState extends State<PostScreen> {
                             ),
                           )
                         : Text(
-                            _publishLabel,
+                            tr(context, _publishLabel),
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
@@ -533,13 +535,15 @@ class _PostScreenState extends State<PostScreen> {
       ),
       child: Row(
         children: [
-          _typeButton(CreationType.post, 'Post', Icons.article_outlined),
+          _typeButton(
+              CreationType.post, tr(context, 'Post'), Icons.article_outlined),
           _typeButton(
             CreationType.moment,
-            'Moment',
+            tr(context, 'Moment'),
             Icons.auto_stories_outlined,
           ),
-          _typeButton(CreationType.clip, 'Clip', Icons.play_circle_outline),
+          _typeButton(
+              CreationType.clip, tr(context, 'Clip'), Icons.play_circle_outline),
         ],
       ),
     );
@@ -629,7 +633,7 @@ class _PostScreenState extends State<PostScreen> {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        'Video selected',
+                        tr(context, 'Video selected'),
                         style: TextStyle(color: context.nexora.textSecondary),
                       ),
                     ],
@@ -716,7 +720,7 @@ class _PostScreenState extends State<PostScreen> {
               ),
               SizedBox(width: 10),
               Text(
-                'Uploading media... $percent%',
+                trP(context, 'Uploading media... {0}%', [percent]),
                 style: TextStyle(
                   color: context.nexora.textSecondary,
                   fontSize: 13,

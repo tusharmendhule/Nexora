@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -142,7 +143,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Privacy & Security',
+          tr(context, 'Privacy & Security'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -157,13 +158,13 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
           : ListView(
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
               children: [
-                _sectionTitle('Privacy'),
+                _sectionTitle(tr(context, 'Privacy')),
 
                 _switchTile(
                   icon: Icons.lock_outline,
-                  title: 'Private Account',
+                  title: tr(context, 'Private Account'),
                   subtitle:
-                      'Only approved people can follow you and view your content',
+                      tr(context, 'Only approved people can follow you and view your content'),
                   value: privateAccount,
                   onChanged: (value) {
                     setState(() {
@@ -175,8 +176,8 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
                 _switchTile(
                   icon: Icons.visibility_outlined,
-                  title: 'Activity Status',
-                  subtitle: 'Allow others to see when you are active',
+                  title: tr(context, 'Activity Status'),
+                  subtitle: tr(context, 'Allow others to see when you are active'),
                   value: activityStatus,
                   onChanged: (value) {
                     setState(() {
@@ -188,9 +189,9 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
                 _tile(
                   icon: Icons.block_outlined,
-                  title: 'Blocked Accounts',
+                  title: tr(context, 'Blocked Accounts'),
                   subtitle: blockedAccounts.isEmpty
-                      ? 'No blocked accounts'
+                      ? tr(context, 'No blocked accounts')
                       : '${blockedAccounts.length} blocked account'
                             '${blockedAccounts.length == 1 ? '' : 's'}',
                   onTap: () => _blockedAccounts(context),
@@ -198,9 +199,9 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
                 _tile(
                   icon: Icons.person_off_outlined,
-                  title: 'Muted Accounts',
+                  title: tr(context, 'Muted Accounts'),
                   subtitle: mutedAccounts.isEmpty
-                      ? 'No muted accounts'
+                      ? tr(context, 'No muted accounts')
                       : '${mutedAccounts.length} muted account'
                             '${mutedAccounts.length == 1 ? '' : 's'}',
                   onTap: () => _mutedAccounts(context),
@@ -208,12 +209,12 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Messages'),
+                _sectionTitle(tr(context, 'Messages')),
 
                 _switchTile(
                   icon: Icons.done_all,
-                  title: 'Read Receipts',
-                  subtitle: 'Let people know when you have read their messages',
+                  title: tr(context, 'Read Receipts'),
+                  subtitle: tr(context, 'Let people know when you have read their messages'),
                   value: readReceipts,
                   onChanged: (value) {
                     setState(() {
@@ -225,19 +226,19 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
                 _tile(
                   icon: Icons.chat_bubble_outline,
-                  title: 'Message Requests',
+                  title: tr(context, 'Message Requests'),
                   subtitle: messageRequestOption,
                   onTap: () => _messageRequests(context),
                 ),
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Content & Data'),
+                _sectionTitle(tr(context, 'Content & Data')),
 
                 _switchTile(
                   icon: Icons.auto_awesome_outlined,
-                  title: 'Personalized Content',
-                  subtitle: 'Use your activity to personalize what you see',
+                  title: tr(context, 'Personalized Content'),
+                  subtitle: tr(context, 'Use your activity to personalize what you see'),
                   value: personalizedContent,
                   onChanged: (value) {
                     setState(() {
@@ -249,39 +250,39 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
                 _tile(
                   icon: Icons.download_outlined,
-                  title: 'Download Your Data',
+                  title: tr(context, 'Download Your Data'),
                   subtitle: dataRequestSubmitted
-                      ? 'Data request submitted'
-                      : 'Request a copy of your Nexora data',
+                      ? tr(context, 'Data request submitted')
+                      : tr(context, 'Request a copy of your Nexora data'),
                   onTap: () => _downloadData(context),
                 ),
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Security'),
+                _sectionTitle(tr(context, 'Security')),
 
                 _tile(
                   icon: Icons.password_outlined,
-                  title: 'Change Password',
+                  title: tr(context, 'Change Password'),
                   subtitle: passwordChanged
-                      ? 'Password updated'
-                      : 'Update your Nexora password',
+                      ? tr(context, 'Password updated')
+                      : tr(context, 'Update your Nexora password'),
                   onTap: () => _changePassword(context),
                 ),
 
                 _tile(
                   icon: Icons.security_outlined,
-                  title: 'Two-Factor Authentication',
+                  title: tr(context, 'Two-Factor Authentication'),
                   subtitle: twoFactorEnabled
-                      ? 'Enabled · $authenticationMethod'
-                      : 'Add an extra layer of protection',
+                      ? '${tr(context, 'Enabled')} · $authenticationMethod'
+                      : tr(context, 'Add an extra layer of protection'),
                   onTap: () => _twoFactorAuthentication(context),
                 ),
 
                 _tile(
                   icon: Icons.devices_outlined,
-                  title: 'Login Activity',
-                  subtitle: 'Review devices signed into your account',
+                  title: tr(context, 'Login Activity'),
+                  subtitle: tr(context, 'Review devices signed into your account'),
                   onTap: () => _loginActivity(context),
                 ),
 
@@ -289,7 +290,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
                 Center(
                   child: Text(
-                    'Your privacy. Your security. Your control.',
+                    tr(context, 'Your privacy. Your security. Your control.'),
                     style: TextStyle(
                       color: context.nexora.textPrimary.withOpacity(0.35),
                       fontSize: 12,
@@ -322,7 +323,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('User not found'),
+                    content: Text(tr(context, 'User not found')),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -377,14 +378,14 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => _AccountListScreen(
-          title: 'Muted Accounts',
-          description: 'Muted accounts remain connected to you, but their content will be hidden from your feed.',
-          emptyTitle: 'No Muted Accounts',
-          emptySubtitle: 'Accounts you mute will appear here.',
+          title: tr(context, 'Muted Accounts'),
+          description: tr(context, 'Muted accounts remain connected to you, but their content will be hidden from your feed.'),
+          emptyTitle: tr(context, 'No Muted Accounts'),
+          emptySubtitle: tr(context, 'Accounts you mute will appear here.'),
           icon: Icons.volume_off_outlined,
           accounts: mutedAccounts,
-          actionLabel: 'Mute Account',
-          removeLabel: 'Unmute',
+          actionLabel: tr(context, 'Mute Account'),
+          removeLabel: tr(context, 'Unmute'),
           onAdd: (name) {
             if (!mutedAccounts.contains(name)) {
               mutedAccounts.add(name);
@@ -418,18 +419,18 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
   void _downloadData(BuildContext context) {
     openReusable(
       context,
-      title: 'Download Your Data',
-      description: 'Request a copy of the information associated with your Nexora account.',
+      title: tr(context, 'Download Your Data'),
+      description: tr(context, 'Request a copy of the information associated with your Nexora account.'),
       sections: [
         SettingsSection(
-          title: 'Your Data',
+          title: tr(context, 'Your Data'),
           items: [
             SettingsItem(
               icon: Icons.download_outlined,
-              title: 'Request Your Data',
+              title: tr(context, 'Request Your Data'),
               subtitle: dataRequestSubmitted
-                  ? 'Request submitted'
-                  : 'Prepare a copy of your Nexora data',
+                  ? tr(context, 'Request submitted')
+                  : tr(context, 'Prepare a copy of your Nexora data'),
               type: SettingsItemType.action,
               onTap: () {
                 setState(() {
@@ -438,7 +439,7 @@ class _PrivacySecurityScreenState extends State<PrivacySecurityScreen> {
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Data request submitted'),
+                    content: Text(tr(context, 'Data request submitted')),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -642,24 +643,22 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: context.nexora.card,
-        title: Text(
-          'Block Account',
+        backgroundColor: context.nexora.card,                  title: Text(
+          tr(context, 'Block Account'),
           style: TextStyle(color: context.nexora.textPrimary),
         ),
         content: TextField(
           controller: controller,
           style: TextStyle(color: context.nexora.textPrimary),
           decoration: InputDecoration(
-            hintText: 'Enter username',
+            hintText: tr(context, 'Enter username'),
             hintStyle: TextStyle(color: context.nexora.textHint),
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
+            onPressed: () => Navigator.pop(context),              child: Text(
+              tr(context, 'Cancel'),
               style: TextStyle(color: context.nexora.textSecondary),
             ),
           ),
@@ -680,7 +679,7 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
               }
             },
             child: Text(
-              'Block',
+              tr(context, 'Block'),
               style: TextStyle(color: Color(0xFF8B7CFF)),
             ),
           ),
@@ -711,9 +710,8 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Blocked Accounts',
+        ),          title: Text(
+          tr(context, 'Blocked Accounts'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -729,7 +727,7 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
               children: [
                 Text(
-                  'People you have blocked will not be able to interact with you or view your content.',
+                  tr(context, 'People you have blocked will not be able to interact with you or view your content.'),
                   style: TextStyle(
                     color: context.nexora.textMuted,
                     fontSize: 12,
@@ -739,7 +737,7 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
 
                 SizedBox(height: 22),
 
-                _sectionTitle('Blocked Accounts'),
+                _sectionTitle(tr(context, 'Blocked Accounts')),
 
                 if (_blockedUsernames.isEmpty)
                   _emptyCard()
@@ -771,15 +769,14 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
-        ),
-        subtitle: Text(
-          'Account',
+        ),          subtitle: Text(
+          tr(context, 'Account'),
           style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
         trailing: TextButton(
           onPressed: () => _removeBlockedAccount(account),
           child: Text(
-            'Unblock',
+            tr(context, 'Unblock'),
             style: TextStyle(color: Color(0xFF8B7CFF), fontSize: 12),
           ),
         ),
@@ -803,7 +800,7 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'No blocked accounts',
+                  tr(context, 'No blocked accounts'),
                   style: TextStyle(
                     color: context.nexora.textPrimary,
                     fontSize: 14,
@@ -812,7 +809,7 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
                 ),
                 SizedBox(height: 3),
                 Text(
-                  'Nothing has been added here yet.',
+                  tr(context, 'Nothing has been added here yet.'),
                   style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                 ),
               ],
@@ -830,9 +827,8 @@ class _BlockedAccountsScreenState extends State<_BlockedAccountsScreen> {
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
-        leading: _iconBox(Icons.add),
-        title: Text(
-          'Block Account',
+        leading: _iconBox(Icons.add),                  title: Text(
+          tr(context, 'Block Account'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 15,
@@ -920,15 +916,14 @@ class _AccountListScreenState extends State<_AccountListScreen> {
           controller: controller,
           style: TextStyle(color: context.nexora.textPrimary),
           decoration: InputDecoration(
-            hintText: 'Enter username',
+            hintText: tr(context, 'Enter username'),
             hintStyle: TextStyle(color: context.nexora.textHint),
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
+            onPressed: () => Navigator.pop(context),              child: Text(
+              tr(context, 'Cancel'),
               style: TextStyle(color: context.nexora.textSecondary),
             ),
           ),
@@ -944,7 +939,7 @@ class _AccountListScreenState extends State<_AccountListScreen> {
               Navigator.pop(context);
             },
             child: Text(
-              widget.actionLabel == 'Mute Account' ? 'Mute' : 'Add',
+              widget.actionLabel == 'Mute Account' ? tr(context, 'Mute') : tr(context, 'Add'),
               style: TextStyle(color: Color(0xFF8B7CFF)),
             ),
           ),
@@ -1031,7 +1026,7 @@ class _AccountListScreenState extends State<_AccountListScreen> {
           ),
         ),
         subtitle: Text(
-          'Account',
+          tr(context, 'Account'),
           style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
         trailing: TextButton(
@@ -1061,7 +1056,7 @@ class _AccountListScreenState extends State<_AccountListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'No accounts',
+                  tr(context, 'No accounts'),
                   style: TextStyle(
                     color: context.nexora.textPrimary,
                     fontSize: 14,
@@ -1070,7 +1065,7 @@ class _AccountListScreenState extends State<_AccountListScreen> {
                 ),
                 SizedBox(height: 3),
                 Text(
-                  'Nothing has been added here yet.',
+                  tr(context, 'Nothing has been added here yet.'),
                   style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                 ),
               ],
@@ -1166,9 +1161,8 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Message Requests',
+        ),          title: Text(
+          tr(context, 'Message Requests'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -1180,25 +1174,25 @@ class _MessageRequestsScreenState extends State<_MessageRequestsScreen> {
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
           Text(
-            'Choose how message requests from people you do not follow are handled.',
+            tr(context, 'Choose how message requests from people you do not follow are handled.'),
             style: TextStyle(color: context.nexora.textMuted, fontSize: 12, height: 1.4),
           ),
 
           SizedBox(height: 22),
 
-          _sectionTitle('Message Requests'),
+          _sectionTitle(tr(context, 'Message Requests')),
 
           _option(
             icon: Icons.groups_outlined,
-            title: 'Everyone',
-            subtitle: 'Allow message requests from anyone',
+            title: tr(context, 'Everyone'),
+            subtitle: tr(context, 'Allow message requests from anyone'),
             value: 'Everyone',
           ),
 
           _option(
             icon: Icons.person_outline,
-            title: 'People You Follow',
-            subtitle: 'Only people you follow can send requests',
+            title: tr(context, 'People You Follow'),
+            subtitle: tr(context, 'Only people you follow can send requests'),
             value: 'People You Follow',
           ),
         ],
@@ -1314,17 +1308,17 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
     if (currentController.text.isEmpty ||
         newController.text.isEmpty ||
         confirmController.text.isEmpty) {
-      _message('Please fill in all password fields.');
+      _message(tr(context, 'Please fill in all password fields.'));
       return;
     }
 
     if (newController.text != confirmController.text) {
-      _message('New passwords do not match.');
+      _message(tr(context, 'New passwords do not match.'));
       return;
     }
 
     if (newController.text.length < 6) {
-      _message('New password must be at least 6 characters.');
+      _message(tr(context, 'New password must be at least 6 characters.'));
       return;
     }
 
@@ -1343,7 +1337,7 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
       widget.onPasswordChanged?.call();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Password updated'),
+          content: Text(tr(context, 'Password updated')),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -1370,9 +1364,8 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Change Password',
+        ),          title: Text(
+          tr(context, 'Change Password'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -1384,20 +1377,20 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
           Text(
-            'Keep your account secure by regularly updating your password.',
+            tr(context, 'Keep your account secure by regularly updating your password.'),
             style: TextStyle(color: context.nexora.textMuted, fontSize: 12, height: 1.4),
           ),
           SizedBox(height: 22),
           _passwordField(
             controller: currentController,
-            label: 'Current Password',
+            label: tr(context, 'Current Password'),
           ),
           SizedBox(height: 12),
-          _passwordField(controller: newController, label: 'New Password'),
+          _passwordField(controller: newController, label: tr(context, 'New Password')),
           SizedBox(height: 12),
           _passwordField(
             controller: confirmController,
-            label: 'Confirm New Password',
+            label: tr(context, 'Confirm New Password'),
           ),
           SizedBox(height: 22),
           SizedBox(
@@ -1425,7 +1418,7 @@ class _ChangePasswordScreenState extends State<_ChangePasswordScreen> {
                         ),
                       )
                     : Text(
-                        'Update Password',
+                        tr(context, 'Update Password'),
                         style: TextStyle(
                           color: context.nexora.textPrimary,
                           fontWeight: FontWeight.w600,
@@ -1505,9 +1498,8 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Two-Factor Authentication',
+        ),          title: Text(
+          tr(context, 'Two-Factor Authentication'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 18,
@@ -1519,15 +1511,15 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
           Text(
-            'Add another verification step when signing into your Nexora account.',
+            tr(context, 'Add another verification step when signing into your Nexora account.'),
             style: TextStyle(color: context.nexora.textMuted, fontSize: 12, height: 1.4),
           ),
           SizedBox(height: 22),
-          _sectionTitle('Two-Factor Authentication'),
+          _sectionTitle(tr(context, 'Two-Factor Authentication')),
           _switchTile(
             icon: Icons.security_outlined,
-            title: 'Authentication',
-            subtitle: 'Protect your account with two-factor authentication',
+            title: tr(context, 'Authentication'),
+            subtitle: tr(context, 'Protect your account with two-factor authentication'),
             value: twoFactorEnabled,
             onChanged: (value) {
               setState(() {
@@ -1538,7 +1530,7 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
           ),
           _tile(
             icon: Icons.phone_android_outlined,
-            title: 'Authentication Method',
+            title: tr(context, 'Authentication Method'),
             subtitle: authenticationMethod,
             onTap: _authenticationMethod,
           ),
@@ -1563,7 +1555,7 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Authentication Method',
+                    tr(context, 'Authentication Method'),
                     style: TextStyle(
                       color: context.nexora.textPrimary,
                       fontSize: 18,
@@ -1574,14 +1566,14 @@ class _TwoFactorScreenState extends State<_TwoFactorScreen> {
                   _method(
                     context,
                     setSheetState,
-                    'Authentication App',
+                    tr(context, 'Authentication App'),
                     Icons.phone_android_outlined,
                   ),
-                  _method(context, setSheetState, 'SMS', Icons.sms_outlined),
+                  _method(context, setSheetState, tr(context, 'SMS'), Icons.sms_outlined),
                   _method(
                     context,
                     setSheetState,
-                    'Security Key',
+                    tr(context, 'Security Key'),
                     Icons.vpn_key_outlined,
                   ),
                 ],
@@ -1741,9 +1733,8 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: context.nexora.textPrimary),
           onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Login Activity',
+        ),          title: Text(
+          tr(context, 'Login Activity'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -1755,11 +1746,11 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
         padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
         children: [
           Text(
-            'Review recent devices and sessions associated with your Nexora account.',
+            tr(context, 'Review recent devices and sessions associated with your Nexora account.'),
             style: TextStyle(color: context.nexora.textMuted, fontSize: 12, height: 1.4),
           ),
           SizedBox(height: 22),
-          _sectionTitle('Recent Activity'),
+          _sectionTitle(tr(context, 'Recent Activity')),
           if (currentDeviceActive)
             _deviceTile()
           else
@@ -1770,7 +1761,7 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                'No active sessions.',
+                tr(context, 'No active sessions.'),
                 style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
               ),
             ),
@@ -1789,7 +1780,7 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         leading: _iconBox(Icons.computer_outlined),
         title: Text(
-          'Current Device',
+          tr(context, 'Current Device'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 15,
@@ -1797,7 +1788,7 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
           ),
         ),
         subtitle: Text(
-          'This device · Active now',
+          '${tr(context, 'This device')} · ${tr(context, 'Active now')}',
           style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
         ),
         trailing: Icon(Icons.chevron_right, color: context.nexora.textHint),
@@ -1821,7 +1812,7 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Current Device',
+                tr(context, 'Current Device'),
                 style: TextStyle(
                   color: context.nexora.textPrimary,
                   fontSize: 19,
@@ -1830,12 +1821,12 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
               ),
               SizedBox(height: 16),
               Text(
-                'This device',
+                tr(context, 'This device'),
                 style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
               ),
               SizedBox(height: 5),
               Text(
-                'Active now',
+                tr(context, 'Active now'),
                 style: TextStyle(color: Colors.greenAccent, fontSize: 12),
               ),
               SizedBox(height: 18),
@@ -1850,7 +1841,7 @@ class _LoginActivityScreenState extends State<_LoginActivityScreen> {
                     });
                   },
                   child: Text(
-                    'Log Out',
+                    tr(context, 'Log Out'),
                     style: TextStyle(color: Colors.redAccent),
                   ),
                 ),

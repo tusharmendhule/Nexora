@@ -1,0 +1,254 @@
+A space made for you
+About
+Account Security
+Accounts
+Action may be taken when a violation is confirmed.
+Add an extra layer of protection when signing in to Nexora.
+Add another layer of protection when signing in.
+After Reporting
+After You Report
+Allow others to see when you are active
+App Information
+Appropriate action may be taken when a violation is confirmed.
+Authenticator App
+Authenticator Setup
+Available Methods
+Avoid Personal Attacks
+Avoid targeted harassment, threats, and abusive behavior.
+Be Respectful
+Block Accounts
+Blocking
+Blocking helps prevent unwanted interactions and notifications.
+Blocking is a tool for controlling unwanted interactions on Nexora.
+Building a better social space, one idea at a time.
+Chat with a support representative
+Check devices and sessions associated with your account.
+Choose a Reason
+Choose a unique password that you do not reuse elsewhere.
+Choose how you verify your identity
+Choose how you want to verify your identity.
+Choose how you would like to contact our support team.
+Choose the reason that best describes the violation.
+Close
+Communicate Responsibly
+Community Guidelines
+Confirm your selection and submit the report.
+Connect an authenticator app to your account
+Constructive Conversations
+Contact Nexora Support
+Contact Options
+Content & Activity
+Create a new set of recovery codes
+Credits
+Data Protection
+Data Retention & Deletion
+Describe the Problem
+Describe the problem first.
+Describe the problem...
+Devices
+Disabled
+Disagree Respectfully
+Disagreement is part of social interaction, but conversations should remain respectful.
+Do not use insults or targeted abuse to make a point.
+Done
+Email Support
+Enter a code from your authenticator app
+Examples
+Find answers, report problems, or get in touch with Nexora Support.
+Find the report option on the relevant post, comment, message, or profile.
+Focus on ideas rather than attacking the person.
+Following the Rules
+Frequently Asked Questions
+Generate Recovery Codes
+Get Help
+Get in touch with the Nexora support team
+Good Conversations
+Guidelines
+Harassment & Bullying
+Hate or Abusive Content
+How Blocking Works
+How can we help?
+How Information Is Used
+How to Report
+Information about this Nexora application build.
+Information associated with your Nexora account.
+Information related to content and activity on Nexora.
+Information such as your name, username, email, and phone number.
+Interact respectfully with other people.
+Interaction Restrictions
+Keep Conversations Constructive
+Last active recently
+Learn about content you create and share.
+Learn about controls available for managing your privacy.
+Learn about information associated with your Nexora account and activity.
+Learn about measures used to help protect your information.
+Learn about respectful communication
+Learn about respectful interaction and behavior on Nexora.
+Learn about retaining and deleting information.
+Learn about review and possible actions
+Learn about the rules and expectations that help keep Nexora welcoming for everyone.
+Learn about the rules for using Nexora.
+Learn about the team behind Nexora
+Learn about tools and practices that help keep your Nexora experience safe.
+Learn how blocking works and how to manage accounts you have blocked.
+Learn how blocking works and how to manage blocked accounts
+Learn how Nexora handles and protects your information.
+Learn how Nexora handles your information
+Learn how Nexora works to protect your information.
+Learn how to disagree without attacking others
+Learn how to interact respectfully on Nexora
+Learn how to keep your Nexora account protected.
+Learn how to keep your Nexora experience safe
+Learn how to protect your account
+Learn how to report content and manage unwanted interactions.
+Learn how to report or block accounts
+Learn how to report posts, comments, messages, and accounts
+Learn how we keep Nexora welcoming and respectful
+Learn more about Nexora and the people behind it.
+Learn more about Nexora and the team behind it
+Learn more about the people building Nexora.
+Learn the rules and expectations for everyone
+Learn what happens when you block an account
+Learn what information Nexora collects and uses.
+Learn what should be reported and how Nexora handles reports.
+Learn what should be reported and how reporting works
+Learn what you can report and how reporting works
+Learn which behavior and content may violate the guidelines
+Learn why information may be used to provide and improve Nexora.
+Let people know when you have read their messages
+Live Chat
+Log Out Other Devices
+Log Out Other Devices?
+Made with care.
+Manage Blocked Accounts
+Manage the phone number used for verification
+My Support Requests
+Nexora can review reports to determine whether content or behavior violates its guidelines.
+Nexora is designed to bring people, ideas, creativity, and meaningful moments together in one personal space.
+Nexora provides reporting tools for content or behavior that may violate its guidelines.
+Nexora Support
+Nexora Team
+No help articles found
+Nothing has been added here yet.
+Open Source Licenses
+Open the Report Option
+Other Violations
+Our Expectations
+Password update is ready for backend integration.
+Please complete all password fields.
+Possible Action
+Possible Actions
+Privacy Choices
+Privacy Policy
+Problem
+Problem reported successfully.
+Protect Your Account
+Protection
+Read the terms that govern your use of Nexora
+Read the terms that govern your use of Nexora.
+Receive verification codes by SMS
+Recovery
+Recovery Codes
+Recovery codes can help you regain access if you cannot use your normal authentication method.
+Reduced Interaction
+Relevant updates may be provided when applicable.
+Report & Block
+Report a Problem
+Report accounts involved in guideline violations.
+Report Content
+Report content that targets people with abusive or hateful behavior.
+Report deceptive, fraudulent, or repetitive spam activity.
+Report inappropriate or abusive comments.
+Report other content that appears to violate Nexora guidelines.
+Report posts that violate Nexora guidelines.
+Report problematic messages or conversations.
+Report targeted harassment, threats, or bullying.
+Report Violations
+Reportable Content
+Reported Problem
+Reporting
+Reporting Steps
+Reports help Nexora review content and activity that may violate its guidelines.
+Reports should be used for content or behavior that may violate Nexora Community Guidelines.
+Request a copy of the information associated with your Nexora account.
+Respect Others
+Respectful Behavior
+Respectful interaction helps make Nexora a better community for everyone.
+Responsibilities
+Review
+Review devices and sessions associated with your Nexora account.
+Review Login Activity
+Review Process
+Review your selection and submit the report.
+Safety
+Safety Center
+Safety Tools
+Search help
+Security Measures
+Select a Reason
+Select the reason that best describes the violation.
+Send a verification code to your phone
+Send us an email
+Send your problem to Nexora Support
+Send your support request to the Nexora support team.
+Set Up Authenticator
+Sign out of other active sessions
+SMS Verification
+Spam & Scams
+Steps
+Submit
+Submit Report
+Submit the Report
+Take reasonable steps to keep your account secure.
+Tap to describe what went wrong
+Tell us about something that is not working
+Tell us about something that is not working correctly in Nexora.
+Terms
+Terms of Service
+Text Message
+The blocked account will no longer be able to interact with you normally.
+The Nexora Team
+The people building Nexora
+The reported content may be reviewed according to Nexora policies.
+The reported content or account may be reviewed.
+Think about how your words may affect other people.
+This will sign out all other active sessions on your Nexora account.
+Treat People With Respect
+Try another search.
+Two-Factor Authentication
+Understand the rules that apply on Nexora.
+Understand your account responsibilities.
+Understand your responsibilities as a Nexora user.
+Updates
+Use a compatible authentication app
+Use a compatible authentication app to generate verification codes.
+Use a Strong Password
+Use available reporting tools when appropriate.
+Use recovery codes if you lose access
+Use the report option available on the content or account you want to report.
+Use the report option from the relevant content or profile.
+Use Two-Factor Authentication
+Use your activity to personalize what you see
+Use your phone number to receive verification codes by SMS.
+Using Nexora
+Using the Service
+Verify Phone Number
+Verify Setup
+Version and build information
+View and manage accounts you have blocked
+View licenses for software used by Nexora
+View your previous support requests
+What Can Be Reported?
+What Happens
+What Happens After You Report?
+What Should I Report?
+When You Block Someone
+Windows PC
+You can report content or accounts directly from the relevant area of Nexora.
+You may receive relevant updates about your report when applicable.
+Your Account
+Your Content
+Your Data
+Your privacy. Your security. Your control.
+Your Responsibilities
+Your support email address

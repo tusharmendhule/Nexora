@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import 'follower_screen.dart';
 import 'share_profile_screen.dart';
@@ -153,7 +154,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   SizedBox(width: 6),
                                   Text(
-                                    user?.reputationBadge ?? 'Nexora Hero',
+                                    user?.reputationBadge ??
+                                        tr(context, 'Nexora Hero'),
                                     style: TextStyle(
                                       color: Color(0xFFB7A8FF),
                                       fontSize: 12,
@@ -204,9 +206,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            user?.bio ??
-                                'Building, creating and exploring the world.',
+                              Text(
+                                user?.bio ??
+                                    tr(context,
+                                        'Building, creating and exploring the world.'),
                             style: TextStyle(
                               color: context.nexora.textSecondary,
                               fontSize: 14,
@@ -257,7 +260,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       ScaffoldMessenger.of(context).showSnackBar(
                                                         SnackBar(
                                                           content: Text(
-                                                            'Profile picture could not be updated. Please try again.',
+                                                            tr(context,
+                                                                'Profile picture could not be updated. Please try again.'),
                                                           ),
                                                           behavior:
                                                               SnackBarBehavior.floating,
@@ -283,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           await _loadProfile();
                                         },
                                   child: _profileButton(
-                                    text: 'Edit Profile',
+                                    text: tr(context, 'Edit Profile'),
                                     filled: false,
                                   ),
                                 ),
@@ -305,7 +309,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           );
                                         },
                                   child: _profileButton(
-                                    text: 'Share Profile',
+                                    text: tr(context, 'Share Profile'),
                                     filled: true,
                                   ),
                                 ),
@@ -320,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               _profileStat(
                                 _formatCount(user?.postsCount ?? 0),
-                                'Posts',
+                                tr(context, 'Posts'),
                               ),
 
                               GestureDetector(
@@ -340,7 +344,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 },
                                 child: _profileStat(
                                   _formatCount(user?.followersCount ?? 0),
-                                  'Followers',
+                                  tr(context, 'Followers'),
                                 ),
                               ),
 
@@ -361,7 +365,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 },
                                 child: _profileStat(
                                   _formatCount(user?.followingCount ?? 0),
-                                  'Following',
+                                  tr(context, 'Following'),
                                 ),
                               ),
                             ],
@@ -382,7 +386,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   SizedBox(width: 6),
                                   Text(
-                                    'Joined ${_formatDate(user!.createdAt!)}',
+                                    trP(context, 'Joined {0}',
+                                        [_formatDate(context, user!.createdAt!)]),
                                     style: TextStyle(
                                       color: context.nexora.textHint,
                                       fontSize: 12,
@@ -453,7 +458,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     ),
                                     child: Text(
-                                      sections[index],
+                                      tr(context, sections[index]),
                                       style: TextStyle(
                                         color: selected
                                             ? context.nexora.textPrimary
@@ -525,10 +530,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return count.toString();
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(BuildContext context, DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      tr(context, 'Jan'), tr(context, 'Feb'), tr(context, 'Mar'),
+      tr(context, 'Apr'), tr(context, 'May'), tr(context, 'Jun'),
+      tr(context, 'Jul'), tr(context, 'Aug'), tr(context, 'Sep'),
+      tr(context, 'Oct'), tr(context, 'Nov'), tr(context, 'Dec'),
     ];
     return '${months[date.month - 1]} ${date.year}';
   }
@@ -589,8 +596,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return ProfilePostGrid(
           key: _postsGridKey,
           userId: user!.id,
-          emptyMessage:
-              'No posts yet. When you publish posts they will appear here.',
+          emptyMessage: tr(context,
+              'No posts yet. When you publish posts they will appear here.'),
         );
 
       case 1:
@@ -599,22 +606,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return ProfileMomentsGrid(
           key: _momentsGridKey,
           userId: user!.id,
-          emptyMessage:
-              'No active memories. Moments you share will appear here for 24 hours.',
+          emptyMessage: tr(context,
+              'No active memories. Moments you share will appear here for 24 hours.'),
         );
 
       case 2:
         return _contentCard(
           Icons.groups_outlined,
-          'Communities',
-          'Communities you are part of will appear here.',
+          tr(context, 'Communities'),
+          tr(context, 'Communities you are part of will appear here.'),
         );
 
       default:
         return _contentCard(
           Icons.lightbulb_outline,
-          'Thoughts',
-          'Your thoughts and posts will appear here.',
+          tr(context, 'Thoughts'),
+          tr(context, 'Your thoughts and posts will appear here.'),
         );
     }
   }

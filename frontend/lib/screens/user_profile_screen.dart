@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../models/user.dart';
 import '../services/user_service.dart';
@@ -160,7 +161,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     size: 22,
                   ),
                   title: Text(
-                    'Report user',
+                    tr(ctx, 'Report user'),
                     style: TextStyle(
                       color: context.nexora.textPrimary,
                       fontSize: 15,
@@ -233,7 +234,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       ),
 
                       Text(
-                        'Report @${user!.username}',
+                        trP(ctx, 'Report @{0}', [user!.username]),
                         style: TextStyle(
                           color: context.nexora.textPrimary,
                           fontSize: 18,
@@ -244,7 +245,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       SizedBox(height: 4),
 
                       Text(
-                        'Why are you reporting this user?',
+                        tr(ctx, 'Why are you reporting this user?'),
                         style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                       ),
 
@@ -257,7 +258,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               setModalState(() => selectedReason = val);
                             },
                             title: Text(
-                              r['label']!,
+                              tr(ctx, r['label']!),
                               style: TextStyle(
                                 color: context.nexora.textPrimary,
                                 fontSize: 14,
@@ -279,7 +280,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           fontSize: 14,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Additional details (optional)',
+                          hintText: tr(ctx, 'Additional details (optional)'),
                           hintStyle: TextStyle(
                             color: context.nexora.textHint,
                             fontSize: 13,
@@ -344,7 +345,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            'Report submitted. Thank you for keeping Nexora safe.',
+                                            tr(context,
+                                                'Report submitted. Thank you for keeping Nexora safe.'),
                                           ),
                                         ),
                                       );
@@ -352,7 +354,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            'Could not submit report. Please try again.',
+                                            tr(context,
+                                                'Could not submit report. Please try again.'),
                                           ),
                                         ),
                                       );
@@ -376,7 +379,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     ),
                                   )
                                 : Text(
-                                    'Submit report',
+                                    tr(ctx, 'Submit report'),
                                     style: TextStyle(
                                       color: context.nexora.textPrimary,
                                       fontSize: 14,
@@ -417,7 +420,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     final username = user?.username ?? widget.username;
 
-    final bio = user?.bio ?? 'Creating, sharing and discovering new things.';
+    final bio = user?.bio ?? tr(context, 'Creating, sharing and discovering new things.');
 
     return Scaffold(
       backgroundColor: context.nexora.backgroundAlt,
@@ -501,7 +504,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   ),
                                   SizedBox(width: 6),
                                   Text(
-                                    user?.reputationBadge ?? 'Nexora Hero',
+                                    user?.reputationBadge ??
+                                        tr(context, 'Nexora Hero'),
                                     style: TextStyle(
                                       color: Color(0xFFB7A8FF),
                                       fontSize: 12,
@@ -591,7 +595,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          isFollowing ? 'Following' : 'Follow',
+                                          isFollowing
+                                              ? tr(context, 'Following')
+                                              : tr(context, 'Follow'),
                                           style: TextStyle(
                                             color: context.nexora.textPrimary,
                                             fontSize: 14,
@@ -630,7 +636,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          'Message',
+                                          tr(context, 'Message'),
                                           style: TextStyle(
                                             color: context.nexora.textPrimary,
                                             fontSize: 14,
@@ -652,7 +658,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             children: [
                               _Stat(
                                 value: _formatCount(user?.postsCount ?? 0),
-                                label: 'Posts',
+                                label: tr(context, 'Posts'),
                               ),
 
                               GestureDetector(
@@ -672,7 +678,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   value: _formatCount(
                                     user?.followersCount ?? 0,
                                   ),
-                                  label: 'Followers',
+                                  label: tr(context, 'Followers'),
                                 ),
                               ),
 
@@ -693,7 +699,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   value: _formatCount(
                                     user?.followingCount ?? 0,
                                   ),
-                                  label: 'Following',
+                                  label: tr(context, 'Following'),
                                 ),
                               ),
                             ],
@@ -702,7 +708,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           SizedBox(height: 28),
 
                           Text(
-                            'Posts',
+                            tr(context, 'Posts'),
                             style: TextStyle(
                               color: context.nexora.textPrimary,
                               fontSize: 18,
@@ -719,8 +725,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           else
                             ProfilePostGrid(
                               userId: user!.id,
-                              emptyMessage:
-                                  '@${user!.username} has not published any posts yet.',
+                              emptyMessage: trP(context,
+                                  '@{0} has not published any posts yet.', [
+                                user!.username
+                              ]),
                             ),
                         ],
                       ),

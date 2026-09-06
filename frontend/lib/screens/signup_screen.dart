@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/age_verification_service.dart';
 import '../services/auth_service.dart';
@@ -52,12 +53,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final password = _passwordController.text;
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      _showError('All fields are required');
+      _showError(tr(context, 'All fields are required'));
       return;
     }
 
     if (password.length < 6) {
-      _showError('Password must be at least 6 characters');
+      _showError(tr(context, 'Password must be at least 6 characters'));
       return;
     }
 
@@ -90,7 +91,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _showError(e.message);
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
-      _showError('Registration failed. Please try again.');
+      _showError(tr(context, 'Registration failed. Please try again.'));
     }
   }
 
@@ -109,9 +110,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } catch (e) {
       if (!mounted) return;
       _block(
-        title: "Couldn't reach the age check",
-        detail: 'Please check your connection and try again.',
-        buttonLabel: 'Try Again',
+        title: tr(context, "Couldn't reach the age check"),
+        detail: tr(context, 'Please check your connection and try again.'),
+        buttonLabel: tr(context, 'Try Again'),
         action: _AgeAction.repoll,
       );
       return;
@@ -145,9 +146,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (state == 'FAILED') {
         if (!mounted) return;
         _block(
-          title: "We couldn't confirm your age",
-          detail: 'Nothing personal was stored. You can try again.',
-          buttonLabel: 'Try Again',
+          title: tr(context, "We couldn't confirm your age"),
+          detail: tr(context, 'Nothing personal was stored. You can try again.'),
+          buttonLabel: tr(context, 'Try Again'),
           action: _AgeAction.endpointRetry,
         );
         return;
@@ -156,9 +157,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (state == 'REQUIRES_REVIEW') {
         if (!mounted) return;
         _block(
-          title: 'Verification under review',
-          detail:
-              'Your age verification needs review before you can continue.',
+          title: tr(context, 'Verification under review'),
+          detail: tr(context,
+              'Your age verification needs review before you can continue.'),
           buttonLabel: '',
           action: _AgeAction.none,
         );
@@ -173,9 +174,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (!mounted) return;
     _block(
-      title: 'Age verification is still in progress',
-      detail: 'Please check again in a moment.',
-      buttonLabel: 'Check Again',
+      title: tr(context, 'Age verification is still in progress'),
+      detail: tr(context, 'Please check again in a moment.'),
+      buttonLabel: tr(context, 'Check Again'),
       action: _AgeAction.repoll,
     );
   }
@@ -190,7 +191,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (permanent) {
       _block(
-        title: 'Age verification unavailable',
+        title: tr(context, 'Age verification unavailable'),
         detail: message,
         buttonLabel: '',
         action: _AgeAction.none,
@@ -199,16 +200,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
         lower.contains('network') ||
         lower.contains('timeout')) {
       _block(
-        title: 'Age check is temporarily unavailable',
+        title: tr(context, 'Age check is temporarily unavailable'),
         detail: message,
-        buttonLabel: 'Try Again',
+        buttonLabel: tr(context, 'Try Again'),
         action: _AgeAction.repoll,
       );
     } else {
       _block(
-        title: "We couldn't confirm your age",
+        title: tr(context, "We couldn't confirm your age"),
         detail: message,
-        buttonLabel: 'Try Again',
+        buttonLabel: tr(context, 'Try Again'),
         action: _AgeAction.endpointRetry,
       );
     }
@@ -276,7 +277,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 55),
 
               Text(
-                'Create Account',
+                tr(context, 'Create Account'),
                 style: TextStyle(
                   color: context.nexora.textPrimary,
                   fontSize: 32,
@@ -287,7 +288,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 10),
 
               Text(
-                'Join Nexora and start connecting.',
+                tr(context, 'Join Nexora and start connecting.'),
                 style: TextStyle(color: context.nexora.textSecondary, fontSize: 16),
               ),
 
@@ -307,32 +308,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
   /// The existing signup form — layout, labels and styles untouched.
   List<Widget> _formFields() {
     return [
-      Text('Name', style: TextStyle(color: context.nexora.textPrimary)),
+      Text(tr(context, 'Name'),
+          style: TextStyle(color: context.nexora.textPrimary)),
 
       const SizedBox(height: 8),
 
-      _field('Enter your name', controller: _nameController),
+      _field(tr(context, 'Enter your name'), controller: _nameController),
 
       const SizedBox(height: 20),
 
-      Text('Email', style: TextStyle(color: context.nexora.textPrimary)),
+      Text(tr(context, 'Email'),
+          style: TextStyle(color: context.nexora.textPrimary)),
 
       const SizedBox(height: 8),
 
       _field(
-        'Enter your email',
+        tr(context, 'Enter your email'),
         controller: _emailController,
         keyboardType: TextInputType.emailAddress,
       ),
 
       const SizedBox(height: 20),
 
-      Text('Password', style: TextStyle(color: context.nexora.textPrimary)),
+      Text(tr(context, 'Password'),
+          style: TextStyle(color: context.nexora.textPrimary)),
 
       const SizedBox(height: 8),
 
       _field(
-        'Create a password',
+        tr(context, 'Create a password'),
         controller: _passwordController,
         obscureText: true,
       ),
@@ -361,7 +365,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 )
               : Text(
-                  'Create Account',
+                  tr(context, 'Create Account'),
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
@@ -395,7 +399,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         const SizedBox(height: 22),
         Center(
           child: Text(
-            'Verifying your age…',
+            tr(context, 'Verifying your age…'),
             style: TextStyle(
               color: context.nexora.textSecondary,
               fontSize: 15,
@@ -406,7 +410,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         const SizedBox(height: 8),
         Center(
           child: Text(
-            'Only an age result is stored — no documents or date of birth.',
+            tr(context,
+                'Only an age result is stored — no documents or date of birth.'),
             textAlign: TextAlign.center,
             style: TextStyle(color: context.nexora.textHint, fontSize: 12.5),
           ),
@@ -482,7 +487,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         text: TextSpan(
           children: [
             TextSpan(
-              text: 'Already have an account? ',
+              text: tr(context, 'Already have an account? '),
               style:
                   TextStyle(color: context.nexora.textSecondary, fontSize: 14),
             ),
@@ -497,7 +502,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   );
                 },
                 child: Text(
-                  'Sign In',
+                  tr(context, 'Sign In'),
                   style: TextStyle(
                     color: Color(0xFF8B7CFF),
                     fontSize: 14,

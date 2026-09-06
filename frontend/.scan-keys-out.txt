@@ -1,0 +1,554 @@
+#Nexora #Community
+@{0} has not published any posts yet.
+{0} accounts
+{0} creators
+{0} followed creators
+{0} hidden words
+{0} likes
+{0} recorded changes
+{0} selected
+…For You
+1 account
+1 creator
+1 followed creator
+1 hidden word
+1 recorded change
+A safer and smarter social experience designed with privacy in mind.
+About Nexora
+Account
+Account {0}
+Account active
+Account activity
+Account Changes
+Account deactivated
+Account History
+Account Information
+Account Management
+Account Status
+Accounts you mute will appear here.
+active
+Active now
+Activity
+Activity Status
+Add
+Add a caption to your Moment...
+Add a comment...
+Add a creator to your followed list
+Add Account
+Add an extra layer of protection
+Add another verification step when signing into your Nexora account.
+Add Hidden Word
+Add Phone Number
+Adjust the size of text across Nexora
+Adjust the size of text across Nexora.
+Age check is temporarily unavailable
+Age verification is still in progress
+Age verification unavailable
+All fields are required
+Allow message requests from anyone
+Allow Nexora to send notifications
+Allow others to see when you are active
+Already have an account? 
+Analyzing
+App Language
+Appearance
+Apple Sign-In is not yet available
+Apr
+Are you sure you want to delete this comment?
+Are you sure you want to delete this post? This action cannot be undone.
+Art
+Aug
+Authentication
+Authentication App
+Authentication Method
+Authenticity
+Backend host for API calls (for testing on a phone)
+Be the first to share something!
+Bio
+Block
+Block Account
+Blocked Accounts
+Books
+Build Your Community
+Building, creating and exploring the world.
+Business
+Cancel
+Change Email
+Change Password
+Change Phone Number
+Change Profile Photo
+Check Again
+Choose a few interests to personalize your feed.
+Choose how message requests from people you do not follow are handled.
+Choose the gradient that defines your Nexora experience.
+Choose your preferred language
+Clear
+Clip
+Clips
+Clips require a video.
+Comment
+Comment deleted
+Comments
+Communities
+Communities you are part of will appear here.
+Confirm New Password
+Connect a phone number to your account
+Connect a phone number to your Nexora account.
+Connect With Confidence
+Connect with people, creators and friends
+Connect with people, discover new communities, and share what matters to you.
+Connect with people, share your moments, and express yourself freely.
+Connect, share and discover.
+Content
+Content & Data
+Content Preferences
+Content type
+Continue
+Continue with {0}
+Continue with Apple
+Continue with Google
+Control what appears in your feed
+Control what appears in your Nexora feed.
+Control your privacy and security
+Conversation cleared
+Copy link
+Copy Profile Link
+Could not create post. Please try again.
+Could not delete comment. Please try again.
+Could not delete post. Please try again.
+Could not generate your information. Please try again.
+Could not load conversations
+Could not load users. Please try again.
+Could not open conversation
+Could not post comment. Please try again.
+Could not publish. Please try again.
+Could not request review. Please try again.
+Could not reshare post. Please try again.
+Could not save post. Please try again.
+Could not save profile. Please try again.
+Could not send reply. Please try again.
+Could not send. Please try again.
+Could not submit report. Please try again.
+Could not switch accounts. Please try again.
+Could not update like. Please try again.
+Could not update your name. Please try again.
+Create a password
+Create Account
+Create Clip
+Create Moment
+Create Post
+Creating, sharing and discovering new things.
+Creative Minds
+Creator
+Creator A–Z
+Creators
+Creators You Follow
+Creators you follow will appear here.
+Current
+Current Account
+Current Device
+Current Email
+Current Number
+Current Password
+Customize Nexora with gradients and themes
+Danger Zone
+Dark Mode
+Data request submitted
+Deactivate
+Deactivate Account
+Deactivate Account?
+deactivated
+Dec
+Delete
+Delete Account
+Delete Account?
+Delete comment
+Delete post
+Developer
+Display Name
+Download a copy of your information
+Download Your Data
+Download Your Information
+Downloaded: {0}
+Edit Profile
+Email
+Email Address
+Email or username
+Enabled
+Enter a display name
+Enter a phone number
+Enter a username
+Enter a word or phrase to hide matching content from your feed.
+Enter username
+Enter your email
+Enter your email or username
+Enter your name
+Enter your new email address
+Enter your password
+Everyone
+Explore
+Explore Clips
+Explore the World
+Factual Verification
+Failed
+Failed to block user. Please try again.
+Failed to clear conversation. Please try again.
+Failed to send image. Please try again.
+Failed to send message. Please try again.
+Fashion
+Feb
+Find People
+Find your people
+Follow
+Follow Creator
+Follow people to personalize your Nexora experience.
+Followed Creators
+Followers
+Following
+Forgot password?
+Future of Technology
+Gaming
+Gaming Community
+General
+Generating your file…
+Get a copy of the information associated with your Nexora account.
+Get a copy of your account information
+Get help with Nexora
+Get Started
+Google sign-in failed. Please try again.
+Green Sunrise
+Grid view
+Harassment or bullying
+Harmful content
+Hello {0}!
+Help & Support
+Hidden Word
+Hidden word or phrase
+Hidden Words
+Hide content containing a specific word or phrase
+Hide posts containing specific words or phrases
+Hide posts containing specific words or phrases from your feed.
+Impersonation
+Important account changes will appear here.
+Information
+Information currently associated with your account.
+Interface
+Jan
+Join Nexora and start connecting.
+Joined {0}
+Jul
+Jun
+just now
+Keep your account secure by regularly updating your password.
+Language
+Large
+Learn more about Nexora
+Let people know when you have read their messages
+Like
+Likes & Comments
+List view
+Load more
+Loading…
+Log Out
+Log Out?
+Login Activity
+Login failed. Please try again.
+Manage how creators you follow influence your recommendations.
+Manage the creators you currently follow.
+Manage the email address connected to your Nexora account.
+Manage the information displayed on your profile.
+Manage the personal information associated with your account.
+Manage the phone number connected to your Nexora account.
+Manage your connected phone number.
+Manage your name, username and profile details
+Manage your Nexora account.
+Manage your notification preferences
+Manage your profile and account details
+Manage your profile information
+Manipulated media
+Mar
+Mark all read
+May
+Medium
+Memories
+Mentions
+Message
+Message Requests
+Messages
+Misinformation
+Model Confidence
+Moderator Review
+Moment
+Moment by @{0}
+Moments
+Movies & TV
+Music
+Music & Culture
+Mute
+Mute Account
+Muted Accounts
+Muted accounts remain connected to you, but their content will be hidden from your feed.
+Name
+New clips and recommendations
+New Email Address
+New Followers
+New messages and chat activity
+New Password
+New password must be at least 6 characters.
+New passwords do not match.
+Newest saved
+Nexora
+Nexora Gradient
+Nexora Hero
+Next
+No accounts
+No active memories. Moments you share will appear here for 24 hours.
+No active sessions.
+No blocked accounts
+No clips available.
+No conversations yet
+No email
+No Followed Creators
+No languages found
+No muted accounts
+No Muted Accounts
+No notifications yet
+No people to suggest yet
+No posts yet
+No posts yet. When you publish posts they will appear here.
+No Recent Changes
+No results found
+No users found
+No users or conversations found
+Not added
+Nothing has been added here yet.
+Nothing personal was stored. You can try again.
+Nothing saved yet
+Nothing to copy
+Notifications
+Nov
+now
+Oct
+Offline
+Oldest saved
+Only an age result is stored — no documents or date of birth.
+Only approved people can follow you and view your content
+Only people you follow can send requests
+OR
+Orange Purple
+Original audio
+Other
+Password
+Password must be at least 6 characters
+Password reset email sent. Check your inbox.
+Password updated
+Pending
+People
+People You Follow
+People you have blocked will not be able to interact with you or view your content.
+People you may know
+Permanently delete your Nexora account
+Personal Information
+Personalized Content
+Phone
+Phone Number
+Photography
+Pink Meadow
+Please check again in a moment.
+Please check your connection and try again.
+Please enter your email/username and password
+Please fill in all password fields.
+Post
+Post deleted
+Post link copied: {0}
+Post removed from saved posts
+Posts
+Posts you save will appear here so you can easily find them later.
+Preferences
+Prepare a copy of your Nexora data
+Privacy
+Privacy & Security
+Private Account
+Profile
+Profile Details
+Profile link copied for @{0}
+Profile picture could not be updated. Please try again.
+Protect your account with two-factor authentication
+Publish Clip
+Push Notifications
+Quiet Mode
+Quiet mode enabled. Notifications paused.
+Reactivate
+Reactivate Account?
+Reactivating…
+Read Receipts
+Recent Activity
+Recently viewed
+Reduce Animations
+Reduce movement throughout Nexora
+Registration failed. Please try again.
+Rejected
+Remove
+Remove "{0}" from your hidden words?
+Remove Hidden Word?
+Reply
+Reply sent
+Reply to this Moment...
+Replying to {0}
+Report post
+Report submitted. Thank you for keeping Nexora safe.
+Request a copy of the information associated with your Nexora account.
+Request a copy of your Nexora data
+Request Information
+Request Moderator Review
+Request submitted
+Request Your Data
+Retry
+Review devices signed into your account
+Review recent devices and sessions associated with your Nexora account.
+Review requested. A moderator will evaluate this content.
+Review Required
+Save
+Save Changes
+Saved
+Science
+Science Today
+Score breakdown
+Search languages
+Search messages...
+Search Nexora...
+Search people
+Security
+Security Key
+Select people
+Selected
+Send ({0})
+Send to
+Sent
+Sent to {0}
+Sent to {0} user(s)
+Sent to {0} user(s); {1} failed.
+Sep
+Server address
+Server Address
+Server address set to {0}
+Session
+Set up your profile
+Settings
+Share
+Share Moment
+Share Profile
+Share Your Moments
+Share your Nexora profile with others
+Shared a post
+Sign In
+Sign in to continue to Nexora.
+Sign in with another Nexora account
+Sign out of your Nexora account
+Skip
+Skip for now
+Small
+SMS
+Solar
+Sort
+Sort saved posts
+Source Credibility
+Spam
+Sports
+Start a conversation by messaging someone!
+Sunset Pink
+Support
+Switch
+Switch Account
+Switch between your Nexora accounts.
+Switched to @{0}
+System sharing will be connected soon
+Tap below to enter the word or phrase
+Technology
+Tell people about yourself...
+Temporarily hide your Nexora account
+Temporarily pause notifications
+Text Size
+Text size set to Large
+Text size set to Medium
+Text size set to Small
+Theme
+This action is permanent. Your Nexora account and its associated information will be deleted.
+This device
+This label was applied or modified by a moderator.
+Thoughts
+Travel
+Try a different search term
+Try Again
+Try searching for another language.
+Two-Factor Authentication
+Type a message...
+Unblock
+Unfollow
+Unfollowed {0}
+Unmute
+Unverified
+Update Password
+Update the email address connected to your account. 
+Update your connected email address
+Update your connected phone number
+Update your display name.
+Update your Nexora password
+Update your Nexora username.
+Updates from moments you follow
+Uploading media... {0}%
+Use larger text throughout Nexora
+Use Nexora with a dark appearance
+Use smaller text throughout Nexora
+Use the default text size
+Use your activity to personalize what you see
+User blocked
+User not found
+Username
+Username cannot be empty
+Username is already taken or could not be updated.
+Using the automatic server address
+Verification status
+Verification under review
+Verified
+Verifying your age…
+Video selected
+Video unavailable
+View all comments
+View important changes made to your Nexora account.
+View information associated with your account
+View the email currently connected to your account.
+View your saved posts and content
+Welcome back
+Welcome back! Your Nexora account and its content will be visible again.
+Welcome to Nexora 👋
+When someone follows you
+When someone interacts with your posts
+When someone mentions you
+who make Nexora more interesting.
+Why this label?
+Word or phrase
+Word or Phrase
+Write a caption for your Clip...
+Write a reply...
+You
+You can return to Nexora later.
+You will be signed out of your Nexora account.
+Your account has been deactivated
+Your account has been reactivated
+Your account is currently {0}.
+Your account is in good standing.
+Your account is temporarily hidden. Tap to reactivate.
+Your account will be temporarily hidden.
+Your Accounts
+Your age verification needs review before you can continue.
+Your Data
+Your display name
+Your feed is empty for now. Follow people and creators to start seeing posts, moments and conversations here.
+Your Hidden Words
+Your Information
+Your Nexora starts here
+Your Nexora, your style.
+Your privacy. Your security. Your control.
+Your space. Your content. Your control.
+Your thoughts and posts will appear here.

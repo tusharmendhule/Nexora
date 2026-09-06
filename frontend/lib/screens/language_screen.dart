@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
-
+import '../l10n/translations.dart';
 import '../services/appearance_controller.dart';
-
-import '../services/settings_service.dart';
+import '../services/language_controller.dart';
 
 class LanguageScreen extends StatefulWidget {
   const LanguageScreen({super.key});
@@ -14,64 +13,55 @@ class LanguageScreen extends StatefulWidget {
 }
 
 class _LanguageScreenState extends State<LanguageScreen> {
-  final SettingsService _settingsService = SettingsService();
-
-  String selectedLanguage = 'English';
   String searchQuery = '';
-  bool _isLoading = true;
-
-  final List<Map<String, String>> languages = const [
-    {'name': 'English', 'native': 'English'},
-    {'name': 'Hindi', 'native': 'हिन्दी'},
-    {'name': 'Bengali', 'native': 'বাংলা'},
-    {'name': 'Punjabi', 'native': 'ਪੰਜਾਬੀ'},
-    {'name': 'German', 'native': 'Deutsch'},
-    {'name': 'Italian', 'native': 'Italiano'},
-    {'name': 'Portuguese', 'native': 'Português'},
-  ];
 
   @override
   void initState() {
     super.initState();
-    _loadSettings();
+    // The controller is the single source of truth — it was loaded at
+    // startup and persists every change to the backend + local cache.
+    LanguageController.instance.addListener(_onLanguageChanged);
   }
 
-  Future<void> _loadSettings() async {
-    final settings = await _settingsService.getSettings();
+  @override
+  void dispose() {
+    LanguageController.instance.removeListener(_onLanguageChanged);
+    super.dispose();
+  }
+
+  void _onLanguageChanged() {
+    if (mounted) setState(() {});
+  }
+
+  List<NexoraLanguage> get filteredLanguages {
+    final query = searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return kSupportedLanguages;
+
+    return kSupportedLanguages.where((language) {
+      return language.name.toLowerCase().contains(query) ||
+          language.native.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  Future<void> _selectLanguage(NexoraLanguage language) async {
+    await LanguageController.instance.setLanguage(language.code);
 
     if (!mounted) return;
 
-    if (settings.isNotEmpty) {
-      setState(() {
-        selectedLanguage = settings['language'] ?? 'English';
-        _isLoading = false;
-      });
-    } else {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _saveLanguage(String language) async {
-    await _settingsService.updateSettings({
-      'language': language,
-    });
-  }
-
-  List<Map<String, String>> get filteredLanguages {
-    if (searchQuery.trim().isEmpty) {
-      return languages;
-    }
-
-    final query = searchQuery.toLowerCase();
-
-    return languages.where((language) {
-      return language['name']!.toLowerCase().contains(query) ||
-          language['native']!.toLowerCase().contains(query);
-    }).toList();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(trP(context, '{0} selected', [language.name])),
+        duration: const Duration(milliseconds: 900),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: context.nexora.card,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentCode = LanguageController.instance.languageCode;
+
     return Scaffold(
       backgroundColor: context.nexora.background,
       appBar: AppBar(
@@ -87,7 +77,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Language',
+          tr(context, 'Language'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -95,38 +85,33 @@ class _LanguageScreenState extends State<LanguageScreen> {
           ),
         ),
       ),
-      body: _isLoading
-          ? Center(
-              child: CircularProgressIndicator(color: context.nexora.textPrimary),
-            )
-          : Column(
-              children: [
-                _currentLanguageCard(),
-
-                _searchBar(),
-
-                Expanded(
-                  child: filteredLanguages.isEmpty
-                      ? _noResults()
-                      : ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(18, 6, 18, 30),
-                          itemCount: filteredLanguages.length,
-                          itemBuilder: (context, index) {
-                            final language = filteredLanguages[index];
-
-                            return _languageTile(
-                              name: language['name']!,
-                              nativeName: language['native']!,
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
+      body: Column(
+        children: [
+          _currentLanguageCard(),
+          _searchBar(),
+          Expanded(
+            child: filteredLanguages.isEmpty
+                ? _noResults()
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(18, 6, 18, 30),
+                    itemCount: filteredLanguages.length,
+                    itemBuilder: (context, index) {
+                      final language = filteredLanguages[index];
+                      return _languageTile(
+                        language: language,
+                        selected: language.code == currentCode,
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _currentLanguageCard() {
+    final current = LanguageController.instance.language;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(18, 10, 18, 18),
       padding: const EdgeInsets.all(18),
@@ -160,12 +145,12 @@ class _LanguageScreenState extends State<LanguageScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'App Language',
+                  tr(context, 'App Language'),
                   style: TextStyle(color: context.nexora.textSecondary, fontSize: 12),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  selectedLanguage,
+                  current.native,
                   style: TextStyle(
                     color: context.nexora.textPrimary,
                     fontSize: 19,
@@ -198,7 +183,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
           },
           style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
           decoration: InputDecoration(
-            hintText: 'Search languages',
+            hintText: tr(context, 'Search languages'),
             hintStyle: TextStyle(color: context.nexora.textHint, fontSize: 14),
             prefixIcon: Icon(Icons.search, color: context.nexora.textMuted),
             border: InputBorder.none,
@@ -209,9 +194,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
     );
   }
 
-  Widget _languageTile({required String name, required String nativeName}) {
-    final selected = selectedLanguage == name;
-
+  Widget _languageTile({
+    required NexoraLanguage language,
+    required bool selected,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -243,7 +229,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
           ),
         ),
         title: Text(
-          name,
+          language.name,
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 14,
@@ -253,7 +239,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
-            nativeName,
+            language.native,
             style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
           ),
         ),
@@ -264,21 +250,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                 color: context.nexora.textDim,
                 size: 21,
               ),
-        onTap: () {
-          setState(() {
-            selectedLanguage = name;
-          });
-          _saveLanguage(name);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$name selected'),
-              duration: const Duration(milliseconds: 900),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: context.nexora.card,
-            ),
-          );
-        },
+        onTap: () => _selectLanguage(language),
       ),
     );
   }
@@ -297,7 +269,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
             ),
             SizedBox(height: 14),
             Text(
-              'No languages found',
+              tr(context, 'No languages found'),
               style: TextStyle(
                 color: context.nexora.textSecondary,
                 fontSize: 15,
@@ -306,7 +278,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
             ),
             SizedBox(height: 6),
             Text(
-              'Try searching for another language.',
+              tr(context, 'Try searching for another language.'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: context.nexora.textPrimary.withOpacity(0.35),

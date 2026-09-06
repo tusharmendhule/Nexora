@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 import 'package:image_picker/image_picker.dart';
@@ -115,7 +116,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not save profile. Please try again.'),
+          content:
+              Text(tr(context, 'Could not save profile. Please try again.')),
         ),
       );
     }
@@ -130,14 +132,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         foregroundColor: context.nexora.textPrimary,
         elevation: 0,
         title: Text(
-          'Edit Profile',
+          tr(context, 'Edit Profile'),
           style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
         ),
         actions: [
           TextButton(
             onPressed: _saving ? null : _saveProfile,
             child: Text(
-              'Save',
+              tr(context, 'Save'),
               style: TextStyle(
                 color: Color(0xFF7C61FF),
                 fontWeight: FontWeight.w700,
@@ -156,17 +158,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               SizedBox(height: 30),
 
-              _fieldLabel('Display Name'),
+              _fieldLabel(tr(context, 'Display Name')),
               SizedBox(height: 8),
               _textField(
                 controller: _displayNameController,
-                hint: 'Your display name',
+                hint: tr(context, 'Your display name'),
                 textCapitalization: TextCapitalization.words,
               ),
 
               SizedBox(height: 20),
 
-              _fieldLabel('Username'),
+              _fieldLabel(tr(context, 'Username')),
               SizedBox(height: 8),
               _textField(
                 controller: _usernameController,
@@ -176,11 +178,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               SizedBox(height: 20),
 
-              _fieldLabel('Bio'),
+              _fieldLabel(tr(context, 'Bio')),
               SizedBox(height: 8),
               _textField(
                 controller: _bioController,
-                hint: 'Tell people about yourself...',
+                hint: tr(context, 'Tell people about yourself...'),
                 maxLines: 4,
                 maxLength: 160,
               ),
@@ -249,7 +251,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         TextButton(
           onPressed: _pickProfileImage,
           child: Text(
-            'Change Profile Photo',
+            tr(context, 'Change Profile Photo'),
             style: TextStyle(
               color: Color(0xFF9C8CFF),
               fontWeight: FontWeight.w600,
@@ -324,7 +326,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       validator: (value) {
         if (controller == _usernameController &&
             (value == null || value.trim().isEmpty)) {
-          return 'Username cannot be empty';
+          return tr(context, 'Username cannot be empty');
         }
 
         return null;
@@ -400,7 +402,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 )
               : Text(
-                  'Save Changes',
+                  tr(context, 'Save Changes'),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
         ),

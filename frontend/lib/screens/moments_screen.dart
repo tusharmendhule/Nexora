@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../l10n/translations.dart';
 import '../utils/media_url.dart';
 import 'user_profile_screen.dart';
 import '../models/moment.dart';
@@ -299,7 +300,7 @@ class _MomentsScreenState extends State<MomentsScreen>
 
   String _timeAgo(DateTime date) {
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inMinutes < 1) return tr(context, 'just now');
     if (diff.inMinutes < 60) return '${diff.inMinutes}m';
     if (diff.inHours < 24) return '${diff.inHours}h';
     if (diff.inDays < 7) return '${diff.inDays}d';
@@ -332,7 +333,8 @@ class _MomentsScreenState extends State<MomentsScreen>
         _likedMoments[moment.id] = wasLiked;
         _momentLikeCounts[moment.id] = wasCount;
       });
-      _showSnack('Could not update like. Please try again.', isError: true);
+      _showSnack(tr(context, 'Could not update like. Please try again.'),
+          isError: true);
       return;
     }
 
@@ -372,9 +374,10 @@ class _MomentsScreenState extends State<MomentsScreen>
     if (sent) {
       _replyController.clear();
       _replyFocus.unfocus();
-      _showSnack('Reply sent');
+      _showSnack(tr(context, 'Reply sent'));
     } else {
-      _showSnack('Could not send reply. Please try again.', isError: true);
+      _showSnack(tr(context, 'Could not send reply. Please try again.'),
+          isError: true);
     }
   }
 
@@ -439,7 +442,7 @@ class _MomentsScreenState extends State<MomentsScreen>
     final List<Color> gradient = gradients[index % gradients.length];
 
     final String creator = moment.creatorUsername;
-    final String caption = 'Moment by @$creator';
+    final String caption = trP(context, 'Moment by @{0}', [creator]);
     final String time = _timeAgo(moment.createdAt);
 
     return Container(
@@ -691,9 +694,10 @@ class _MomentsScreenState extends State<MomentsScreen>
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => _sendReply(),
-                  decoration: const InputDecoration(
-                    hintText: 'Reply to this Moment...',
-                    hintStyle: TextStyle(color: Colors.white60, fontSize: 12),
+                  decoration: InputDecoration(
+                    hintText: tr(context, 'Reply to this Moment...'),
+                    hintStyle: const TextStyle(
+                        color: Colors.white60, fontSize: 12),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
@@ -741,9 +745,9 @@ class _MomentsScreenState extends State<MomentsScreen>
 
             const SizedBox(width: 4),
 
-            const Text(
-              'Moments',
-              style: TextStyle(
+            Text(
+              tr(context, 'Moments'),
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.w800,

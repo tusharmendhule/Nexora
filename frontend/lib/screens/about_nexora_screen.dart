@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -27,7 +28,7 @@ class AboutNexoraScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'About Nexora',
+          tr(context, 'About Nexora'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -42,26 +43,25 @@ class AboutNexoraScreen extends StatelessWidget {
 
           SizedBox(height: 26),
 
-          _sectionTitle(context, 'About Nexora'),
+          _sectionTitle(context, tr(context, 'About Nexora')),
 
           _infoCard(
             context,
             icon: Icons.auto_awesome_outlined,
-            title: 'A space made for you',
+            title: tr(context, 'A space made for you'),
             description:
-                'Nexora is designed to bring people, ideas, creativity, '
-                'and meaningful moments together in one personal space.',
+                tr(context, 'Nexora is designed to bring people, ideas, creativity, and meaningful moments together in one personal space.'),
           ),
 
           SizedBox(height: 24),
 
-          _sectionTitle(context, 'Nexora'),
+          _sectionTitle(context, tr(context, 'Nexora')),
 
           _actionTile(
             context,
             icon: Icons.menu_book_outlined,
-            title: 'Community Guidelines',
-            subtitle: 'Learn how we keep Nexora welcoming and respectful',
+            title: tr(context, 'Community Guidelines'),
+            subtitle: tr(context, 'Learn how we keep Nexora welcoming and respectful'),
             onTap: () {
               Navigator.push(
                 context,
@@ -75,8 +75,8 @@ class AboutNexoraScreen extends StatelessWidget {
           _actionTile(
             context,
             icon: Icons.privacy_tip_outlined,
-            title: 'Privacy Policy',
-            subtitle: 'Learn how Nexora handles your information',
+            title: tr(context, 'Privacy Policy'),
+            subtitle: tr(context, 'Learn how Nexora handles your information'),
             onTap: () {
               Navigator.push(
                 context,
@@ -88,8 +88,8 @@ class AboutNexoraScreen extends StatelessWidget {
           _actionTile(
             context,
             icon: Icons.description_outlined,
-            title: 'Terms of Service',
-            subtitle: 'Read the terms that govern your use of Nexora',
+            title: tr(context, 'Terms of Service'),
+            subtitle: tr(context, 'Read the terms that govern your use of Nexora'),
             onTap: () {
               Navigator.push(
                 context,
@@ -100,13 +100,13 @@ class AboutNexoraScreen extends StatelessWidget {
 
           SizedBox(height: 24),
 
-          _sectionTitle(context, 'Credits'),
+          _sectionTitle(context, tr(context, 'Credits')),
 
           _actionTile(
             context,
             icon: Icons.code_outlined,
-            title: 'Open Source Licenses',
-            subtitle: 'View licenses for software used by Nexora',
+            title: tr(context, 'Open Source Licenses'),
+            subtitle: tr(context, 'View licenses for software used by Nexora'),
             onTap: () {
               showLicensePage(
                 context: context,
@@ -120,8 +120,8 @@ class AboutNexoraScreen extends StatelessWidget {
           _actionTile(
             context,
             icon: Icons.people_outline,
-            title: 'Nexora Team',
-            subtitle: 'The people building Nexora',
+            title: tr(context, 'Nexora Team'),
+            subtitle: tr(context, 'The people building Nexora'),
             onTap: () {
               _showTeam(context);
             },
@@ -129,7 +129,7 @@ class AboutNexoraScreen extends StatelessWidget {
 
           SizedBox(height: 24),
 
-          _sectionTitle(context, 'App Information'),
+          _sectionTitle(context, tr(context, 'App Information')),
 
           _infoRow(context, 'Version', '1.0.0'),
 
@@ -162,7 +162,7 @@ class AboutNexoraScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Made with care.',
+                  tr(context, 'Made with care.'),
                   style: TextStyle(
                     color: context.nexora.textPrimary.withOpacity(0.22),
                     fontSize: 10,
@@ -443,7 +443,7 @@ class AboutNexoraScreen extends StatelessWidget {
                 _smallLogo(context),
                 SizedBox(height: 12),
                 Text(
-                  'The Nexora Team',
+                  tr(context, 'The Nexora Team'),
                   style: TextStyle(
                     color: context.nexora.textPrimary,
                     fontSize: 18,
@@ -452,7 +452,7 @@ class AboutNexoraScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Building a better social space, one idea at a time.',
+                  tr(context, 'Building a better social space, one idea at a time.'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: context.nexora.textMuted,
@@ -464,7 +464,7 @@ class AboutNexoraScreen extends StatelessWidget {
                 TextButton(
                   onPressed: () => Navigator.pop(sheetContext),
                   child: Text(
-                    'Close',
+                    tr(context, 'Close'),
                     style: TextStyle(color: Color(0xFF8B7CFF)),
                   ),
                 ),
@@ -483,16 +483,16 @@ class PrivacyPolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Privacy Policy',
-      description: 'Learn how Nexora handles and protects your information.',
+      title: tr(context, 'Privacy Policy'),
+      description: tr(context, 'Learn how Nexora handles and protects your information.'),
       sections: [
         SettingsSection(
-          title: 'Privacy',
+          title: tr(context, 'Privacy'),
           items: [
             SettingsItem(
               icon: Icons.info_outline,
-              title: 'Your Information',
-              subtitle: 'Learn what information Nexora collects and uses.',
+              title: tr(context, 'Your Information'),
+              subtitle: tr(context, 'Learn what information Nexora collects and uses.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -505,8 +505,8 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.shield_outlined,
-              title: 'Data Protection',
-              subtitle: 'Learn how Nexora works to protect your information.',
+              title: tr(context, 'Data Protection'),
+              subtitle: tr(context, 'Learn how Nexora works to protect your information.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -530,16 +530,16 @@ class YourInformationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Your Information',
-      description: 'Learn about information associated with your Nexora account and activity.',
+      title: tr(context, 'Your Information'),
+      description: tr(context, 'Learn about information associated with your Nexora account and activity.'),
       sections: [
         SettingsSection(
-          title: 'Information',
+          title: tr(context, 'Information'),
           items: [
             SettingsItem(
               icon: Icons.person_outline,
-              title: 'Account Information',
-              subtitle: 'Information such as your name, username, email, and phone number.',
+              title: tr(context, 'Account Information'),
+              subtitle: tr(context, 'Information such as your name, username, email, and phone number.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -552,9 +552,9 @@ class YourInformationScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.photo_library_outlined,
-              title: 'Content & Activity',
+              title: tr(context, 'Content & Activity'),
               subtitle:
-                  'Information related to content and activity on Nexora.',
+                  tr(context, 'Information related to content and activity on Nexora.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -567,8 +567,8 @@ class YourInformationScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.settings_outlined,
-              title: 'How Information Is Used',
-              subtitle: 'Learn why information may be used to provide and improve Nexora.',
+              title: tr(context, 'How Information Is Used'),
+              subtitle: tr(context, 'Learn why information may be used to provide and improve Nexora.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -592,17 +592,17 @@ class DataProtectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Data Protection',
-      description: 'Learn how Nexora works to protect your information.',
+      title: tr(context, 'Data Protection'),
+      description: tr(context, 'Learn how Nexora works to protect your information.'),
       sections: [
         SettingsSection(
-          title: 'Protection',
+          title: tr(context, 'Protection'),
           items: [
             SettingsItem(
               icon: Icons.lock_outline,
-              title: 'Security Measures',
+              title: tr(context, 'Security Measures'),
               subtitle:
-                  'Learn about measures used to help protect your information.',
+                  tr(context, 'Learn about measures used to help protect your information.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -615,9 +615,9 @@ class DataProtectionScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.tune_outlined,
-              title: 'Privacy Choices',
+              title: tr(context, 'Privacy Choices'),
               subtitle:
-                  'Learn about controls available for managing your privacy.',
+                  tr(context, 'Learn about controls available for managing your privacy.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -630,8 +630,8 @@ class DataProtectionScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.delete_outline,
-              title: 'Data Retention & Deletion',
-              subtitle: 'Learn about retaining and deleting information.',
+              title: tr(context, 'Data Retention & Deletion'),
+              subtitle: tr(context, 'Learn about retaining and deleting information.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -655,16 +655,16 @@ class TermsOfServiceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Terms of Service',
-      description: 'Read the terms that govern your use of Nexora.',
+      title: tr(context, 'Terms of Service'),
+      description: tr(context, 'Read the terms that govern your use of Nexora.'),
       sections: [
         SettingsSection(
-          title: 'Terms',
+          title: tr(context, 'Terms'),
           items: [
             SettingsItem(
               icon: Icons.article_outlined,
-              title: 'Using Nexora',
-              subtitle: 'Learn about the rules for using Nexora.',
+              title: tr(context, 'Using Nexora'),
+              subtitle: tr(context, 'Learn about the rules for using Nexora.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -675,8 +675,8 @@ class TermsOfServiceScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.gavel_outlined,
-              title: 'Your Responsibilities',
-              subtitle: 'Understand your responsibilities as a Nexora user.',
+              title: tr(context, 'Your Responsibilities'),
+              subtitle: tr(context, 'Understand your responsibilities as a Nexora user.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -700,16 +700,16 @@ class UsingNexoraScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Using Nexora',
-      description: 'Learn about the rules for using Nexora.',
+      title: tr(context, 'Using Nexora'),
+      description: tr(context, 'Learn about the rules for using Nexora.'),
       sections: [
         SettingsSection(
-          title: 'Using the Service',
+          title: tr(context, 'Using the Service'),
           items: [
             SettingsItem(
               icon: Icons.account_circle_outlined,
-              title: 'Your Account',
-              subtitle: 'Understand your account responsibilities.',
+              title: tr(context, 'Your Account'),
+              subtitle: tr(context, 'Understand your account responsibilities.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -720,8 +720,8 @@ class UsingNexoraScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.create_outlined,
-              title: 'Your Content',
-              subtitle: 'Learn about content you create and share.',
+              title: tr(context, 'Your Content'),
+              subtitle: tr(context, 'Learn about content you create and share.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -732,8 +732,8 @@ class UsingNexoraScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.rule_outlined,
-              title: 'Following the Rules',
-              subtitle: 'Understand the rules that apply on Nexora.',
+              title: tr(context, 'Following the Rules'),
+              subtitle: tr(context, 'Understand the rules that apply on Nexora.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -757,16 +757,16 @@ class YourResponsibilitiesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Your Responsibilities',
-      description: 'Understand your responsibilities as a Nexora user.',
+      title: tr(context, 'Your Responsibilities'),
+      description: tr(context, 'Understand your responsibilities as a Nexora user.'),
       sections: [
         SettingsSection(
-          title: 'Responsibilities',
+          title: tr(context, 'Responsibilities'),
           items: [
             SettingsItem(
               icon: Icons.people_outline,
-              title: 'Respect Others',
-              subtitle: 'Interact respectfully with other people.',
+              title: tr(context, 'Respect Others'),
+              subtitle: tr(context, 'Interact respectfully with other people.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -779,8 +779,8 @@ class YourResponsibilitiesScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.security_outlined,
-              title: 'Protect Your Account',
-              subtitle: 'Take reasonable steps to keep your account secure.',
+              title: tr(context, 'Protect Your Account'),
+              subtitle: tr(context, 'Take reasonable steps to keep your account secure.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -793,8 +793,8 @@ class YourResponsibilitiesScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.report_outlined,
-              title: 'Report Violations',
-              subtitle: 'Use available reporting tools when appropriate.',
+              title: tr(context, 'Report Violations'),
+              subtitle: tr(context, 'Use available reporting tools when appropriate.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -820,10 +820,9 @@ class AccountInformationScreen extends StatelessWidget {
   const AccountInformationScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return _detail(
-      'Account Information',
-      'Information associated with your Nexora account.',
+  Widget build(BuildContext context) {      return _detail(
+      tr(context, 'Account Information'),
+      tr(context, 'Information associated with your Nexora account.'),
       [
         _item(
           Icons.person_outline,

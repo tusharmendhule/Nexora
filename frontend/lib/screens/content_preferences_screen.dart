@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/settings_service.dart';
 import 'settings_detail_screen.dart';
@@ -61,28 +62,31 @@ class _ContentPreferencesScreenState extends State<ContentPreferencesScreen> {
     }
 
     return SettingsDetailScreen(
-      title: 'Content Preferences',
-      description: 'Control what appears in your Nexora feed.',
+      title: tr(context, 'Content Preferences'),
+      description: tr(context, 'Control what appears in your Nexora feed.'),
       sections: [
         SettingsSection(
-          title: 'Content',
+          title: tr(context, 'Content'),
           items: [
             SettingsItem(
               icon: Icons.visibility_off_outlined,
-              title: 'Hidden Words',
+              title: tr(context, 'Hidden Words'),
               subtitle: hiddenWords.isEmpty
-                  ? 'Hide posts containing specific words or phrases'
-                  : '${hiddenWords.length} hidden word'
-                        '${hiddenWords.length == 1 ? '' : 's'}',
+                  ? tr(context, 'Hide posts containing specific words or phrases')
+                  : hiddenWords.length == 1
+                      ? tr(context, '1 hidden word')
+                      : trP(
+                          context, '{0} hidden words', ['${hiddenWords.length}']),
               type: SettingsItemType.navigation,
               onTap: _openHiddenWords,
             ),
             SettingsItem(
               icon: Icons.people_outline,
-              title: 'Creators You Follow',
-              subtitle:
-                  '${followedCreators.length} followed creator'
-                  '${followedCreators.length == 1 ? '' : 's'}',
+              title: tr(context, 'Creators You Follow'),
+              subtitle: followedCreators.length == 1
+                  ? tr(context, '1 followed creator')
+                  : trP(context, '{0} followed creators',
+                      ['${followedCreators.length}']),
               type: SettingsItemType.navigation,
               onTap: _openCreators,
             ),
@@ -190,17 +194,18 @@ class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Hidden Words',
-      description:
-          'Hide posts containing specific words or phrases from your feed.',
+      title: tr(context, 'Hidden Words'),
+      description: tr(context,
+          'Hide posts containing specific words or phrases from your feed.'),
       sections: [
         SettingsSection(
-          title: 'Hidden Words',
+          title: tr(context, 'Hidden Words'),
           items: [
             SettingsItem(
               icon: Icons.add,
-              title: 'Add Hidden Word',
-              subtitle: 'Hide content containing a specific word or phrase',
+              title: tr(context, 'Add Hidden Word'),
+              subtitle: tr(context,
+                  'Hide content containing a specific word or phrase'),
               type: SettingsItemType.navigation,
               onTap: _addHiddenWord,
             ),
@@ -209,13 +214,13 @@ class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
 
         if (words.isNotEmpty)
           SettingsSection(
-            title: 'Your Hidden Words',
+            title: tr(context, 'Your Hidden Words'),
             items: [
               for (final word in words)
                 SettingsItem(
                   icon: Icons.visibility_off_outlined,
                   title: word,
-                  subtitle: 'Hidden word or phrase',
+                  subtitle: tr(context, 'Hidden word or phrase'),
                   type: SettingsItemType.action,
                   onTap: () => _showRemoveDialog(word),
                 ),
@@ -232,11 +237,11 @@ class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
         return AlertDialog(
           backgroundColor: context.nexora.card,
           title: Text(
-            'Remove Hidden Word?',
+            tr(context, 'Remove Hidden Word?'),
             style: TextStyle(color: context.nexora.textPrimary),
           ),
           content: Text(
-            'Remove "$word" from your hidden words?',
+            trP(context, 'Remove "{0}" from your hidden words?', [word]),
             style: TextStyle(color: context.nexora.textSecondary),
           ),
           actions: [
@@ -253,7 +258,7 @@ class _HiddenWordsScreenState extends State<HiddenWordsScreen> {
                 Navigator.pop(context);
               },
               child: Text(
-                'Remove',
+                tr(context, 'Remove'),
                 style: TextStyle(color: Color(0xFF8B7CFF)),
               ),
             ),
@@ -285,17 +290,17 @@ class _AddHiddenWordScreenState extends State<AddHiddenWordScreen> {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Add Hidden Word',
-      description:
-          'Enter a word or phrase to hide matching content from your feed.',
+      title: tr(context, 'Add Hidden Word'),
+      description: tr(context,
+          'Enter a word or phrase to hide matching content from your feed.'),
       sections: [
         SettingsSection(
-          title: 'Hidden Word',
+          title: tr(context, 'Hidden Word'),
           items: [
             SettingsItem(
               icon: Icons.edit_outlined,
-              title: 'Word or Phrase',
-              subtitle: 'Tap below to enter the word or phrase',
+              title: tr(context, 'Word or Phrase'),
+              subtitle: tr(context, 'Tap below to enter the word or phrase'),
               type: SettingsItemType.action,
               onTap: () {
                 _showInputDialog();
@@ -314,7 +319,7 @@ class _AddHiddenWordScreenState extends State<AddHiddenWordScreen> {
         return AlertDialog(
           backgroundColor: context.nexora.card,
           title: Text(
-            'Add Hidden Word',
+            tr(context, 'Add Hidden Word'),
             style: TextStyle(color: context.nexora.textPrimary),
           ),
           content: TextField(
@@ -322,7 +327,7 @@ class _AddHiddenWordScreenState extends State<AddHiddenWordScreen> {
             autofocus: true,
             style: TextStyle(color: context.nexora.textPrimary),
             decoration: InputDecoration(
-              hintText: 'Word or phrase',
+              hintText: tr(context, 'Word or phrase'),
               hintStyle: TextStyle(color: context.nexora.textHint),
             ),
           ),
@@ -348,7 +353,7 @@ class _AddHiddenWordScreenState extends State<AddHiddenWordScreen> {
                 Navigator.pop(context);
               },
               child: Text(
-                'Add',
+                tr(context, 'Add'),
                 style: TextStyle(color: Color(0xFF8B7CFF)),
               ),
             ),
@@ -394,19 +399,20 @@ class _CreatorsYouFollowScreenState extends State<CreatorsYouFollowScreen> {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Creators You Follow',
-      description:
-          'Manage how creators you follow influence your recommendations.',
+      title: tr(context, 'Creators You Follow'),
+      description: tr(context,
+          'Manage how creators you follow influence your recommendations.'),
       sections: [
         SettingsSection(
-          title: 'Creators',
+          title: tr(context, 'Creators'),
           items: [
             SettingsItem(
               icon: Icons.people_outline,
-              title: 'Followed Creators',
-              subtitle:
-                  '${widget.followedCreators.length} creator'
-                  '${widget.followedCreators.length == 1 ? '' : 's'}',
+              title: tr(context, 'Followed Creators'),
+              subtitle: widget.followedCreators.length == 1
+                  ? tr(context, '1 creator')
+                  : trP(context, '{0} creators',
+                      ['${widget.followedCreators.length}']),
               type: SettingsItemType.navigation,
               onTap: _openFollowedCreators,
             ),
@@ -449,7 +455,7 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Unfollowed $creator'),
+        content: Text(trP(context, 'Unfollowed {0}', [creator])),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -464,7 +470,7 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
         return AlertDialog(
           backgroundColor: context.nexora.card,
           title: Text(
-            'Follow Creator',
+            tr(context, 'Follow Creator'),
             style: TextStyle(color: context.nexora.textPrimary),
           ),
           content: TextField(
@@ -519,16 +525,16 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Followed Creators',
-      description: 'Manage the creators you currently follow.',
+      title: tr(context, 'Followed Creators'),
+      description: tr(context, 'Manage the creators you currently follow.'),
       sections: [
         SettingsSection(
-          title: 'Creators',
+          title: tr(context, 'Creators'),
           items: [
             SettingsItem(
               icon: Icons.person_add_alt_1_outlined,
-              title: 'Follow Creator',
-              subtitle: 'Add a creator to your followed list',
+              title: tr(context, 'Follow Creator'),
+              subtitle: tr(context, 'Add a creator to your followed list'),
               type: SettingsItemType.navigation,
               onTap: _followCreator,
             ),
@@ -537,13 +543,13 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
 
         if (creators.isNotEmpty)
           SettingsSection(
-            title: 'Followed Creators',
+            title: tr(context, 'Followed Creators'),
             items: [
               for (final creator in creators)
                 SettingsItem(
                   icon: Icons.person_outline,
                   title: creator,
-                  subtitle: 'Creator',
+                  subtitle: tr(context, 'Creator'),
                   type: SettingsItemType.action,
                   onTap: () => _showCreatorOptions(creator),
                 ),
@@ -552,12 +558,12 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
 
         if (creators.isEmpty)
           SettingsSection(
-            title: 'Creators',
-            items: const [
+            title: tr(context, 'Creators'),
+            items: [
               SettingsItem(
                 icon: Icons.people_outline,
-                title: 'No Followed Creators',
-                subtitle: 'Creators you follow will appear here.',
+                title: tr(context, 'No Followed Creators'),
+                subtitle: tr(context, 'Creators you follow will appear here.'),
                 type: SettingsItemType.action,
               ),
             ],
@@ -600,7 +606,7 @@ class _FollowedCreatorsScreenState extends State<FollowedCreatorsScreen> {
                     color: Colors.redAccent,
                   ),
                   title: Text(
-                    'Unfollow',
+                    tr(context, 'Unfollow'),
                     style: TextStyle(color: Colors.redAccent),
                   ),
                   onTap: () {

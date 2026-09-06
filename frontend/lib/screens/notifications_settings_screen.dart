@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -87,7 +88,7 @@ class _NotificationsSettingsScreenState
         ),
 
         title: Text(
-          'Notifications',
+          tr(context, 'Notifications'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -103,13 +104,14 @@ class _NotificationsSettingsScreenState
           : ListView(
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
               children: [
-                _sectionTitle('General'),
+                _sectionTitle(tr(context, 'General')),
 
                 _settingsCard(
                   child: _switchTile(
                     icon: Icons.notifications_none,
-                    title: 'Push Notifications',
-                    subtitle: 'Allow Nexora to send notifications',
+                    title: tr(context, 'Push Notifications'),
+                    subtitle:
+                        tr(context, 'Allow Nexora to send notifications'),
                     value: pushNotifications,
                     onChanged: (value) {
                       setState(() {
@@ -122,15 +124,16 @@ class _NotificationsSettingsScreenState
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Activity'),
+                _sectionTitle(tr(context, 'Activity')),
 
                 _settingsCard(
                   child: Column(
                     children: [
                       _switchTile(
                         icon: Icons.favorite_border,
-                        title: 'Likes & Comments',
-                        subtitle: 'When someone interacts with your posts',
+                        title: tr(context, 'Likes & Comments'),
+                        subtitle:
+                            tr(context, 'When someone interacts with your posts'),
                         value: likesAndComments,
                         onChanged: pushNotifications
                             ? (value) {
@@ -146,8 +149,8 @@ class _NotificationsSettingsScreenState
 
                       _switchTile(
                         icon: Icons.person_add_outlined,
-                        title: 'New Followers',
-                        subtitle: 'When someone follows you',
+                        title: tr(context, 'New Followers'),
+                        subtitle: tr(context, 'When someone follows you'),
                         value: newFollowers,
                         onChanged: pushNotifications
                             ? (value) {
@@ -163,8 +166,8 @@ class _NotificationsSettingsScreenState
 
                       _switchTile(
                         icon: Icons.alternate_email,
-                        title: 'Mentions',
-                        subtitle: 'When someone mentions you',
+                        title: tr(context, 'Mentions'),
+                        subtitle: tr(context, 'When someone mentions you'),
                         value: mentions,
                         onChanged: pushNotifications
                             ? (value) {
@@ -181,13 +184,13 @@ class _NotificationsSettingsScreenState
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Messages'),
+                _sectionTitle(tr(context, 'Messages')),
 
                 _settingsCard(
                   child: _switchTile(
                     icon: Icons.chat_bubble_outline,
-                    title: 'Messages',
-                    subtitle: 'New messages and chat activity',
+                    title: tr(context, 'Messages'),
+                    subtitle: tr(context, 'New messages and chat activity'),
                     value: messages,
                     onChanged: pushNotifications
                         ? (value) {
@@ -202,15 +205,16 @@ class _NotificationsSettingsScreenState
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Nexora'),
+                _sectionTitle(tr(context, 'Nexora')),
 
                 _settingsCard(
                   child: Column(
                     children: [
                       _switchTile(
                         icon: Icons.auto_awesome,
-                        title: 'Moments',
-                        subtitle: 'Updates from moments you follow',
+                        title: tr(context, 'Moments'),
+                        subtitle:
+                            tr(context, 'Updates from moments you follow'),
                         value: moments,
                         onChanged: pushNotifications
                             ? (value) {
@@ -226,8 +230,9 @@ class _NotificationsSettingsScreenState
 
                       _switchTile(
                         icon: Icons.play_circle_outline,
-                        title: 'Clips',
-                        subtitle: 'New clips and recommendations',
+                        title: tr(context, 'Clips'),
+                        subtitle:
+                            tr(context, 'New clips and recommendations'),
                         value: clips,
                         onChanged: pushNotifications
                             ? (value) {
@@ -244,18 +249,20 @@ class _NotificationsSettingsScreenState
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Quiet Mode'),
+                _sectionTitle(tr(context, 'Quiet Mode')),
 
                 _settingsCard(
                   child: _actionTile(
                     icon: Icons.do_not_disturb_on_outlined,
-                    title: 'Quiet Mode',
-                    subtitle: 'Temporarily pause notifications',
+                    title: tr(context, 'Quiet Mode'),
+                    subtitle:
+                        tr(context, 'Temporarily pause notifications'),
                     onTap: () {
                       _settingsService.updateSettings({'notificationsEnabled': false});
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Quiet mode enabled. Notifications paused.'),
+                        SnackBar(
+                          content: Text(tr(context,
+                              'Quiet mode enabled. Notifications paused.')),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );

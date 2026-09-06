@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import 'user_profile_screen.dart';
 import '../models/user.dart';
@@ -122,14 +123,14 @@ class _FollowScreenState extends State<FollowScreen> {
               ),
               child: Row(
                 children: [
-                  _switchButton('Followers', showingFollowers, () {
+                  _switchButton(tr(context, 'Followers'), showingFollowers, () {
                     setState(() {
                       showingFollowers = true;
                       isLoading = true;
                     });
                     _loadUsers();
                   }),
-                  _switchButton('Following', !showingFollowers, () {
+                  _switchButton(tr(context, 'Following'), !showingFollowers, () {
                     setState(() {
                       showingFollowers = false;
                       isLoading = true;
@@ -231,7 +232,9 @@ class _FollowScreenState extends State<FollowScreen> {
                                             : null,
                                       ),
                                       child: Text(
-                                        isFollowed ? 'Following' : 'Follow',
+                                        isFollowed
+                                            ? tr(context, 'Following')
+                                            : tr(context, 'Follow'),
                                         style: TextStyle(
                                           color: context.nexora.textPrimary,
                                           fontSize: 12,

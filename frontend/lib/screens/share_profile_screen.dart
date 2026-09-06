@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../models/user.dart';
 
@@ -20,7 +21,7 @@ class ShareProfileScreen extends StatelessWidget {
         foregroundColor: context.nexora.textPrimary,
         elevation: 0,
         title: Text(
-          'Share Profile',
+          tr(context, 'Share Profile'),
           style: TextStyle(fontSize: 21, fontWeight: FontWeight.w600),
         ),
       ),
@@ -38,7 +39,7 @@ class ShareProfileScreen extends StatelessWidget {
               _shareButton(
                 context,
                 icon: Icons.copy_rounded,
-                label: 'Copy Profile Link',
+                label: tr(context, 'Copy Profile Link'),
                 onTap: () {
                   _copyProfileLink(context);
                 },
@@ -49,7 +50,7 @@ class ShareProfileScreen extends StatelessWidget {
               _shareButton(
                 context,
                 icon: Icons.ios_share_rounded,
-                label: 'Share Profile',
+                label: tr(context, 'Share Profile'),
                 onTap: () {
                   _showShareMessage(context);
                 },
@@ -58,7 +59,7 @@ class ShareProfileScreen extends StatelessWidget {
               const Spacer(),
 
               Text(
-                'Share your Nexora profile with others',
+                tr(context, 'Share your Nexora profile with others'),
                 style: TextStyle(color: context.nexora.textHint, fontSize: 12),
               ),
             ],
@@ -122,9 +123,11 @@ class ShareProfileScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _stat(context, user.followersCount.toString(), 'Followers'),
+              _stat(
+                  context, user.followersCount.toString(), tr(context, 'Followers')),
               SizedBox(width: 42),
-              _stat(context, user.followingCount.toString(), 'Following'),
+              _stat(
+                  context, user.followingCount.toString(), tr(context, 'Following')),
             ],
           ),
         ],
@@ -234,13 +237,17 @@ class ShareProfileScreen extends StatelessWidget {
 
   void _copyProfileLink(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Profile link copied for @${user.username}')),
+      SnackBar(
+          content: Text(trP(context, 'Profile link copied for @{0}', [
+            user.username
+          ]))),
     );
   }
 
   void _showShareMessage(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('System sharing will be connected soon')),
+      SnackBar(
+          content: Text(tr(context, 'System sharing will be connected soon'))),
     );
   }
 }

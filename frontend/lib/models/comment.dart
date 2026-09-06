@@ -12,6 +12,9 @@ class Comment {
   final int likeCount;
   final bool isLiked;
 
+  /// Replies nested under this comment (returned by the backend).
+  final List<Comment> replies;
+
   final DateTime createdAt;
 
   const Comment({
@@ -24,6 +27,7 @@ class Comment {
     this.parentCommentId,
     this.likeCount = 0,
     this.isLiked = false,
+    this.replies = const [],
     required this.createdAt,
   });
 
@@ -42,14 +46,25 @@ class Comment {
   /// ```
   factory Comment.fromJson(Map<String, dynamic> json) {
     final userObj = json['user'] as Map<String, dynamic>?;
+    final repliesList = (json['replies'] as List?) ?? const [];
     return Comment(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
-      contentId: json['post']?.toString() ?? json['contentId']?.toString() ?? '',
+      // Posts use `post`, stories use `story`; both are the content id.
+      contentId: json['post']?.toString() ??
+          json['story']?.toString() ??
+          json['contentId']?.toString() ??
+          '',
       authorId: userObj?['_id']?.toString() ?? json['authorId']?.toString() ?? '',
-      authorUsername: userObj?['name']?.toString() ?? userObj?['username']?.toString() ?? json['authorUsername']?.toString() ?? '',
+      authorUsername: userObj?['name']?.toString() ??
+          userObj?['username']?.toString() ??
+          json['authorUsername']?.toString() ??
+          '',
       authorAvatar: userObj?['avatar']?.toString(),
       text: json['text']?.toString() ?? '',
       parentCommentId: json['parentComment']?.toString(),
+      replies: repliesList
+          .map((r) => Comment.fromJson(r as Map<String, dynamic>))
+          .toList(),
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
           : DateTime.now(),

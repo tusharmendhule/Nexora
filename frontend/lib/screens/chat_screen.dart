@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/conversation.dart';
@@ -334,7 +335,8 @@ class _ChatScreenState extends State<ChatScreen> {
         _isSending = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send message. Please try again.')),
+        SnackBar(content: Text(tr(context,
+            'Failed to send message. Please try again.'))),
       );
       // Re-add text to controller so user can retry
       _messageController.text = text;
@@ -411,7 +413,8 @@ class _ChatScreenState extends State<ChatScreen> {
         messages.removeWhere((m) => m.id == optimisticMessage.id);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send image. Please try again.')),
+        SnackBar(content: Text(tr(context,
+            'Failed to send image. Please try again.'))),
       );
     }
 
@@ -426,7 +429,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(blocked ? 'User blocked' : 'Failed to block user. Please try again.'),
+        content: Text(blocked
+            ? tr(context, 'User blocked')
+            : tr(context, 'Failed to block user. Please try again.')),
       ),
     );
   }
@@ -437,11 +442,12 @@ class _ChatScreenState extends State<ChatScreen> {
     if (cleared) {
       setState(() => messages.clear());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Conversation cleared')),
+        SnackBar(content: Text(tr(context, 'Conversation cleared'))),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to clear conversation. Please try again.')),
+        SnackBar(content: Text(tr(context,
+            'Failed to clear conversation. Please try again.'))),
       );
     }
   }
@@ -497,7 +503,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 Text(
-                  _isOnline == true ? 'Active now' : 'Offline',
+                  _isOnline == true
+                      ? tr(context, 'Active now')
+                      : tr(context, 'Offline'),
                   style: TextStyle(
                     color: _isOnline == true
                         ? const Color(0xFF6C8CFF)
@@ -535,7 +543,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         ListTile(
                           leading: Icon(Icons.block_outlined, color: Color(0xFFE74C3C), size: 22),
-                          title: Text('Block user', style: TextStyle(color: context.nexora.textPrimary, fontSize: 15)),
+                          title: Text(tr(ctx, 'Block user'),
+                              style: TextStyle(
+                                  color: context.nexora.textPrimary,
+                                  fontSize: 15)),
                           onTap: () {
                             Navigator.pop(ctx);
                             _blockUser();
@@ -543,7 +554,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         ListTile(
                           leading: Icon(Icons.delete_outline, color: Color(0xFFF39C12), size: 22),
-                          title: Text('Clear conversation', style: TextStyle(color: context.nexora.textPrimary, fontSize: 15)),
+                          title: Text(tr(ctx, 'Clear conversation'),
+                              style: TextStyle(
+                                  color: context.nexora.textPrimary,
+                                  fontSize: 15)),
                           onTap: () {
                             Navigator.pop(ctx);
                             _clearConversation();
@@ -592,7 +606,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         textInputAction: TextInputAction.send,
                         onSubmitted: (_) => _sendMessage(),
                         decoration: InputDecoration(
-                          hintText: 'Type a message...',
+                          hintText: tr(context, 'Type a message...'),
                           hintStyle: TextStyle(color: context.nexora.textHint),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
@@ -650,7 +664,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
-                _loadError!,
+                tr(context, _loadError!),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
               ),
@@ -659,7 +673,7 @@ class _ChatScreenState extends State<ChatScreen> {
             TextButton(
               onPressed: _loadChat,
               child: Text(
-                'Retry',
+                tr(context, 'Retry'),
                 style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 14),
               ),
             ),
@@ -727,7 +741,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     color: isMine ? Colors.white70 : context.nexora.textSecondary),
                 SizedBox(width: 5),
                 Text(
-                  'Shared a post',
+                  tr(context, 'Shared a post'),
                   style: TextStyle(
                     color: isMine ? Colors.white70 : context.nexora.textSecondary,
                     fontSize: 11,

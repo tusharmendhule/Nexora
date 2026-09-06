@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import 'findpeople_screen.dart';
 
@@ -59,7 +60,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
 
               // Title
               Text(
-                'Set up your profile',
+                tr(context, 'Set up your profile'),
                 style: TextStyle(
                   color: context.nexora.textPrimary,
                   fontSize: 24,
@@ -70,7 +71,8 @@ class _InterestsScreenState extends State<InterestsScreen> {
               SizedBox(height: 6),
 
               Text(
-                'Choose a few interests to personalize your feed.',
+                tr(context,
+                    'Choose a few interests to personalize your feed.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: context.nexora.textSecondary, fontSize: 13),
               ),
@@ -121,7 +123,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                             ),
                           ),
                           child: Text(
-                            interest,
+                            tr(context, interest),
                             style: TextStyle(
                               color: selected ? context.nexora.textPrimary : context.nexora.textSecondary,
                               fontSize: 13,
@@ -169,7 +171,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
                     ),
                   ),
                   child: Text(
-                    'Continue',
+                    tr(context, 'Continue'),
                     style: TextStyle(
                       color: context.nexora.textPrimary,
                       fontSize: 14,

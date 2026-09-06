@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -98,7 +99,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Help & Support',
+          tr(context, 'Help & Support'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -117,27 +118,27 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
 
           SizedBox(height: 22),
 
-          _sectionTitle('Get Help'),
+          _sectionTitle(tr(context, 'Get Help')),
 
           _tile(
             icon: Icons.bug_report_outlined,
-            title: 'Report a Problem',
-            subtitle: 'Tell us about something that is not working',
+            title: tr(context, 'Report a Problem'),
+            subtitle: tr(context, 'Tell us about something that is not working'),
             onTap: _openReportProblem,
           ),
 
           _tile(
             icon: Icons.chat_bubble_outline,
-            title: 'Contact Nexora Support',
-            subtitle: 'Get in touch with the Nexora support team',
+            title: tr(context, 'Contact Nexora Support'),
+            subtitle: tr(context, 'Get in touch with the Nexora support team'),
             onTap: _openContactSupport,
           ),
 
           _tile(
             icon: Icons.receipt_long_outlined,
-            title: 'My Support Requests',
+            title: tr(context, 'My Support Requests'),
             subtitle: supportRequests.isEmpty
-                ? 'View your previous support requests'
+                ? tr(context, 'View your previous support requests')
                 : '${supportRequests.length} support request'
                       '${supportRequests.length == 1 ? '' : 's'}',
             onTap: _openSupportRequests,
@@ -145,7 +146,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
 
           SizedBox(height: 24),
 
-          _sectionTitle('Frequently Asked Questions'),
+          _sectionTitle(tr(context, 'Frequently Asked Questions')),
 
           if (filteredFaqs.isEmpty)
             _emptySearch()
@@ -157,30 +158,30 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
 
           SizedBox(height: 24),
 
-          _sectionTitle('Safety'),
+          _sectionTitle(tr(context, 'Safety')),
 
           _tile(
             icon: Icons.shield_outlined,
-            title: 'Safety Center',
-            subtitle: 'Learn how to keep your Nexora experience safe',
+            title: tr(context, 'Safety Center'),
+            subtitle: tr(context, 'Learn how to keep your Nexora experience safe'),
             onTap: _openSafetyCenter,
           ),
 
           _tile(
             icon: Icons.groups_outlined,
-            title: 'Community Guidelines',
-            subtitle: 'Learn the rules and expectations for everyone',
+            title: tr(context, 'Community Guidelines'),
+            subtitle: tr(context, 'Learn the rules and expectations for everyone'),
             onTap: _openCommunityGuidelines,
           ),
 
           SizedBox(height: 24),
 
-          _sectionTitle('About'),
+          _sectionTitle(tr(context, 'About')),
 
           _tile(
             icon: Icons.info_outline,
-            title: 'About Nexora',
-            subtitle: 'Learn more about Nexora and the team behind it',
+            title: tr(context, 'About Nexora'),
+            subtitle: tr(context, 'Learn more about Nexora and the team behind it'),
             onTap: _openAboutNexora,
           ),
 
@@ -188,7 +189,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
 
           Center(
             child: Text(
-              'Nexora Support',
+              tr(context, 'Nexora Support'),
               style: TextStyle(
                 color: context.nexora.textPrimary.withValues(alpha: 0.35),
                 fontSize: 12,
@@ -261,7 +262,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           Icon(Icons.support_agent_outlined, color: context.nexora.textPrimary, size: 27),
           SizedBox(height: 14),
           Text(
-            'How can we help?',
+            tr(context, 'How can we help?'),
             style: TextStyle(
               color: context.nexora.textPrimary,
               fontSize: 19,
@@ -270,7 +271,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           ),
           SizedBox(height: 5),
           Text(
-            'Find answers, report problems, or get in touch with Nexora Support.',
+            tr(context, 'Find answers, report problems, or get in touch with Nexora Support.'),
             style: TextStyle(color: context.nexora.textSecondary, fontSize: 12, height: 1.4),
           ),
         ],
@@ -294,7 +295,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
         },
         style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
         decoration: InputDecoration(
-          hintText: 'Search help',
+          hintText: tr(context, 'Search help'),
           hintStyle: TextStyle(color: context.nexora.textHint, fontSize: 14),
           prefixIcon: Icon(Icons.search, color: context.nexora.textMuted),
           border: InputBorder.none,
@@ -364,7 +365,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           Icon(Icons.search_off, color: context.nexora.textHint, size: 40),
           SizedBox(height: 10),
           Text(
-            'No help articles found',
+            tr(context, 'No help articles found'),
             style: TextStyle(
               color: context.nexora.textSecondary,
               fontSize: 14,
@@ -373,7 +374,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           ),
           SizedBox(height: 4),
           Text(
-            'Try another search.',
+            tr(context, 'Try another search.'),
             style: TextStyle(color: context.nexora.textHint, fontSize: 12),
           ),
         ],
@@ -469,7 +470,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
     if (description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Describe the problem first.'),
+          content: Text(tr(context, 'Describe the problem first.')),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -478,7 +479,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
 
     supportRequests.add(
       SupportRequest(
-        title: 'Reported Problem',
+        title: tr(context, 'Reported Problem'),
         description: description,
         date: 'Just now',
       ),
@@ -486,7 +487,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Problem reported successfully.'),
+        content: Text(tr(context, 'Problem reported successfully.')),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -497,26 +498,26 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Report a Problem',
+      title: tr(context, 'Report a Problem'),
       description:
-          'Tell us about something that is not working correctly in Nexora.',
+          tr(context, 'Tell us about something that is not working correctly in Nexora.'),
       sections: [
         SettingsSection(
-          title: 'Problem',
+          title: tr(context, 'Problem'),
           items: [
             SettingsItem(
               icon: Icons.edit_outlined,
-              title: 'Describe the Problem',
+              title: tr(context, 'Describe the Problem'),
               subtitle: controller.text.isEmpty
-                  ? 'Tap to describe what went wrong'
+                  ? tr(context, 'Tap to describe what went wrong')
                   : controller.text,
               type: SettingsItemType.action,
               onTap: _showDescriptionDialog,
             ),
             SettingsItem(
               icon: Icons.send_outlined,
-              title: 'Submit Report',
-              subtitle: 'Send your problem to Nexora Support',
+              title: tr(context, 'Submit Report'),
+              subtitle: tr(context, 'Send your problem to Nexora Support'),
               type: SettingsItemType.action,
               onTap: _submit,
             ),
@@ -533,7 +534,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
         return AlertDialog(
           backgroundColor: context.nexora.card,
           title: Text(
-            'Describe the Problem',
+            tr(context, 'Describe the Problem'),
             style: TextStyle(color: context.nexora.textPrimary),
           ),
           content: TextField(
@@ -542,7 +543,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
             maxLines: 6,
             style: TextStyle(color: context.nexora.textPrimary),
             decoration: InputDecoration(
-              hintText: 'Describe the problem...',
+              hintText: tr(context, 'Describe the problem...'),
               hintStyle: TextStyle(color: context.nexora.textHint),
             ),
           ),
@@ -550,7 +551,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'Cancel',
+                tr(context, 'Cancel'),
                 style: TextStyle(color: context.nexora.textSecondary),
               ),
             ),
@@ -560,7 +561,7 @@ class _ReportProblemScreenState extends State<ReportProblemScreen> {
                 Navigator.pop(context);
               },
               child: Text(
-                'Done',
+                tr(context, 'Done'),
                 style: TextStyle(color: Color(0xFF8B7CFF)),
               ),
             ),
@@ -577,16 +578,16 @@ class ContactSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Contact Nexora Support',
-      description: 'Choose how you would like to contact our support team.',
+      title: tr(context, 'Contact Nexora Support'),
+      description: tr(context, 'Choose how you would like to contact our support team.'),
       sections: [
         SettingsSection(
-          title: 'Contact Options',
+          title: tr(context, 'Contact Options'),
           items: [
             SettingsItem(
               icon: Icons.email_outlined,
-              title: 'Email Support',
-              subtitle: 'Send us an email',
+              title: tr(context, 'Email Support'),
+              subtitle: tr(context, 'Send us an email'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -597,8 +598,8 @@ class ContactSupportScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.chat_outlined,
-              title: 'Live Chat',
-              subtitle: 'Chat with a support representative',
+              title: tr(context, 'Live Chat'),
+              subtitle: tr(context, 'Chat with a support representative'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -620,16 +621,16 @@ class EmailSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Email Support',
-      description: 'Send your support request to the Nexora support team.',
+      title: tr(context, 'Email Support'),
+      description: tr(context, 'Send your support request to the Nexora support team.'),
       sections: [
         SettingsSection(
-          title: 'Email Support',
+          title: tr(context, 'Email Support'),
           items: [
             SettingsItem(
               icon: Icons.email_outlined,
               title: 'support@nexora.app',
-              subtitle: 'Your support email address',
+              subtitle: tr(context, 'Your support email address'),
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -883,16 +884,16 @@ class SafetyCenterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Safety Center',
-      description: 'Learn about tools and practices that help keep your Nexora experience safe.',
+      title: tr(context, 'Safety Center'),
+      description: tr(context, 'Learn about tools and practices that help keep your Nexora experience safe.'),
       sections: [
         SettingsSection(
-          title: 'Safety',
+          title: tr(context, 'Safety'),
           items: [
             SettingsItem(
               icon: Icons.security_outlined,
-              title: 'Account Security',
-              subtitle: 'Learn how to protect your account',
+              title: tr(context, 'Account Security'),
+              subtitle: tr(context, 'Learn how to protect your account'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -905,8 +906,8 @@ class SafetyCenterScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.report_outlined,
-              title: 'Report & Block',
-              subtitle: 'Learn how to report or block accounts',
+              title: tr(context, 'Report & Block'),
+              subtitle: tr(context, 'Learn how to report or block accounts'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -930,17 +931,17 @@ class AccountSecurityHelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Account Security',
-      description: 'Learn how to keep your Nexora account protected.',
+      title: tr(context, 'Account Security'),
+      description: tr(context, 'Learn how to keep your Nexora account protected.'),
       sections: [
         SettingsSection(
-          title: 'Protect Your Account',
+          title: tr(context, 'Protect Your Account'),
           items: [
             SettingsItem(
               icon: Icons.password_outlined,
-              title: 'Use a Strong Password',
+              title: tr(context, 'Use a Strong Password'),
               subtitle:
-                  'Choose a unique password that you do not reuse elsewhere.',
+                  tr(context, 'Choose a unique password that you do not reuse elsewhere.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -953,8 +954,8 @@ class AccountSecurityHelpScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.security_outlined,
-              title: 'Use Two-Factor Authentication',
-              subtitle: 'Add another layer of protection when signing in.',
+              title: tr(context, 'Use Two-Factor Authentication'),
+              subtitle: tr(context, 'Add another layer of protection when signing in.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -967,9 +968,9 @@ class AccountSecurityHelpScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.devices_outlined,
-              title: 'Review Login Activity',
+              title: tr(context, 'Review Login Activity'),
               subtitle:
-                  'Check devices and sessions associated with your account.',
+                  tr(context, 'Check devices and sessions associated with your account.'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1014,7 +1015,7 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
         confirmController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please complete all password fields.'),
+          content: Text(tr(context, 'Please complete all password fields.')),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -1024,7 +1025,7 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
     if (newController.text != confirmController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('New passwords do not match.'),
+          content: Text(tr(context, 'New passwords do not match.')),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -1032,8 +1033,7 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Password update is ready for backend integration.'),
+      SnackBar(          content: Text(tr(context, 'Password update is ready for backend integration.')),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1069,14 +1069,14 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
         children: [
           _passwordField(
             controller: currentController,
-            label: 'Current Password',
+            label: tr(context, 'Current Password'),
           ),
           SizedBox(height: 12),
-          _passwordField(controller: newController, label: 'New Password'),
+          _passwordField(controller: newController, label: tr(context, 'New Password')),
           SizedBox(height: 12),
           _passwordField(
             controller: confirmController,
-            label: 'Confirm New Password',
+            label: tr(context, 'Confirm New Password'),
           ),
           SizedBox(height: 20),
           Container(
@@ -1090,7 +1090,7 @@ class _ChangePasswordHelpScreenState extends State<ChangePasswordHelpScreen> {
             child: TextButton(
               onPressed: _updatePassword,
               child: Text(
-                'Update Password',
+                tr(context, 'Update Password'),
                 style: TextStyle(
                   color: context.nexora.textPrimary,
                   fontSize: 15,
@@ -1145,17 +1145,17 @@ class _TwoFactorHelpScreenState extends State<TwoFactorHelpScreen> {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Two-Factor Authentication',
+      title: tr(context, 'Two-Factor Authentication'),
       description:
-          'Add an extra layer of protection when signing in to Nexora.',
+          tr(context, 'Add an extra layer of protection when signing in to Nexora.'),
       sections: [
         SettingsSection(
-          title: 'Security',
+          title: tr(context, 'Security'),
           items: [
             SettingsItem(
               icon: Icons.security_outlined,
-              title: 'Two-Factor Authentication',
-              subtitle: enabled ? 'Enabled' : 'Disabled',
+              title: tr(context, 'Two-Factor Authentication'),
+              subtitle: enabled ? tr(context, 'Enabled') : tr(context, 'Disabled'),
               type: SettingsItemType.toggle,
               value: enabled,
               onChanged: (value) {
@@ -1166,8 +1166,8 @@ class _TwoFactorHelpScreenState extends State<TwoFactorHelpScreen> {
             ),
             SettingsItem(
               icon: Icons.phonelink_lock_outlined,
-              title: 'Authentication Method',
-              subtitle: 'Choose how you verify your identity',
+              title: tr(context, 'Authentication Method'),
+              subtitle: tr(context, 'Choose how you verify your identity'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1180,8 +1180,8 @@ class _TwoFactorHelpScreenState extends State<TwoFactorHelpScreen> {
             ),
             SettingsItem(
               icon: Icons.key_outlined,
-              title: 'Recovery Codes',
-              subtitle: 'Use recovery codes if you lose access',
+              title: tr(context, 'Recovery Codes'),
+              subtitle: tr(context, 'Use recovery codes if you lose access'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1205,16 +1205,16 @@ class AuthenticationMethodScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Authentication Method',
-      description: 'Choose how you want to verify your identity.',
+      title: tr(context, 'Authentication Method'),
+      description: tr(context, 'Choose how you want to verify your identity.'),
       sections: [
         SettingsSection(
-          title: 'Available Methods',
+          title: tr(context, 'Available Methods'),
           items: [
             SettingsItem(
               icon: Icons.sms_outlined,
-              title: 'Text Message',
-              subtitle: 'Receive verification codes by SMS',
+              title: tr(context, 'Text Message'),
+              subtitle: tr(context, 'Receive verification codes by SMS'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1227,8 +1227,8 @@ class AuthenticationMethodScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.apps_outlined,
-              title: 'Authenticator App',
-              subtitle: 'Use a compatible authentication app',
+              title: tr(context, 'Authenticator App'),
+              subtitle: tr(context, 'Use a compatible authentication app'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1252,17 +1252,17 @@ class TextMessageAuthScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Text Message',
+      title: tr(context, 'Text Message'),
       description:
-          'Use your phone number to receive verification codes by SMS.',
+          tr(context, 'Use your phone number to receive verification codes by SMS.'),
       sections: [
         SettingsSection(
-          title: 'SMS Verification',
+          title: tr(context, 'SMS Verification'),
           items: [
             SettingsItem(
               icon: Icons.phone_outlined,
-              title: 'Phone Number',
-              subtitle: 'Manage the phone number used for verification',
+              title: tr(context, 'Phone Number'),
+              subtitle: tr(context, 'Manage the phone number used for verification'),
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1277,8 +1277,8 @@ class TextMessageAuthScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.verified_outlined,
-              title: 'Verify Phone Number',
-              subtitle: 'Send a verification code to your phone',
+              title: tr(context, 'Verify Phone Number'),
+              subtitle: tr(context, 'Send a verification code to your phone'),
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1304,17 +1304,17 @@ class AuthenticatorAppScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Authenticator App',
+      title: tr(context, 'Authenticator App'),
       description:
-          'Use a compatible authentication app to generate verification codes.',
+          tr(context, 'Use a compatible authentication app to generate verification codes.'),
       sections: [
         SettingsSection(
-          title: 'Authenticator Setup',
+          title: tr(context, 'Authenticator Setup'),
           items: [
             SettingsItem(
               icon: Icons.qr_code_2_outlined,
-              title: 'Set Up Authenticator',
-              subtitle: 'Connect an authenticator app to your account',
+              title: tr(context, 'Set Up Authenticator'),
+              subtitle: tr(context, 'Connect an authenticator app to your account'),
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1329,8 +1329,8 @@ class AuthenticatorAppScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.verified_user_outlined,
-              title: 'Verify Setup',
-              subtitle: 'Enter a code from your authenticator app',
+              title: tr(context, 'Verify Setup'),
+              subtitle: tr(context, 'Enter a code from your authenticator app'),
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1356,17 +1356,17 @@ class LoginActivityHelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Login Activity',
+      title: tr(context, 'Login Activity'),
       description:
-          'Review devices and sessions associated with your Nexora account.',
+          tr(context, 'Review devices and sessions associated with your Nexora account.'),
       sections: [
         SettingsSection(
-          title: 'Devices',
+          title: tr(context, 'Devices'),
           items: [
             SettingsItem(
               icon: Icons.phone_android_outlined,
-              title: 'Current Device',
-              subtitle: 'This device · Active now',
+              title: tr(context, 'Current Device'),
+              subtitle: '${tr(context, 'This device')} · ${tr(context, 'Active now')}',
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1379,8 +1379,8 @@ class LoginActivityHelpScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.computer_outlined,
-              title: 'Windows PC',
-              subtitle: 'Last active recently',
+              title: tr(context, 'Windows PC'),
+              subtitle: tr(context, 'Last active recently'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1393,8 +1393,8 @@ class LoginActivityHelpScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.logout_outlined,
-              title: 'Log Out Other Devices',
-              subtitle: 'Sign out of other active sessions',
+              title: tr(context, 'Log Out Other Devices'),
+              subtitle: tr(context, 'Sign out of other active sessions'),
               type: SettingsItemType.action,
               onTap: () {
                 showDialog(
@@ -1403,11 +1403,11 @@ class LoginActivityHelpScreen extends StatelessWidget {
                     return AlertDialog(
                       backgroundColor: context.nexora.card,
                       title: Text(
-                        'Log Out Other Devices?',
+                        tr(context, 'Log Out Other Devices?'),
                         style: TextStyle(color: context.nexora.textPrimary),
                       ),
                       content: Text(
-                        'This will sign out all other active sessions on your Nexora account.',
+                        tr(context, 'This will sign out all other active sessions on your Nexora account.'),
                         style: TextStyle(color: context.nexora.textSecondary),
                       ),
                       actions: [
@@ -1558,16 +1558,16 @@ class RecoveryCodesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Recovery Codes',
-      description: 'Recovery codes can help you regain access if you cannot use your normal authentication method.',
+      title: tr(context, 'Recovery Codes'),
+      description: tr(context, 'Recovery codes can help you regain access if you cannot use your normal authentication method.'),
       sections: [
         SettingsSection(
-          title: 'Recovery',
+          title: tr(context, 'Recovery'),
           items: [
             SettingsItem(
               icon: Icons.vpn_key_outlined,
-              title: 'Generate Recovery Codes',
-              subtitle: 'Create a new set of recovery codes',
+              title: tr(context, 'Generate Recovery Codes'),
+              subtitle: tr(context, 'Create a new set of recovery codes'),
               type: SettingsItemType.action,
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1593,17 +1593,17 @@ class ReportBlockHelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Report & Block',
+      title: tr(context, 'Report & Block'),
       description:
-          'Learn how to report content and manage unwanted interactions.',
+          tr(context, 'Learn how to report content and manage unwanted interactions.'),
       sections: [
         SettingsSection(
-          title: 'Safety Tools',
+          title: tr(context, 'Safety Tools'),
           items: [
             SettingsItem(
               icon: Icons.flag_outlined,
-              title: 'Report Content',
-              subtitle: 'Learn what you can report and how reporting works',
+              title: tr(context, 'Report Content'),
+              subtitle: tr(context, 'Learn what you can report and how reporting works'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1616,9 +1616,9 @@ class ReportBlockHelpScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.block_outlined,
-              title: 'Block Accounts',
+              title: tr(context, 'Block Accounts'),
               subtitle:
-                  'Learn how blocking works and how to manage blocked accounts',
+                  tr(context, 'Learn how blocking works and how to manage blocked accounts'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1702,29 +1702,29 @@ class WhatCanBeReportedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'What Can Be Reported?',
-      description: 'Nexora provides reporting tools for content or behavior that may violate its guidelines.',
-      sectionTitle: 'Reportable Content',
-      items: const [
+      title: tr(context, 'What Can Be Reported?'),
+      description: tr(context, 'Nexora provides reporting tools for content or behavior that may violate its guidelines.'),
+      sectionTitle: tr(context, 'Reportable Content'),
+      items: [
         _GuidanceItem(
           icon: Icons.image_outlined,
-          title: 'Posts',
-          subtitle: 'Report posts that violate Nexora guidelines.',
+          title: tr(context, 'Posts'),
+          subtitle: tr(context, 'Report posts that violate Nexora guidelines.'),
         ),
         _GuidanceItem(
           icon: Icons.comment_outlined,
-          title: 'Comments',
-          subtitle: 'Report inappropriate or abusive comments.',
+          title: tr(context, 'Comments'),
+          subtitle: tr(context, 'Report inappropriate or abusive comments.'),
         ),
         _GuidanceItem(
           icon: Icons.chat_bubble_outline,
-          title: 'Messages',
-          subtitle: 'Report problematic messages or conversations.',
+          title: tr(context, 'Messages'),
+          subtitle: tr(context, 'Report problematic messages or conversations.'),
         ),
         _GuidanceItem(
           icon: Icons.person_outline,
-          title: 'Accounts',
-          subtitle: 'Report accounts involved in guideline violations.',
+          title: tr(context, 'Accounts'),
+          subtitle: tr(context, 'Report accounts involved in guideline violations.'),
         ),
       ],
     );
@@ -1737,25 +1737,25 @@ class HowToReportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'How to Report',
-      description: 'Use the report option available on the content or account you want to report.',
-      sectionTitle: 'Steps',
-      items: const [
+      title: tr(context, 'How to Report'),
+      description: tr(context, 'Use the report option available on the content or account you want to report.'),
+      sectionTitle: tr(context, 'Steps'),
+      items: [
         _GuidanceItem(
           icon: Icons.looks_one_outlined,
-          title: 'Open the Report Option',
+          title: tr(context, 'Open the Report Option'),
           subtitle:
-              'Use the report option from the relevant content or profile.',
+              tr(context, 'Use the report option from the relevant content or profile.'),
         ),
         _GuidanceItem(
           icon: Icons.looks_two_outlined,
-          title: 'Choose a Reason',
-          subtitle: 'Select the reason that best describes the violation.',
+          title: tr(context, 'Choose a Reason'),
+          subtitle: tr(context, 'Select the reason that best describes the violation.'),
         ),
         _GuidanceItem(
           icon: Icons.looks_3_outlined,
-          title: 'Submit the Report',
-          subtitle: 'Review your selection and submit the report.',
+          title: tr(context, 'Submit the Report'),
+          subtitle: tr(context, 'Review your selection and submit the report.'),
         ),
       ],
     );
@@ -1768,25 +1768,25 @@ class AfterReportingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'After Reporting',
-      description: 'Reports help Nexora review content and activity that may violate its guidelines.',
-      sectionTitle: 'What Happens',
-      items: const [
+      title: tr(context, 'After Reporting'),
+      description: tr(context, 'Reports help Nexora review content and activity that may violate its guidelines.'),
+      sectionTitle: tr(context, 'What Happens'),
+      items: [
         _GuidanceItem(
           icon: Icons.search_outlined,
-          title: 'Review',
-          subtitle: 'The reported content may be reviewed according to Nexora policies.',
+          title: tr(context, 'Review'),
+          subtitle: tr(context, 'The reported content may be reviewed according to Nexora policies.'),
         ),
         _GuidanceItem(
           icon: Icons.gavel_outlined,
-          title: 'Possible Action',
+          title: tr(context, 'Possible Action'),
           subtitle:
-              'Appropriate action may be taken when a violation is confirmed.',
+              tr(context, 'Appropriate action may be taken when a violation is confirmed.'),
         ),
         _GuidanceItem(
           icon: Icons.notifications_outlined,
-          title: 'Updates',
-          subtitle: 'You may receive relevant updates about your report when applicable.',
+          title: tr(context, 'Updates'),
+          subtitle: tr(context, 'You may receive relevant updates about your report when applicable.'),
         ),
       ],
     );
@@ -1799,16 +1799,16 @@ class BlockAccountsHelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Block Accounts',
-      description: 'Learn how blocking works and how to manage accounts you have blocked.',
+      title: tr(context, 'Block Accounts'),
+      description: tr(context, 'Learn how blocking works and how to manage accounts you have blocked.'),
       sections: [
         SettingsSection(
-          title: 'Blocking',
+          title: tr(context, 'Blocking'),
           items: [
             SettingsItem(
               icon: Icons.block_outlined,
-              title: 'How Blocking Works',
-              subtitle: 'Learn what happens when you block an account',
+              title: tr(context, 'How Blocking Works'),
+              subtitle: tr(context, 'Learn what happens when you block an account'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1821,8 +1821,8 @@ class BlockAccountsHelpScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.manage_accounts_outlined,
-              title: 'Manage Blocked Accounts',
-              subtitle: 'View and manage accounts you have blocked',
+              title: tr(context, 'Manage Blocked Accounts'),
+              subtitle: tr(context, 'View and manage accounts you have blocked'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1846,21 +1846,21 @@ class HowBlockingWorksScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'How Blocking Works',
+      title: tr(context, 'How Blocking Works'),
       description:
-          'Blocking is a tool for controlling unwanted interactions on Nexora.',
-      sectionTitle: 'When You Block Someone',
-      items: const [
+          tr(context, 'Blocking is a tool for controlling unwanted interactions on Nexora.'),
+      sectionTitle: tr(context, 'When You Block Someone'),
+      items: [
         _GuidanceItem(
           icon: Icons.visibility_off_outlined,
-          title: 'Reduced Interaction',
-          subtitle: 'The blocked account will no longer be able to interact with you normally.',
+          title: tr(context, 'Reduced Interaction'),
+          subtitle: tr(context, 'The blocked account will no longer be able to interact with you normally.'),
         ),
         _GuidanceItem(
           icon: Icons.notifications_off_outlined,
-          title: 'Interaction Restrictions',
+          title: tr(context, 'Interaction Restrictions'),
           subtitle:
-              'Blocking helps prevent unwanted interactions and notifications.',
+              tr(context, 'Blocking helps prevent unwanted interactions and notifications.'),
         ),
       ],
     );
@@ -1898,16 +1898,16 @@ class CommunityGuidelinesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Community Guidelines',
-      description: 'Learn about the rules and expectations that help keep Nexora welcoming for everyone.',
+      title: tr(context, 'Community Guidelines'),
+      description: tr(context, 'Learn about the rules and expectations that help keep Nexora welcoming for everyone.'),
       sections: [
         SettingsSection(
-          title: 'Guidelines',
+          title: tr(context, 'Guidelines'),
           items: [
             SettingsItem(
               icon: Icons.people_outline,
-              title: 'Respect Others',
-              subtitle: 'Learn how to interact respectfully on Nexora',
+              title: tr(context, 'Respect Others'),
+              subtitle: tr(context, 'Learn how to interact respectfully on Nexora'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1920,8 +1920,8 @@ class CommunityGuidelinesScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.report_outlined,
-              title: 'Report Violations',
-              subtitle: 'Learn what should be reported and how reporting works',
+              title: tr(context, 'Report Violations'),
+              subtitle: tr(context, 'Learn what should be reported and how reporting works'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1945,16 +1945,16 @@ class RespectOthersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Respect Others',
-      description: 'Learn about respectful interaction and behavior on Nexora.',
+      title: tr(context, 'Respect Others'),
+      description: tr(context, 'Learn about respectful interaction and behavior on Nexora.'),
       sections: [
         SettingsSection(
-          title: 'Our Expectations',
+          title: tr(context, 'Our Expectations'),
           items: [
             SettingsItem(
               icon: Icons.favorite_border,
-              title: 'Be Respectful',
-              subtitle: 'Learn about respectful communication',
+              title: tr(context, 'Be Respectful'),
+              subtitle: tr(context, 'Learn about respectful communication'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1965,8 +1965,8 @@ class RespectOthersScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.forum_outlined,
-              title: 'Keep Conversations Constructive',
-              subtitle: 'Learn how to disagree without attacking others',
+              title: tr(context, 'Keep Conversations Constructive'),
+              subtitle: tr(context, 'Learn how to disagree without attacking others'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -1990,19 +1990,19 @@ class BeRespectfulScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'Be Respectful',
-      description: 'Respectful interaction helps make Nexora a better community for everyone.',
-      sectionTitle: 'Respectful Behavior',
-      items: const [
+      title: tr(context, 'Be Respectful'),
+      description: tr(context, 'Respectful interaction helps make Nexora a better community for everyone.'),
+      sectionTitle: tr(context, 'Respectful Behavior'),
+      items: [
         _GuidanceItem(
           icon: Icons.handshake_outlined,
-          title: 'Treat People With Respect',
-          subtitle: 'Avoid targeted harassment, threats, and abusive behavior.',
+          title: tr(context, 'Treat People With Respect'),
+          subtitle: tr(context, 'Avoid targeted harassment, threats, and abusive behavior.'),
         ),
         _GuidanceItem(
           icon: Icons.chat_outlined,
-          title: 'Communicate Responsibly',
-          subtitle: 'Think about how your words may affect other people.',
+          title: tr(context, 'Communicate Responsibly'),
+          subtitle: tr(context, 'Think about how your words may affect other people.'),
         ),
       ],
     );
@@ -2015,19 +2015,19 @@ class ConstructiveConversationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'Constructive Conversations',
-      description: 'Disagreement is part of social interaction, but conversations should remain respectful.',
-      sectionTitle: 'Good Conversations',
-      items: const [
+      title: tr(context, 'Constructive Conversations'),
+      description: tr(context, 'Disagreement is part of social interaction, but conversations should remain respectful.'),
+      sectionTitle: tr(context, 'Good Conversations'),
+      items: [
         _GuidanceItem(
           icon: Icons.forum_outlined,
-          title: 'Disagree Respectfully',
-          subtitle: 'Focus on ideas rather than attacking the person.',
+          title: tr(context, 'Disagree Respectfully'),
+          subtitle: tr(context, 'Focus on ideas rather than attacking the person.'),
         ),
         _GuidanceItem(
           icon: Icons.block_outlined,
-          title: 'Avoid Personal Attacks',
-          subtitle: 'Do not use insults or targeted abuse to make a point.',
+          title: tr(context, 'Avoid Personal Attacks'),
+          subtitle: tr(context, 'Do not use insults or targeted abuse to make a point.'),
         ),
       ],
     );
@@ -2040,18 +2040,18 @@ class ReportViolationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Report Violations',
+      title: tr(context, 'Report Violations'),
       description:
-          'Learn what should be reported and how Nexora handles reports.',
+          tr(context, 'Learn what should be reported and how Nexora handles reports.'),
       sections: [
         SettingsSection(
-          title: 'Reporting',
+          title: tr(context, 'Reporting'),
           items: [
             SettingsItem(
               icon: Icons.help_outline,
-              title: 'What Should I Report?',
+              title: tr(context, 'What Should I Report?'),
               subtitle:
-                  'Learn which behavior and content may violate the guidelines',
+                  tr(context, 'Learn which behavior and content may violate the guidelines'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -2064,9 +2064,9 @@ class ReportViolationsScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.report_outlined,
-              title: 'How to Report',
+              title: tr(context, 'How to Report'),
               subtitle:
-                  'Learn how to report posts, comments, messages, and accounts',
+                  tr(context, 'Learn how to report posts, comments, messages, and accounts'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -2079,8 +2079,8 @@ class ReportViolationsScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.fact_check_outlined,
-              title: 'What Happens After You Report?',
-              subtitle: 'Learn about review and possible actions',
+              title: tr(context, 'What Happens After You Report?'),
+              subtitle: tr(context, 'Learn about review and possible actions'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -2104,31 +2104,31 @@ class WhatShouldBeReportedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'What Should I Report?',
-      description: 'Reports should be used for content or behavior that may violate Nexora Community Guidelines.',
-      sectionTitle: 'Examples',
-      items: const [
+      title: tr(context, 'What Should I Report?'),
+      description: tr(context, 'Reports should be used for content or behavior that may violate Nexora Community Guidelines.'),
+      sectionTitle: tr(context, 'Examples'),
+      items: [
         _GuidanceItem(
           icon: Icons.warning_amber_outlined,
-          title: 'Harassment & Bullying',
-          subtitle: 'Report targeted harassment, threats, or bullying.',
+          title: tr(context, 'Harassment & Bullying'),
+          subtitle: tr(context, 'Report targeted harassment, threats, or bullying.'),
         ),
         _GuidanceItem(
           icon: Icons.report_problem_outlined,
-          title: 'Hate or Abusive Content',
-          subtitle: 'Report content that targets people with abusive or hateful behavior.',
+          title: tr(context, 'Hate or Abusive Content'),
+          subtitle: tr(context, 'Report content that targets people with abusive or hateful behavior.'),
         ),
         _GuidanceItem(
           icon: Icons.campaign_outlined,
-          title: 'Spam & Scams',
+          title: tr(context, 'Spam & Scams'),
           subtitle:
-              'Report deceptive, fraudulent, or repetitive spam activity.',
+              tr(context, 'Report deceptive, fraudulent, or repetitive spam activity.'),
         ),
         _GuidanceItem(
           icon: Icons.more_horiz_outlined,
-          title: 'Other Violations',
+          title: tr(context, 'Other Violations'),
           subtitle:
-              'Report other content that appears to violate Nexora guidelines.',
+              tr(context, 'Report other content that appears to violate Nexora guidelines.'),
         ),
       ],
     );
@@ -2141,24 +2141,24 @@ class ViolationReportingStepsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'How to Report',
-      description: 'You can report content or accounts directly from the relevant area of Nexora.',
-      sectionTitle: 'Reporting Steps',
-      items: const [
+      title: tr(context, 'How to Report'),
+      description: tr(context, 'You can report content or accounts directly from the relevant area of Nexora.'),
+      sectionTitle: tr(context, 'Reporting Steps'),
+      items: [
         _GuidanceItem(
           icon: Icons.looks_one_outlined,
-          title: 'Open the Report Option',
-          subtitle: 'Find the report option on the relevant post, comment, message, or profile.',
+          title: tr(context, 'Open the Report Option'),
+          subtitle: tr(context, 'Find the report option on the relevant post, comment, message, or profile.'),
         ),
         _GuidanceItem(
           icon: Icons.looks_two_outlined,
-          title: 'Select a Reason',
-          subtitle: 'Choose the reason that best describes the violation.',
+          title: tr(context, 'Select a Reason'),
+          subtitle: tr(context, 'Choose the reason that best describes the violation.'),
         ),
         _GuidanceItem(
           icon: Icons.looks_3_outlined,
-          title: 'Submit',
-          subtitle: 'Confirm your selection and submit the report.',
+          title: tr(context, 'Submit'),
+          subtitle: tr(context, 'Confirm your selection and submit the report.'),
         ),
       ],
     );
@@ -2171,24 +2171,24 @@ class ViolationReportAftermathScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GuidanceScreen(
-      title: 'After You Report',
-      description: 'Nexora can review reports to determine whether content or behavior violates its guidelines.',
-      sectionTitle: 'Review Process',
-      items: const [
+      title: tr(context, 'After You Report'),
+      description: tr(context, 'Nexora can review reports to determine whether content or behavior violates its guidelines.'),
+      sectionTitle: tr(context, 'Review Process'),
+      items: [
         _GuidanceItem(
           icon: Icons.search_outlined,
-          title: 'Review',
-          subtitle: 'The reported content or account may be reviewed.',
+          title: tr(context, 'Review'),
+          subtitle: tr(context, 'The reported content or account may be reviewed.'),
         ),
         _GuidanceItem(
           icon: Icons.gavel_outlined,
-          title: 'Possible Actions',
-          subtitle: 'Action may be taken when a violation is confirmed.',
+          title: tr(context, 'Possible Actions'),
+          subtitle: tr(context, 'Action may be taken when a violation is confirmed.'),
         ),
         _GuidanceItem(
           icon: Icons.notifications_outlined,
-          title: 'Updates',
-          subtitle: 'Relevant updates may be provided when applicable.',
+          title: tr(context, 'Updates'),
+          subtitle: tr(context, 'Relevant updates may be provided when applicable.'),
         ),
       ],
     );
@@ -2249,16 +2249,16 @@ class AboutNexoraSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'About Nexora',
-      description: 'Learn more about Nexora and the people behind it.',
+      title: tr(context, 'About Nexora'),
+      description: tr(context, 'Learn more about Nexora and the people behind it.'),
       sections: [
         SettingsSection(
           title: 'Nexora',
           items: [
             SettingsItem(
               icon: Icons.info_outline,
-              title: 'App Information',
-              subtitle: 'Version and build information',
+              title: tr(context, 'App Information'),
+              subtitle: tr(context, 'Version and build information'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -2271,8 +2271,8 @@ class AboutNexoraSupportScreen extends StatelessWidget {
             ),
             SettingsItem(
               icon: Icons.groups_outlined,
-              title: 'Nexora Team',
-              subtitle: 'Learn about the team behind Nexora',
+              title: tr(context, 'Nexora Team'),
+              subtitle: tr(context, 'Learn about the team behind Nexora'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
@@ -2294,8 +2294,8 @@ class AppInformationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'App Information',
-      description: 'Information about this Nexora application build.',
+      title: tr(context, 'App Information'),
+      description: tr(context, 'Information about this Nexora application build.'),
       sections: const [
         SettingsSection(
           title: 'Nexora',
@@ -2325,8 +2325,8 @@ class NexoraTeamScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SettingsDetailScreen(
-      title: 'Nexora Team',
-      description: 'Learn more about the people building Nexora.',
+      title: tr(context, 'Nexora Team'),
+      description: tr(context, 'Learn more about the people building Nexora.'),
       sections: const [
         SettingsSection(
           title: 'The Team',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../config/api_config.dart';
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 /// Opens the Server address dialog, where the user can view or change the
 /// host the app uses for all API + socket connections.
@@ -18,7 +19,7 @@ Future<void> showServerAddressDialog(BuildContext context) async {
     builder: (ctx) => AlertDialog(
       backgroundColor: ctx.nexora.card,
       title: Text(
-        'Server Address',
+        tr(ctx, 'Server Address'),
         style: TextStyle(color: ctx.nexora.textPrimary, fontSize: 18),
       ),
       content: Column(
@@ -53,7 +54,7 @@ Future<void> showServerAddressDialog(BuildContext context) async {
               keyboardType: TextInputType.url,
               style: TextStyle(color: ctx.nexora.textPrimary, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'e.g. 127.0.0.1',
+                hintText: tr(ctx, 'e.g. 127.0.0.1'),
                 hintStyle:
                     TextStyle(color: ctx.nexora.textHint, fontSize: 13),
                 prefixIcon: Icon(Icons.dns_outlined,
@@ -76,15 +77,15 @@ Future<void> showServerAddressDialog(BuildContext context) async {
         TextButton(
           onPressed: () => Navigator.pop(ctx),
           child: Text(
-            'Cancel',
+            tr(ctx, 'Cancel'),
             style: TextStyle(color: ctx.nexora.textSecondary),
           ),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, controller.text),
-          child: const Text(
-            'Save',
-            style: TextStyle(color: Color(0xFF8B7CFF)),
+          child: Text(
+            tr(ctx, 'Save'),
+            style: const TextStyle(color: Color(0xFF8B7CFF)),
           ),
         ),
       ],
@@ -101,8 +102,8 @@ Future<void> showServerAddressDialog(BuildContext context) async {
     SnackBar(
       content: Text(
         clean.isEmpty
-            ? 'Using the automatic server address'
-            : 'Server address set to $clean',
+            ? tr(context, 'Using the automatic server address')
+            : trP(context, 'Server address set to {0}', [clean]),
       ),
       behavior: SnackBarBehavior.floating,
       duration: const Duration(seconds: 2),

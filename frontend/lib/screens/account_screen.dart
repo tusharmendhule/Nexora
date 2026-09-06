@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -53,7 +54,7 @@ class _AccountScreenState extends State<AccountScreen> {
   }
   String get _email {
     final email = _user?.email;
-    if (email == null || email.isEmpty) return 'No email';
+    if (email == null || email.isEmpty) return tr(context, 'No email');
     return email;
   }
   String get _phone {
@@ -68,9 +69,11 @@ class _AccountScreenState extends State<AccountScreen> {
       _savedAccounts.isEmpty ? 1 : _savedAccounts.length;
 
   String get _historyCountText {
-    if (!_historyLoaded) return 'Loading…';
+    if (!_historyLoaded) return tr(context, 'Loading…');
     final n = _history.length;
-    return '$n recorded change${n == 1 ? '' : 's'}';
+    return n == 1
+        ? tr(context, '1 recorded change')
+        : trP(context, '{0} recorded changes', ['$n']);
   }
 
   @override
@@ -150,7 +153,7 @@ class _AccountScreenState extends State<AccountScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Account',
+          tr(context, 'Account'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -165,39 +168,41 @@ class _AccountScreenState extends State<AccountScreen> {
 
           SizedBox(height: 28),
 
-          _sectionTitle('Account Information'),
+          _sectionTitle(tr(context, 'Account Information')),
 
           _tile(
             icon: Icons.person_outline,
-            title: 'Personal Information',
-            subtitle: 'Manage your name, username and profile details',
+            title: tr(context, 'Personal Information'),
+            subtitle:
+                tr(context, 'Manage your name, username and profile details'),
             onTap: () {
               _open(
                 context,
-                title: 'Personal Information',
-                description: 'Manage the personal information associated with your account.',
+                title: tr(context, 'Personal Information'),
+                description: tr(context,
+                    'Manage the personal information associated with your account.'),
                 sections: [
                   SettingsSection(
-                    title: 'Personal Information',
+                    title: tr(context, 'Personal Information'),
                     items: [
                       SettingsItem(
                         icon: Icons.badge_outlined,
-                        title: 'Name',
+                        title: tr(context, 'Name'),
                         subtitle: _name,
                         type: SettingsItemType.navigation,
                         onTap: () => _editName(context),
                       ),
                       SettingsItem(
                         icon: Icons.alternate_email,
-                        title: 'Username',
+                        title: tr(context, 'Username'),
                         subtitle: _username,
                         type: SettingsItemType.navigation,
                         onTap: () => _editUsername(context),
                       ),
                       SettingsItem(
                         icon: Icons.person_outline,
-                        title: 'Profile Details',
-                        subtitle: 'Manage your profile information',
+                        title: tr(context, 'Profile Details'),
+                        subtitle: tr(context, 'Manage your profile information'),
                         type: SettingsItemType.navigation,
                         onTap: () => _profileDetails(context),
                       ),
@@ -210,66 +215,66 @@ class _AccountScreenState extends State<AccountScreen> {
 
           _tile(
             icon: Icons.email_outlined,
-            title: 'Email Address',
+            title: tr(context, 'Email Address'),
             subtitle: _email,
             onTap: () => _emailScreen(context),
           ),
 
           _tile(
             icon: Icons.phone_outlined,
-            title: 'Phone Number',
-            subtitle: _hasPhone ? _phone : 'Not added',
+            title: tr(context, 'Phone Number'),
+            subtitle: _hasPhone ? _phone : tr(context, 'Not added'),
             onTap: () => _phoneScreen(context),
           ),
 
           SizedBox(height: 24),
 
-          _sectionTitle('Account Management'),
+          _sectionTitle(tr(context, 'Account Management')),
 
           _tile(
             icon: Icons.person_add_alt_1_outlined,
-            title: 'Switch Account',
-            subtitle:
-                '$_accountCount account'
-                '${_accountCount == 1 ? '' : 's'}',
+            title: tr(context, 'Switch Account'),
+            subtitle: _accountCount == 1
+                ? tr(context, '1 account')
+                : trP(context, '{0} accounts', ['$_accountCount']),
             onTap: () => _switchAccount(context),
           ),
 
           _tile(
             icon: Icons.download_outlined,
-            title: 'Download Your Information',
-            subtitle: 'Get a copy of your account information',
+            title: tr(context, 'Download Your Information'),
+            subtitle: tr(context, 'Get a copy of your account information'),
             onTap: () => _downloadInformation(context),
           ),
 
           _tile(
             icon: Icons.history_outlined,
-            title: 'Account History',
+            title: tr(context, 'Account History'),
             subtitle: _historyCountText,
             onTap: () => _accountHistory(context),
           ),
 
           SizedBox(height: 24),
 
-          _sectionTitle('Account Status'),
+          _sectionTitle(tr(context, 'Account Status')),
 
           _statusCard(),
 
           SizedBox(height: 24),
 
-          _sectionTitle('Danger Zone'),
+          _sectionTitle(tr(context, 'Danger Zone')),
 
           _dangerTile(
             icon: Icons.pause_circle_outline,
-            title: 'Deactivate Account',
-            subtitle: 'Temporarily hide your Nexora account',
+            title: tr(context, 'Deactivate Account'),
+            subtitle: tr(context, 'Temporarily hide your Nexora account'),
             onTap: _deactivating ? null : () => _showDeactivateDialog(context),
           ),
 
           _dangerTile(
             icon: Icons.delete_outline,
-            title: 'Delete Account',
-            subtitle: 'Permanently delete your Nexora account',
+            title: tr(context, 'Delete Account'),
+            subtitle: tr(context, 'Permanently delete your Nexora account'),
             onTap: _deleting ? null : () => _showDeleteDialog(context),
           ),
 
@@ -279,8 +284,8 @@ class _AccountScreenState extends State<AccountScreen> {
 
           _dangerTile(
             icon: Icons.logout,
-            title: 'Log Out',
-            subtitle: 'Sign out of your Nexora account',
+            title: tr(context, 'Log Out'),
+            subtitle: tr(context, 'Sign out of your Nexora account'),
             onTap: () => _showLogoutDialog(context),
           ),
 
@@ -288,7 +293,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
           Center(
             child: Text(
-              'Manage your Nexora account.',
+              tr(context, 'Manage your Nexora account.'),
               style: TextStyle(
                 color: context.nexora.textPrimary.withOpacity(0.35),
                 fontSize: 12,
@@ -307,17 +312,18 @@ class _AccountScreenState extends State<AccountScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => _InputScreen(
-          title: 'Name',
-          description: 'Update your display name.',
-          label: 'Display Name',
+          title: tr(context, 'Name'),
+          description: tr(context, 'Update your display name.'),
+          label: tr(context, 'Display Name'),
           initialValue: _name,
           onSave: (value, _) async {
             final name = value.trim();
-            if (name.isEmpty) return 'Enter a display name';
+            if (name.isEmpty) return tr(context, 'Enter a display name');
 
             final updated = await _userService.updateMyProfile(name: name);
             if (updated == null) {
-              return 'Could not update your name. Please try again.';
+              return tr(context,
+                  'Could not update your name. Please try again.');
             }
             await _loadData();
             return null;
@@ -332,18 +338,19 @@ class _AccountScreenState extends State<AccountScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => _InputScreen(
-          title: 'Username',
-          description: 'Update your Nexora username.',
-          label: 'Username',
+          title: tr(context, 'Username'),
+          description: tr(context, 'Update your Nexora username.'),
+          label: tr(context, 'Username'),
           initialValue: _user?.username ?? '',
           onSave: (value, _) async {
             var username = value.trim().replaceFirst('@', '');
-            if (username.isEmpty) return 'Enter a username';
+            if (username.isEmpty) return tr(context, 'Enter a username');
 
             final updated =
                 await _userService.updateMyProfile(username: username);
             if (updated == null) {
-              return 'Username is already taken or could not be updated.';
+              return tr(
+                  context, 'Username is already taken or could not be updated.');
             }
             await _loadData();
             return null;
@@ -356,22 +363,23 @@ class _AccountScreenState extends State<AccountScreen> {
   void _profileDetails(BuildContext context) {
     _open(
       context,
-      title: 'Profile Details',
-      description: 'Manage the information displayed on your profile.',
+      title: tr(context, 'Profile Details'),
+      description:
+          tr(context, 'Manage the information displayed on your profile.'),
       sections: [
         SettingsSection(
-          title: 'Profile',
+          title: tr(context, 'Profile'),
           items: [
             SettingsItem(
               icon: Icons.person_outline,
-              title: 'Name',
+              title: tr(context, 'Name'),
               subtitle: _name,
               type: SettingsItemType.action,
               onTap: () => _editName(context),
             ),
             SettingsItem(
               icon: Icons.alternate_email,
-              title: 'Username',
+              title: tr(context, 'Username'),
               subtitle: _username,
               type: SettingsItemType.action,
               onTap: () => _editUsername(context),
@@ -387,30 +395,31 @@ class _AccountScreenState extends State<AccountScreen> {
   void _emailScreen(BuildContext context) {
     _open(
       context,
-      title: 'Email Address',
-      description: 'Manage the email address connected to your Nexora account.',
+      title: tr(context, 'Email Address'),
+      description: tr(context,
+          'Manage the email address connected to your Nexora account.'),
       sections: [
         SettingsSection(
-          title: 'Email',
+          title: tr(context, 'Email'),
           items: [
             SettingsItem(
               icon: Icons.email_outlined,
-              title: 'Current Email',
+              title: tr(context, 'Current Email'),
               subtitle: _email,
               type: SettingsItemType.navigation,
               onTap: () {
                 _open(
                   context,
-                  title: 'Current Email',
-                  description:
-                      'View the email currently connected to your account.',
+                  title: tr(context, 'Current Email'),
+                  description: tr(context,
+                      'View the email currently connected to your account.'),
                   sections: [
                     SettingsSection(
-                      title: 'Current Email',
+                      title: tr(context, 'Current Email'),
                       items: [
                         SettingsItem(
                           icon: Icons.email_outlined,
-                          title: 'Email Address',
+                          title: tr(context, 'Email Address'),
                           subtitle: _email,
                           type: SettingsItemType.action,
                           onTap: () {},
@@ -423,26 +432,28 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             SettingsItem(
               icon: Icons.edit_outlined,
-              title: 'Change Email',
-              subtitle: 'Update your connected email address',
+              title: tr(context, 'Change Email'),
+              subtitle: tr(context, 'Update your connected email address'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => _InputScreen(
-                      title: 'Change Email',
-                      description:
-                          'Update the email address connected to your account. '
-                          'Enter your current password to confirm.',
-                      label: 'New Email Address',
+                      title: tr(context, 'Change Email'),
+                      description: '${tr(context,
+                          'Update the email address connected to your account.')} '
+                          '${tr(context, 'Enter your current password to confirm.')}',
+                      label: tr(context, 'New Email Address'),
                       initialValue: '',
                       keyboardType: TextInputType.emailAddress,
-                      secondaryLabel: 'Current Password',
+                      secondaryLabel: tr(context, 'Current Password'),
                       secondaryObscure: true,
                       onSave: (value, secondaryValue) async {
                         final newEmail = value.trim();
-                        if (newEmail.isEmpty) return 'Enter your new email address';
+                        if (newEmail.isEmpty) {
+                          return tr(context, 'Enter your new email address');
+                        }
 
                         final error = await _userService.updateEmail(
                           newEmail: newEmail,
@@ -468,30 +479,32 @@ class _AccountScreenState extends State<AccountScreen> {
   void _phoneScreen(BuildContext context) {
     _open(
       context,
-      title: 'Phone Number',
-      description: 'Manage the phone number connected to your Nexora account.',
+      title: tr(context, 'Phone Number'),
+      description: tr(context,
+          'Manage the phone number connected to your Nexora account.'),
       sections: [
         SettingsSection(
-          title: 'Phone',
+          title: tr(context, 'Phone'),
           items: [
             SettingsItem(
               icon: Icons.phone_outlined,
-              title: 'Phone Number',
-              subtitle: _hasPhone ? _phone : 'Not added',
+              title: tr(context, 'Phone Number'),
+              subtitle: _hasPhone ? _phone : tr(context, 'Not added'),
               type: SettingsItemType.navigation,
               onTap: () {
                 _open(
                   context,
-                  title: 'Phone Number',
-                  description: 'Manage your connected phone number.',
+                  title: tr(context, 'Phone Number'),
+                  description:
+                      tr(context, 'Manage your connected phone number.'),
                   sections: [
                     SettingsSection(
-                      title: 'Current Number',
+                      title: tr(context, 'Current Number'),
                       items: [
                         SettingsItem(
                           icon: Icons.phone_outlined,
-                          title: 'Phone Number',
-                          subtitle: _hasPhone ? _phone : 'Not added',
+                          title: tr(context, 'Phone Number'),
+                          subtitle: _hasPhone ? _phone : tr(context, 'Not added'),
                           type: SettingsItemType.action,
                           onTap: () {},
                         ),
@@ -503,24 +516,30 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             SettingsItem(
               icon: Icons.add_call,
-              title: _hasPhone ? 'Change Phone Number' : 'Add Phone Number',
+              title: _hasPhone
+                  ? tr(context, 'Change Phone Number')
+                  : tr(context, 'Add Phone Number'),
               subtitle: _hasPhone
-                  ? 'Update your connected phone number'
-                  : 'Connect a phone number to your account',
+                  ? tr(context, 'Update your connected phone number')
+                  : tr(context, 'Connect a phone number to your account'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => _InputScreen(
-                      title: _hasPhone ? 'Change Phone Number' : 'Add Phone Number',
-                      description:
-                          'Connect a phone number to your Nexora account.',
-                      label: 'Phone Number',
+                      title: _hasPhone
+                          ? tr(context, 'Change Phone Number')
+                          : tr(context, 'Add Phone Number'),
+                      description: tr(
+                          context, 'Connect a phone number to your Nexora account.'),
+                      label: tr(context, 'Phone Number'),
                       initialValue: _phone,
                       keyboardType: TextInputType.phone,
                       onSave: (value, _) async {
-                        if (value.trim().isEmpty) return 'Enter a phone number';
+                        if (value.trim().isEmpty) {
+                          return tr(context, 'Enter a phone number');
+                        }
                         final error = await _userService.updatePhone(value);
                         if (error != null) return error;
                         await _loadData();
@@ -550,7 +569,7 @@ class _AccountScreenState extends State<AccountScreen> {
         MaterialPageRoute(builder: (_) => const MainNavigation()),
         (route) => false,
       );
-      _showSnack('Switched to @$username');
+      _showSnack(trP(context, 'Switched to @{0}', [username]));
     } else if (result == 'needs-login') {
       Navigator.of(context).popUntil((route) => route.isFirst);
       Navigator.pushAndRemoveUntil(
@@ -561,7 +580,8 @@ class _AccountScreenState extends State<AccountScreen> {
         (route) => false,
       );
     } else {
-      _showSnack('Could not switch accounts. Please try again.', isError: true);
+      _showSnack(tr(context, 'Could not switch accounts. Please try again.'),
+          isError: true);
     }
   }
 
@@ -570,11 +590,11 @@ class _AccountScreenState extends State<AccountScreen> {
 
     _open(
       context,
-      title: 'Switch Account',
-      description: 'Switch between your Nexora accounts.',
+      title: tr(context, 'Switch Account'),
+      description: tr(context, 'Switch between your Nexora accounts.'),
       sections: [
         SettingsSection(
-          title: 'Your Accounts',
+          title: tr(context, 'Your Accounts'),
           items: [
             for (final account in _savedAccounts)
               SettingsItem(
@@ -583,8 +603,8 @@ class _AccountScreenState extends State<AccountScreen> {
                 subtitle: '@${account['username'] ?? ''}',
                 type: SettingsItemType.selection,
                 valueText: account['username'] == currentUsername
-                    ? 'Current'
-                    : 'Switch',
+                    ? tr(context, 'Current')
+                    : tr(context, 'Switch'),
                 onTap: account['username'] == currentUsername
                     ? () {}
                     : () => _performSwitch(context, account['username']!),
@@ -593,17 +613,17 @@ class _AccountScreenState extends State<AccountScreen> {
             if (_savedAccounts.isEmpty)
               SettingsItem(
                 icon: Icons.person_outline,
-                title: _name.isEmpty ? 'Current Account' : _name,
+                title: _name.isEmpty ? tr(context, 'Current Account') : _name,
                 subtitle: _username,
                 type: SettingsItemType.selection,
-                valueText: 'Current',
+                valueText: tr(context, 'Current'),
                 onTap: () {},
               ),
 
             SettingsItem(
               icon: Icons.add_circle_outline,
-              title: 'Add Account',
-              subtitle: 'Sign in with another Nexora account',
+              title: tr(context, 'Add Account'),
+              subtitle: tr(context, 'Sign in with another Nexora account'),
               type: SettingsItemType.navigation,
               onTap: () {
                 Navigator.pushAndRemoveUntil(
@@ -630,7 +650,8 @@ class _AccountScreenState extends State<AccountScreen> {
       if (!mounted) return;
 
       if (export == null) {
-        _showSnack('Could not generate your information. Please try again.',
+        _showSnack(
+            tr(context, 'Could not generate your information. Please try again.'),
             isError: true);
         return;
       }
@@ -642,7 +663,7 @@ class _AccountScreenState extends State<AccountScreen> {
       final savedPath = await saveJsonDownload(filename, content);
       if (!mounted) return;
 
-      _showSnack('Downloaded: $savedPath');
+      _showSnack(trP(context, 'Downloaded: {0}', [savedPath]));
       await _loadData();
     } finally {
       if (mounted) {
@@ -654,31 +675,32 @@ class _AccountScreenState extends State<AccountScreen> {
   void _downloadInformation(BuildContext context) {
     _open(
       context,
-      title: 'Download Your Information',
-      description:
-          'Get a copy of the information associated with your Nexora account.',
+      title: tr(context, 'Download Your Information'),
+      description: tr(context,
+          'Get a copy of the information associated with your Nexora account.'),
       sections: [
         SettingsSection(
-          title: 'Your Information',
+          title: tr(context, 'Your Information'),
           items: [
             SettingsItem(
               icon: Icons.description_outlined,
-              title: 'Account Information',
-              subtitle: 'View information associated with your account',
+              title: tr(context, 'Account Information'),
+              subtitle:
+                  tr(context, 'View information associated with your account'),
               type: SettingsItemType.navigation,
               onTap: () {
                 _open(
                   context,
-                  title: 'Account Information',
-                  description:
-                      'Information currently associated with your account.',
+                  title: tr(context, 'Account Information'),
+                  description: tr(context,
+                      'Information currently associated with your account.'),
                   sections: [
                     SettingsSection(
-                      title: 'Information',
+                      title: tr(context, 'Information'),
                       items: [
                         SettingsItem(
                           icon: Icons.person_outline,
-                          title: 'Profile',
+                          title: tr(context, 'Profile'),
                           subtitle:
                               '${_name.isEmpty ? _username : _name}'
                               '${_username.isNotEmpty ? ' · $_username' : ''}',
@@ -687,15 +709,15 @@ class _AccountScreenState extends State<AccountScreen> {
                         ),
                         SettingsItem(
                           icon: Icons.email_outlined,
-                          title: 'Email',
+                          title: tr(context, 'Email'),
                           subtitle: _email,
                           type: SettingsItemType.action,
                           onTap: () {},
                         ),
                         SettingsItem(
                           icon: Icons.phone_outlined,
-                          title: 'Phone',
-                          subtitle: _hasPhone ? _phone : 'Not added',
+                          title: tr(context, 'Phone'),
+                          subtitle: _hasPhone ? _phone : tr(context, 'Not added'),
                           type: SettingsItemType.action,
                           onTap: () {},
                         ),
@@ -707,8 +729,10 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             SettingsItem(
               icon: Icons.download_outlined,
-              title: 'Request Information',
-              subtitle: _exporting ? 'Generating your file…' : 'Download a copy of your information',
+              title: tr(context, 'Request Information'),
+              subtitle: _exporting
+                  ? tr(context, 'Generating your file…')
+                  : tr(context, 'Download a copy of your information'),
               type: SettingsItemType.navigation,
               onTap: () => _performExport(context),
             ),
@@ -752,17 +776,19 @@ class _AccountScreenState extends State<AccountScreen> {
 
     _open(
       context,
-      title: 'Account History',
-      description: 'View important changes made to your Nexora account.',
+      title: tr(context, 'Account History'),
+      description:
+          tr(context, 'View important changes made to your Nexora account.'),
       sections: [
         SettingsSection(
-          title: 'Account Changes',
+          title: tr(context, 'Account Changes'),
           items: _history.isEmpty
               ? [
-                  const SettingsItem(
+                  SettingsItem(
                     icon: Icons.history_outlined,
-                    title: 'No Recent Changes',
-                    subtitle: 'Important account changes will appear here.',
+                    title: tr(context, 'No Recent Changes'),
+                    subtitle: tr(
+                        context, 'Important account changes will appear here.'),
                     type: SettingsItemType.action,
                   ),
                 ]
@@ -770,14 +796,17 @@ class _AccountScreenState extends State<AccountScreen> {
                   for (final record in _history)
                     SettingsItem(
                       icon: Icons.history_outlined,
-                      title: _historyLabels[record['eventType']] ??
-                          (record['description']?.toString() ?? 'Account activity'),
+                      title: tr(
+                          context,
+                          _historyLabels[record['eventType']] ??
+                              (record['description']?.toString() ??
+                                  'Account activity')),
                       subtitle: record['createdAt'] != null
                           ? _formatHistoryDate(
                               DateTime.tryParse(record['createdAt'].toString()) ??
                                   DateTime.now(),
                             )
-                          : 'Account activity',
+                          : tr(context, 'Account activity'),
                       type: SettingsItemType.action,
                     ),
                 ],
@@ -794,26 +823,26 @@ class _AccountScreenState extends State<AccountScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: context.nexora.card,
         title: Text(
-          'Deactivate Account?',
+          tr(context, 'Deactivate Account?'),
           style: TextStyle(color: context.nexora.textPrimary),
         ),
         content: Text(
-          'Your account will be temporarily hidden.\n'
-          'You can return to Nexora later.',
+          '${tr(context, 'Your account will be temporarily hidden.')}\n'
+          '${tr(context, 'You can return to Nexora later.')}',
           style: TextStyle(color: context.nexora.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              tr(context, 'Cancel'),
               style: TextStyle(color: context.nexora.textSecondary),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
-              'Deactivate',
+              tr(context, 'Deactivate'),
               style: TextStyle(color: Colors.redAccent),
             ),
           ),
@@ -835,7 +864,7 @@ class _AccountScreenState extends State<AccountScreen> {
     }
 
     await _loadData();
-    _showSnack('Your account has been deactivated');
+    _showSnack(tr(context, 'Your account has been deactivated'));
   }
 
   Future<void> _showReactivateDialog(BuildContext context) async {
@@ -844,25 +873,26 @@ class _AccountScreenState extends State<AccountScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: context.nexora.card,
         title: Text(
-          'Reactivate Account?',
+          tr(context, 'Reactivate Account?'),
           style: TextStyle(color: context.nexora.textPrimary),
         ),
         content: Text(
-          'Welcome back! Your Nexora account and its content will be visible again.',
+          tr(context,
+              'Welcome back! Your Nexora account and its content will be visible again.'),
           style: TextStyle(color: context.nexora.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              tr(context, 'Cancel'),
               style: TextStyle(color: context.nexora.textSecondary),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
-              'Reactivate',
+              tr(context, 'Reactivate'),
               style: TextStyle(color: Colors.greenAccent),
             ),
           ),
@@ -884,7 +914,7 @@ class _AccountScreenState extends State<AccountScreen> {
     }
 
     await _loadData();
-    _showSnack('Your account has been reactivated');
+    _showSnack(tr(context, 'Your account has been reactivated'));
   }
 
   // ─── Delete Account ───────────────────────────────────
@@ -895,26 +925,26 @@ class _AccountScreenState extends State<AccountScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: context.nexora.card,
         title: Text(
-          'Delete Account?',
+          tr(context, 'Delete Account?'),
           style: TextStyle(color: context.nexora.textPrimary),
         ),
         content: Text(
-          'This action is permanent. Your Nexora account '
-          'and its associated information will be deleted.',
+          tr(context,
+              'This action is permanent. Your Nexora account and its associated information will be deleted.'),
           style: TextStyle(color: context.nexora.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              tr(context, 'Cancel'),
               style: TextStyle(color: context.nexora.textSecondary),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
-              'Delete',
+              tr(context, 'Delete'),
               style: TextStyle(color: Colors.redAccent),
             ),
           ),
@@ -953,25 +983,25 @@ class _AccountScreenState extends State<AccountScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: context.nexora.card,
         title: Text(
-          'Log Out?',
+          tr(context, 'Log Out?'),
           style: TextStyle(color: context.nexora.textPrimary),
         ),
         content: Text(
-          'You will be signed out of your Nexora account.',
+          tr(context, 'You will be signed out of your Nexora account.'),
           style: TextStyle(color: context.nexora.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              tr(context, 'Cancel'),
               style: TextStyle(color: context.nexora.textSecondary),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
-              'Log Out',
+              tr(context, 'Log Out'),
               style: TextStyle(color: Colors.redAccent),
             ),
           ),
@@ -1174,15 +1204,16 @@ class _AccountScreenState extends State<AccountScreen> {
             ? Icons.verified_outlined
             : Icons.gpp_bad_outlined;
     final String title = isDeactivated
-        ? 'Account deactivated'
+        ? tr(context, 'Account deactivated')
         : isActive
-            ? 'Account active'
-            : 'Account $_accountStatus';
+            ? tr(context, 'Account active')
+            : trP(context, 'Account {0}', [tr(context, _accountStatus)]);
     final String subtitle = isDeactivated
-        ? 'Your account is temporarily hidden. Tap to reactivate.'
+        ? tr(context, 'Your account is temporarily hidden. Tap to reactivate.')
         : isActive
-            ? 'Your account is in good standing.'
-            : 'Your account is currently $_accountStatus.';
+            ? tr(context, 'Your account is in good standing.')
+            : trP(context, 'Your account is currently {0}.',
+                [tr(context, _accountStatus)]);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1219,7 +1250,9 @@ class _AccountScreenState extends State<AccountScreen> {
               onPressed:
                   _deactivating ? null : () => _showReactivateDialog(context),
               child: Text(
-                _deactivating ? 'Reactivating…' : 'Reactivate',
+                _deactivating
+                    ? tr(context, 'Reactivating…')
+                    : tr(context, 'Reactivate'),
                 style: TextStyle(color: Colors.greenAccent, fontSize: 12),
               ),
             ),
@@ -1457,9 +1490,8 @@ class _InputScreenState extends State<_InputScreen> {
                           color: Colors.white,
                           strokeWidth: 2.5,
                         ),
-                      )
-                    : Text(
-                        'Save',
+                      )                      : Text(
+                        tr(context, 'Save'),
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,

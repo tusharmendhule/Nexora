@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -121,7 +122,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                   SizedBox(height: 26),
 
                   Text(
-                    'People you may know',
+                    tr(context, 'People you may know'),
                     style: TextStyle(
                       color: context.nexora.textPrimary,
                       fontSize: 17,
@@ -132,7 +133,8 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                   SizedBox(height: 5),
 
                   Text(
-                    'Follow people to personalize your Nexora experience.',
+                    tr(context,
+                        'Follow people to personalize your Nexora experience.'),
                     style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                   ),
 
@@ -150,7 +152,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 40),
                         child: Text(
-                          'No people to suggest yet',
+                          tr(context, 'No people to suggest yet'),
                           style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
                         ),
                       ),
@@ -170,7 +172,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                   TextButton(
                     onPressed: _skip,
                     child: Text(
-                      'Skip for now',
+                      tr(context, 'Skip for now'),
                       style: TextStyle(
                         color: context.nexora.textMuted,
                         fontSize: 13,
@@ -201,7 +203,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
           TextButton(
             onPressed: _skip,
             child: Text(
-              'Skip',
+              tr(context, 'Skip'),
               style: TextStyle(
                 color: context.nexora.textMuted,
                 fontSize: 13,
@@ -265,7 +267,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
         SizedBox(height: 20),
 
         Text(
-          'Find your people',
+          tr(context, 'Find your people'),
           textAlign: TextAlign.center,
           style: TextStyle(
             color: context.nexora.textPrimary,
@@ -278,8 +280,8 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
         SizedBox(height: 8),
 
         Text(
-          'Connect with people, creators and friends\n'
-          'who make Nexora more interesting.',
+          '${tr(context, 'Connect with people, creators and friends')}\n'
+          '${tr(context, 'who make Nexora more interesting.')}',
           textAlign: TextAlign.center,
           style: TextStyle(color: context.nexora.textMuted, fontSize: 13, height: 1.45),
         ),
@@ -373,7 +375,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                     onPressed: () => _toggleFollow(user),
                     icon: Icon(Icons.check, size: 15),
                     label: Text(
-                      'Following',
+                      tr(context, 'Following'),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -401,7 +403,7 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
                       ),
                     ),
                     child: Text(
-                      'Follow',
+                      tr(context, 'Follow'),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -446,8 +448,8 @@ class _FindPeopleScreenState extends State<FindPeopleScreen> {
           ),
           child: Text(
             count == 0
-                ? 'Continue'
-                : 'Continue with $count ${count == 1 ? 'follow' : 'follows'}',
+                ? tr(context, 'Continue')
+                : trP(context, 'Continue with {0}', ['$count']),
             style: TextStyle(
               color: context.nexora.textPrimary,
               fontSize: 14,

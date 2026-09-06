@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'config/api_config.dart';
 import 'config/firebase_options.dart';
 import 'config/nexora_themes.dart';
 import 'services/appearance_controller.dart';
 import 'services/auth_service.dart';
+import 'services/language_controller.dart';
+import 'l10n/translations.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/main_nav.dart';
 import 'utils/route_observer.dart';
@@ -27,6 +30,10 @@ void main() async {
   // call, so a phone can reach the backend without a rebuild.
   await ApiConfig.loadServerHostOverride();
 
+  // Load the saved app language before the first frame so the UI never
+  // briefly flashes in the wrong language.
+  await LanguageController.instance.load();
+
   runApp(const NexoraApp());
 }
 
@@ -41,24 +48,27 @@ class _NexoraAppState extends State<NexoraApp> {
   @override
   void initState() {
     super.initState();
-    // Rebuild the whole app when appearance settings change so the new
-    // theme/gradient/animations/text size apply immediately everywhere.
-    AppearanceController.instance.addListener(_onAppearanceChanged);
+    // Rebuild the whole app when appearance or language changes so the new
+    // theme/gradient/animations/text size/locale apply everywhere.
+    AppearanceController.instance.addListener(_onAppSettingsChanged);
+    LanguageController.instance.addListener(_onAppSettingsChanged);
   }
 
   @override
   void dispose() {
-    AppearanceController.instance.removeListener(_onAppearanceChanged);
+    AppearanceController.instance.removeListener(_onAppSettingsChanged);
+    LanguageController.instance.removeListener(_onAppSettingsChanged);
     super.dispose();
   }
 
-  void _onAppearanceChanged() {
+  void _onAppSettingsChanged() {
     if (mounted) setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final appearance = AppearanceController.instance;
+    final language = LanguageController.instance;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -67,7 +77,15 @@ class _NexoraAppState extends State<NexoraApp> {
       theme: NexoraThemes.light,
       darkTheme: NexoraThemes.dark,
       themeMode: appearance.themeMode,
-      // Apply Reduce Animations and Text Size app-wide via MediaQuery.
+      // App language
+      locale: Locale(language.languageCode),
+      supportedLocales: kSupportedLanguages.map((l) => Locale(l.code)),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      // Apply Reduce Animations, Text Size and the active language app-wide.
       builder: (context, child) {
         var data = MediaQuery.of(context);
 
@@ -80,7 +98,13 @@ class _NexoraAppState extends State<NexoraApp> {
           data = data.copyWith(textScaler: TextScaler.linear(scale));
         }
 
-        return MediaQuery(data: data, child: child!);
+        return MediaQuery(
+          data: data,
+          child: LanguageScope(
+            controller: language,
+            child: child!,
+          ),
+        );
       },
       home: const SplashScreen(),
     );

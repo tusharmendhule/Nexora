@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 import 'onboarding_screen_3.dart';
 
 class OnboardingScreen2 extends StatelessWidget {
@@ -44,7 +45,7 @@ class OnboardingScreen2 extends StatelessWidget {
               SizedBox(height: 45),
 
               Text(
-                'Build Your Community',
+                tr(context, 'Build Your Community'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: context.nexora.textPrimary,
@@ -56,8 +57,8 @@ class OnboardingScreen2 extends StatelessWidget {
               SizedBox(height: 14),
 
               Text(
-                'Connect with people, discover new communities, '
-                'and share what matters to you.',
+                tr(context,
+                    'Connect with people, discover new communities, and share what matters to you.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: context.nexora.textSecondary,
@@ -100,7 +101,7 @@ class OnboardingScreen2 extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Next',
+                    tr(context, 'Next'),
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,

@@ -89,7 +89,12 @@ class ClipService {
               caption: map['caption']?.toString() ?? '',
               music: null,
               label: NexoraLabel.pendingVerification,
-              isViewed: map['viewedByMe'] as bool? ?? false,
+              // Real engagement counts + per-user state from the backend
+              // (stories are the backend model behind clips).
+              likeCount: (map['likeCount'] as num?)?.toInt() ?? 0,
+              commentCount: (map['commentCount'] as num?)?.toInt() ?? 0,
+              isLiked: map['likedByMe'] as bool? ?? map['isLiked'] as bool? ?? false,
+              isViewed: map['viewedByMe'] as bool? ?? map['isViewed'] as bool? ?? false,
               createdAt: map['createdAt'] != null
                   ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
                   : DateTime.now(),
@@ -125,6 +130,10 @@ class ClipService {
             caption: map['caption']?.toString() ?? '',
             music: null,
             label: NexoraLabel.pendingVerification,
+            likeCount: (map['likeCount'] as num?)?.toInt() ?? 0,
+            commentCount: (map['commentCount'] as num?)?.toInt() ?? 0,
+            isLiked: map['likedByMe'] as bool? ?? map['isLiked'] as bool? ?? false,
+            isViewed: map['viewedByMe'] as bool? ?? map['isViewed'] as bool? ?? false,
             createdAt: map['createdAt'] != null
                 ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
                 : DateTime.now(),
@@ -165,6 +174,44 @@ class ClipService {
       final url = Uri.parse('${ApiConfig.baseUrl}/stories/$clipId');
       await http
           .delete(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+    } catch (_) {}
+  }
+
+  // ─── POST /api/v1/stories/:id/like ─────────────────────
+
+  /// Toggle a like on a clip (clips are stored as video stories).
+  /// Returns `{ isLiked, likesCount }` on success or `{ error: true }`
+  /// on failure so the UI can roll back.
+  Future<Map<String, dynamic>> toggleLike(String clipId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$clipId/like');
+      final response = await http
+          .post(url, headers: await _headers())
+          .timeout(ApiConfig.timeout);
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['success'] == true) {
+          return {
+            'isLiked': body['isLiked'] as bool? ?? false,
+            'likesCount': (body['likesCount'] as num?)?.toInt() ?? 0,
+          };
+        }
+      }
+    } catch (_) {}
+
+    return {'error': true};
+  }
+
+  // ─── POST /api/v1/stories/:id/view ─────────────────────
+
+  /// Record that the current user watched this clip.
+  Future<void> markAsViewed(String clipId) async {
+    try {
+      final url = Uri.parse('${ApiConfig.baseUrl}/stories/$clipId/view');
+      await http
+          .post(url, headers: await _headers())
           .timeout(ApiConfig.timeout);
     } catch (_) {}
   }

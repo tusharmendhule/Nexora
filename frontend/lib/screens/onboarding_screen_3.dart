@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import 'login_screen.dart';
 
@@ -39,7 +40,7 @@ class OnboardingScreen3 extends StatelessWidget {
               SizedBox(height: 45),
 
               Text(
-                'Connect With Confidence',
+                tr(context, 'Connect With Confidence'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: context.nexora.textPrimary,
@@ -51,8 +52,8 @@ class OnboardingScreen3 extends StatelessWidget {
               SizedBox(height: 14),
 
               Text(
-                'A safer and smarter social experience '
-                'designed with privacy in mind.',
+                tr(context,
+                    'A safer and smarter social experience designed with privacy in mind.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: context.nexora.textSecondary,
@@ -90,7 +91,7 @@ class OnboardingScreen3 extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Get Started',
+                    tr(context, 'Get Started'),
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
                   ),
                 ),

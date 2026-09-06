@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import 'user_profile_screen.dart';
 import '../models/comment.dart';
@@ -11,10 +12,15 @@ class CommentsScreen extends StatefulWidget {
   final String username;
   final String contentId;
 
+  /// What the comments belong to: CommentService.postKind (default) for
+  /// regular posts, or CommentService.storyKind for clips (stories).
+  final String contentKind;
+
   const CommentsScreen({
     super.key,
     required this.username,
-    this.contentId = 'demo_content',
+    this.contentId = '',
+    this.contentKind = 'post',
   });
 
   @override
@@ -57,6 +63,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   Future<void> _loadComments() async {
     final loadedComments = await _commentService.fetchComments(
       widget.contentId,
+      kind: widget.contentKind,
     );
 
     if (!mounted) return;
@@ -66,11 +73,19 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
       times = loadedComments.map((c) {
         final diff = DateTime.now().difference(c.createdAt);
-        if (diff.inMinutes < 1) return 'now';
+        if (diff.inMinutes < 1) return tr(context, 'now');
         if (diff.inMinutes < 60) return '${diff.inMinutes}m';
         if (diff.inHours < 24) return '${diff.inHours}h';
         return '${diff.inDays}d';
       }).toList();
+
+      // Backend returns nested replies inside each comment.
+      _replies.clear();
+      for (final c in comments) {
+        if (c.replies.isNotEmpty) {
+          _replies[c.id] = c.replies;
+        }
+      }
 
       isLoading = false;
     });
@@ -108,9 +123,10 @@ class _CommentsScreenState extends State<CommentsScreen> {
     final parent = _replyingTo;
 
     final createdComment = await _commentService.createComment(
-      postId: widget.contentId,
+      contentId: widget.contentId,
       text: text,
       parentCommentId: parent?.id,
+      kind: widget.contentKind,
     );
 
     if (!mounted) return;
@@ -119,14 +135,18 @@ class _CommentsScreenState extends State<CommentsScreen> {
       setState(() {
         if (parent == null) {
           comments.insert(0, createdComment);
-          times.insert(0, 'now');
+          times.insert(0, tr(context, 'now'));
+        } else {
+          // New reply appears under its parent comment.
+          final replyList = _replies[parent.id] ??= [];
+          replyList.add(createdComment);
         }
 
         _replyingTo = null;
         _controller.clear();
       });
     } else {
-      _showMessage('Could not post comment. Please try again.');
+      _showMessage(tr(context, 'Could not post comment. Please try again.'));
     }
 
     _focusNode.unfocus();
@@ -147,7 +167,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
           borderRadius: BorderRadius.circular(18),
         ),
         title: Text(
-          'Delete comment',
+          tr(context, 'Delete comment'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 18,
@@ -155,7 +175,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
           ),
         ),
         content: Text(
-          'Are you sure you want to delete this comment?',
+          tr(context, 'Are you sure you want to delete this comment?'),
           style: TextStyle(
             color: context.nexora.textSecondary,
             fontSize: 14,
@@ -165,14 +185,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              tr(context, 'Cancel'),
               style: TextStyle(color: context.nexora.textMuted),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
-              'Delete',
+              tr(context, 'Delete'),
               style: TextStyle(
                 color: Color(0xFFE74C3C),
                 fontWeight: FontWeight.w600,
@@ -185,21 +205,30 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
     if (confirmed != true || !mounted) return;
 
-    final deleted = await _commentService.deleteComment(comment.id);
+    final deleted = await _commentService.deleteComment(
+      comment.id,
+      contentId: widget.contentKind == CommentService.storyKind
+          ? widget.contentId
+          : null,
+      kind: widget.contentKind,
+    );
 
     if (!mounted) return;
 
     if (!deleted) {
-      _showMessage('Could not delete comment. Please try again.');
+      _showMessage(
+          tr(context, 'Could not delete comment. Please try again.'));
       return;
     }
 
     setState(() {
       comments.removeWhere((c) => c.id == comment.id);
+      // Also drop any nested replies shown under the deleted comment.
+      _replies.remove(comment.id);
       times.removeWhere((t) => t == 'now');
     });
 
-    _showMessage('Comment deleted');
+    _showMessage(tr(context, 'Comment deleted'));
   }
 
   Future<void> _toggleCommentLike(Comment comment) async {
@@ -236,7 +265,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Comments',
+          tr(context, 'Comments'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 19,
@@ -260,7 +289,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
                         children: [
                           _commentTile(
                             comment,
-                            index < times.length ? times[index] : 'now',
+                            index < times.length
+                                ? times[index]
+                                : tr(context, 'now'),
                             showReplyButton: true,
                           ),
                           if ((_replies[comment.id] ?? []).isNotEmpty)
@@ -272,12 +303,11 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                       (reply) => Padding(
                                         padding: const EdgeInsets.only(
                                           bottom: 10,
-                                        ),
-                                        child: _commentTile(
-                                          reply,
-                                          'now',
-                                          showReplyButton: false,
-                                        ),
+                                        ),                        child: _commentTile(
+                          reply,
+                          tr(context, 'now'),
+                          showReplyButton: false,
+                        ),
                                       ),
                                     )
                                     .toList(),
@@ -297,7 +327,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Replying to ${_replyingTo!.authorUsername}',
+                            trP(context, 'Replying to {0}',
+                                [_replyingTo!.authorUsername]),
                             style: TextStyle(
                               color: context.nexora.textSecondary,
                               fontSize: 11,
@@ -343,8 +374,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
                             onSubmitted: (_) => _submitComment(),
                             decoration: InputDecoration(
                               hintText: _replyingTo == null
-                                  ? 'Add a comment...'
-                                  : 'Write a reply...',
+                                  ? tr(context, 'Add a comment...')
+                                  : tr(context, 'Write a reply...'),
                               hintStyle: TextStyle(
                                 color: context.nexora.textHint,
                                 fontSize: 13,
@@ -475,7 +506,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                                         comment.likeCount) >
                                     0)
                                 ? '${_commentLikeCounts[comment.id] ?? comment.likeCount}'
-                                : 'Like',
+                                : tr(context, 'Like'),
                             style: TextStyle(
                               color: context.nexora.textMuted,
                               fontSize: 10,
@@ -490,7 +521,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       GestureDetector(
                         onTap: () => _startReply(comment),
                         child: Text(
-                          'Reply',
+                          tr(context, 'Reply'),
                           style: TextStyle(
                             color: context.nexora.textMuted,
                             fontSize: 10,

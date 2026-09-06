@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import 'user_profile_screen.dart';
 
@@ -24,7 +25,7 @@ class ContentViewerScreen extends StatelessWidget {
         foregroundColor: context.nexora.textPrimary,
         elevation: 0,
         title: Text(
-          'Explore',
+          tr(context, 'Explore'),
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
         ),
       ),
@@ -112,11 +113,14 @@ class ContentViewerScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                _actionButton(context, Icons.favorite_border, 'Like'),
+                _actionButton(
+                    context, Icons.favorite_border, tr(context, 'Like')),
                 SizedBox(width: 12),
-                _actionButton(context, Icons.chat_bubble_outline, 'Comment'),
+                _actionButton(context, Icons.chat_bubble_outline,
+                    tr(context, 'Comment')),
                 SizedBox(width: 12),
-                _actionButton(context, Icons.share_outlined, 'Share'),
+                _actionButton(
+                    context, Icons.share_outlined, tr(context, 'Share')),
               ],
             ),
           ),

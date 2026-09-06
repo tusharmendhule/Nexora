@@ -48,13 +48,28 @@ class CommentService {
     return headers;
   }
 
+  /// Which content type the comment lives on. `post` (default) targets
+  /// /api/v1/posts/:id/comments; `story` targets /api/v1/stories/:id/
+  /// comments (clips are stored as stories on the backend).
+  static const String postKind = 'post';
+  static const String storyKind = 'story';
+
+  String _contentPath(String contentId, String kind) =>
+      kind == storyKind ? '/stories/$contentId' : '/posts/$contentId';
+
   // ─── GET /api/v1/posts/:id/comments ─────────────────
 
-  /// Fetch comments for a post from the backend.
-  Future<List<Comment>> fetchComments(String postId, {int page = 1, int limit = 50}) async {
+  /// Fetch comments for a post (or a story/clip when [kind] is
+  /// [storyKind]) from the backend.
+  Future<List<Comment>> fetchComments(
+    String contentId, {
+    int page = 1,
+    int limit = 50,
+    String kind = postKind,
+  }) async {
     try {
       final url = Uri.parse(
-        '${ApiConfig.baseUrl}/posts/$postId/comments?page=$page&limit=$limit',
+        '${ApiConfig.baseUrl}${_contentPath(contentId, kind)}/comments?page=$page&limit=$limit',
       );
       final response = await http
           .get(url, headers: await _headers())
@@ -76,11 +91,13 @@ class CommentService {
 
   // ─── POST /api/v1/posts/:id/comments ────────────────
 
-  /// Create a new comment on a post via the backend.
+  /// Create a new comment on a post (or story/clip when [kind] is
+  /// [storyKind]) via the backend.
   Future<Comment?> createComment({
-    required String postId,
+    required String contentId,
     required String text,
     String? parentCommentId,
+    String kind = postKind,
   }) async {
     try {
       final body = <String, dynamic>{
@@ -90,7 +107,9 @@ class CommentService {
         body['parentCommentId'] = parentCommentId;
       }
 
-      final url = Uri.parse('${ApiConfig.baseUrl}/posts/$postId/comments');
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}${_contentPath(contentId, kind)}/comments',
+      );
       final response = await http
           .post(url, headers: await _headers(), body: jsonEncode(body))
           .timeout(ApiConfig.timeout);
@@ -122,7 +141,7 @@ class CommentService {
   /// Legacy: add comment (delegates to createComment).
   Future<void> addComment(Comment comment) async {
     await createComment(
-      postId: comment.contentId,
+      contentId: comment.contentId,
       text: comment.text,
       parentCommentId: comment.parentCommentId,
     );
@@ -132,9 +151,20 @@ class CommentService {
   Future<void> updateComment(Comment updatedComment) async {}
 
   /// Delete a comment (owner, MODERATOR or ADMIN). Returns true on success.
-  Future<bool> deleteComment(String commentId) async {
+  ///
+  /// Post comments delete via /api/v1/comments/:id. Story comments live on
+  /// the story document, so they delete via /api/v1/stories/:contentId/
+  /// comments/:commentId (pass [contentId] when [kind] is [storyKind]).
+  Future<bool> deleteComment(
+    String commentId, {
+    String? contentId,
+    String kind = postKind,
+  }) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}/comments/$commentId');
+      final url = kind == storyKind && contentId != null
+          ? Uri.parse(
+              '${ApiConfig.baseUrl}/stories/$contentId/comments/$commentId')
+          : Uri.parse('${ApiConfig.baseUrl}/comments/$commentId');
       final response = await http
           .delete(url, headers: await _headers())
           .timeout(ApiConfig.timeout);

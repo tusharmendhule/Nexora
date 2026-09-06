@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../models/notification.dart';
 import '../services/moment_service.dart';
@@ -199,7 +200,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         foregroundColor: context.nexora.textPrimary,
         elevation: 0,
         title: Text(
-          'Notifications',
+          tr(context, 'Notifications'),
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -207,14 +208,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             TextButton(
               onPressed: _markAllAsRead,
               child: Text(
-                'Mark all read',
+                tr(context, 'Mark all read'),
                 style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 13),
               ),
             ),
           TextButton(
             onPressed: notifications.isEmpty ? null : _clearNotifications,
             child: Text(
-              'Clear',
+              tr(context, 'Clear'),
               style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 13),
             ),
           ),
@@ -225,7 +226,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           : notifications.isEmpty
           ? Center(
               child: Text(
-                'No notifications yet',
+                tr(context, 'No notifications yet'),
                 style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
               ),
             )

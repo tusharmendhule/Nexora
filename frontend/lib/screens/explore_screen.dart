@@ -6,6 +6,7 @@ import '../config/nexora_themes.dart';
 
 import '../models/post.dart';
 import '../models/user.dart';
+import '../l10n/translations.dart';
 import '../services/post_service.dart';
 import '../services/user_service.dart';
 import 'content_view.dart';
@@ -148,7 +149,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         foregroundColor: context.nexora.textPrimary,
         elevation: 0,
         title: Text(
-          'Explore',
+          tr(context, 'Explore'),
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
@@ -170,7 +171,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   style: TextStyle(color: context.nexora.textPrimary, fontSize: 14),
                   onChanged: _onSearchChanged,
                   decoration: InputDecoration(
-                    hintText: 'Search Nexora...',
+                    hintText: tr(context, 'Search Nexora...'),
                     hintStyle: TextStyle(color: context.nexora.textMuted),
                     prefixIcon: Icon(Icons.search, color: context.nexora.textSecondary),
                     suffixIcon: _searchController.text.isNotEmpty
@@ -200,7 +201,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   final isSelected = _activeCategory == cat['label'];
                   return GestureDetector(
                     onTap: () => _searchByCategory(cat['hashtag']!),
-                    child: _category(cat['label']!, isSelected),
+                    child: _category(tr(context, cat['label']!), isSelected),
                   );
                 },
               ),
@@ -236,7 +237,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             Icon(Icons.search_off, color: context.nexora.textDim, size: 48),
             SizedBox(height: 16),
             Text(
-              'No results found',
+              tr(context, 'No results found'),
               style: TextStyle(
                 color: context.nexora.textMuted,
                 fontSize: 16,
@@ -245,7 +246,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             SizedBox(height: 8),
             Text(
-              'Try a different search term',
+              tr(context, 'Try a different search term'),
               style: TextStyle(color: context.nexora.textHint, fontSize: 13),
             ),
           ],
@@ -261,7 +262,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
-              'People',
+              tr(context, 'People'),
               style: TextStyle(
                 color: context.nexora.textPrimary,
                 fontSize: 16,
@@ -278,7 +279,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
-              'Posts',
+              tr(context, 'Posts'),
               style: TextStyle(
                 color: context.nexora.textPrimary,
                 fontSize: 16,
@@ -518,7 +519,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item['title'],
+                        tr(context, item['title'] as String),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -529,7 +530,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        item['category'],
+                        tr(context, item['category'] as String),
                         style: TextStyle(
                           color: context.nexora.textMuted,
                           fontSize: 12,

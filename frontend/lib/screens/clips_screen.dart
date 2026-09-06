@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 import '../utils/media_url.dart';
 import '../utils/route_observer.dart';
 import 'comments_screen.dart';
@@ -13,9 +14,8 @@ import 'share_screen.dart';
 import 'user_profile_screen.dart';
 import '../models/clip.dart';
 import '../services/clip_service.dart';
-import '../services/like_service.dart';
-import '../services/moment_service.dart';
-import '../services/post_service.dart';
+import '../services/comment_service.dart';
+import '../services/user_service.dart';
 
 class ClipsScreen extends StatefulWidget {
   /// Whether this screen is the tab currently shown in the bottom
@@ -32,15 +32,24 @@ class ClipsScreen extends StatefulWidget {
 class _ClipsScreenState extends State<ClipsScreen>
     with RouteAware, WidgetsBindingObserver {
   final ClipService _clipService = ClipService();
-  final MomentService _momentService = MomentService();
-  final LikeService _likeService = LikeService();
-  final PostService _postService = PostService();
+  final UserService _userService = UserService();
   final PageController _pageController = PageController();
 
   final Map<String, bool> _likedClips = {};
   final Map<String, int> _clipLikeCounts = {};
-  final Map<String, bool> _savedClips = {};
+  final Map<String, int> _clipCommentCounts = {};
   final Map<String, GlobalKey<_VideoPlayerWidgetState>> _playerKeys = {};
+
+  /// Current user's MongoDB id — used to hide the Follow pill and guard
+  /// against following yourself on your own clips.
+  String _currentUserId = '';
+
+  /// Follow state per clip creator, hydrated from the backend.
+  final Map<String, bool> _followingCreators = {};
+
+  /// Guards against double taps double-counting likes / follows.
+  final Set<String> _likeInFlight = {};
+  final Set<String> _followInFlight = {};
 
   List<Clip> clips = [];
 
@@ -62,6 +71,7 @@ class _ClipsScreenState extends State<ClipsScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _loadCurrentUser();
     _loadClips();
   }
 
@@ -114,8 +124,32 @@ class _ClipsScreenState extends State<ClipsScreen>
     if (clip.isViewed) return;
     // Fire-and-forget server notification only; no local state removal.
     unawaited(
-      _momentService.markAsViewed(clip.id).catchError((_) {}),
+      _clipService.markAsViewed(clip.id).catchError((_) {}),
     );
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final id = await _userService.getCurrentUserId();
+    if (!mounted) return;
+    setState(() => _currentUserId = id ?? '');
+    _syncFollowStates();
+  }
+
+  /// Hydrate the Follow button state for every clip creator (never for the
+  /// current user's own clips).
+  Future<void> _syncFollowStates() async {
+    if (_currentUserId.isEmpty || clips.isEmpty) return;
+    final creators = clips
+        .map((c) => c.creatorId)
+        .where((id) => id.isNotEmpty && id != _currentUserId)
+        .toSet();
+    for (final creatorId in creators) {
+      final isFollowing = await _userService.isFollowingUser(creatorId);
+      if (!mounted) return;
+      setState(() {
+        _followingCreators[creatorId] = isFollowing;
+      });
+    }
   }
 
   Future<void> _loadClips() async {
@@ -126,13 +160,16 @@ class _ClipsScreenState extends State<ClipsScreen>
     setState(() {
       clips = loadedClips;
       isLoading = false;
+      // Seed per-clip state from the backend so the UI shows real
+      // like/comment counts and the user's real liked state (no placeholders).
+      for (final clip in clips) {
+        _likedClips[clip.id] = clip.isLiked;
+        _clipLikeCounts[clip.id] = clip.likeCount;
+        _clipCommentCounts[clip.id] = clip.commentCount;
+      }
     });
 
-    // Initialize like counts from fetched clips
-    for (final clip in clips) {
-      _likedClips[clip.id] = false;
-      _clipLikeCounts[clip.id] = clip.likeCount;
-    }
+    _syncFollowStates();
   }
 
   @override
@@ -201,53 +238,113 @@ class _ClipsScreenState extends State<ClipsScreen>
     }
     _resumeCurrentClip();
   }
+  /// Toggle a like on a clip. Clips are stored as stories on the backend,
+  /// so the like hits the story like endpoint and returns the real count.
   Future<void> _toggleLike(Clip clip) async {
-    final previousLiked = _likedClips[clip.id] ?? false;
-    final previousCount = _clipLikeCounts[clip.id] ?? clip.likeCount;
+    if (_likeInFlight.contains(clip.id)) return;
+    _likeInFlight.add(clip.id);
 
-    // Optimistic update
+    final wasLiked = _likedClips[clip.id] ?? clip.isLiked;
+    final wasCount = _clipLikeCounts[clip.id] ?? clip.likeCount;
+    final optimisticCount = wasLiked
+        ? (wasCount > 0 ? wasCount - 1 : 0)
+        : wasCount + 1;
+
+    // Optimistic update for a snappy UI.
     setState(() {
-      _likedClips[clip.id] = !previousLiked;
-      _clipLikeCounts[clip.id] = previousLiked
-          ? (previousCount > 0 ? previousCount - 1 : 0)
-          : previousCount + 1;
+      _likedClips[clip.id] = !wasLiked;
+      _clipLikeCounts[clip.id] = optimisticCount;
     });
 
-    // Call backend
-    final result = await _likeService.toggleLike(postId: clip.id);
+    final result = await _clipService.toggleLike(clip.id);
+    _likeInFlight.remove(clip.id);
 
     if (!mounted) return;
 
-    // Trust backend response if it returned valid data
-    if (result['likesCount'] != 0 || result['isLiked'] != false || !previousLiked) {
+    if (result['error'] == true) {
+      // Roll back on failure — never show a count the server didn't record.
       setState(() {
-        _likedClips[clip.id] = result['isLiked'] as bool;
-        _clipLikeCounts[clip.id] = result['likesCount'] as int;
+        _likedClips[clip.id] = wasLiked;
+        _clipLikeCounts[clip.id] = wasCount;
       });
-    } else {
-      // Rollback on failure
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not update like. Please try again.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _likedClips[clip.id] = result['isLiked'] as bool? ?? !wasLiked;
+      _clipLikeCounts[clip.id] =
+          (result['likesCount'] as int?) ?? optimisticCount;
+    });
+  }
+
+  /// Follow/unfollow the creator of [clip].
+  Future<void> _toggleFollow(Clip clip) async {
+    final creatorId = clip.creatorId;
+    if (creatorId.isEmpty ||
+        creatorId == _currentUserId ||
+        _followInFlight.contains(creatorId)) {
+      return;
+    }
+    _followInFlight.add(creatorId);
+
+    final wasFollowing = _followingCreators[creatorId] ?? false;
+    setState(() {
+      _followingCreators[creatorId] = !wasFollowing;
+    });
+
+    final ok = wasFollowing
+        ? await _userService.unfollowUser(creatorId)
+        : await _userService.followUser(creatorId);
+
+    _followInFlight.remove(creatorId);
+
+    if (!mounted) return;
+
+    if (!ok) {
       setState(() {
-        _likedClips[clip.id] = previousLiked;
-        _clipLikeCounts[clip.id] = previousCount;
+        _followingCreators[creatorId] = wasFollowing;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not update follow status. Please try again.'),
+        ),
+      );
     }
   }
 
-  Future<void> _toggleSaveClip(Clip clip) async {
-    final previousSaved = _savedClips[clip.id] ?? false;
+  /// Open the real comment list for this clip (clips are stories, so the
+  /// comments screen is pointed at the story-comments API).
+  void _openComments(Clip clip) {
+    _navigateTo(
+      CommentsScreen(
+        username: clip.creatorUsername,
+        contentId: clip.id,
+        contentKind: CommentService.storyKind,
+      ),
+      onReturn: _refreshClipStats,
+    );
+  }
 
-    if (!mounted) return;
+  /// Re-fetch clip engagement data after returning from the comments screen
+  /// so the like/comment counts reflect any comments the user added/deleted.
+  Future<void> _refreshClipStats() async {
+    final fresh = await _clipService.fetchClips();
+    if (!mounted || fresh.isEmpty) return;
+
     setState(() {
-      _savedClips[clip.id] = !previousSaved;
+      for (final clip in fresh) {
+        _likedClips[clip.id] = clip.isLiked;
+        _clipLikeCounts[clip.id] = clip.likeCount;
+        _clipCommentCounts[clip.id] = clip.commentCount;
+      }
     });
 
-    final result = await _postService.toggleSave(postId: clip.id);
-
-    if (!mounted) return;
-
-    setState(() {
-      _savedClips[clip.id] = result['isSaved'] as bool;
-    });
+    _syncFollowStates();
   }
 
   void _openProfile(String username) {
@@ -261,10 +358,10 @@ class _ClipsScreenState extends State<ClipsScreen>
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : _visibleClips.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
-                'No clips available.',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
+                tr(context, 'No clips available.'),
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
               ),
             )
           : Stack(
@@ -360,9 +457,7 @@ class _ClipsScreenState extends State<ClipsScreen>
             right: 80,
             bottom: 30,
             child: _clipInformation(
-              creator: clip.creatorUsername,
-              caption: clip.caption,
-              music: clip.music ?? 'Original audio',
+              clip: clip,
               label: clip.label.name,
               labelColor: clip.label.color,
             ),
@@ -375,12 +470,14 @@ class _ClipsScreenState extends State<ClipsScreen>
   }
 
   Widget _clipInformation({
-    required String creator,
-    required String caption,
-    required String music,
+    required Clip clip,
     required String label,
     required Color labelColor,
   }) {
+    final creator = clip.creatorUsername;
+    final caption = clip.caption;
+    final music = clip.music ?? tr(context, 'Original audio');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -447,24 +544,7 @@ class _ClipsScreenState extends State<ClipsScreen>
               ),
             ),
 
-            const SizedBox(width: 8),
-
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.18)),
-              ),
-              child: const Text(
-                'Follow',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
+            _followPill(clip),
           ],
         ),
 
@@ -496,6 +576,44 @@ class _ClipsScreenState extends State<ClipsScreen>
           ],
         ),
       ],
+    );
+  }
+
+  /// Follow / Following pill for the clip creator. Hidden on the viewer's
+  /// own clips (nothing to follow).
+  Widget _followPill(Clip clip) {
+    final creatorId = clip.creatorId;
+    final isOwnClip = _currentUserId.isNotEmpty && creatorId == _currentUserId;
+    if (isOwnClip || creatorId.isEmpty) {
+      // Keep the header row spacing even when there's nothing to follow.
+      return const SizedBox.shrink();
+    }
+
+    final following = _followingCreators[creatorId] ?? false;
+
+    return GestureDetector(
+      onTap: () => _toggleFollow(clip),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+        decoration: BoxDecoration(
+          gradient: following
+              ? null
+              : const LinearGradient(
+                  colors: [Color(0xFF2878E8), Color(0xFF673DE6)],
+                ),
+          color: following ? Colors.white.withOpacity(0.15) : null,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.18)),
+        ),
+        child: Text(
+          following ? tr(context, 'Following') : tr(context, 'Follow'),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
     );
   }
 
@@ -588,11 +706,13 @@ class _ClipsScreenState extends State<ClipsScreen>
   Widget _actionColumn() {
     final clip = _visibleClips[currentClip];
 
+    final commentCount = _clipCommentCounts[clip.id] ?? clip.commentCount;
+
     return Column(
       children: [
         _clipAction(
           _likedClips[clip.id] == true ? Icons.favorite : Icons.favorite_border,
-          '${_clipLikeCounts[clip.id] ?? clip.likeCount}',
+          _formatCount(_clipLikeCounts[clip.id] ?? clip.likeCount),
           onTap: () => _toggleLike(clip),
         ),
 
@@ -600,41 +720,33 @@ class _ClipsScreenState extends State<ClipsScreen>
 
         _clipAction(
           Icons.chat_bubble_outline,
-          '84',
-          onTap: () {
-            final creator = _visibleClips[currentClip].creatorUsername;
-
-            _navigateTo(CommentsScreen(username: creator));
-          },
+          _formatCount(commentCount),
+          onTap: () => _openComments(clip),
         ),
-
-        const SizedBox(height: 20),
-
-        _clipAction(Icons.repeat, '126'),
 
         const SizedBox(height: 20),
 
         _clipAction(
           Icons.send_outlined,
-          'Share',
+          tr(context, 'Share'),
           onTap: () {
-            final creator = _visibleClips[currentClip].creatorUsername;
-
-            _navigateTo(ShareScreen(postAuthor: creator));
+            _navigateTo(ShareScreen(postAuthor: clip.creatorUsername));
           },
-        ),
-
-        const SizedBox(height: 20),
-
-        _clipAction(
-          (_savedClips[_visibleClips[currentClip].id] ?? false)
-              ? Icons.bookmark
-              : Icons.bookmark_border,
-          'Save',
-          onTap: () => _toggleSaveClip(_visibleClips[currentClip]),
         ),
       ],
     );
+  }
+
+  /// Compact count formatting (e.g. 1.2K) used by the action rail.
+  String _formatCount(int count) {
+    if (count >= 1000) {
+      final value = count / 1000;
+      if (value == value.roundToDouble()) {
+        return '${value.toInt()}K';
+      }
+      return '${value.toStringAsFixed(1)}K';
+    }
+    return '$count';
   }
 
   Widget _clipAction(IconData icon, String label, {VoidCallback? onTap}) {
@@ -676,9 +788,9 @@ class _ClipsScreenState extends State<ClipsScreen>
       child: SafeArea(
         child: Row(
           children: [
-            const Text(
-              'Clips',
-              style: TextStyle(
+            Text(
+              tr(context, 'Clips'),
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 23,
                 fontWeight: FontWeight.w800,
@@ -892,15 +1004,15 @@ class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
       return Container(
         color: Colors.black,
         alignment: Alignment.center,
-        child: const Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.videocam_off_outlined,
+            const Icon(Icons.videocam_off_outlined,
                 color: Colors.white38, size: 40),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Video unavailable',
-              style: TextStyle(color: Colors.white54, fontSize: 13),
+              tr(context, 'Video unavailable'),
+              style: const TextStyle(color: Colors.white54, fontSize: 13),
             ),
           ],
         ),

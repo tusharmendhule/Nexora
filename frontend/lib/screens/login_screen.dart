@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -41,7 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = passwordController.text;
 
     if (identifier.isEmpty || password.isEmpty) {
-      _showError('Please enter your email/username and password');
+      _showError(
+          tr(context, 'Please enter your email/username and password'));
       return;
     }
 
@@ -64,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on AuthException catch (e) {
       _showError(e.message);
     } catch (e) {
-      _showError('Login failed. Please try again.');
+      _showError(tr(context, 'Login failed. Please try again.'));
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
@@ -91,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _showError(e.message);
       }
     } catch (e) {
-      _showError('Google sign-in failed. Please try again.');
+      _showError(tr(context, 'Google sign-in failed. Please try again.'));
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
@@ -129,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Backend server address — reachable even before sign-in,
                   // since network failures happen right here on this screen.
                   IconButton(
-                    tooltip: 'Server address',
+                    tooltip: tr(context, 'Server address'),
                     onPressed: () => showServerAddressDialog(context),
                     icon: Icon(
                       Icons.settings_outlined,
@@ -142,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 34),
 
               Text(
-                'Welcome back',
+                tr(context, 'Welcome back'),
                 style: TextStyle(
                   color: context.nexora.textPrimary,
                   fontSize: 30,
@@ -154,14 +156,14 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 8),
 
               Text(
-                'Sign in to continue to Nexora.',
+                tr(context, 'Sign in to continue to Nexora.'),
                 style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
               ),
 
               SizedBox(height: 34),
 
               Text(
-                'Email or username',
+                tr(context, 'Email or username'),
                 style: TextStyle(
                   color: context.nexora.textSecondary,
                   fontSize: 13,
@@ -173,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               _textField(
                 controller: emailController,
-                hint: 'Enter your email or username',
+                hint: tr(context, 'Enter your email or username'),
                 icon: Icons.person_outline,
                 keyboardType: TextInputType.emailAddress,
               ),
@@ -181,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 20),
 
               Text(
-                'Password',
+                tr(context, 'Password'),
                 style: TextStyle(
                   color: context.nexora.textSecondary,
                   fontSize: 13,
@@ -193,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               _textField(
                 controller: passwordController,
-                hint: 'Enter your password',
+                hint: tr(context, 'Enter your password'),
                 icon: Icons.lock_outline,
                 obscureText: obscurePassword,
                 suffixIcon: IconButton(
@@ -223,23 +225,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       context: context,
                       builder: (ctx) => AlertDialog(
                         backgroundColor: context.nexora.card,
-                        title: Text('Reset Password', style: TextStyle(color: context.nexora.textPrimary)),
+                        title: Text(tr(ctx, 'Reset Password'),
+                            style: TextStyle(color: context.nexora.textPrimary)),
                         content: TextField(
                           controller: controller,
                           style: TextStyle(color: context.nexora.textPrimary),
                           decoration: InputDecoration(
-                            hintText: 'Enter your email',
+                            hintText: tr(ctx, 'Enter your email'),
                             hintStyle: TextStyle(color: context.nexora.textHint),
                           ),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: Text('Cancel', style: TextStyle(color: context.nexora.textSecondary)),
+                            child: Text(tr(ctx, 'Cancel'),
+                                style: TextStyle(color: context.nexora.textSecondary)),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, true),
-                            child: Text('Send', style: TextStyle(color: Color(0xFF8B7CFF))),
+                            child: Text(tr(ctx, 'Send'),
+                                style: TextStyle(color: Color(0xFF8B7CFF))),
                           ),
                         ],
                       ),
@@ -247,14 +252,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (result == true && mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Password reset email sent. Check your inbox.'),
+                          content: Text(tr(context,
+                              'Password reset email sent. Check your inbox.')),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
                     }
                   },
                   child: Text(
-                    'Forgot password?',
+                    tr(context, 'Forgot password?'),
                     style: TextStyle(
                       color: Color(0xFF8B7CFF),
                       fontSize: 13,
@@ -278,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 14),
                     child: Text(
-                      'OR',
+                      tr(context, 'OR'),
                       style: TextStyle(
                         color: context.nexora.textHint,
                         fontSize: 11,
@@ -296,7 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               _socialButton(
                 icon: Icons.g_mobiledata_rounded,
-                label: 'Continue with Google',
+                label: tr(context, 'Continue with Google'),
                 onTap: isLoading ? () {} : _handleGoogleSignIn,
               ),
 
@@ -304,11 +310,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
               _socialButton(
                 icon: Icons.apple,
-                label: 'Continue with Apple',
+                label: tr(context, 'Continue with Apple'),
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Apple Sign-In is not yet available'),
+                      content: Text(
+                          tr(context, 'Apple Sign-In is not yet available')),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
@@ -322,7 +329,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: WrapAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account? ",
+                      tr(context, "Don't have an account? "),
                       style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                     ),
                     GestureDetector(
@@ -335,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: Text(
-                        'Create Account',
+                        tr(context, 'Create Account'),
                         style: TextStyle(
                           color: Color(0xFF8B7CFF),
                           fontSize: 13,
@@ -443,7 +450,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 )
               : Text(
-                  'Sign In',
+                  tr(context, 'Sign In'),
                   style: TextStyle(
                     color: context.nexora.textPrimary,
                     fontSize: 15,

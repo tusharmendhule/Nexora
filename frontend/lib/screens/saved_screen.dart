@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -102,7 +103,7 @@ class _SavedScreenState extends State<SavedScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Saved',
+          tr(context, 'Saved'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -111,7 +112,9 @@ class _SavedScreenState extends State<SavedScreen> {
         ),
         actions: [
           IconButton(
-            tooltip: isGridView ? 'List view' : 'Grid view',
+            tooltip: isGridView
+                ? tr(context, 'List view')
+                : tr(context, 'Grid view'),
             onPressed: () {
               setState(() {
                 isGridView = !isGridView;
@@ -157,7 +160,7 @@ class _SavedScreenState extends State<SavedScreen> {
           SizedBox(width: 7),
           Expanded(
             child: Text(
-              selectedSort,
+              tr(context, selectedSort),
               style: TextStyle(
                 color: context.nexora.textSecondary,
                 fontSize: 13,
@@ -177,7 +180,7 @@ class _SavedScreenState extends State<SavedScreen> {
               child: Row(
                 children: [
                   Text(
-                    'Sort',
+                    tr(context, 'Sort'),
                     style: TextStyle(
                       color: context.nexora.textSecondary,
                       fontSize: 12,
@@ -552,7 +555,7 @@ class _SavedScreenState extends State<SavedScreen> {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  'Sort saved posts',
+                  tr(context, 'Sort saved posts'),
                   style: TextStyle(
                     color: context.nexora.textPrimary,
                     fontSize: 18,
@@ -574,7 +577,7 @@ class _SavedScreenState extends State<SavedScreen> {
                           : context.nexora.textHint,
                     ),
                     title: Text(
-                      option,
+                      tr(context, option),
                       style: TextStyle(
                         color: selected ? context.nexora.textPrimary : context.nexora.textSecondary,
                         fontSize: 14,
@@ -610,7 +613,8 @@ class _SavedScreenState extends State<SavedScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Post removed from saved posts'),
+          content:
+              Text(tr(context, 'Post removed from saved posts')),
           backgroundColor: context.nexora.card,
           duration: const Duration(seconds: 2),
         ),
@@ -644,7 +648,7 @@ class _SavedScreenState extends State<SavedScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              'Nothing saved yet',
+              tr(context, 'Nothing saved yet'),
               style: TextStyle(
                 color: context.nexora.textPrimary,
                 fontSize: 20,
@@ -653,7 +657,8 @@ class _SavedScreenState extends State<SavedScreen> {
             ),
             SizedBox(height: 8),
             Text(
-              'Posts you save will appear here so you can easily find them later.',
+              tr(context,
+                  'Posts you save will appear here so you can easily find them later.'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: context.nexora.textMuted,

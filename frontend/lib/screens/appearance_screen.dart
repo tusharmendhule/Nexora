@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 import 'settings_detail_screen.dart';
@@ -58,7 +59,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Appearance',
+          tr(context, 'Appearance'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -73,7 +74,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
           : ListView(
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
               children: [
-                _sectionTitle('Theme'),
+                _sectionTitle(tr(context, 'Theme')),
 
                 _settingCard(
                   child: ListTile(
@@ -83,7 +84,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                     ),
                     leading: _iconBox(Icons.dark_mode_outlined),
                     title: Text(
-                      'Dark Mode',
+                      tr(context, 'Dark Mode'),
                       style: TextStyle(
                         color: context.nexora.textPrimary,
                         fontSize: 15,
@@ -93,7 +94,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                     subtitle: Padding(
                       padding: EdgeInsets.only(top: 3),
                       child: Text(
-                        'Use Nexora with a dark appearance',
+                        tr(context, 'Use Nexora with a dark appearance'),
                         style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                       ),
                     ),
@@ -112,10 +113,11 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Nexora Gradient'),
+                _sectionTitle(tr(context, 'Nexora Gradient')),
 
                 Text(
-                  'Choose the gradient that defines your Nexora experience.',
+                  tr(context,
+                      'Choose the gradient that defines your Nexora experience.'),
                   style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                 ),
 
@@ -170,7 +172,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                               left: 14,
                               bottom: 12,
                               child: Text(
-                                kNexoraGradientNames[index],
+                                tr(context, kNexoraGradientNames[index]),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 13,
@@ -197,7 +199,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
 
                 SizedBox(height: 24),
 
-                _sectionTitle('Interface'),
+                _sectionTitle(tr(context, 'Interface')),
 
                 _settingCard(
                   child: ListTile(
@@ -207,7 +209,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                     ),
                     leading: _iconBox(Icons.animation_outlined),
                     title: Text(
-                      'Reduce Animations',
+                      tr(context, 'Reduce Animations'),
                       style: TextStyle(
                         color: context.nexora.textPrimary,
                         fontSize: 15,
@@ -217,7 +219,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                     subtitle: Padding(
                       padding: EdgeInsets.only(top: 3),
                       child: Text(
-                        'Reduce movement throughout Nexora',
+                        tr(context, 'Reduce movement throughout Nexora'),
                         style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                       ),
                     ),
@@ -242,7 +244,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                     ),
                     leading: _iconBox(Icons.text_fields_outlined),
                     title: Text(
-                      'Text Size',
+                      tr(context, 'Text Size'),
                       style: TextStyle(
                         color: context.nexora.textPrimary,
                         fontSize: 15,
@@ -252,7 +254,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                     subtitle: Padding(
                       padding: EdgeInsets.only(top: 3),
                       child: Text(
-                        'Adjust the size of text across Nexora',
+                        tr(context, 'Adjust the size of text across Nexora'),
                         style: TextStyle(color: context.nexora.textMuted, fontSize: 12),
                       ),
                     ),
@@ -264,25 +266,28 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SettingsDetailScreen(
-                            title: 'Text Size',
-                            description: 'Adjust the size of text across Nexora.',
+                            title: tr(context, 'Text Size'),
+                            description:
+                                tr(context, 'Adjust the size of text across Nexora.'),
                             sections: [
                               SettingsSection(
-                                title: 'Text Size',
+                                title: tr(context, 'Text Size'),
                                 items: [
                                   SettingsItem(
                                     icon: Icons.text_fields_outlined,
-                                    title: 'Small',
-                                    subtitle: 'Use smaller text throughout Nexora',
+                                    title: tr(context, 'Small'),
+                                    subtitle:
+                                        tr(context, 'Use smaller text throughout Nexora'),
                                     type: SettingsItemType.selection,
                                     valueText: currentSize == 'small'
-                                        ? 'Selected'
+                                        ? tr(context, 'Selected')
                                         : '',
                                     onTap: () {
                                       _controller.setTextSize('small');
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Text size set to Small'),
+                                        SnackBar(
+                                          content:
+                                              Text(tr(context, 'Text size set to Small')),
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );
@@ -291,17 +296,18 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                                   ),
                                   SettingsItem(
                                     icon: Icons.text_fields_outlined,
-                                    title: 'Medium',
-                                    subtitle: 'Use the default text size',
+                                    title: tr(context, 'Medium'),
+                                    subtitle: tr(context, 'Use the default text size'),
                                     type: SettingsItemType.selection,
                                     valueText: currentSize == 'medium'
-                                        ? 'Selected'
+                                        ? tr(context, 'Selected')
                                         : '',
                                     onTap: () {
                                       _controller.setTextSize('medium');
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Text size set to Medium'),
+                                        SnackBar(
+                                          content:
+                                              Text(tr(context, 'Text size set to Medium')),
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );
@@ -310,17 +316,19 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                                   ),
                                   SettingsItem(
                                     icon: Icons.text_fields_outlined,
-                                    title: 'Large',
-                                    subtitle: 'Use larger text throughout Nexora',
+                                    title: tr(context, 'Large'),
+                                    subtitle:
+                                        tr(context, 'Use larger text throughout Nexora'),
                                     type: SettingsItemType.selection,
                                     valueText: currentSize == 'large'
-                                        ? 'Selected'
+                                        ? tr(context, 'Selected')
                                         : '',
                                     onTap: () {
                                       _controller.setTextSize('large');
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Text size set to Large'),
+                                        SnackBar(
+                                          content:
+                                              Text(tr(context, 'Text size set to Large')),
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );
@@ -341,7 +349,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
 
                 Center(
                   child: Text(
-                    'Your Nexora, your style.',
+                    tr(context, 'Your Nexora, your style.'),
                     style: TextStyle(
                       color: context.nexora.textPrimary.withOpacity(0.35),
                       fontSize: 12,

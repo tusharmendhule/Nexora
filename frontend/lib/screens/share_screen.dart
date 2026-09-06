@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 import 'package:flutter/services.dart';
 
 import '../models/user.dart';
@@ -74,7 +75,7 @@ class _ShareScreenState extends State<ShareScreen> {
       if (!mounted) return;
       setState(() {
         isLoading = false;
-        loadError = 'Could not load users. Please try again.';
+        loadError = tr(context, 'Could not load users. Please try again.');
       });
     }
   }
@@ -108,7 +109,7 @@ class _ShareScreenState extends State<ShareScreen> {
   Future<void> _copyLink() async {
     if (widget.postId == null || widget.postId!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nothing to copy')),
+        SnackBar(content: Text(tr(context, 'Nothing to copy'))),
       );
       return;
     }
@@ -117,7 +118,7 @@ class _ShareScreenState extends State<ShareScreen> {
     await Clipboard.setData(ClipboardData(text: link));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Post link copied: $link')),
+      SnackBar(content: Text(trP(context, 'Post link copied: {0}', [link]))),
     );
   }
 
@@ -176,8 +177,10 @@ class _ShareScreenState extends State<ShareScreen> {
         SnackBar(
           content: Text(
             failedCount == sentCount
-                ? 'Could not send. Please try again.'
-                : 'Sent to $sentCount user(s); $failedCount failed.',
+                ? tr(context, 'Could not send. Please try again.')
+                : trP(context, 'Sent to {0} user(s); {1} failed.', [
+                    '$sentCount', '$failedCount'
+                  ]),
           ),
         ),
       );
@@ -186,14 +189,15 @@ class _ShareScreenState extends State<ShareScreen> {
         SnackBar(
           content: Text(
             recipientNames.isNotEmpty
-                ? 'Sent to ${recipientNames.first}'
-                : 'Sent',
+                ? trP(context, 'Sent to {0}', [recipientNames.first])
+                : tr(context, 'Sent'),
           ),
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sent to $sentCount user(s)')),
+        SnackBar(
+            content: Text(trP(context, 'Sent to {0} user(s)', ['$sentCount']))),
       );
     }
   }
@@ -213,7 +217,7 @@ class _ShareScreenState extends State<ShareScreen> {
         backgroundColor: context.nexora.background,
         elevation: 0,
         title: Text(
-          'Share',
+          tr(context, 'Share'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 20,
@@ -231,7 +235,7 @@ class _ShareScreenState extends State<ShareScreen> {
               onChanged: _onSearchChanged,
               style: TextStyle(color: context.nexora.textPrimary),
               decoration: InputDecoration(
-                hintText: 'Search people',
+                hintText: tr(context, 'Search people'),
                 hintStyle: TextStyle(color: context.nexora.textHint),
                 prefixIcon: Icon(Icons.search, color: context.nexora.textMuted),
                 filled: true,
@@ -249,7 +253,7 @@ class _ShareScreenState extends State<ShareScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Send to',
+                tr(context, 'Send to'),
                 style: TextStyle(
                   color: context.nexora.textSecondary,
                   fontSize: 13,
@@ -271,7 +275,7 @@ class _ShareScreenState extends State<ShareScreen> {
                     onPressed: _copyLink,
                     icon: Icon(Icons.link, color: context.nexora.textSecondary),
                     label: Text(
-                      'Copy link',
+                      tr(context, 'Copy link'),
                       style: TextStyle(color: context.nexora.textSecondary),
                     ),
                     style: OutlinedButton.styleFrom(
@@ -308,8 +312,10 @@ class _ShareScreenState extends State<ShareScreen> {
                             )
                           : Text(
                               selectedUserIds.isEmpty
-                                  ? 'Select people'
-                                  : 'Send (${selectedUserIds.length})',
+                                  ? tr(context, 'Select people')
+                                  : trP(context, 'Send ({0})', [
+                                      '${selectedUserIds.length}'
+                                    ]),
                               style: TextStyle(
                                 color: context.nexora.textPrimary,
                                 fontWeight: FontWeight.w700,
@@ -352,7 +358,7 @@ class _ShareScreenState extends State<ShareScreen> {
                     : _searchController.text.trim(),
               ),
               child: Text(
-                'Retry',
+                tr(context, 'Retry'),
                 style: TextStyle(color: Color(0xFF6C8CFF), fontSize: 14),
               ),
             ),
@@ -364,7 +370,7 @@ class _ShareScreenState extends State<ShareScreen> {
     if (users.isEmpty) {
       return Center(
         child: Text(
-          'No users found',
+          tr(context, 'No users found'),
           style: TextStyle(color: context.nexora.textMuted, fontSize: 14),
         ),
       );

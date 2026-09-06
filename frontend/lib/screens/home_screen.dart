@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 import '../config/nexora_themes.dart';
+import '../l10n/translations.dart';
 
 import '../services/appearance_controller.dart';
 
@@ -231,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _savedPosts[post.id] = previousSaved;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not save post. Please try again.')),
+        SnackBar(content: Text(tr(context, 'Could not save post. Please try again.'))),
       );
       return;
     }
@@ -259,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _resharedPosts[post.id] = previousReshared;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not reshare post. Please try again.')),
+        SnackBar(content: Text(tr(context, 'Could not reshare post. Please try again.'))),
       );
       return;
     }
@@ -320,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: 22,
                     ),
                     title: Text(
-                      'Delete post',
+                      tr(context, 'Delete post'),
                       style: TextStyle(
                         color: Color(0xFFE74C3C),
                         fontSize: 15,
@@ -340,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: 22,
                     ),
                     title: Text(
-                      'Report post',
+                      tr(context, 'Report post'),
                       style: TextStyle(
                         color: context.nexora.textPrimary,
                         fontSize: 15,
@@ -370,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(18),
         ),
         title: Text(
-          'Delete post',
+          tr(context, 'Delete post'),
           style: TextStyle(
             color: context.nexora.textPrimary,
             fontSize: 18,
@@ -378,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         content: Text(
-          'Are you sure you want to delete this post? This action cannot be undone.',
+          tr(context, 'Are you sure you want to delete this post? This action cannot be undone.'),
           style: TextStyle(
             color: context.nexora.textSecondary,
             fontSize: 14,
@@ -388,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              tr(context, 'Cancel'),
               style: TextStyle(color: context.nexora.textMuted),
             ),
           ),
@@ -398,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
               await _deletePost(post);
             },
             child: Text(
-              'Delete',
+              tr(context, 'Delete'),
               style: TextStyle(
                 color: Color(0xFFE74C3C),
                 fontWeight: FontWeight.w600,
@@ -420,12 +421,12 @@ class _HomeScreenState extends State<HomeScreen> {
         posts.removeWhere((p) => p.id == post.id);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Post deleted')),
+        SnackBar(content: Text(tr(context, 'Post deleted'))),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not delete post. Please try again.'),
+          content: Text(tr(context, 'Could not delete post. Please try again.')),
         ),
       );
     }
@@ -481,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       Text(
-                        'Report post',
+                        tr(ctx, 'Report post'),
                         style: TextStyle(
                           color: context.nexora.textPrimary,
                           fontSize: 18,
@@ -492,7 +493,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(height: 4),
 
                       Text(
-                        'Why are you reporting this post?',
+                        tr(ctx, 'Why are you reporting this post?'),
                         style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                       ),
 
@@ -506,7 +507,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               setModalState(() => selectedReason = val);
                             },
                             title: Text(
-                              r['label']!,
+                              tr(ctx, r['label']!),
                               style: TextStyle(
                                 color: context.nexora.textPrimary,
                                 fontSize: 14,
@@ -529,7 +530,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontSize: 14,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Additional details (optional)',
+                          hintText: tr(ctx, 'Additional details (optional)'),
                           hintStyle: TextStyle(
                             color: context.nexora.textHint,
                             fontSize: 13,
@@ -599,7 +600,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           .showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            'Report submitted. Thank you for keeping Nexora safe.',
+                                            tr(context,
+                                                'Report submitted. Thank you for keeping Nexora safe.'),
                                           ),
                                         ),
                                       );
@@ -608,7 +610,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           .showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                            'Could not submit report. Please try again.',
+                                            tr(context,
+                                                'Could not submit report. Please try again.'),
                                           ),
                                         ),
                                       );
@@ -632,7 +635,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   )
                                 : Text(
-                                    'Submit report',
+                                    tr(ctx, 'Submit report'),
                                     style: TextStyle(
                                       color: context.nexora.textPrimary,
                                       fontSize: 14,
@@ -727,7 +730,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(20),
         children: [
           Text(
-            'Welcome to Nexora 👋',
+            tr(context, 'Welcome to Nexora 👋'),
             style: TextStyle(
               color: context.nexora.textPrimary,
               fontSize: 26,
@@ -738,7 +741,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(height: 8),
 
           Text(
-            'Connect, share and discover.',
+            tr(context, 'Connect, share and discover.'),
             style: TextStyle(color: context.nexora.textSecondary, fontSize: 15),
           ),
 
@@ -824,7 +827,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'No posts yet',
+                      tr(context, 'No posts yet'),
                       style: TextStyle(
                         color: context.nexora.textMuted,
                         fontSize: 16,
@@ -833,7 +836,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Be the first to share something!',
+                      tr(context, 'Be the first to share something!'),
                       style: TextStyle(color: context.nexora.textHint, fontSize: 13),
                     ),
                   ],
@@ -857,7 +860,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     : GestureDetector(
                         onTap: _loadMorePosts,
                         child: Text(
-                          'Load more',
+                          tr(context, 'Load more'),
                           style: TextStyle(
                             color: Color(0xFF3157D5),
                             fontSize: 14,
@@ -907,7 +910,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 24),
 
             Text(
-              'Your Nexora starts here',
+              tr(context, 'Your Nexora starts here'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: context.nexora.textPrimary,
@@ -920,8 +923,8 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 10),
 
             Text(
-              'Your feed is empty for now. Follow people and creators '
-              'to start seeing posts, moments and conversations here.',
+              tr(context,
+                  'Your feed is empty for now. Follow people and creators to start seeing posts, moments and conversations here.'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: context.nexora.textMuted,
@@ -961,7 +964,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   child: Text(
-                    'Find People',
+                    tr(context, 'Find People'),
                     style: TextStyle(
                       color: context.nexora.textPrimary,
                       fontSize: 14,
@@ -987,7 +990,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 child: Text(
-                  'Explore Clips',
+                  tr(context, 'Explore Clips'),
                   style: TextStyle(
                     color: context.nexora.textSecondary,
                     fontSize: 14,
@@ -1096,7 +1099,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             if (isFirst)
               Text(
-                'You',
+                tr(context, 'You'),
                 style: TextStyle(fontSize: 11, color: context.nexora.textPrimary),
               )
             else if (label != null && label.isNotEmpty)
@@ -1423,7 +1426,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$displayLikeCount likes',
+                  trP(context, '{0} likes', ['$displayLikeCount']),
                   style: TextStyle(
                     color: context.nexora.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -1469,7 +1472,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Padding(
                     padding: EdgeInsets.only(top: 6),
                     child: Text(
-                      '#Nexora #Community',
+                      tr(context, '#Nexora #Community'),
                       style: TextStyle(color: Color(0xFF7D8CFF), fontSize: 13),
                     ),
                   ),
@@ -1509,7 +1512,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   child: Text(
-                    'View all comments',
+                    tr(context, 'View all comments'),
                     style: TextStyle(color: context.nexora.textMuted, fontSize: 13),
                   ),
                 ),
@@ -1627,28 +1630,30 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── Verification status helpers ────────────────────────────────
 
   String _verificationStatusText(String verification, String moderation) {
-    if (moderation == 'under_review') return 'Moderator Review';
+    if (moderation == 'under_review') {
+      return tr(context, 'Moderator Review');
+    }
     // Handle both legacy lowercase and new UPPERCASE enum values
     switch (verification) {
       case 'pending':
       case 'PENDING_VERIFICATION':
-        return 'Pending';
+        return tr(context, 'Pending');
       case 'processing':
       case 'VERIFYING':
-        return 'Analyzing';
+        return tr(context, 'Analyzing');
       case 'verified':
       case 'VERIFIED':
       case 'PUBLISHED':
-        return 'Verified';
+        return tr(context, 'Verified');
       case 'failed':
       case 'FAILED':
-        return 'Failed';
+        return tr(context, 'Failed');
       case 'REVIEW_REQUIRED':
-        return 'Review Required';
+        return tr(context, 'Review Required');
       case 'REJECTED':
-        return 'Rejected';
+        return tr(context, 'Rejected');
       default:
-        return 'Unverified';
+        return tr(context, 'Unverified');
     }
   }
 
@@ -1746,7 +1751,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      trustScore != null ? '$trustScore / 100' : 'Pending',
+                      trustScore != null
+                          ? '$trustScore / 100'
+                          : tr(context, 'Pending'),
                       style: TextStyle(
                         color: label.color,
                         fontSize: 14,
@@ -1761,7 +1768,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // ── Explanation ──────────────────────────
               Text(
-                'Why this label?',
+                tr(context, 'Why this label?'),
                 style: TextStyle(
                   color: context.nexora.textPrimary,
                   fontSize: 14,
@@ -1782,7 +1789,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // ── Verification status ──────────────────
               Text(
-                'Verification status',
+                tr(context, 'Verification status'),
                 style: TextStyle(
                   color: context.nexora.textMuted,
                   fontSize: 12,
@@ -1798,7 +1805,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // ── Content type ─────────────────────────
               Text(
-                'Content type',
+                tr(context, 'Content type'),
                 style: TextStyle(
                   color: context.nexora.textMuted,
                   fontSize: 12,
@@ -1817,20 +1824,24 @@ class _HomeScreenState extends State<HomeScreen> {
               if (post.trustAuthenticity != null) ...[
                 SizedBox(height: 16),
                 Text(
-                  'Score breakdown',
+                  tr(context, 'Score breakdown'),
                   style: TextStyle(
                     color: context.nexora.textMuted,
                     fontSize: 12,
                   ),
                 ),
                 SizedBox(height: 6),
-                _buildComponentBar('Authenticity', post.trustAuthenticity!),
+                _buildComponentBar(
+                    tr(context, 'Authenticity'), post.trustAuthenticity!),
                 SizedBox(height: 4),
-                _buildComponentBar('Factual Verification', post.trustFactualVerification!),
+                _buildComponentBar(tr(context, 'Factual Verification'),
+                    post.trustFactualVerification!),
                 SizedBox(height: 4),
-                _buildComponentBar('Source Credibility', post.trustSourceCredibility!),
+                _buildComponentBar(tr(context, 'Source Credibility'),
+                    post.trustSourceCredibility!),
                 SizedBox(height: 4),
-                _buildComponentBar('Model Confidence', post.trustModelConfidence!),
+                _buildComponentBar(tr(context, 'Model Confidence'),
+                    post.trustModelConfidence!),
               ],
 
               SizedBox(height: 16),
@@ -1856,7 +1867,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'This label was applied or modified by a moderator.',
+                          tr(context,
+                              'This label was applied or modified by a moderator.'),
                           style: TextStyle(
                             color: Color(0xFFF39C12),
                             fontSize: 12,
@@ -1887,8 +1899,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           SnackBar(
                             content: Text(
                               success
-                                  ? 'Review requested. A moderator will evaluate this content.'
-                                  : 'Could not request review. Please try again.',
+                                  ? tr(context,
+                                      'Review requested. A moderator will evaluate this content.')
+                                  : tr(context,
+                                      'Could not request review. Please try again.'),
                             ),
                           ),
                         );
@@ -1903,7 +1917,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     child: Text(
-                      'Request Moderator Review',
+                      tr(context, 'Request Moderator Review'),
                       style: TextStyle(
                         color: context.nexora.textSecondary,
                         fontSize: 13,

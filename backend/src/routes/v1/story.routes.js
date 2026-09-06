@@ -9,6 +9,9 @@
  * DELETE /api/v1/stories/:id       — Delete a story (owner only)
  * POST   /api/v1/stories/:id/view  — Mark story as viewed
  * POST   /api/v1/stories/:id/like  — Toggle like on a story
+ * GET    /api/v1/stories/:id/comments            — List story comments
+ * POST   /api/v1/stories/:id/comments            — Add a comment/reply
+ * DELETE /api/v1/stories/:id/comments/:commentId — Delete a comment/reply
  */
 
 const express = require('express');
@@ -245,6 +248,188 @@ router.post('/:id/like', protect, validateObjectId('id'), async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
+
+// ─── Inline story comment helpers ───────────────────────
+
+// Story comments live inline on the Story document ({user, text, createdAt,
+// replies[]}). serialize maps one to the shape the Flutter Comments screen
+// expects (mirrors GET /api/v1/posts/:id/comments items), so clips can reuse
+// the same comment UI.
+function serializeStoryComment(comment, storyId, parentId = null) {
+  const userObj =
+    comment.user && typeof comment.user === 'object' ? comment.user : null;
+  return {
+    _id: (comment._id || '').toString(),
+    story: storyId,
+    user: userObj
+      ? {
+          _id: (userObj._id || '').toString(),
+          name: userObj.name || userObj.username || '',
+          username: userObj.username || '',
+          avatar: userObj.avatar || '',
+        }
+      : null,
+    text: comment.text || '',
+    createdAt: comment.createdAt || new Date(),
+    parentComment: parentId,
+    replies: (comment.replies || []).map((r) =>
+      serializeStoryComment(
+        r.toObject ? r.toObject() : r,
+        storyId,
+        (comment._id || '').toString() || null
+      )
+    ),
+  };
+}
+
+// ─── GET /api/v1/stories/:id/comments — list comments ──
+router.get('/:id/comments', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const story = await Story.findById(req.params.id)
+      .populate('comments.user comments.replies.user', 'name username avatar');
+    if (!story) {
+      return res.status(404).json({ success: false, message: 'Story not found' });
+    }
+
+    const comments = (story.comments || []).map((c) =>
+      serializeStoryComment(
+        c.toObject ? c.toObject() : c,
+        req.params.id
+      )
+    );
+
+    res.status(200).json({
+      success: true,
+      comments,
+      pagination: { page: 1, limit: comments.length, total: comments.length, pages: 1 },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ─── POST /api/v1/stories/:id/comments — add a comment ──
+router.post('/:id/comments', protect, validateObjectId('id'), async (req, res) => {
+  try {
+    const { text, parentCommentId } = req.body || {};
+    const clean = (text || '').trim();
+
+    if (!clean) {
+      return res.status(400).json({ success: false, message: 'Comment text is required' });
+    }
+    if (clean.length > 500) {
+      return res.status(400).json({ success: false, message: 'Comment must be under 500 characters' });
+    }
+
+    const story = await Story.findById(req.params.id);
+    if (!story) {
+      return res.status(404).json({ success: false, message: 'Story not found' });
+    }
+
+    story.comments = story.comments || [];
+
+    // Parent given → this is a reply nested under an existing comment.
+    if (parentCommentId && /^[0-9a-fA-F]{24}$/.test(String(parentCommentId))) {
+      const parent = story.comments.id(parentCommentId);
+      if (!parent) {
+        return res.status(404).json({ success: false, message: 'Comment not found' });
+      }
+      parent.replies = parent.replies || [];
+      const reply = parent.replies.create({ user: req.user._id, text: clean });
+      parent.replies.push(reply);
+      await story.save();
+
+      return res.status(201).json({
+        success: true,
+        message: 'Reply added successfully',
+        comment: serializeStoryComment(
+          reply.toObject ? reply.toObject() : reply,
+          req.params.id,
+          String(parent._id)
+        ),
+        commentCount: story.comments.length,
+      });
+    }
+
+    const comment = story.comments.create({ user: req.user._id, text: clean });
+    story.comments.push(comment);
+    await story.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Comment added successfully',
+      comment: serializeStoryComment(
+        comment.toObject ? comment.toObject() : comment,
+        req.params.id
+      ),
+      commentCount: story.comments.length,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// ─── DELETE /api/v1/stories/:id/comments/:commentId ────
+// Owner (or MODERATOR/ADMIN) deletes their comment/reply. Deleting a
+// top-level comment removes its nested replies too.
+router.delete(
+  '/:id/comments/:commentId',
+  protect,
+  validateObjectId('id'),
+  validateObjectId('commentId'),
+  async (req, res) => {
+    try {
+      const story = await Story.findById(req.params.id);
+      if (!story) {
+        return res.status(404).json({ success: false, message: 'Story not found' });
+      }
+
+      story.comments = story.comments || [];
+      const isPrivileged =
+        req.user.role === 'MODERATOR' || req.user.role === 'ADMIN';
+      const canDelete = (comment) =>
+        isPrivileged ||
+        (comment.user && comment.user.toString() === req.user._id.toString());
+
+      // Top-level comment (with any nested replies).
+      const target = story.comments.id(req.params.commentId);
+      if (target) {
+        if (!canDelete(target)) {
+          return res.status(403).json({ success: false, message: 'Not authorized to delete this comment' });
+        }
+        story.comments.pull(target._id);
+        await story.save();
+        return res.status(200).json({
+          success: true,
+          message: 'Comment deleted successfully',
+          commentCount: story.comments.length,
+        });
+      }
+
+      // Nested reply.
+      for (const top of story.comments) {
+        top.replies = top.replies || [];
+        const reply = top.replies.id(req.params.commentId);
+        if (reply) {
+          if (!canDelete(reply)) {
+            return res.status(403).json({ success: false, message: 'Not authorized to delete this comment' });
+          }
+          top.replies.pull(reply._id);
+          await story.save();
+          return res.status(200).json({
+            success: true,
+            message: 'Comment deleted successfully',
+            commentCount: story.comments.length,
+          });
+        }
+      }
+
+      res.status(404).json({ success: false, message: 'Comment not found' });
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  }
+);
 
 // ─── POST /api/v1/stories/:id/reply — reply to a moment ─
 router.post('/:id/reply', protect, validateObjectId('id'), async (req, res) => {
