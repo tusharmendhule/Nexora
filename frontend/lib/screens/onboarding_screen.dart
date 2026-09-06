@@ -11,74 +11,86 @@ class OnboardingScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.nexora.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              SizedBox(height: 60),
-
-              // Illustration placeholder
-              Container(
-                height: 280,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: context.nexora.card,
-                  borderRadius: BorderRadius.circular(24),
+        // Scrollable so the page never overflows on short screens (e.g.
+        // 360x640 devices): content can scroll, but the bottom block
+        // (indicators + button) stays pinned to the bottom when there is
+        // enough room.
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.people_alt_outlined,
-                    size: 100,
-                    color: context.nexora.textSecondary,
-                  ),
-                ),
-              ),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 60),
 
-              SizedBox(height: 45),
+                        // Illustration placeholder
+                        Container(
+                          height: 280,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: context.nexora.card,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.people_alt_outlined,
+                              size: 100,
+                              color: context.nexora.textSecondary,
+                            ),
+                          ),
+                        ),
 
-              Text(
-                'Share Your Moments',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: context.nexora.textPrimary,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+                        SizedBox(height: 45),
 
-              SizedBox(height: 16),
+                        Text(
+                          'Share Your Moments',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: context.nexora.textPrimary,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
 
-              Text(
-                'Connect with people, share your moments, '
-                'and express yourself freely.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: context.nexora.textSecondary,
-                  fontSize: 16,
-                  height: 1.5,
-                ),
-              ),
+                        SizedBox(height: 16),
 
-              const Spacer(),
+                        Text(
+                          'Connect with people, share your moments, '
+                          'and express yourself freely.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: context.nexora.textSecondary,
+                            fontSize: 16,
+                            height: 1.5,
+                          ),
+                        ),
 
-              // Page indicators
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _dot(context, true),
-                  _dot(context, false),
-                  _dot(context, false),
-                ],
-              ),
+                        const Spacer(),
 
-              SizedBox(height: 30),
+                        // Page indicators
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _dot(context, true),
+                            _dot(context, false),
+                            _dot(context, false),
+                          ],
+                        ),
 
-              // Next button
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: () {
+                        SizedBox(height: 30),
+
+                        // Next button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton(
+                            onPressed: () {
   Navigator.push(
     context,
     MaterialPageRoute(
@@ -86,26 +98,31 @@ class OnboardingScreen extends StatelessWidget {
     ),
   );
 },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6C63FF),
-                    foregroundColor: context.nexora.textPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: Text(
-                    'Next',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6C63FF),
+                              foregroundColor: context.nexora.textPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            child: Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+                      ],
                     ),
                   ),
                 ),
               ),
-
-              SizedBox(height: 20),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

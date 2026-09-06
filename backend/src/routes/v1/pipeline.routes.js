@@ -19,6 +19,8 @@ const {
   getPipelineStats,
   retryPipeline,
   getPipelineStages,
+  orchestrateVerification,
+  getVerificationState,
 } = require('../../controllers/v1/pipeline.controller');
 
 // GET /api/v1/pipeline/stages
@@ -40,5 +42,13 @@ router.get('/:postId/history', protect, validateObjectId('postId'), getPipelineH
 // POST /api/v1/pipeline/retry/:postId
 // Re-trigger pipeline for a failed/rejected post
 router.post('/retry/:postId', protect, validateObjectId('postId'), retryPipeline);
+
+// POST /api/v1/pipeline/verify/:postId
+// Trigger verification orchestration (Gemini → Fact Check → Trust Score)
+router.post('/verify/:postId', protect, validateObjectId('postId'), orchestrateVerification);
+
+// GET /api/v1/pipeline/verify/:postId
+// Get current verification state for a post
+router.get('/verify/:postId', protect, validateObjectId('postId'), getVerificationState);
 
 module.exports = router;

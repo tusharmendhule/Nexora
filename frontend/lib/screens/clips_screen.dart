@@ -14,6 +14,7 @@ import 'user_profile_screen.dart';
 import '../models/clip.dart';
 import '../services/clip_service.dart';
 import '../services/like_service.dart';
+import '../services/moment_service.dart';
 import '../services/post_service.dart';
 
 class ClipsScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class ClipsScreen extends StatefulWidget {
 class _ClipsScreenState extends State<ClipsScreen>
     with RouteAware, WidgetsBindingObserver {
   final ClipService _clipService = ClipService();
+  final MomentService _momentService = MomentService();
   final LikeService _likeService = LikeService();
   final PostService _postService = PostService();
   final PageController _pageController = PageController();
@@ -41,6 +43,11 @@ class _ClipsScreenState extends State<ClipsScreen>
   final Map<String, GlobalKey<_VideoPlayerWidgetState>> _playerKeys = {};
 
   List<Clip> clips = [];
+
+  /// Clips persist in the feed — they are NOT auto-removed after viewing.
+  /// Only explicit user deletion removes a clip.
+  List<Clip> get _visibleClips => clips;
+
   int currentClip = 0;
   bool isLoading = true;
 
@@ -98,6 +105,19 @@ class _ClipsScreenState extends State<ClipsScreen>
     _resumeCurrentClip();
   }
 
+  /// Record that the user watched the clip at [index] on the server.
+  /// Unlike moments, clips are NOT removed from the feed after viewing —
+  /// they persist until the user explicitly deletes them.
+  void _markClipViewed(int index) {
+    if (index < 0 || index >= _visibleClips.length) return;
+    final clip = _visibleClips[index];
+    if (clip.isViewed) return;
+    // Fire-and-forget server notification only; no local state removal.
+    unawaited(
+      _momentService.markAsViewed(clip.id).catchError((_) {}),
+    );
+  }
+
   Future<void> _loadClips() async {
     final loadedClips = await _clipService.fetchClips();
 
@@ -139,10 +159,12 @@ class _ClipsScreenState extends State<ClipsScreen>
 
   /// Player widget of the clip currently on screen, if it exists yet.
   _VideoPlayerWidgetState? _currentPlayerState() {
-    if (clips.isEmpty || currentClip < 0 || currentClip >= clips.length) {
+    if (_visibleClips.isEmpty ||
+        currentClip < 0 ||
+        currentClip >= _visibleClips.length) {
       return null;
     }
-    return _playerKeys[clips[currentClip].id]?.currentState;
+    return _playerKeys[_visibleClips[currentClip].id]?.currentState;
   }
 
   /// Every player currently mounted (the visible clip plus cached
@@ -238,7 +260,7 @@ class _ClipsScreenState extends State<ClipsScreen>
       backgroundColor: Colors.black,
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.white))
-          : clips.isEmpty
+          : _visibleClips.isEmpty
           ? const Center(
               child: Text(
                 'No clips available.',
@@ -250,7 +272,7 @@ class _ClipsScreenState extends State<ClipsScreen>
                 PageView.builder(
                   controller: _pageController,
                   scrollDirection: Axis.vertical,
-                  itemCount: clips.length,
+                  itemCount: _visibleClips.length,
                   onPageChanged: (index) {
                     setState(() {
                       currentClip = index;
@@ -262,6 +284,7 @@ class _ClipsScreenState extends State<ClipsScreen>
                       state.pause();
                     }
                     _resumeCurrentClip();
+                    _markClipViewed(index);
                   },
                   itemBuilder: (context, index) {
                     return _clipPage(index);
@@ -304,8 +327,12 @@ class _ClipsScreenState extends State<ClipsScreen>
   }
 
   Widget _clipPage(int index) {
-    final clip = clips[index];
-    final gradient = gradients[index % gradients.length];
+    final clip = _visibleClips[index];
+    // Gradients follow the original clip order so they stay stable even
+    // after watched clips drop out of the feed.
+    final originalIndex = clips.indexOf(clip);
+    final gradient = gradients[
+        (originalIndex < 0 ? index : originalIndex) % gradients.length];
 
     return Container(
       color: Colors.black,
@@ -559,7 +586,7 @@ class _ClipsScreenState extends State<ClipsScreen>
   }
 
   Widget _actionColumn() {
-    final clip = clips[currentClip];
+    final clip = _visibleClips[currentClip];
 
     return Column(
       children: [
@@ -575,7 +602,7 @@ class _ClipsScreenState extends State<ClipsScreen>
           Icons.chat_bubble_outline,
           '84',
           onTap: () {
-            final creator = clips[currentClip].creatorUsername;
+            final creator = _visibleClips[currentClip].creatorUsername;
 
             _navigateTo(CommentsScreen(username: creator));
           },
@@ -591,7 +618,7 @@ class _ClipsScreenState extends State<ClipsScreen>
           Icons.send_outlined,
           'Share',
           onTap: () {
-            final creator = clips[currentClip].creatorUsername;
+            final creator = _visibleClips[currentClip].creatorUsername;
 
             _navigateTo(ShareScreen(postAuthor: creator));
           },
@@ -600,11 +627,11 @@ class _ClipsScreenState extends State<ClipsScreen>
         const SizedBox(height: 20),
 
         _clipAction(
-          (_savedClips[clips[currentClip].id] ?? false)
+          (_savedClips[_visibleClips[currentClip].id] ?? false)
               ? Icons.bookmark
               : Icons.bookmark_border,
           'Save',
-          onTap: () => _toggleSaveClip(clips[currentClip]),
+          onTap: () => _toggleSaveClip(_visibleClips[currentClip]),
         ),
       ],
     );
@@ -708,18 +735,22 @@ class _ClipsScreenState extends State<ClipsScreen>
   final Map<String, bool> _mutedClips = {};
 
   bool _hasCurrentVideo() {
-    if (clips.isEmpty || currentClip >= clips.length) return false;
-    return !clips[currentClip].videoUrl.startsWith('demo://');
+    if (_visibleClips.isEmpty || currentClip >= _visibleClips.length) {
+      return false;
+    }
+    return !_visibleClips[currentClip].videoUrl.startsWith('demo://');
   }
 
   bool _isCurrentClipMuted() {
-    if (clips.isEmpty || currentClip >= clips.length) return true;
-    return _mutedClips[clips[currentClip].id] ?? true;
+    if (_visibleClips.isEmpty || currentClip >= _visibleClips.length) {
+      return true;
+    }
+    return _mutedClips[_visibleClips[currentClip].id] ?? true;
   }
 
   void _toggleCurrentMute() {
-    if (clips.isEmpty || currentClip >= clips.length) return;
-    final clip = clips[currentClip];
+    if (_visibleClips.isEmpty || currentClip >= _visibleClips.length) return;
+    final clip = _visibleClips[currentClip];
     final state = _playerKeys[clip.id]?.currentState;
     if (state != null) {
       state.setMuted(!_isCurrentClipMuted());
@@ -734,7 +765,7 @@ class _ClipsScreenState extends State<ClipsScreen>
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: List.generate(clips.length, (index) {
+          children: List.generate(_visibleClips.length, (index) {
             final selected = currentClip == index;
 
             return AnimatedContainer(

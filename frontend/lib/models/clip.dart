@@ -22,6 +22,10 @@ class Clip {
   final bool isSaved;
   final bool isReposted;
 
+  /// Whether the current user already watched this clip. Viewed clips are
+  /// hidden from the Clips feed so watched content drops out automatically.
+  final bool isViewed;
+
   final DateTime createdAt;
 
   const Clip({
@@ -39,6 +43,7 @@ class Clip {
     this.isLiked = false,
     this.isSaved = false,
     this.isReposted = false,
+    this.isViewed = false,
     required this.createdAt,
   });
 }

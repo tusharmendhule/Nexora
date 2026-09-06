@@ -104,10 +104,24 @@ const storySchema = new mongoose.Schema(
 );
 
 // ==========================================
-// ⚡ AUTOMATED EXPIRATION (TTL INDEX)
+// ⚡ AUTOMATED EXPIRATION (PARTIAL TTL INDEX)
 // ==========================================
-// Automatically deletes the story document from MongoDB 24 hours (86400 seconds) after creation
-storySchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
+// Moments are ephemeral like Instagram Stories: MongoDB automatically deletes
+// them 24 hours (86400 seconds) after creation.
+//
+// Clips are Reels-style content and must NOT expire — the partial filter
+// restricts the TTL to `storyType: 'moment'` documents, so clip documents
+// (storyType: 'clip') persist until the owner explicitly deletes them.
+storySchema.index(
+  { createdAt: 1 },
+  {
+    // Name matches backend/scripts/sync-story-ttl.js so a restart (mongoose
+    // autoIndex) reuses the same index instead of creating a duplicate.
+    name: 'createdAt_1_moments_only',
+    expireAfterSeconds: 86400,
+    partialFilterExpression: { storyType: 'moment' },
+  }
+);
 
 // Compound Index for fetching active stories per user fast
 storySchema.index({ user: 1, createdAt: -1 });

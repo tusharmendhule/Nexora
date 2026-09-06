@@ -42,11 +42,13 @@ router.get('/', protect, async (req, res) => {
 
     const currentUserId = req.user._id.toString();
     const likesOf = (likes = []) => likes.map((id) => id?.toString?.());
+    const viewedBy = (views = []) => views.map((v) => v?.user?.toString?.());
 
     // Map to the shape the Flutter MomentService expects
     const mapped = stories.map((s) => {
       const userObj = s.user;
       const likeIds = likesOf(s.likes);
+      const viewIds = viewedBy(s.views);
       return {
         _id: s._id,
         userId: userObj?._id?.toString() ?? s.user?.toString() ?? '',
@@ -59,7 +61,8 @@ router.get('/', protect, async (req, res) => {
         caption: s.caption,
         createdAt: s.createdAt,
         expiresAt: new Date(new Date(s.createdAt).getTime() + 24 * 60 * 60 * 1000),
-        viewCount: s.views?.length ?? 0,
+        viewCount: viewIds.length,
+        viewedByMe: viewIds.includes(currentUserId),
         likeCount: likeIds.length,
         likedByMe: likeIds.includes(currentUserId),
         commentCount: s.comments?.length ?? 0,
@@ -115,6 +118,7 @@ router.post('/', protect, async (req, res) => {
         createdAt: story.createdAt,
         expiresAt: new Date(new Date(story.createdAt).getTime() + 24 * 60 * 60 * 1000),
         viewCount: story.views?.length ?? 0,
+        viewedByMe: false,
         likeCount: story.likes?.length ?? 0,
         likedByMe: false,
         commentCount: 0,
@@ -153,6 +157,9 @@ router.get('/:id', protect, validateObjectId('id'), async (req, res) => {
         createdAt: story.createdAt,
         expiresAt: new Date(new Date(story.createdAt).getTime() + 24 * 60 * 60 * 1000),
         viewCount: story.views?.length ?? 0,
+        viewedByMe: (story.views || []).some(
+          (v) => v?.user?.toString() === currentUserId
+        ),
         likeCount: likeIds.length,
         likedByMe: likeIds.includes(currentUserId),
         commentCount: story.comments?.length ?? 0,

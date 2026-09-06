@@ -67,13 +67,16 @@ class ClipService {
         if (body['success'] == true && body['stories'] != null) {
           final storiesList = body['stories'] as List;
           return storiesList
-              // Defensive: only actual clips (video, marked as clip) belong
-              // in the Clips tab.
+              // Only actual clips (video, marked as clip) belong in the
+              // Clips tab. Unlike moments, clips persist in the feed —
+              // they are NOT auto-removed after being viewed. The user
+              // must explicitly delete a clip to remove it.
               .where((s) {
                 final map = s as Map<String, dynamic>;
                 final storyType = map['storyType']?.toString() ?? 'moment';
                 final mediaType = map['mediaType']?.toString() ?? 'image';
-                return storyType == 'clip' && mediaType == 'video';
+                return storyType == 'clip' &&
+                    mediaType == 'video';
               })
               .map((s) {
             final map = s as Map<String, dynamic>;
@@ -86,6 +89,7 @@ class ClipService {
               caption: map['caption']?.toString() ?? '',
               music: null,
               label: NexoraLabel.pendingVerification,
+              isViewed: map['viewedByMe'] as bool? ?? false,
               createdAt: map['createdAt'] != null
                   ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
                   : DateTime.now(),

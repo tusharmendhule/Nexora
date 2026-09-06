@@ -96,7 +96,10 @@ class MomentService {
               expiresAt: map['expiresAt'] != null
                   ? DateTime.tryParse(map['expiresAt'].toString()) ?? DateTime.now().add(const Duration(hours: 24))
                   : DateTime.now().add(const Duration(hours: 24)),
-              isViewed: map['isViewed'] as bool? ?? false,
+              // Backend sends `viewedByMe`; `isViewed` is the legacy alias.
+              isViewed: map['viewedByMe'] as bool? ??
+                  map['isViewed'] as bool? ??
+                  false,
               likeCount: (map['likeCount'] as num?)?.toInt() ?? 0,
               isLiked: map['likedByMe'] as bool? ??
                   map['isLiked'] as bool? ??
@@ -146,6 +149,9 @@ class MomentService {
                 map['isLiked'] as bool? ??
                 false,
             commentCount: (map['commentCount'] as num?)?.toInt() ?? 0,
+            isViewed: map['viewedByMe'] as bool? ??
+                map['isViewed'] as bool? ??
+                false,
           );
         }
       }

@@ -99,6 +99,10 @@ class _HomeScreenState extends State<HomeScreen> {
     for (final moment in moments) {
       if (moment.creatorId == _currentUserId) continue;
       if (!moment.expiresAt.isAfter(now)) continue;
+      // Watched moments drop out of the tray automatically — only unwatched
+      // moments from other users stay. The user's own "You" circle above
+      // is unaffected (their own moments stay visible).
+      if (moment.isViewed) continue;
       if (!seenCreators.add(moment.creatorId)) continue;
       otherMoments.add(moment);
     }
@@ -1563,13 +1567,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(width: 7),
-            // Label name — always visible, never color-only
-            Text(
-              label.name,
-              style: TextStyle(
-                color: label.color,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+            // Label name — always visible, never color-only. Wrapped in a
+            // Flexible so long real labels (e.g. "Partially Verified / Needs
+            // Caution") ellipsize instead of overflowing the card width.
+            Flexible(
+              child: Text(
+                label.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: label.color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             SizedBox(width: 8),
