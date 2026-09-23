@@ -203,7 +203,6 @@ const auditLogSchema = new mongoose.Schema(
     correlationId: {
       type: String,
       default: null,
-      index: true,
     },
 
     // ─── Integrity ─────────────────────────────────────────

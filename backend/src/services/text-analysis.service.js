@@ -10,6 +10,7 @@
 
 const axios = require('axios');
 const TextAnalysis = require('../models/text-analysis.model');
+const { describeAiServiceError } = require('../utils/ai-service-error');
 
 // ─── Configuration ────────────────────────────────────────────────
 
@@ -75,7 +76,9 @@ async function analyzeText(job) {
     return { status: 'COMPLETED', results, modelVersion: 'nexora-text-v1.2.0' };
   }
 
-  // Call the Python AI service
+  // Call the Python AI service. If it is unavailable the authenticity signal
+  // is reported as UNAVAILABLE (spec §31) — the post is not failed and no
+  // probabilities are invented. Claims are extracted separately.
   let aiResponse;
   try {
     aiResponse = await axios.post(
@@ -84,17 +87,34 @@ async function analyzeText(job) {
       { timeout: AI_SERVICE_TIMEOUT }
     );
   } catch (err) {
-    if (err.code === 'ECONNREFUSED') {
-      throw new Error(
-        'AI service is not available. Start the Python service on ' + AI_SERVICE_URL
-      );
-    }
-    if (err.response && err.response.data) {
-      throw new Error(
-        `AI service error: ${err.response.data.detail || err.response.statusText}`
-      );
-    }
-    throw new Error(`AI service request failed: ${err.message}`);
+    const availability = describeAiServiceError(err, 'text');
+    console.error(`[TextAnalysis] ${availability.message}`);
+
+    const degraded = {
+      preprocessing: {
+        characterCount: text.length,
+        wordCount: text.split(/\s+/).filter(Boolean).length,
+        sentenceCount: text.split(/[.!?]+/).filter((s) => s.trim()).length,
+        language: 'unknown',
+        languageConfidence: 0,
+        cleanedText: text.substring(0, 10000),
+      },
+      misinformationProbability: null,
+      aiGeneratedProbability: null,
+      claims: [],
+      entities: [],
+      confidence: null,
+      authenticityUnavailable: true,
+      error: availability,
+      finalScore: null,
+    };
+
+    return {
+      status: 'REVIEW_REQUIRED',
+      results: degraded,
+      modelVersion: null,
+      authenticityUnavailable: true,
+    };
   }
 
   const ai = aiResponse.data;

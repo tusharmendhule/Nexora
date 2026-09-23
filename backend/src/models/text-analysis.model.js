@@ -31,7 +31,6 @@ const textAnalysisSchema = new mongoose.Schema(
       ref: 'ContentJob',
       required: false,
       default: null,
-      index: true,
     },
 
     // Reference to the post
@@ -39,7 +38,6 @@ const textAnalysisSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post',
       required: true,
-      index: true,
     },
 
     // Original input text

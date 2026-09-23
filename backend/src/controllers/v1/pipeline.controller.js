@@ -261,6 +261,10 @@ exports.orchestrateVerification = async (req, res, next) => {
       verification: {
         providerUsed: result.providerUsed,
         providerStatus: result.providerStatus,
+        // Real extracted claims (never undefined): the sequential path stores
+        // them on `claims`, while the fallback path carries them on
+        // `geminiAnalysis`. Surface both so callers always get actual claims.
+        claims: result.claims || [],
         geminiAnalysis: result.geminiAnalysis,
         factCheckResults: result.factCheckResults,
         evidenceItems: result.evidenceItems,

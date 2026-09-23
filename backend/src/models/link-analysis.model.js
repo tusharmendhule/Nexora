@@ -68,7 +68,6 @@ const linkAnalysisSchema = new mongoose.Schema(
       ref: 'ContentJob',
       required: false,
       default: null,
-      index: true,
     },
 
     // Reference to the post (null for standalone analysis)
@@ -77,7 +76,6 @@ const linkAnalysisSchema = new mongoose.Schema(
       ref: 'Post',
       required: false,
       default: null,
-      index: true,
     },
 
     // Original URL submitted by the user
@@ -164,6 +162,13 @@ const linkAnalysisSchema = new mongoose.Schema(
       languageConfidence: { type: Number, default: 0 },
     },
 
+    // True when the per-claim misinformation model returned no assessments,
+    // so no real authenticity signal exists for this analysis.
+    authenticityUnavailable: {
+      type: Boolean,
+      default: false,
+    },
+
     // Misinformation probability (0-1)
     misinformationProbability: {
       type: Number,
@@ -172,7 +177,7 @@ const linkAnalysisSchema = new mongoose.Schema(
       max: 1,
     },
 
-    // Source credibility score (0-1) based on domain analysis
+    // Publisher credibility score (0-1) from the curated reputation table
     sourceCredibility: {
       type: Number,
       required: false,

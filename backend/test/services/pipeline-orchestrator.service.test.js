@@ -223,7 +223,7 @@ function setupMocksForTextPipeline() {
       aiGeneratedProbability: 0.05,
       confidence: 0.85,
       finalScore: 82,
-      claims: [{ text: 'Water is essential' }],
+      claims: [{ text: 'Drinking water is essential for human survival' }],
       entities: [{ text: 'Scientists', label: 'ENTITY' }],
     },
     modelVersion: 'nexora-text-v1.2.0',
@@ -234,7 +234,13 @@ function setupMocksForTextPipeline() {
     results: { claimCount: 1, entityCount: 1 },
     modelVersion: 'nexora-claims-v1.0.0',
     savedAnalysis: {
-      claims: [{ text: 'Water is essential', textHash: 'abc123' }],
+      claims: [
+        {
+          text: 'Drinking water is essential for human survival',
+          claimType: 'factual claim',
+          textHash: 'abc123',
+        },
+      ],
       entities: [{ text: 'Scientists', label: 'ENTITY' }],
       confidence: 0.8,
       verificationScore: 75,
@@ -358,27 +364,29 @@ describe('Pipeline Orchestrator (Module 17)', () => {
       expect(stages.length).toBe(STAGES.length - 1);
     });
 
-    it('should skip claim/entity/fact-check stages for IMAGE', () => {
+    it('should skip entity extraction but keep claim/fact-check stages for IMAGE', () => {
       const stages = buildStageList('IMAGE');
-      expect(stages).not.toContain('CLAIM_EXTRACTION');
+      // Media can carry verifiable claims (on-screen text, captions), so the
+      // claim and fact-check stages now run for media content types.
       expect(stages).not.toContain('ENTITY_EXTRACTION');
-      expect(stages).not.toContain('FACT_VERIFICATION');
+      expect(stages).toContain('CLAIM_EXTRACTION');
+      expect(stages).toContain('FACT_VERIFICATION');
       expect(stages).toContain('AI_ANALYSIS');
       expect(stages).toContain('TRUST_SCORE');
     });
 
-    it('should skip claim/entity/fact-check stages for VIDEO', () => {
+    it('should skip entity extraction but keep claim/fact-check stages for VIDEO', () => {
       const stages = buildStageList('VIDEO');
-      expect(stages).not.toContain('CLAIM_EXTRACTION');
       expect(stages).not.toContain('ENTITY_EXTRACTION');
-      expect(stages).not.toContain('FACT_VERIFICATION');
+      expect(stages).toContain('CLAIM_EXTRACTION');
+      expect(stages).toContain('FACT_VERIFICATION');
     });
 
-    it('should skip claim/entity/fact-check stages for AUDIO', () => {
+    it('should skip entity extraction but keep claim/fact-check stages for AUDIO', () => {
       const stages = buildStageList('AUDIO');
-      expect(stages).not.toContain('CLAIM_EXTRACTION');
       expect(stages).not.toContain('ENTITY_EXTRACTION');
-      expect(stages).not.toContain('FACT_VERIFICATION');
+      expect(stages).toContain('CLAIM_EXTRACTION');
+      expect(stages).toContain('FACT_VERIFICATION');
     });
 
     it('should include all stages for LINK content', () => {
@@ -541,8 +549,8 @@ describe('Pipeline Orchestrator (Module 17)', () => {
 
   // ── 4. IMAGE Pipeline — Skipped Stages ─────────────────────────
 
-  describe('IMAGE content type — skipped stages', () => {
-    it('should skip claim extraction, entity extraction, and fact verification for IMAGE', async () => {
+  describe('IMAGE content type — media claims are fact-checked', () => {
+    it('should run image analysis and fact-check the media/caption claims for IMAGE', async () => {
       const post = createMockPost({ contentType: 'image', media: [{ url: 'https://example.com/img.jpg', type: 'image' }] });
       const job = createMockJob({ contentType: 'IMAGE' });
 
@@ -594,6 +602,33 @@ describe('Pipeline Orchestrator (Module 17)', () => {
         modelVersion: 'nexora-image-v1.0.0',
       });
 
+      // No media verification was attached to the image result, so the caption
+      // fallback path extracts claims from the post text.
+      claimEntityService.extractDirect.mockResolvedValue({
+        status: 'COMPLETED',
+        results: { claimCount: 1, entityCount: 0 },
+        modelVersion: 'nexora-claims-v1.0.0',
+        savedAnalysis: {
+          claims: [
+            {
+              text: 'Drinking water is essential for human survival',
+              claimType: 'factual claim',
+              textHash: 'img123',
+            },
+          ],
+          entities: [],
+          confidence: 0.8,
+          verificationScore: 75,
+        },
+      });
+
+      factCheckService.factCheckClaims.mockResolvedValue({
+        results: [{ status: 'NO_EVIDENCE', reviews: [], classifiedRatings: [] }],
+        aggregateStatus: 'NO_EVIDENCE',
+        summary: { total: 1, verified: 0, false: 0, mixed: 0, noEvidence: 1, unknown: 0 },
+      });
+      factCheckService.computeFactualVerificationScore.mockReturnValue(0.5);
+
       evidenceNormalizationService.normalizeAndStoreEvidence.mockResolvedValue({
         _id: 'ev_001',
         evidenceItems: [{ source: 'Content Metadata', evidenceCategory: 'positive', confidence: 0.5, sourceReliability: 0.5 }],
@@ -620,14 +655,15 @@ describe('Pipeline Orchestrator (Module 17)', () => {
 
       await executePipeline(post, job);
 
-      // These should NOT be called for IMAGE content
+      // Text NLP analysis is NOT run for pure IMAGE content
       expect(textAnalysisService.analyzeText).not.toHaveBeenCalled();
-      expect(claimEntityService.extractDirect).not.toHaveBeenCalled();
-      expect(factCheckService.factCheckClaims).not.toHaveBeenCalled();
 
       // Image analysis SHOULD be called for IMAGE content
       expect(imageAnalysisService.analyzeImage).toHaveBeenCalledTimes(1);
       expect(imageAnalysisService.analyzeImage).toHaveBeenCalledWith(job);
+
+      // The media post's claims are still fact-checked (Google Fact Check)
+      expect(factCheckService.factCheckClaims).toHaveBeenCalled();
 
       // Trust score should still be computed
       expect(trustScoreService.computeAndStoreTrustScore).toHaveBeenCalled();
@@ -1163,7 +1199,7 @@ describe('Pipeline Orchestrator (Module 17)', () => {
       const pipeline = await initializePipeline(post, contentType);
 
       const createArg = PipelineStage.create.mock.calls[0][0];
-      expect(createArg.stages.length).toBe(8); // 12 minus CONTENT_UPLOAD, CLAIM_EXTRACTION, ENTITY_EXTRACTION, FACT_VERIFICATION
+      expect(createArg.stages.length).toBe(10); // 12 minus CONTENT_UPLOAD, ENTITY_EXTRACTION
     });
   });
 

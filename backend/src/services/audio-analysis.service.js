@@ -10,6 +10,7 @@
 
 const axios = require('axios');
 const AudioAnalysis = require('../models/audio-analysis.model');
+const { describeAiServiceError } = require('../utils/ai-service-error');
 
 // ─── Configuration ────────────────────────────────────────────────
 
@@ -49,118 +50,136 @@ async function analyzeAudio(job) {
     };
   }
 
-  // Call the Python AI service
-  let aiResponse;
+  // ── Authenticity model (Python AI service) ─────────────────────────
+  // Unavailable model ⇒ record the signal as unavailable (spec §31); do not
+  // fail the post and do not invent probabilities. The transcript + fact-check
+  // path still runs so real claims are still produced.
+  let ai = null;
+  let authenticityError = null;
   try {
-    aiResponse = await axios.post(
+    const aiResponse = await axios.post(
       `${AI_SERVICE_URL}/analyze/audio`,
       { mediaUrl, postId: post._id.toString() },
       { timeout: AI_SERVICE_TIMEOUT }
     );
+    ai = aiResponse.data;
   } catch (err) {
-    if (err.code === 'ECONNREFUSED') {
-      throw new Error(
-        'AI service is not available. Start the Python service on ' +
-          AI_SERVICE_URL
-      );
-    }
-    if (err.code === 'ECONNABORTED' || err.code === 'ETIMEDOUT') {
-      throw new Error(
-        'AI audio service request timed out. Audio processing may be too slow.'
-      );
-    }
-    if (err.response && err.response.data) {
-      throw new Error(
-        `AI service error: ${err.response.data.detail || err.response.statusText}`
-      );
-    }
-    throw new Error(`AI service request failed: ${err.message}`);
+    authenticityError = describeAiServiceError(err, 'audio');
+    console.error(`[AudioAnalysis] ${authenticityError.message}`);
   }
 
-  const ai = aiResponse.data;
+  let results;
+  let modelVersion = null;
+  let manipulationProbability = 0;
+  let authenticityScore = null;
+  let modelConfidenceScore = null;
+  let aiGeneratedProbability = null;
+  let aiDetectionModel = null;
+  let needsReview = true;
 
-  // Build composite trust score for audio content
-  const syntheticFactor = 1 - ai.syntheticSpeechProbability;
-  const manipulationFactor = 1 - ai.manipulationProbability;
-  const confidenceFactor = ai.confidence;
+  if (ai) {
+    // Build composite trust score for audio content
+    const syntheticFactor = 1 - ai.syntheticSpeechProbability;
+    const manipulationFactor = 1 - ai.manipulationProbability;
+    const confidenceFactor = ai.confidence;
 
-  const finalScore = Math.round(
-    (syntheticFactor * 0.35 +
-      manipulationFactor * 0.35 +
-      confidenceFactor * 0.30) *
-      100
-  );
-
-  const results = {
-    syntheticSpeechProbability: ai.syntheticSpeechProbability,
-    manipulationProbability: ai.manipulationProbability,
-    confidence: ai.confidence,
-    finalScore: Math.max(0, Math.min(100, finalScore)),
-  };
-
-  // Store analysis in MongoDB
-  await AudioAnalysis.create({
-    contentJob: job._id,
-    post: job.post,
-    mediaUrl,
-    preprocessing: ai.preprocessing || {},
-    syntheticSpeechProbability: ai.syntheticSpeechProbability,
-    manipulationProbability: ai.manipulationProbability,
-    spectralFeatures: ai.spectralFeatures || {},
-    melSpectrogramStats: ai.melSpectrogramStats || {},
-    segments: (ai.segments || []).map((s) => ({
-      startTime: s.startTime,
-      endTime: s.endTime,
-      syntheticScore: s.syntheticScore,
-      manipulationScore: s.manipulationScore,
-      spectralAnomaly: s.spectralAnomaly,
-    })),
-    confidence: ai.confidence,
-    modelVersion: ai.modelVersion,
-    processingTimeMs: ai.processingTimeMs,
-    errors: (ai.errors || []).map((e) => ({
-      stage: e.stage,
-      message: e.message,
-    })),
-  });
-
-  // Create TrustScore through the rule engine (documented Nexora formula).
-  // Audio alone cannot verify factual claims, so factualVerification and
-  // sourceCredibility stay neutral (0.5) — never assumed true or false.
-  try {
-    const trustScoreService = require('./trust-score.service');
-    await trustScoreService.computeAndStoreTrustScore(
-      job.post,
-      {
-        authenticityScore: 1 - Math.max(
-          ai.syntheticSpeechProbability || 0,
-          ai.manipulationProbability || 0
-        ),
-        factualVerificationScore: 0.5, // no factual claims verified for audio
-        sourceCredibilityScore: 0.5,   // no source evidence for audio
-        modelConfidenceScore: ai.confidence,
-        contentType: 'audio',
-        manipulationProbability: Math.max(
-          ai.syntheticSpeechProbability || 0,
-          ai.manipulationProbability || 0
-        ),
-        modelVersion: ai.modelVersion || 'nexora-audio-v1.0.0',
-      }
+    const finalScore = Math.round(
+      (syntheticFactor * 0.35 +
+        manipulationFactor * 0.35 +
+        confidenceFactor * 0.30) *
+        100
     );
-  } catch (tsErr) {
-    console.error('[AudioAnalysis] Failed to create TrustScore:', tsErr.message);
+
+    results = {
+      syntheticSpeechProbability: ai.syntheticSpeechProbability,
+      manipulationProbability: ai.manipulationProbability,
+      confidence: ai.confidence,
+      finalScore: Math.max(0, Math.min(100, finalScore)),
+      authenticityUnavailable: false,
+    };
+
+    // Store analysis in MongoDB
+    await AudioAnalysis.create({
+      contentJob: job._id,
+      post: job.post,
+      mediaUrl,
+      preprocessing: ai.preprocessing || {},
+      syntheticSpeechProbability: ai.syntheticSpeechProbability,
+      manipulationProbability: ai.manipulationProbability,
+      spectralFeatures: ai.spectralFeatures || {},
+      melSpectrogramStats: ai.melSpectrogramStats || {},
+      segments: (ai.segments || []).map((s) => ({
+        startTime: s.startTime,
+        endTime: s.endTime,
+        syntheticScore: s.syntheticScore,
+        manipulationScore: s.manipulationScore,
+        spectralAnomaly: s.spectralAnomaly,
+      })),
+      confidence: ai.confidence,
+      modelVersion: ai.modelVersion,
+      processingTimeMs: ai.processingTimeMs,
+      errors: (ai.errors || []).map((e) => ({
+        stage: e.stage,
+        message: e.message,
+      })),
+    });
+
+    modelVersion = ai.modelVersion;
+    manipulationProbability = Math.max(
+      ai.syntheticSpeechProbability || 0,
+      ai.manipulationProbability || 0
+    );
+    authenticityScore = 1 - manipulationProbability;
+    modelConfidenceScore = ai.confidence;
+    aiGeneratedProbability =
+      typeof ai.syntheticSpeechProbability === 'number'
+        ? ai.syntheticSpeechProbability
+        : null;
+    aiDetectionModel = ai.modelVersion || null;
+    needsReview =
+      ai.syntheticSpeechProbability > 0.6 ||
+      ai.manipulationProbability > 0.7 ||
+      ai.confidence < 0.3;
+  } else {
+    results = {
+      authenticityUnavailable: true,
+      error: authenticityError,
+      message:
+        'Audio authenticity model unavailable — no synthetic-speech ' +
+        'probabilities were produced. Transcription and fact checking still run.',
+    };
   }
 
-  // Determine if review is required
-  const needsReview =
-    ai.syntheticSpeechProbability > 0.6 ||
-    ai.manipulationProbability > 0.7 ||
-    ai.confidence < 0.3;
+  // Full media verification: Speech-to-Text transcript → claims → Google Fact
+  // Check → source credibility → Trust Score (backend calculation).
+  // NOTE: the synthetic-speech probability is a genuine AI-generated-audio
+  // detector signal, kept separate from the transcript / factuality.
+  let mediaVerification = null;
+  try {
+    const mediaVerificationService = require('./media-verification.service');
+    mediaVerification = await mediaVerificationService.verifyAndScoreMedia({
+      postId: job.post,
+      contentType: 'AUDIO',
+      mediaUrl,
+      caption: post.text || null,
+      authenticityScore,
+      modelConfidenceScore,
+      manipulationProbability,
+      aiGeneratedProbability,
+      aiDetectionModel,
+      contentJobId: job._id,
+      modelVersion: modelVersion || 'nexora-audio-v1.0.0',
+      authenticityUnavailable: !ai,
+    });
+  } catch (tsErr) {
+    console.error('[AudioAnalysis] Media verification/TrustScore failed:', tsErr.message);
+  }
 
   return {
     status: needsReview ? 'REVIEW_REQUIRED' : 'COMPLETED',
     results,
-    modelVersion: ai.modelVersion,
+    modelVersion,
+    mediaVerification,
   };
 }
 

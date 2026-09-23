@@ -82,7 +82,6 @@ const audioAnalysisSchema = new mongoose.Schema(
       ref: 'ContentJob',
       required: false,
       default: null,
-      index: true,
     },
 
     // Reference to the post (null for standalone analysis without a post)
@@ -91,7 +90,6 @@ const audioAnalysisSchema = new mongoose.Schema(
       ref: 'Post',
       required: false,
       default: null,
-      index: true,
     },
 
     // Original input media URL

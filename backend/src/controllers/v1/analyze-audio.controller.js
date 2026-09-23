@@ -152,31 +152,34 @@ async function processAudioInBackground(jobId, analysisId, mediaUrl, postId) {
       })),
     });
 
-    // Create TrustScore through the rule engine (documented Nexora formula)
-    // if postId is provided. Audio alone cannot verify factual claims, so
-    // factualVerification/sourceCredibility stay neutral (0.5) — never
-    // assumed true or false.
+    // Full media verification + TrustScore (documented Nexora formula) when a
+    // post is provided: Speech-to-Text → transcript → claims → Google Fact
+    // Check → source credibility. The synthetic-speech probability is a real
+    // AI-generated-audio signal and stays separate from the transcript.
     if (postId) {
       try {
-        const trustScoreService = require('../../services/trust-score.service');
+        const mediaVerificationService = require('../../services/media-verification.service');
         const manipulationProbability = Math.max(
           ai.syntheticSpeechProbability || 0,
           ai.manipulationProbability || 0
         );
-        await trustScoreService.computeAndStoreTrustScore(
+        await mediaVerificationService.verifyAndScoreMedia({
           postId,
-          {
-            authenticityScore: 1 - manipulationProbability,
-            factualVerificationScore: 0.5,
-            sourceCredibilityScore: 0.5,
-            modelConfidenceScore: confidenceFactor,
-            contentType: 'audio',
-            manipulationProbability,
-            modelVersion: ai.modelVersion || 'nexora-audio-v1.0.0',
-          }
-        );
+          contentType: 'AUDIO',
+          mediaUrl,
+          caption: null,
+          authenticityScore: 1 - manipulationProbability,
+          modelConfidenceScore: confidenceFactor,
+          manipulationProbability,
+          aiGeneratedProbability:
+            typeof ai.syntheticSpeechProbability === 'number'
+              ? ai.syntheticSpeechProbability
+              : null,
+          aiDetectionModel: ai.modelVersion || null,
+          modelVersion: ai.modelVersion || 'nexora-audio-v1.0.0',
+        });
       } catch (tsErr) {
-        console.error('[AudioAnalysis] TrustScore creation failed:', tsErr.message);
+        console.error('[AudioAnalysis] Media verification/TrustScore failed:', tsErr.message);
       }
     }
 

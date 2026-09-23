@@ -57,12 +57,15 @@ const CRITICAL_STAGES = new Set([
   'MODERATION_DECISION',
 ]);
 
-// Stages that can be skipped for certain content types
+// Stages that can be skipped for certain content types.
+// Media types now run CLAIM_EXTRACTION and FACT_VERIFICATION because their
+// on-screen text / speech transcript can carry verifiable factual claims
+// (spec §6, §7, §11, §12, §13). Entity extraction remains text-only.
 const SKIPPABLE_FOR_TYPE = {
   TEXT: ['CONTENT_UPLOAD'],
-  IMAGE: ['CONTENT_UPLOAD', 'CLAIM_EXTRACTION', 'ENTITY_EXTRACTION', 'FACT_VERIFICATION'],
-  VIDEO: ['CONTENT_UPLOAD', 'CLAIM_EXTRACTION', 'ENTITY_EXTRACTION', 'FACT_VERIFICATION'],
-  AUDIO: ['CONTENT_UPLOAD', 'CLAIM_EXTRACTION', 'ENTITY_EXTRACTION', 'FACT_VERIFICATION'],
+  IMAGE: ['CONTENT_UPLOAD', 'ENTITY_EXTRACTION'],
+  VIDEO: ['CONTENT_UPLOAD', 'ENTITY_EXTRACTION'],
+  AUDIO: ['CONTENT_UPLOAD', 'ENTITY_EXTRACTION'],
   LINK: ['CONTENT_UPLOAD'],
 };
 
@@ -385,10 +388,27 @@ async function executeAIAnalysis(pipeline, post, contentType, job) {
       throw new Error(`Unknown content type: ${contentType}`);
   }
 
+  // Media pipelines also carry the results of the media-specific claim /
+  // fact-check / credibility path. Store a compact summary on the stage and
+  // keep the full result on the returned object for the later stages.
+  const stagePayload = { ...(analysisResult.results || analysisResult) };
+  if (analysisResult.mediaVerification) {
+    stagePayload.mediaVerification = {
+      summary: analysisResult.mediaVerification.summary,
+      factualVerificationScore: analysisResult.mediaVerification.factualVerificationScore,
+      sourceCredibilityScore: analysisResult.mediaVerification.sourceCredibilityScore,
+      isDisclosedAI: analysisResult.mediaVerification.isDisclosedAI,
+      aiGeneratedProbability: analysisResult.mediaVerification.aiGeneratedProbability,
+      claimEntityId: analysisResult.mediaVerification.claimEntityId,
+      signals: analysisResult.mediaVerification.signals,
+      modelVersions: analysisResult.mediaVerification.modelVersions,
+    };
+  }
+
   await completeStage(
     pipeline.pipelineId,
     'AI_ANALYSIS',
-    analysisResult.results || analysisResult,
+    stagePayload,
     modelVersion,
     serviceId
   );
@@ -401,10 +421,58 @@ async function executeAIAnalysis(pipeline, post, contentType, job) {
  * Extract factual claims from text content.
  * Only applicable to TEXT and LINK content types.
  */
-async function executeClaimExtraction(pipeline, post, contentType) {
+async function executeClaimExtraction(pipeline, post, contentType, aiResult = null) {
   await startStage(pipeline.pipelineId, 'CLAIM_EXTRACTION');
 
-  if (contentType !== 'TEXT' && contentType !== 'LINK') {
+  const isMedia =
+    contentType === 'IMAGE' || contentType === 'VIDEO' || contentType === 'AUDIO';
+
+  // ── Media: claims come from OCR / speech transcript extraction ──────
+  if (isMedia) {
+    const mv = aiResult?.mediaVerification || null;
+    const mediaClaims = mv?.mediaClaims || null;
+    const claims = mediaClaims?.claims || [];
+
+    if (claims.length > 0) {
+      await completeStage(
+        pipeline.pipelineId,
+        'CLAIM_EXTRACTION',
+        {
+          claimCount: claims.length,
+          claimSource: 'media',
+          contentTextAvailable: !!mediaClaims.extractedText,
+          signals: mediaClaims.signals || [],
+        },
+        mediaClaims.modelVersion,
+        'media-claims'
+      );
+      return {
+        status: 'COMPLETED',
+        results: { claimCount: claims.length, claimSource: 'media' },
+        modelVersion: mediaClaims.modelVersion,
+        savedAnalysis: { claims },
+        media: true,
+        mediaVerification: mv,
+      };
+    }
+
+    // No media-derived claims. Fall back to the post's own caption text when
+    // it is substantial enough to carry claims on its own.
+    const caption = (post.text || '').trim();
+    if (caption.length < 10) {
+      const detail = (mediaClaims?.signals || [])
+        .filter((s) => !s.available)
+        .map((s) => `${s.name}:${s.reason}`)
+        .join(', ');
+      await skipStage(
+        pipeline.pipelineId,
+        'CLAIM_EXTRACTION',
+        `No media text or caption claims available${detail ? ` (${detail})` : ''}`
+      );
+      return null;
+    }
+    // Fall through to the text path below using the caption.
+  } else if (contentType !== 'TEXT' && contentType !== 'LINK') {
     await skipStage(pipeline.pipelineId, 'CLAIM_EXTRACTION', `${contentType} content has no text claims`);
     return null;
   }
@@ -415,22 +483,81 @@ async function executeClaimExtraction(pipeline, post, contentType) {
     return null;
   }
 
+  // ── Primary: Python NLP service (spaCy SVO + BERT NER + zero-shot) ──
+  let pythonFailure = null;
   try {
     const result = await claimEntityService.extractDirect(text, post._id.toString());
-    await completeStage(
-      pipeline.pipelineId,
-      'CLAIM_EXTRACTION',
-      result.results,
-      result.modelVersion,
-      'claim-entity-extraction'
-    );
-    return result;
+    if (result?.savedAnalysis?.claims?.length > 0) {
+      await completeStage(
+        pipeline.pipelineId,
+        'CLAIM_EXTRACTION',
+        result.results,
+        result.modelVersion,
+        'claim-entity-extraction'
+      );
+      return result;
+    }
+    // The service returned but produced no claims (e.g. it reported FAILED).
+    pythonFailure = result?.results?.error || 'Python NLP service produced no claims';
   } catch (err) {
-    // Claim extraction is non-critical — log and skip
-    console.warn(`[Pipeline] Claim extraction failed: ${err.message}`);
-    await skipStage(pipeline.pipelineId, 'CLAIM_EXTRACTION', `Extraction failed: ${err.message}`);
-    return null;
+    pythonFailure = err.message;
   }
+
+  // ── Fallback: Gemini claim extraction (spec §4/§5) ─────────────────
+  // Activated only when the Python NLP service failed or returned nothing,
+  // never in parallel with it. Real API output — no fabricated claims.
+  try {
+    const geminiService = require('./gemini-analysis.service');
+    const geminiResult = await geminiService.extractClaimsWithGemini(text, null);
+
+    if (geminiResult.status === 'COMPLETED' && geminiResult.claims?.length > 0) {
+      const ClaimEntity = require('../models/claim-entity.model');
+      // Deliberately leave claimType unset so the claim classifier applies its
+      // opinion/satire heuristics (Gemini's canVerify signal is preserved).
+      const claims = geminiResult.claims.map((c) => ({
+        text: c.text,
+        claimType: c.claimType || null,
+        subject: c.subject || null,
+        predicate: c.predicate || null,
+        object: c.object || null,
+        confidence: 0.5,
+        canVerify: c.canVerify !== false,
+        textHash: ClaimEntity.hashClaimText(c.text),
+        source: 'GEMINI',
+      }));
+
+      await completeStage(
+        pipeline.pipelineId,
+        'CLAIM_EXTRACTION',
+        {
+          claimCount: claims.length,
+          claimSource: 'gemini_fallback',
+          pythonServiceError: pythonFailure,
+        },
+        geminiService.GEMINI_MODEL,
+        'gemini-claim-extraction'
+      );
+
+      return {
+        status: 'COMPLETED',
+        results: { claimCount: claims.length, claimSource: 'gemini_fallback' },
+        modelVersion: geminiService.GEMINI_MODEL,
+        savedAnalysis: { claims, entities: [], confidence: 0.5 },
+        geminiFallback: true,
+      };
+    }
+  } catch (geminiErr) {
+    console.warn(`[Pipeline] Gemini claim fallback failed: ${geminiErr.message}`);
+  }
+
+  // Both providers unavailable — skip honestly, never invent claims.
+  console.warn(`[Pipeline] Claim extraction unavailable: ${pythonFailure}`);
+  await skipStage(
+    pipeline.pipelineId,
+    'CLAIM_EXTRACTION',
+    `Extraction unavailable (Python: ${pythonFailure || 'no claims'}; Gemini fallback also failed)`
+  );
+  return null;
 }
 
 /**
@@ -439,6 +566,15 @@ async function executeClaimExtraction(pipeline, post, contentType) {
  * Typically runs as part of CLAIM_EXTRACTION, so we capture from that result.
  */
 async function executeEntityExtraction(pipeline, post, contentType, claimResult) {
+  // IMAGE / VIDEO / AUDIO pipelines exclude ENTITY_EXTRACTION from the stage
+  // list entirely (entities only make sense for text). When the stage is not
+  // part of this run, return early instead of calling startStage() — which
+  // would throw "Stage \"ENTITY_EXTRACTION\" not in pipeline" and fail the
+  // whole pipeline even though the stage is intentionally skipped.
+  if (!buildStageList(contentType).includes('ENTITY_EXTRACTION')) {
+    return null;
+  }
+
   await startStage(pipeline.pipelineId, 'ENTITY_EXTRACTION');
 
   if (contentType !== 'TEXT' && contentType !== 'LINK') {
@@ -475,10 +611,46 @@ async function executeEntityExtraction(pipeline, post, contentType, claimResult)
  *   PRIMARY: Google Fact Check API
  *   FALLBACK: Gemini / Python / ML models (only on service failure)
  */
-async function executeFactVerification(pipeline, post, contentType, claimResult) {
+async function executeFactVerification(pipeline, post, contentType, claimResult, aiResult = null) {
   await startStage(pipeline.pipelineId, 'FACT_VERIFICATION');
 
-  if (contentType !== 'TEXT' && contentType !== 'LINK') {
+  const isMedia =
+    contentType === 'IMAGE' || contentType === 'VIDEO' || contentType === 'AUDIO';
+
+  // ── Media: Google Fact Check already ran inside the media pipeline ───
+  // (claims were extracted from OCR / transcript and gated by claim type).
+  if (isMedia && aiResult?.mediaVerification) {
+    const mv = aiResult.mediaVerification;
+    const selection = mv.claimSelection || { factCheckable: [], skipped: [] };
+
+    if (selection.factCheckable.length === 0) {
+      await skipStage(
+        pipeline.pipelineId,
+        'FACT_VERIFICATION',
+        'No fact-checkable (factual) claims found in media content'
+      );
+      return null;
+    }
+
+    await completeStage(
+      pipeline.pipelineId,
+      'FACT_VERIFICATION',
+      {
+        aggregateStatus: mv.factCheck?.aggregateStatus || 'UNKNOWN',
+        summary: mv.factCheck?.summary || null,
+        claimCount: selection.factCheckable.length,
+        skippedNonFactual: selection.skipped.length,
+        providerUsed: 'GOOGLE_FACT_CHECK',
+      },
+      null,
+      'google-fact-check-api'
+    );
+    return mv.factCheck;
+  }
+
+  // Media content without a media-verification result still falls through to
+  // the generic path below so caption-derived claims are fact-checked.
+  if (contentType !== 'TEXT' && contentType !== 'LINK' && !isMedia) {
     await skipStage(pipeline.pipelineId, 'FACT_VERIFICATION', `${contentType} content has no textual claims to verify`);
     return null;
   }
@@ -494,10 +666,30 @@ async function executeFactVerification(pipeline, post, contentType, claimResult)
     return null;
   }
 
+  // ── Claim-type gating (§14): only FACTUAL claims are fact-checked ──
+  // Opinion, satire, prediction, moral claims, questions, personal
+  // experience and advertisements must never be reported as factual
+  // misinformation, so they are excluded here.
+  const claimClassifier = require('./claim-classifier.service');
+  const { factCheckable, skipped } = claimClassifier.selectFactCheckableClaims(claims);
+
+  if (factCheckable.length === 0) {
+    await skipStage(
+      pipeline.pipelineId,
+      'FACT_VERIFICATION',
+      `No fact-checkable (factual) claims extracted (${skipped.length} non-factual claim(s) excluded)`
+    );
+    return null;
+  }
+
   // ── PRIMARY: Google Fact Check API ──────────────────────────────
   try {
     const factCheckService = require('./fact-check.service');
-    const claimTexts = claims.map((c) => ({ text: c.text, id: c.textHash }));
+    // Query with the normalized claim text (§15); keep the original for storage.
+    const claimTexts = factCheckable.map((c) => ({
+      text: c.normalizedClaim || c.text,
+      id: c.textHash,
+    }));
     
     console.log('[TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)');
     const result = await factCheckService.factCheckClaims(claimTexts, {
@@ -514,7 +706,8 @@ async function executeFactVerification(pipeline, post, contentType, claimResult)
       {
         aggregateStatus: result.aggregateStatus,
         summary: result.summary,
-        claimCount: result.results.length,
+        claimCount: factCheckable.length,
+        skippedNonFactual: skipped.length,
         providerUsed: 'GOOGLE_FACT_CHECK',
       },
       null,
@@ -734,7 +927,23 @@ async function executeTrustScore(pipeline, post, contentType, aiResult, factChec
     if (aiResult && aiResult.results) {
       const aiData = aiResult.results;
 
-      if (contentType === 'TEXT') {
+      if (aiData.authenticityUnavailable) {
+        // The authenticity model did not run → keep the signal neutral instead
+        // of assuming the content is authentic (spec §31). Claims and
+        // fact-check evidence still contribute to the score.
+        input.authenticityScore = 0.5;
+        input.modelConfidenceScore =
+          typeof aiData.confidence === 'number' ? aiData.confidence : 0.3;
+
+        // Publisher credibility is a property of the outlet rather than an
+        // output of the authenticity model, so it remains real evidence even
+        // when the model produced nothing. Without this the LINK branch below
+        // is skipped entirely and a recognised publisher is silently scored
+        // as unrecognised.
+        if (contentType === 'LINK' && typeof aiData.sourceCredibility === 'number') {
+          input.sourceCredibilityScore = aiData.sourceCredibility;
+        }
+      } else if (contentType === 'TEXT') {
         input.authenticityScore = 1 - (aiData.misinformationProbability || 0);
         input.modelConfidenceScore = aiData.confidence || 0.5;
       } else if (contentType === 'VIDEO') {
@@ -770,13 +979,45 @@ async function executeTrustScore(pipeline, post, contentType, aiResult, factChec
 
     // Add fact-check score
     if (factCheckResult && factCheckResult.results) {
-      input.factualVerificationScore = factCheckService
+      const pipelineFactualScore = factCheckService
         ? factCheckService.computeFactualVerificationScore(factCheckResult.results)
-        : 0.5;
+        : null;
+
+      // Only adopt the shared fact-check stage's score when it is backed by
+      // actual ratings. computeFactualVerificationScore returns the neutral
+      // 0.5 when it finds no evidence, and assigning that unconditionally
+      // silently discarded a real score already derived for this content
+      // (the link analysis path computes one from actual fact-check ratings).
+      if (typeof pipelineFactualScore === 'number' && pipelineFactualScore !== 0.5) {
+        input.factualVerificationScore = pipelineFactualScore;
+      }
 
       // Check for confirmed false
       if (factCheckService && factCheckService.isConfirmedFalse(factCheckResult.results)) {
         input.isConfirmedFalse = true;
+      }
+    }
+
+    // ── Media verification results (claims → fact check → credibility) ──
+    // The media pipeline already produced real fact-check evidence and source
+    // credibility, so use it instead of overwriting with neutral defaults.
+    const mediaVerification = aiResult?.mediaVerification || null;
+    if (mediaVerification) {
+      if (typeof mediaVerification.factualVerificationScore === 'number') {
+        input.factualVerificationScore = mediaVerification.factualVerificationScore;
+      }
+      if (typeof mediaVerification.sourceCredibilityScore === 'number') {
+        input.sourceCredibilityScore = mediaVerification.sourceCredibilityScore;
+      }
+      // AI-generated detection is separate from factuality (spec §9/§22).
+      if (mediaVerification.isDisclosedAI) {
+        input.isDisclosedAI = true;
+      }
+      if (mediaVerification.isConfirmedFalse) {
+        input.isConfirmedFalse = true;
+      }
+      if (mediaVerification.ruleContentType) {
+        input.contentType = mediaVerification.ruleContentType;
       }
     }
 
@@ -1043,7 +1284,7 @@ async function executePipeline(post, job) {
     // ── Stage: CLAIM_EXTRACTION ──────────────────────────────────────
     let claimResult = null;
     try {
-      claimResult = await executeClaimExtraction(pipeline, post, job.contentType);
+      claimResult = await executeClaimExtraction(pipeline, post, job.contentType, aiResult);
       stageResults.claimExtraction = claimResult;
     } catch (err) {
       console.warn(`[Pipeline] Claim extraction error: ${err.message}`);
@@ -1063,7 +1304,7 @@ async function executePipeline(post, job) {
     // ── Stage: FACT_VERIFICATION ─────────────────────────────────────
     let factCheckResult = null;
     try {
-      factCheckResult = await executeFactVerification(pipeline, post, job.contentType, claimResult);
+      factCheckResult = await executeFactVerification(pipeline, post, job.contentType, claimResult, aiResult);
       stageResults.factVerification = factCheckResult;
     } catch (err) {
       console.warn(`[Pipeline] Fact verification error: ${err.message}`);

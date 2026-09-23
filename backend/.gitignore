@@ -1,3 +1,10 @@
 node_modules/
 .env
 __pycache__/
+
+# Runtime logs (e.g. src/ai_service/ai-service.log)
+*.log
+
+# Transient output of the historical import (the dataset itself IS tracked)
+data/historical/import-errors.json
+data/historical/cache/

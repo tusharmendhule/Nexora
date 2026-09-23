@@ -560,6 +560,295 @@ async function generateExplanation({ label, score, contentType, geminiAnalysis, 
   }
 }
 
+// ─── Media Analysis Prompts ────────────────────────────────────────────
+
+const IMAGE_ANALYSIS_PROMPT = `You are a content analysis assistant for a fact-checking platform called Nexora.
+
+You are shown a single image. Perform two jobs:
+1. Transcribe ALL readable text visible in the image, verbatim (OCR). If no text is visible, use an empty string.
+2. Classify the content and extract the factual claims the image asserts (including claims made by overlaid or accompanying text).
+
+Return a JSON object with exactly these fields:
+{
+  "extractedText": "verbatim text visible in the image, or \"\"",
+  "description": "short factual description of what the image shows",
+  "captions": ["text cues that accompany the image"],
+  "contentType": "FACTUAL | OPINION | SATIRE | EDITED | OTHER",
+  "claims": [
+    {"text": "the exact claim text", "subject": "what is discussed", "predicate": "what is claimed", "object": "the value claimed", "canVerify": true}
+  ],
+  "opinionProbability": 0.0-1.0,
+  "satireProbability": 0.0-1.0,
+  "editedProbability": 0.0-1.0,
+  "contextConcerns": ["contextual issues, framing or manipulation concerns"],
+  "confidence": 0.0-1.0,
+  "analysis": "brief analysis summary"
+}
+
+Rules:
+- Only extract claims that could be verified as true or false.
+- NEVER invent text that is not actually visible in the image.
+- Do NOT decide whether a claim is true or false.
+
+Return ONLY valid JSON, no other text.`;
+
+const TRANSCRIPT_ANALYSIS_PROMPT = `You are a content analysis assistant for a fact-checking platform called Nexora.
+
+You are given a transcript of spoken audio from a piece of media content.
+
+Classify the content and extract its factual claims.
+
+Return a JSON object with exactly these fields:
+{
+  "contentType": "FACTUAL | OPINION | SATIRE | EDITED | OTHER",
+  "claims": [
+    {"text": "the exact claim text", "subject": "what is discussed", "predicate": "what is claimed", "object": "the value claimed", "canVerify": true}
+  ],
+  "opinionProbability": 0.0-1.0,
+  "satireProbability": 0.0-1.0,
+  "editedProbability": 0.0-1.0,
+  "contextConcerns": ["contextual issues, framing or manipulation concerns"],
+  "confidence": 0.0-1.0,
+  "analysis": "brief analysis summary"
+}
+
+Rules:
+- Only extract claims that could be verified as true or false.
+- Ignore filler, greetings and non-factual speech.
+- Do NOT decide whether a claim is true or false.
+
+Return ONLY valid JSON, no other text.`;
+
+const MEDIA_ANALYSIS_MODEL_TAG = 'gemini-media-claims';
+
+// ─── Media Analysis (image OCR/understanding + transcripts) ────────────
+
+/**
+ * Parse a model response that should contain JSON, tolerating fenced code
+ * blocks and surrounding prose.
+ */
+function parseJsonLoose(raw, expectArray = false) {
+  if (!raw || typeof raw !== 'string') {
+    throw new Error('Empty model response');
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (_) {
+    const pattern = expectArray ? /\[[\s\S]*\]/ : /\{[\s\S]*\}/;
+    const match = raw.match(pattern);
+    if (!match) throw new Error('Failed to parse model response as JSON');
+    return JSON.parse(match[0]);
+  }
+}
+
+/**
+ * Normalize the model's media-analysis payload into Nexora signal shape.
+ */
+function normalizeMediaAnalysis(analysis) {
+  return {
+    contentType: analysis.contentType || 'OTHER',
+    claims: Array.isArray(analysis.claims)
+      ? analysis.claims.map((c) => ({
+          text: c.text || '',
+          subject: c.subject || '',
+          predicate: c.predicate || '',
+          object: c.object || '',
+          canVerify: c.canVerify ?? true,
+          source: 'GEMINI',
+        }))
+      : [],
+    opinionProbability: clamp(analysis.opinionProbability || 0),
+    satireProbability: clamp(analysis.satireProbability || 0),
+    editedProbability: clamp(analysis.editedProbability || 0),
+    contextConcerns: Array.isArray(analysis.contextConcerns) ? analysis.contextConcerns : [],
+    confidence: clamp(analysis.confidence || 0.5),
+    analysis: analysis.analysis || '',
+    extractedText: typeof analysis.extractedText === 'string' ? analysis.extractedText : '',
+    description: analysis.description || '',
+    captions: Array.isArray(analysis.captions) ? analysis.captions : [],
+    provider: 'GEMINI',
+    modelVersion: GEMINI_MODEL,
+  };
+}
+
+/**
+ * Guess an image mime type from a URL extension.
+ */
+function guessImageMimeType(url) {
+  const lower = (url || '').toLowerCase().split('?')[0];
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.gif')) return 'image/gif';
+  if (lower.endsWith('.bmp')) return 'image/bmp';
+  if (lower.endsWith('.heic')) return 'image/heic';
+  return 'image/jpeg';
+}
+
+/**
+ * Analyze an image with Gemini's multimodal understanding: OCR the visible
+ * text, describe the image and extract verifiable factual claims.
+ *
+ * Uses GEMINI_API_KEY (backend-only). Returns a real model result or an
+ * explicit failure — it never fabricates text or claims.
+ *
+ * @param {string} imageUrl - Public HTTPS image URL
+ * @param {Object} [options] - { postId, caption, mimeType }
+ * @returns {Object} { status: 'COMPLETED', result } | { status: 'FAILED', error }
+ */
+async function analyzeImageWithGemini(imageUrl, options = {}) {
+  const { postId = null, caption = null } = options;
+  const lockKey = postId ? `${postId}:image` : null;
+  const startTime = Date.now();
+
+  if (!imageUrl || typeof imageUrl !== 'string') {
+    return { status: 'FAILED', error: 'imageUrl is required', provider: 'GEMINI' };
+  }
+
+  if (lockKey && !acquireLock(lockKey, 'GEMINI_IMAGE')) {
+    return { status: 'LOCKED', message: 'Another image analysis is in progress for this post' };
+  }
+
+  try {
+    const apiKey = validateApiKey();
+
+    // Fetch the image and inline it as base64. Gemini's REST API only accepts
+    // Google-hosted file URIs or inline bytes for public URLs.
+    const imageResponse = await axios.get(imageUrl, {
+      responseType: 'arraybuffer',
+      timeout: GEMINI_TIMEOUT_MS,
+      maxContentLength: 20 * 1024 * 1024,
+      maxBodyLength: 20 * 1024 * 1024,
+    });
+    const mimeType = options.mimeType || imageResponse.headers?.['content-type']?.split(';')[0] || guessImageMimeType(imageUrl);
+    const base64 = Buffer.from(imageResponse.data).toString('base64');
+
+    const parts = [
+      { text: IMAGE_ANALYSIS_PROMPT },
+      { inlineData: { mimeType, data: base64 } },
+    ];
+    if (caption) {
+      parts.push({ text: `Accompanying post text (use only as context, do not treat as visible text):\n${caption}` });
+    }
+
+    const response = await callGemini(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      {
+        contents: [{ parts }],
+        generationConfig: {
+          temperature: 0.2,
+          topK: 1,
+          topP: 0.95,
+          maxOutputTokens: 4096,
+          responseMimeType: 'application/json',
+        },
+      },
+      apiKey
+    );
+
+    const raw = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const analysis = parseJsonLoose(raw);
+    const result = {
+      ...normalizeMediaAnalysis(analysis),
+      processingTimeMs: Date.now() - startTime,
+    };
+
+    if (lockKey) releaseLock(lockKey, GeminiAnalysisStatus.COMPLETED, result);
+    return { status: 'COMPLETED', result };
+  } catch (error) {
+    console.error('[Gemini] Image analysis failed:', error.message);
+    const errorMessage = error.response?.data?.error?.message || error.message;
+    if (lockKey) {
+      releaseLock(lockKey, GeminiAnalysisStatus.FAILED, { error: errorMessage, provider: 'GEMINI' });
+    }
+    return {
+      status: 'FAILED',
+      error: errorMessage,
+      errorCode: getGeminiErrorCode(error),
+      provider: 'GEMINI',
+      processingTimeMs: Date.now() - startTime,
+    };
+  }
+}
+
+/**
+ * Analyze a speech transcript (or on-screen OCR text) with Gemini: classify
+ * the content and extract verifiable factual claims.
+ *
+ * @param {string} transcript - Real transcript/OCR text (from Speech-to-Text,
+ *                              Video Intelligence or an ML model)
+ * @param {Object} [options] - { postId, source, caption }
+ * @returns {Object} { status: 'COMPLETED', result } | { status: 'FAILED', error }
+ */
+async function analyzeTranscriptWithGemini(transcript, options = {}) {
+  const { postId = null, source = 'transcript', caption = null } = options;
+  const lockKey = postId ? `${postId}:${source}` : null;
+  const startTime = Date.now();
+
+  if (!transcript || typeof transcript !== 'string' || !transcript.trim()) {
+    return {
+      status: 'FAILED',
+      error: 'A non-empty transcript is required',
+      provider: 'GEMINI',
+    };
+  }
+
+  if (lockKey && !acquireLock(lockKey, 'GEMINI_TRANSCRIPT')) {
+    return { status: 'LOCKED', message: 'Another transcript analysis is in progress for this post' };
+  }
+
+  try {
+    const apiKey = validateApiKey();
+
+    let userText = `Transcript (${source}):\n\n${transcript.slice(0, 20000)}`;
+    if (caption) {
+      userText += `\n\nAccompanying post text (context only):\n${caption}`;
+    }
+
+    const response = await callGemini(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      {
+        contents: [
+          {
+            parts: [{ text: TRANSCRIPT_ANALYSIS_PROMPT }, { text: userText }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          topK: 1,
+          topP: 0.95,
+          maxOutputTokens: 4096,
+          responseMimeType: 'application/json',
+        },
+      },
+      apiKey
+    );
+
+    const raw = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const analysis = parseJsonLoose(raw);
+    const result = {
+      ...normalizeMediaAnalysis(analysis),
+      extractedText: transcript.slice(0, 20000),
+      processingTimeMs: Date.now() - startTime,
+    };
+
+    if (lockKey) releaseLock(lockKey, GeminiAnalysisStatus.COMPLETED, result);
+    return { status: 'COMPLETED', result };
+  } catch (error) {
+    console.error('[Gemini] Transcript analysis failed:', error.message);
+    const errorMessage = error.response?.data?.error?.message || error.message;
+    if (lockKey) {
+      releaseLock(lockKey, GeminiAnalysisStatus.FAILED, { error: errorMessage, provider: 'GEMINI' });
+    }
+    return {
+      status: 'FAILED',
+      error: errorMessage,
+      errorCode: getGeminiErrorCode(error),
+      provider: 'GEMINI',
+      processingTimeMs: Date.now() - startTime,
+    };
+  }
+}
+
 // ─── Helper Functions ──────────────────────────────────────────────────
 
 function clamp(value) {
@@ -598,6 +887,8 @@ module.exports = {
   // Main analysis
   analyzeWithGemini,
   extractClaimsWithGemini,
+  analyzeImageWithGemini,
+  analyzeTranscriptWithGemini,
   generateExplanation,
 
   // Lock management
@@ -609,4 +900,9 @@ module.exports = {
   // Configuration (for testing)
   GEMINI_MODEL,
   MAX_GEMINI_RETRIES,
+  MEDIA_ANALYSIS_MODEL_TAG,
+  // Media helpers (exposed for testing)
+  parseJsonLoose,
+  normalizeMediaAnalysis,
+  guessImageMimeType,
 };

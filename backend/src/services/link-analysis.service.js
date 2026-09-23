@@ -410,15 +410,94 @@ function preprocessText(text) {
 // ─── Source Credibility Scoring ───────────────────────────────────
 
 /**
- * High-authority domains that are generally trustworthy sources.
+ * Curated publisher-reputation table.
+ *
+ * The sourceCredibility component answers one question: is this a recognised
+ * publisher, and how established is it? That is a property of the *outlet*
+ * rather than of the article, so it is served by a curated classification
+ * instead of a per-request heuristic.
+ *
+ * Tier meanings:
+ *   0.95 — international news agencies and public-service broadcasters of
+ *          record, plus fact-checking organisations (the sources other
+ *          outlets themselves cite).
+ *   0.85 — established news organisations with a published editorial
+ *          standards and corrections process.
+ *   0.90 — official institutional and peer-reviewed research sources.
+ *   0.15 — link shorteners and patterns associated with low-credibility sites.
+ *   0.50 — unrecognised domain (see UNRECOGNISED_PUBLISHER_SCORE).
+ *
+ * This replaces a previous heuristic that derived credibility from HTTPS and
+ * the top-level domain, which handed essentially every domain on the internet
+ * the same 0.65 and therefore carried no information at all.
  */
-const HIGH_CREDIBILITY_DOMAINS = new Set([
-  'wikipedia.org', 'bbc.com', 'bbc.co.uk', 'reuters.com', 'apnews.com',
-  'nytimes.com', 'washingtonpost.com', 'theguardian.com', 'economist.com',
+const WIRE_SERVICE_SCORE = 0.95;
+const ESTABLISHED_OUTLET_SCORE = 0.85;
+const INSTITUTIONAL_SOURCE_SCORE = 0.9;
+const LOW_CREDIBILITY_SCORE = 0.15;
+
+/**
+ * An unrecognised domain is scored neutrally rather than credited with a
+ * reputation it has not demonstrated. Neutral (rather than punitive) keeps the
+ * component honest without asserting the worst about an unknown publisher.
+ */
+const UNRECOGNISED_PUBLISHER_SCORE = 0.5;
+
+const WIRE_SERVICE_DOMAINS = [
+  'reuters.com', 'apnews.com', 'afp.com',
+  'bbc.com', 'bbc.co.uk', 'npr.org', 'pbs.org', 'nhk.or.jp',
+  'factcheck.org', 'politifact.com', 'snopes.com', 'fullfact.org',
+];
+
+const ESTABLISHED_OUTLET_DOMAINS = [
+  // Global and national newspapers / broadcasters
+  'nytimes.com', 'washingtonpost.com', 'theguardian.com', 'wsj.com',
+  'bloomberg.com', 'ft.com', 'economist.com', 'time.com', 'newsweek.com',
+  'cnn.com', 'nbcnews.com', 'abcnews.com', 'cbsnews.com', 'cnbc.com',
+  'usatoday.com', 'latimes.com', 'politico.com', 'axios.com', 'thehill.com',
+  'aljazeera.com', 'aje.news', 'middleeasteye.net',
+  'france24.com', 'rfi.fr', 'dw.com', 'euronews.com', 'lemonde.fr',
+  'elpais.com', 'spiegel.de', 'corriere.it', 'repubblica.it',
+  'cbc.ca', 'abc.net.au', 'skynews.com',
+  'scmp.com', 'channelnewsasia.com', 'straitstimes.com',
+  'japantimes.co.jp', 'asahi.com', 'koreaherald.com', 'yna.co.kr',
+  'haaretz.com', 'timesofisrael.com', 'jpost.com',
+  // South Asia
+  'hindustantimes.com', 'indiatimes.com', 'ndtv.com', 'indiatoday.in',
+  'indianexpress.com', 'newindianexpress.com', 'thehindu.com', 'livemint.com',
+  // Middle East, Turkey and Africa
+  'gulfnews.com', 'khaleejtimes.com', 'arabnews.com', 'dailysabah.com',
+  'aa.com.tr', 'hurriyetdailynews.com', 'africanews.com', 'allafrica.com',
+  'businessday.co.za', 'mg.co.za', 'nation.africa',
+  // South-East Asia
+  'abs-cbn.com', 'inquirer.net', 'philstar.com', 'rappler.com',
+  // Specialist and trade press
+  'espn.com', 'deadline.com', 'theregister.com', 'space.com',
+  'sciencealert.com', 'theverge.com', 'wired.com', 'techcrunch.com',
+  '9to5google.com', 'nltimes.nl', 'kuow.org',
+  // Additional national outlets and agencies
+  'foxnews.com', 'theglobeandmail.com', 'sky.com', 'news.cn',
+  'deccanherald.com', 'manilatimes.net', 'sudantribune.com',
+  'freemalaysiatoday.com', 'channelstv.com', 'theweek.in',
+  'abc7news.com', 'ianslive.in',
+];
+
+const INSTITUTIONAL_SOURCE_DOMAINS = [
+  'un.org', 'who.int', 'europa.eu', 'worldbank.org', 'imf.org',
   'nature.com', 'science.org', 'thelancet.com', 'nejm.org',
-  'who.int', 'cdc.gov', 'nih.gov', 'nasa.gov', 'un.org',
-  'gov.uk', 'europa.eu', 'whitehouse.gov',
-  'stackoverflow.com', 'github.com', 'arxiv.org',
+  'arxiv.org', 'wikipedia.org',
+];
+
+/**
+ * Official and academic top-level domains, handled by rule rather than by
+ * enumerating every government or university on earth.
+ */
+const INSTITUTIONAL_TLD_PATTERN = /(^|\.)(gov|mil|int|edu)(\.[a-z]{2})?$/i;
+
+const PUBLISHER_CREDIBILITY = new Map([
+  ...WIRE_SERVICE_DOMAINS.map((domain) => [domain, WIRE_SERVICE_SCORE]),
+  ...ESTABLISHED_OUTLET_DOMAINS.map((domain) => [domain, ESTABLISHED_OUTLET_SCORE]),
+  ...INSTITUTIONAL_SOURCE_DOMAINS.map((domain) => [domain, INSTITUTIONAL_SOURCE_SCORE]),
 ]);
 
 /**
@@ -431,44 +510,55 @@ const LOW_CREDIBILITY_PATTERNS = [
 ];
 
 /**
- * Compute a source credibility score (0-1) based on domain analysis.
+ * Look a hostname up in the publisher table, walking up parent domains so a
+ * subdomain resolves to its registrable publisher (edition.cnn.com ->
+ * cnn.com, timesofindia.indiatimes.com -> indiatimes.com).
+ *
+ * The walk only ever removes leading labels, so "notreuters.com" can never be
+ * credited as reuters.com.
+ *
+ * @param {string} hostname - Lowercased hostname without a leading "www."
+ * @returns {number|null} Credibility score, or null when unrecognised
+ */
+function lookupPublisherCredibility(hostname) {
+  let candidate = hostname;
+  for (;;) {
+    const score = PUBLISHER_CREDIBILITY.get(candidate);
+    if (score !== undefined) return score;
+
+    const dot = candidate.indexOf('.');
+    if (dot === -1) return null;
+    candidate = candidate.slice(dot + 1);
+  }
+}
+
+/**
+ * Compute a source credibility score (0-1) for a publisher.
+ *
+ * @param {Object} parsedUrl - A WHATWG URL (or anything with a `hostname`)
+ * @returns {number} 0-1
  */
 function computeSourceCredibility(parsedUrl) {
-  const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, '');
+  const hostname = (parsedUrl && parsedUrl.hostname ? parsedUrl.hostname : '')
+    .toLowerCase()
+    .replace(/^www\./, '');
 
-  // Check high-credibility list
-  for (const domain of HIGH_CREDIBILITY_DOMAINS) {
-    if (hostname === domain || hostname.endsWith('.' + domain)) {
-      return 0.9;
-    }
-  }
+  if (!hostname) return UNRECOGNISED_PUBLISHER_SCORE;
 
-  // Check low-credibility patterns
+  // 1. Curated publisher reputation.
+  const publisherScore = lookupPublisherCredibility(hostname);
+  if (publisherScore !== null) return publisherScore;
+
+  // 2. Official or academic origin.
+  if (INSTITUTIONAL_TLD_PATTERN.test(hostname)) return INSTITUTIONAL_SOURCE_SCORE;
+
+  // 3. Known low-credibility patterns.
   for (const pattern of LOW_CREDIBILITY_PATTERNS) {
-    if (pattern.test(hostname)) {
-      return 0.2;
-    }
+    if (pattern.test(hostname)) return LOW_CREDIBILITY_SCORE;
   }
 
-  // HTTPS bonus
-  let score = 0.5;
-  if (parsedUrl.protocol === 'https:') {
-    score += 0.1;
-  }
-
-  // Well-known TLDs
-  const tld = hostname.split('.').pop();
-  const trustedTlds = ['com', 'org', 'net', 'edu', 'gov', 'io', 'co'];
-  if (trustedTlds.includes(tld)) {
-    score += 0.05;
-  }
-
-  // Suspiciously long hostname
-  if (hostname.length > 50) {
-    score -= 0.1;
-  }
-
-  return Math.max(0, Math.min(1, score));
+  // 4. Unrecognised publisher — neutral, never fabricated.
+  return UNRECOGNISED_PUBLISHER_SCORE;
 }
 
 // ─── Claim Extraction ─────────────────────────────────────────────
@@ -539,6 +629,29 @@ function extractSVO(sentence) {
 }
 
 // ─── Entity Extraction ────────────────────────────────────────────
+
+/**
+ * Normalize entities coming from the claim/entity AI service for storage.
+ *
+ * The claim/entity service stores entities as `{ text, type }` (see
+ * claim-entity.model.js) while the LinkAnalysis schema stores
+ * `{ text, label }`. Copying the service's entities through unchanged left
+ * `label` unset, so LinkAnalysis validation failed and the whole link
+ * analysis aborted — which then silently degraded the trust score to neutral
+ * defaults. Map either shape onto the LinkAnalysis schema.
+ */
+function normalizeAnalysisEntities(entities) {
+  if (!Array.isArray(entities)) return [];
+
+  return entities
+    .filter((entity) => entity && typeof entity.text === 'string' && entity.text.length > 0)
+    .map((entity) => ({
+      text: entity.text,
+      label: entity.label || entity.type || 'ENTITY',
+      start: Number.isInteger(entity.start) ? entity.start : 0,
+      end: Number.isInteger(entity.end) ? entity.end : 0,
+    }));
+}
 
 /**
  * Extract named entities using simple heuristics.
@@ -630,11 +743,58 @@ function guessEntityLabel(text) {
 // ─── Misinformation Classification ───────────────────────────────
 
 /**
- * Heuristic misinformation probability scoring.
- * Uses signals from the content to estimate likelihood of misinformation.
+ * Estimate the content-level misinformation probability (0-1).
+ *
+ * Primary signal — the Python AI service's per-claim misinformation model
+ * (`nexora-claims-v1.0.0`). Each extracted claim carries its own probability
+ * and confidence, so the content-level figure is the confidence-weighted mean
+ * of the model's per-claim assessments. This is a real measurement: it is
+ * computed and stored on every claim, and this function previously threw it
+ * away in favour of the keyword heuristic below.
+ *
+ * Fallback (model unavailable) — count concrete misinformation indicators.
+ * The fallback deliberately starts at 0: with no indicator present there is
+ * no evidence of misinformation. It previously started from a fabricated 0.3
+ * baseline, which asserted a 30% chance of misinformation for every article
+ * regardless of its content and compressed every trust score toward the
+ * middle of the scale.
+ *
+ * @param {string} text - Extracted article text
+ * @param {Object[]} claims - Claims; those from the model carry
+ *                            `misinformationProbability` and `confidence`
+ * @param {number} sourceCredibility - Publisher credibility (0-1)
+ * @param {Object} [options]
+ * @param {boolean} [options.modelBacked=false] - Claims came from the model
+ * @returns {number} 0-1
  */
-function estimateMisinformationProbability(text, claims, sourceCredibility) {
-  let score = 0.3; // baseline
+function estimateMisinformationProbability(text, claims, sourceCredibility, options = {}) {
+  const { modelBacked = false } = options;
+
+  // ── Primary signal: the model's own per-claim assessments ──
+  if (modelBacked) {
+    const assessed = (claims || []).filter(
+      (claim) => claim && typeof claim.misinformationProbability === 'number'
+    );
+
+    if (assessed.length > 0) {
+      let weighted = 0;
+      let totalWeight = 0;
+      for (const claim of assessed) {
+        const weight =
+          typeof claim.confidence === 'number' && claim.confidence > 0
+            ? claim.confidence
+            : 1;
+        weighted += claim.misinformationProbability * weight;
+        totalWeight += weight;
+      }
+      if (totalWeight > 0) {
+        return Math.max(0, Math.min(1, weighted / totalWeight));
+      }
+    }
+  }
+
+  // ── Fallback: concrete indicators in the raw text ──
+  let score = 0;
 
   // Sensational language indicators
   const sensationalPatterns = [
@@ -649,10 +809,13 @@ function estimateMisinformationProbability(text, claims, sourceCredibility) {
   }
   score += sensationalCount * 0.08;
 
-  // Excessive capitalization (SHOUTING)
+  // Excessive capitalization (SHOUTING). The threshold is deliberately well
+  // clear of what ordinary news copy produces from acronyms, datelines and
+  // quoted material, which is what made the previous 0.1 threshold fire on
+  // plainly factual reporting.
   const capsWords = (text.match(/\b[A-Z]{4,}\b/g) || []).length;
   const totalWords = text.split(/\s+/).length;
-  if (totalWords > 0 && capsWords / totalWords > 0.1) {
+  if (totalWords > 0 && capsWords / totalWords > 0.25) {
     score += 0.15;
   }
 
@@ -662,13 +825,13 @@ function estimateMisinformationProbability(text, claims, sourceCredibility) {
   score += (exclamations + questions) * 0.05;
 
   // Claims with very specific unverifiable numbers
-  for (const claim of claims) {
-    if (/\d{4,}/.test(claim.text)) {
+  for (const claim of claims || []) {
+    if (claim && typeof claim.text === 'string' && /\d{4,}/.test(claim.text)) {
       score += 0.03;
     }
   }
 
-  // Low source credibility increases suspicion
+  // Low source credibility increases suspicion independently of the copy.
   score += (1 - sourceCredibility) * 0.15;
 
   return Math.max(0, Math.min(1, score));
@@ -936,6 +1099,9 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
   // Step 7: Extract claims (prefer NLP-enhanced via Python AI service)
   let claims = [];
   let entities = [];
+  // Whether the extracted claims carry the model's own per-claim assessments.
+  // Only then is there a real authenticity signal to score.
+  let claimsFromModel = false;
   try {
     // Try NLP-enhanced extraction via Python AI service (Module 12)
     const claimEntityService = require('./claim-entity-extraction.service');
@@ -946,7 +1112,8 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
     );
     if (aiResult.status === 'COMPLETED' && aiResult.savedAnalysis) {
       claims = aiResult.savedAnalysis.claims || [];
-      entities = aiResult.savedAnalysis.entities || [];
+      entities = normalizeAnalysisEntities(aiResult.savedAnalysis.entities);
+      claimsFromModel = true;
     } else {
       // Fallback to heuristic extraction
       claims = extractClaims(extractedText);
@@ -973,10 +1140,20 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
   }
 
   // Step 9: Estimate misinformation probability
+  // The model's per-claim assessments are the only real authenticity signal
+  // available here. When they are missing the component is reported as
+  // unavailable so the pipeline scores it neutrally rather than trusting the
+  // keyword fallback as though it were a measurement.
+  const modelAssessedClaimCount = claimsFromModel
+    ? claims.filter((claim) => claim && typeof claim.misinformationProbability === 'number').length
+    : 0;
+  const authenticityUnavailable = modelAssessedClaimCount === 0;
+
   const misinformationProbability = estimateMisinformationProbability(
     extractedText,
     claims,
-    sourceCredibility
+    sourceCredibility,
+    { modelBacked: !authenticityUnavailable }
   );
 
   // Step 11: Compute confidence
@@ -1027,6 +1204,7 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
     extractedText,
     preprocessing,
     misinformationProbability,
+    authenticityUnavailable,
     sourceCredibility,
     claims,
     entities,
@@ -1077,6 +1255,7 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
       entities: entities.length,
       factCheckResults: factCheckResults.length,
       misinformationProbability,
+      authenticityUnavailable,
       sourceCredibility,
       confidence,
       // Real fact-check score (0-1) derived from actual ratings — used by

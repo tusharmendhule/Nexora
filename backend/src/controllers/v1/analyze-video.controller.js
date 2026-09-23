@@ -161,31 +161,31 @@ async function processVideoInBackground(jobId, analysisId, mediaUrl, postId) {
       })),
     });
 
-    // Create TrustScore through the rule engine (documented Nexora formula)
-    // if postId is provided. Video alone cannot verify factual claims, so
-    // factualVerification/sourceCredibility stay neutral (0.5) — never
-    // assumed true or false.
+    // Full media verification + TrustScore (documented Nexora formula) when a
+    // post is provided: Video Intelligence / Speech-to-Text → claims →
+    // Google Fact Check → source credibility. No AI-generation detector exists
+    // for video, so that flag stays null rather than being guessed.
     if (postId) {
       try {
-        const trustScoreService = require('../../services/trust-score.service');
+        const mediaVerificationService = require('../../services/media-verification.service');
         const manipulationProbability = Math.max(
           ai.deepfakeProbability || 0,
           ai.manipulationProbability || 0
         );
-        await trustScoreService.computeAndStoreTrustScore(
+        await mediaVerificationService.verifyAndScoreMedia({
           postId,
-          {
-            authenticityScore: 1 - manipulationProbability,
-            factualVerificationScore: 0.5,
-            sourceCredibilityScore: 0.5,
-            modelConfidenceScore: confidenceFactor,
-            contentType: 'video',
-            manipulationProbability,
-            modelVersion: ai.modelVersion || 'nexora-video-v1.0.0',
-          }
-        );
+          contentType: 'VIDEO',
+          mediaUrl,
+          caption: null,
+          authenticityScore: 1 - manipulationProbability,
+          modelConfidenceScore: confidenceFactor,
+          manipulationProbability,
+          aiGeneratedProbability: null,
+          aiDetectionModel: null,
+          modelVersion: ai.modelVersion || 'nexora-video-v1.0.0',
+        });
       } catch (tsErr) {
-        console.error('[VideoAnalysis] TrustScore creation failed:', tsErr.message);
+        console.error('[VideoAnalysis] Media verification/TrustScore failed:', tsErr.message);
       }
     }
 

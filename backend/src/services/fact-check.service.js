@@ -175,11 +175,35 @@ function classifyRating(rating) {
     if (pattern.test(trimmed)) return 'mixed';
   }
 
-  // Fuzzy fallback: check substrings
+  // Fuzzy fallback for narrative verdicts — publishers such as Full Fact,
+  // Africa Check and PA Media return a sentence rather than a single word
+  // ("Incorrect. While the UK's youth unemployment rate was higher...").
+  //
+  // Two things matter here and both were previously wrong:
+  //   1. Order — negative verdicts are tested BEFORE positive ones. Testing
+  //      positive first meant a debunk could be read as an endorsement.
+  //   2. Word boundaries — without them, the substring "correct" inside
+  //      "incorrect" matched the positive list, so "Incorrect. While..."
+  //      was classified as a POSITIVE rating. That could push a false claim
+  //      to VERIFIED_TRUE and a Green trust label.
+  //
+  // The remaining order is deliberately conservative: an ambiguous narrative
+  // resolves to 'mixed' rather than 'positive', so uncertainty never reads as
+  // endorsement.
   const lower = trimmed.toLowerCase();
-  if (/true|correct|accurate|supported|verified/.test(lower)) return 'positive';
-  if (/false|incorrect|inaccurate|debunked|misleading|fake/.test(lower)) return 'negative';
-  if (/mixed|context|partly|partially|outdated/.test(lower)) return 'mixed';
+
+  if (
+    /\b(?:false|incorrect|inaccurate|unsupported|debunked|misleading|fake|wrong|untrue|fabricated|scam)\b/.test(lower) ||
+    /\bnot (?:true|correct|accurate|supported)\b/.test(lower)
+  ) {
+    return 'negative';
+  }
+  if (/\b(?:mixed|partly|partially|outdated|missing context|needs context|lacks context)\b/.test(lower)) {
+    return 'mixed';
+  }
+  if (/\b(?:true|correct|accurate|supported|verified)\b/.test(lower)) {
+    return 'positive';
+  }
 
   return 'unknown';
 }
@@ -229,19 +253,23 @@ function determineVerificationStatus(classifiedRatings) {
 
 /**
  * Extract structured data from a Google ClaimReview object.
- * Also surfaces claimText/relevanceScore when they were attached
- * (fresh API results or cached entries).
+ *
+ * Fresh API results nest the publisher and use `textualRating`, while cached
+ * entries store the already-flattened `publisherName` / `publisherSite` /
+ * `rating` fields. Both shapes are accepted so a cached verdict carries the
+ * same publisher and rating as a fresh API verdict.
+ * Also surfaces claimText/relevanceScore when they were attached.
  */
 function extractClaimReviewData(review) {
   if (!review || typeof review !== 'object') return null;
 
   return {
     publisher: {
-      name: review.publisher?.name || null,
-      site: review.publisher?.site || null,
+      name: review.publisher?.name || review.publisherName || null,
+      site: review.publisher?.site || review.publisherSite || null,
     },
     title: review.title || null,
-    textualRating: review.textualRating || null,
+    textualRating: review.textualRating || review.rating || null,
     url: review.url || null,
     reviewDate: review.reviewDate || null,
     languageCode: review.languageCode || null,
@@ -431,9 +459,17 @@ async function factCheckClaim(claimText, options = {}) {
   }
 
   // 2. Check cache
+  // The cache stores the claim entries written by `setCachedResult`, i.e. an
+  // array of { factCheckRatings: [...] }. Flatten across those entries so a
+  // cached verdict is reported exactly like a fresh API verdict (and is never
+  // silently downgraded to NO_EVIDENCE).
   const cached = await getCachedResult(normalized);
   if (cached) {
-    const reviews = (cached.factCheckRatings || []).map(extractClaimReviewData).filter(Boolean);
+    const cachedClaims = Array.isArray(cached) ? cached : [cached];
+    const reviews = cachedClaims
+      .flatMap((entry) => (entry && entry.factCheckRatings) || [])
+      .map(extractClaimReviewData)
+      .filter(Boolean);
     // Apply the same relevance filter as fresh API results.
     const relevantReviews = reviews.filter(
       (r) => r.relevanceScore == null || r.relevanceScore >= MIN_RELEVANCE
@@ -469,7 +505,7 @@ async function factCheckClaim(claimText, options = {}) {
   // 4. No results from API
   if (!apiResult.claims || apiResult.claims.length === 0) {
     // Cache "no results" to avoid repeat API calls
-    await setCachedResult(normalized, { factCheckRatings: [] });
+    await setCachedResult(normalized, []);
 
     return buildResult(claimText, claimId, postId, {
       status: VerificationStatus.NO_EVIDENCE,
@@ -531,7 +567,10 @@ async function factCheckClaim(claimText, options = {}) {
     })),
   }));
 
-  await setCachedResult(normalized, { factCheckRatings: claimResults.length > 0 ? claimResults[0].factCheckRatings : [] });
+  // Cache EVERY matched claim (the cache stores an array of claim entries),
+  // so a cached verdict carries the same reviews as a fresh API verdict —
+  // keeping only the first claim silently dropped the rest of the evidence.
+  await setCachedResult(normalized, claimResults);
 
   return buildResult(claimText, claimId, postId, {
     status,

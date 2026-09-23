@@ -10,6 +10,7 @@
 
 const axios = require('axios');
 const VideoAnalysis = require('../models/video-analysis.model');
+const { describeAiServiceError } = require('../utils/ai-service-error');
 
 // ─── Configuration ────────────────────────────────────────────────
 
@@ -49,130 +50,144 @@ async function analyzeVideo(job) {
     };
   }
 
-  // Call the Python AI service
-  let aiResponse;
+  // ── Authenticity model (Python AI service) ─────────────────────────
+  // Unavailable model ⇒ record the signal as unavailable (spec §31); do not
+  // fail the post and do not invent probabilities. Claims are still extracted
+  // from Video Intelligence / Speech-to-Text and fact-checked.
+  let ai = null;
+  let authenticityError = null;
   try {
-    aiResponse = await axios.post(
+    const aiResponse = await axios.post(
       `${AI_SERVICE_URL}/analyze/video`,
       { mediaUrl, postId: post._id.toString() },
       { timeout: AI_SERVICE_TIMEOUT }
     );
+    ai = aiResponse.data;
   } catch (err) {
-    if (err.code === 'ECONNREFUSED') {
-      throw new Error(
-        'AI service is not available. Start the Python service on ' +
-          AI_SERVICE_URL
-      );
-    }
-    if (err.code === 'ECONNABORTED' || err.code === 'ETIMEDOUT') {
-      throw new Error(
-        'AI video service request timed out. Video processing may be too slow.'
-      );
-    }
-    if (err.response && err.response.data) {
-      throw new Error(
-        `AI service error: ${err.response.data.detail || err.response.statusText}`
-      );
-    }
-    throw new Error(`AI service request failed: ${err.message}`);
+    authenticityError = describeAiServiceError(err, 'video');
+    console.error(`[VideoAnalysis] ${authenticityError.message}`);
   }
 
-  const ai = aiResponse.data;
+  let results;
+  let modelVersion = null;
+  let manipulationProbability = 0;
+  let authenticityScore = null;
+  let modelConfidenceScore = null;
+  let needsReview = true;
 
-  // Build composite trust score for video content
-  // deepfakeProbability is the primary signal
-  const deepfakeFactor = 1 - ai.deepfakeProbability;
-  const manipulationFactor = 1 - ai.manipulationProbability;
-  const confidenceFactor = ai.confidence;
+  if (ai) {
+    // deepfakeProbability is the primary signal
+    const deepfakeFactor = 1 - ai.deepfakeProbability;
+    const manipulationFactor = 1 - ai.manipulationProbability;
+    const confidenceFactor = ai.confidence;
 
-  const finalScore = Math.round(
-    (deepfakeFactor * 0.40 +
-      manipulationFactor * 0.30 +
-      confidenceFactor * 0.30) *
-      100
-  );
+    const finalScore = Math.round(
+      (deepfakeFactor * 0.40 +
+        manipulationFactor * 0.30 +
+        confidenceFactor * 0.30) *
+        100
+    );
 
-  const results = {
-    deepfakeProbability: ai.deepfakeProbability,
-    manipulationProbability: ai.manipulationProbability,
-    frameCount: ai.frameCount,
-    analyzedFrames: ai.analyzedFrames,
-    faceDetectionRate: ai.faceDetectionRate,
-    temporalConsistency: ai.temporalConsistency,
-    confidence: ai.confidence,
-    finalScore: Math.max(0, Math.min(100, finalScore)),
-  };
+    results = {
+      deepfakeProbability: ai.deepfakeProbability,
+      manipulationProbability: ai.manipulationProbability,
+      frameCount: ai.frameCount,
+      analyzedFrames: ai.analyzedFrames,
+      faceDetectionRate: ai.faceDetectionRate,
+      temporalConsistency: ai.temporalConsistency,
+      confidence: ai.confidence,
+      finalScore: Math.max(0, Math.min(100, finalScore)),
+      authenticityUnavailable: false,
+    };
 
-  // Store analysis in MongoDB
-  await VideoAnalysis.create({
-    contentJob: job._id,
-    post: job.post,
-    mediaUrl,
-    deepfakeProbability: ai.deepfakeProbability,
-    manipulationProbability: ai.manipulationProbability,
-    frameCount: ai.frameCount,
-    analyzedFrames: ai.analyzedFrames,
-    frames: (ai.frames || []).map((f) => ({
-      frameIndex: f.frameIndex,
-      timestamp: f.timestamp,
-      facesDetected: f.facesDetected,
-      hasFace: f.hasFace,
-      manipulationScore: f.manipulationScore,
-      frequencyAnomaly: f.frequencyAnomaly,
-      colorAnomaly: f.colorAnomaly,
-      overallFrameScore: f.overallFrameScore,
-    })),
-    temporalConsistency: ai.temporalConsistency || {
-      interFrameVariance: 0,
-      temporalCoherence: 1,
-      flickerScore: 0,
-      consistentManipulation: false,
-    },
-    faceDetectionRate: ai.faceDetectionRate,
-    confidence: ai.confidence,
-    modelVersion: ai.modelVersion,
-    processingTimeMs: ai.processingTimeMs,
-    errors: (ai.errors || []).map((e) => ({
-      stage: e.stage,
-      message: e.message,
-    })),
-  });
+    // Store analysis in MongoDB
+    await VideoAnalysis.create({
+      contentJob: job._id,
+      post: job.post,
+      mediaUrl,
+      deepfakeProbability: ai.deepfakeProbability,
+      manipulationProbability: ai.manipulationProbability,
+      frameCount: ai.frameCount,
+      analyzedFrames: ai.analyzedFrames,
+      frames: (ai.frames || []).map((f) => ({
+        frameIndex: f.frameIndex,
+        timestamp: f.timestamp,
+        facesDetected: f.facesDetected,
+        hasFace: f.hasFace,
+        manipulationScore: f.manipulationScore,
+        frequencyAnomaly: f.frequencyAnomaly,
+        colorAnomaly: f.colorAnomaly,
+        overallFrameScore: f.overallFrameScore,
+      })),
+      temporalConsistency: ai.temporalConsistency || {
+        interFrameVariance: 0,
+        temporalCoherence: 1,
+        flickerScore: 0,
+        consistentManipulation: false,
+      },
+      faceDetectionRate: ai.faceDetectionRate,
+      confidence: ai.confidence,
+      modelVersion: ai.modelVersion,
+      processingTimeMs: ai.processingTimeMs,
+      errors: (ai.errors || []).map((e) => ({
+        stage: e.stage,
+        message: e.message,
+      })),
+    });
 
-  // Create TrustScore through the rule engine (documented Nexora formula).
-  // Video alone cannot verify factual claims, so factualVerification and
-  // sourceCredibility stay neutral (0.5) — never assumed true or false.
-  try {
-    const trustScoreService = require('./trust-score.service');
-    const manipulationProbability = Math.max(
+    modelVersion = ai.modelVersion;
+    manipulationProbability = Math.max(
       ai.deepfakeProbability || 0,
       ai.manipulationProbability || 0
     );
-    await trustScoreService.computeAndStoreTrustScore(
-      job.post,
-      {
-        authenticityScore: 1 - manipulationProbability,
-        factualVerificationScore: 0.5, // no factual claims verified for video
-        sourceCredibilityScore: 0.5,   // no source evidence for video
-        modelConfidenceScore: ai.confidence,
-        contentType: 'video',
-        manipulationProbability,
-        modelVersion: ai.modelVersion || 'nexora-video-v1.0.0',
-      }
-    );
-  } catch (tsErr) {
-    console.error('[VideoAnalysis] Failed to create TrustScore:', tsErr.message);
+    authenticityScore = 1 - manipulationProbability;
+    modelConfidenceScore = ai.confidence;
+    needsReview =
+      ai.deepfakeProbability > 0.6 ||
+      ai.manipulationProbability > 0.7 ||
+      ai.confidence < 0.3;
+  } else {
+    results = {
+      authenticityUnavailable: true,
+      error: authenticityError,
+      message:
+        'Video authenticity model unavailable — no deepfake/manipulation ' +
+        'probabilities were produced. Claim extraction and fact checking still run.',
+    };
   }
 
-  // Determine if review is required
-  const needsReview =
-    ai.deepfakeProbability > 0.6 ||
-    ai.manipulationProbability > 0.7 ||
-    ai.confidence < 0.3;
+  // Full media verification: Video Intelligence (frames/shots/OCR/labels/
+  // transcript) + Speech-to-Text → claims → Google Fact Check → source
+  // credibility → Trust Score (backend calculation).
+  // NOTE: there is no dedicated AI-generation detector for video — deepfake /
+  // manipulation probability is a separate authenticity signal and is NOT
+  // reported as an AI-generated probability.
+  let mediaVerification = null;
+  try {
+    const mediaVerificationService = require('./media-verification.service');
+    mediaVerification = await mediaVerificationService.verifyAndScoreMedia({
+      postId: job.post,
+      contentType: 'VIDEO',
+      mediaUrl,
+      caption: post.text || null,
+      authenticityScore,
+      modelConfidenceScore,
+      manipulationProbability,
+      aiGeneratedProbability: null,
+      aiDetectionModel: null,
+      contentJobId: job._id,
+      modelVersion: modelVersion || 'nexora-video-v1.0.0',
+      authenticityUnavailable: !ai,
+    });
+  } catch (tsErr) {
+    console.error('[VideoAnalysis] Media verification/TrustScore failed:', tsErr.message);
+  }
 
   return {
     status: needsReview ? 'REVIEW_REQUIRED' : 'COMPLETED',
     results,
-    modelVersion: ai.modelVersion,
+    modelVersion,
+    mediaVerification,
   };
 }
 

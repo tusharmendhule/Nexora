@@ -15,8 +15,6 @@ const contentJobSchema = new mongoose.Schema(
     jobId: {
       type: String,
       required: true,
-      unique: true,
-      index: true,
     },
 
     // The post this job is processing
@@ -102,6 +100,6 @@ const contentJobSchema = new mongoose.Schema(
 // Indexes
 contentJobSchema.index({ post: 1, contentType: 1 });
 contentJobSchema.index({ status: 1, createdAt: -1 });
-contentJobSchema.index({ jobId: 1 });
+contentJobSchema.index({ jobId: 1 }, { unique: true });
 
 module.exports = mongoose.model('ContentJob', contentJobSchema);

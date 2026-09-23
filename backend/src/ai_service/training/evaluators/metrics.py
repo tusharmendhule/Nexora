@@ -55,10 +55,14 @@ def compute_metrics(y_true, y_pred, probabilities, label_list):
 
 
 def write_report(output, result, per_row):
-    os.makedirs(os.path.dirname(output), exist_ok=True)
+    # A bare filename (e.g. "report.json") has an empty dirname, which would
+    # make makedirs("") raise. Only create a directory when there is one.
+    output_dir = os.path.dirname(output)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     with open(output, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)
-    per_row_path = os.path.join(os.path.dirname(output), "per_row_predictions.jsonl")
+    per_row_path = os.path.join(output_dir, "per_row_predictions.jsonl")
     with open(per_row_path, "w", encoding="utf-8") as f:
         for row in per_row:
             f.write(json.dumps(row) + "\n")

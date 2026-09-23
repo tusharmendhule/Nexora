@@ -15,8 +15,10 @@ const claimSchema = new mongoose.Schema(
     textHash: { type: String, required: true, index: true },
     // Reference to fact-check results (populated after verification)
     factCheckStatus: {
+      // 'not_applicable' marks claims deliberately excluded from fact
+      // checking because they are opinion / satire / prediction / etc.
       type: String,
-      enum: ['unverified', 'verifying', 'verified', 'failed'],
+      enum: ['unverified', 'verifying', 'verified', 'failed', 'not_applicable'],
       default: 'unverified',
     },
     factCheckResults: [
@@ -47,13 +49,10 @@ const entitySchema = new mongoose.Schema(
 
 const claimEntitySchema = new mongoose.Schema(
   {
-    // Unique job ID for async polling
+    // Unique job ID for async polling (unique + sparse index declared below)
     jobId: {
       type: String,
       required: false,
-      unique: true,
-      sparse: true,
-      index: true,
     },
 
     // Processing status
@@ -70,7 +69,6 @@ const claimEntitySchema = new mongoose.Schema(
       ref: 'ContentJob',
       required: false,
       default: null,
-      index: true,
     },
 
     // Reference to the post
@@ -152,7 +150,7 @@ claimEntitySchema.index({ post: 1, 'claims.textHash': 1 });
 claimEntitySchema.index({ post: 1, createdAt: -1 });
 claimEntitySchema.index({ contentJob: 1 });
 claimEntitySchema.index({ status: 1, createdAt: -1 });
-claimEntitySchema.index({ jobId: 1 });
+claimEntitySchema.index({ jobId: 1 }, { unique: true, sparse: true });
 
 // ─── Static helpers ──────────────────────────────────────────────────────
 

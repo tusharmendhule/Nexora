@@ -63,18 +63,33 @@ function deduplicateClaims(claims) {
  *   - Proper error codes and timeout handling
  *   - No fabricated data on failure
  *
+ * Only FACTUAL claims are sent to Google Fact Check. Claims classified as
+ * opinion, satire, prediction, moral claim, question, personal experience or
+ * advertisement are skipped — they must never be reported as factual
+ * misinformation.
+ *
  * @param {Array} claims - Extracted claims to verify
- * @returns {Array} Array of fact-check results linked to claims
+ * @param {Object} [options] - { contentType } post-level content type
+ * @returns {Object} { results, skipped } — flat fact-check results and the
+ *                   claims deliberately excluded from fact checking
  */
-async function verifyClaimsFactCheck(claims) {
-  if (!claims || claims.length === 0) return [];
+async function verifyClaimsFactCheck(claims, options = {}) {
+  if (!claims || claims.length === 0) return { results: [], skipped: [] };
 
   const factCheckService = require('./fact-check.service');
+  const claimClassifier = require('./claim-classifier.service');
+
+  const { factCheckable, skipped } = claimClassifier.selectFactCheckableClaims(claims, options);
+
   const allResults = [];
 
-  for (const claim of claims) {
+  for (const claim of factCheckable) {
     try {
-      const result = await factCheckService.factCheckClaim(claim.text);
+      // Query with the normalized claim (spec §15); keep the original text for
+      // storage/display.
+      const result = await factCheckService.factCheckClaim(
+        claim.normalizedClaim || claim.text
+      );
 
       // Map service result to the flat format expected by the caller
       for (const review of result.reviews || []) {
@@ -86,6 +101,7 @@ async function verifyClaimsFactCheck(claims) {
           url: review.url || null,
           title: review.title || null,
           rating: review.textualRating || null,
+          factualStatus: result.status,
         });
       }
     } catch (err) {
@@ -96,7 +112,7 @@ async function verifyClaimsFactCheck(claims) {
     }
   }
 
-  return allResults;
+  return { results: allResults, skipped };
 }
 
 /**
@@ -236,15 +252,20 @@ async function extractClaimsAndEntities(text, postId, contentJobId) {
     end: e.end || 0,
   }));
 
-  // Verify claims against fact-check API
+  // Verify claims against fact-check API (factual claims only)
   let factCheckResults = [];
+  let skippedClaims = [];
   if (claims.length > 0) {
     try {
-      factCheckResults = await verifyClaimsFactCheck(claims);
+      const verification = await verifyClaimsFactCheck(claims);
+      factCheckResults = verification.results;
+      skippedClaims = verification.skipped;
     } catch (err) {
       errors.push({ stage: 'fact_verification', message: err.message });
     }
   }
+
+  const skippedHashes = new Set(skippedClaims.map((c) => c.textHash));
 
   // Attach fact-check results to claims
   const claimsWithFactCheck = claims.map((claim) => {
@@ -253,7 +274,11 @@ async function extractClaimsAndEntities(text, postId, contentJobId) {
     );
     return {
       ...claim,
-      factCheckStatus: matchingResults.length > 0 ? 'verified' : 'unverified',
+      factCheckStatus: skippedHashes.has(claim.textHash)
+        ? 'not_applicable'
+        : matchingResults.length > 0
+          ? 'verified'
+          : 'unverified',
       factCheckResults: matchingResults.map((r) => ({
         publisherName: r.publisherName,
         publisherSite: r.publisherSite,

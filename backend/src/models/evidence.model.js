@@ -119,7 +119,6 @@ const evidenceSchema = new mongoose.Schema(
       ref: 'ContentJob',
       required: false,
       default: null,
-      index: true,
     },
 
     // The claim being evaluated

@@ -1,0 +1,3157 @@
+{
+  "generatedAt": "2026-09-22T09:15:35.707Z",
+  "window": {
+    "start": "2026-03-22",
+    "end": "2026-09-22"
+  },
+  "target": 150,
+  "providerBreakdown": {
+    "wikipedia-current-events": 150
+  },
+  "discoveryStats": {
+    "daysInRange": 185,
+    "daysScheduled": 185,
+    "daysFetched": 185,
+    "daysFromCache": 109,
+    "daysMissing": 0,
+    "daysFailed": 0,
+    "aborted": null,
+    "discovered": 4348,
+    "duplicatesRemoved": 49,
+    "rejectedByValidation": 1,
+    "validCandidates": 4298,
+    "selected": 150,
+    "target": 150,
+    "categoryCounts": {
+      "BUSINESS": 13,
+      "ENVIRONMENT": 18,
+      "HEALTH": 1,
+      "INDIA": 23,
+      "POLITICS": 23,
+      "SCIENCE": 18,
+      "SPORTS": 13,
+      "TECHNOLOGY": 23,
+      "WORLD": 18
+    },
+    "availablePerCategory": [
+      [
+        "POLITICS",
+        880
+      ],
+      [
+        "WORLD",
+        2516
+      ],
+      [
+        "BUSINESS",
+        237
+      ],
+      [
+        "ENVIRONMENT",
+        261
+      ],
+      [
+        "SPORTS",
+        218
+      ],
+      [
+        "TECHNOLOGY",
+        36
+      ],
+      [
+        "SCIENCE",
+        35
+      ],
+      [
+        "INDIA",
+        115
+      ],
+      [
+        "HEALTH",
+        1
+      ]
+    ],
+    "gdeltRecords": 0,
+    "gdeltErrors": 0,
+    "startedAt": "2026-09-22T09:08:19.815Z",
+    "finishedAt": "2026-09-22T09:15:35.707Z"
+  },
+  "records": [
+    {
+      "sourceUrl": "https://www.reuters.com/business/energy/oil-prices-rise-after-us-iran-threaten-hit-energy-targets-middle-east-2026-03-22",
+      "sourceName": "Reuters",
+      "title": "Brent crude futures fall 11%, trading just below US$100 a barrel for the first time in days, following the announcement by U.S.",
+      "content": "Brent crude futures fall 11%, trading just below US$100 a barrel for the first time in days, following the announcement by U.S. president Donald Trump about talks with Iran to end the war.",
+      "publishedAt": "2026-03-22T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 23",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "reuters.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "e080f381147a085a12656cc2fc79c638"
+    },
+    {
+      "sourceUrl": "https://nltimes.nl/2026/03/22/hundreds-protest-amsterdam-iran-war",
+      "sourceName": "NL Times",
+      "title": "Between 200 and 300 National Council of Resistance of Iran-alligned demonstrators of the Iranian opposition gather in Amsterdam, Netherlands, to protest the war and the Iranian go…",
+      "content": "Between 200 and 300 National Council of Resistance of Iran-alligned demonstrators of the Iranian opposition gather in Amsterdam, Netherlands, to protest the war and the Iranian government.",
+      "publishedAt": "2026-03-22T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 22",
+        "section": "Politics and elections",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "nltimes.nl",
+        "alternativeUrls": []
+      },
+      "fingerprint": "aec85e63895691248ef708de0f7e210b"
+    },
+    {
+      "sourceUrl": "https://abcnews.com/US/laguardia-airport-closed-collision-air-canada-plane-airport/story?cid=social_twitter_abcn&id=131315551",
+      "sourceName": "ABC News",
+      "title": "A Bombardier CRJ900LR operating as an Air Canada Express flight from Montreal, Quebec, Canada, collides with a firetruck while landing at LaGuardia Airport in New York City, Unite…",
+      "content": "A Bombardier CRJ900LR operating as an Air Canada Express flight from Montreal, Quebec, Canada, collides with a firetruck while landing at LaGuardia Airport in New York City, United States. Both pilots are killed and 41 others are injured.",
+      "publishedAt": "2026-03-22T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 22",
+        "section": "Disasters and accidents",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "abcnews.com",
+        "alternativeUrls": [
+          "https://www.hindustantimes.com/world-news/us-news/laguardia-airport-plane-collision-reports-what-happened-at-new-york-airport-details-surface-101774238522256.html"
+        ]
+      },
+      "fingerprint": "65e93f9d2abdf25ef8b2646c0a7753cb"
+    },
+    {
+      "sourceUrl": "https://www.channelnewsasia.com/world/heat-world-temperature-global-warming-6010916",
+      "sourceName": "AFP via CNA",
+      "title": "In its annual State of the Global Climate report, the World Meteorological Organization states that Earth's energy imbalance and ocean heat content reached record levels in 2025,…",
+      "content": "In its annual State of the Global Climate report, the World Meteorological Organization states that Earth's energy imbalance and ocean heat content reached record levels in 2025, driven by rising greenhouse gas emissions.",
+      "publishedAt": "2026-03-23T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 23",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "channelnewsasia.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "cbc483767cadeb47205d76239f9321e1"
+    },
+    {
+      "sourceUrl": "https://www.kuow.org/stories/seahawks-wr-jaxon-smith-njigba-agree-to-4-year-168-8-million-deal-ap-source-says",
+      "sourceName": "KUOW",
+      "title": "In American football, the Seattle Seahawks signs a four-year deal worth $168 million with wide receiver Jaxon Smith-Njigba, with at least $120 million guaranteed, making him the h…",
+      "content": "In American football, the Seattle Seahawks signs a four-year deal worth $168 million with wide receiver Jaxon Smith-Njigba, with at least $120 million guaranteed, making him the highest-paid wide receiver in NFL history.",
+      "publishedAt": "2026-03-23T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 23",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "kuow.org",
+        "alternativeUrls": []
+      },
+      "fingerprint": "53f77e84855a025c5c5df6aa3380986b"
+    },
+    {
+      "sourceUrl": "https://www.bbc.com/news/articles/c77m4zx6zvmo",
+      "sourceName": "BBC News",
+      "title": "Slovenia becomes first EU country to introduce fuel rationing to cope with extra demand by drivers from neighboring countries.",
+      "content": "Slovenia becomes first EU country to introduce fuel rationing to cope with extra demand by drivers from neighboring countries.",
+      "publishedAt": "2026-03-23T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 23",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "bbc.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "53676a22a27513f9c92fde2a1ea19098"
+    },
+    {
+      "sourceUrl": "https://witness.co.za/international/2026/03/24/nasa-to-pause-orbital-lunar-space-station-project",
+      "sourceName": "AFP via The Witness",
+      "title": "NASA states that it plans to pause the Lunar Gateway project and redirect efforts toward developing infrastructure for sustained operations on the Moon's surface, including a futu…",
+      "content": "NASA states that it plans to pause the Lunar Gateway project and redirect efforts toward developing infrastructure for sustained operations on the Moon's surface, including a future moonbase.",
+      "publishedAt": "2026-03-24T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 24",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "witness.co.za",
+        "alternativeUrls": []
+      },
+      "fingerprint": "98658b4c245d47f85c200464d06065f3"
+    },
+    {
+      "sourceUrl": "https://deadline.com/2026/03/sora-shut-down-disney-investment-1236764689",
+      "sourceName": "Deadline",
+      "title": "The Walt Disney Company and OpenAI's US$1 billion investment deal to allow Disney's intellectual properties to be used with Sora is also cancelled in midst of the shutdown.",
+      "content": "The Walt Disney Company and OpenAI's US$1 billion investment deal to allow Disney's intellectual properties to be used with Sora is also cancelled in midst of the shutdown.",
+      "publishedAt": "2026-03-24T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 24",
+        "section": "Science and technology",
+        "citationCount": 3,
+        "publisherHostMatch": true,
+        "publisherHost": "deadline.com",
+        "alternativeUrls": [
+          "https://www.nbcnews.com/tech/tech-news/openai-shuttering-sora-video-generating-service-rcna264989",
+          "https://www.theverge.com/ai-artificial-intelligence/899850/openai-sora-ai-chatgpt"
+        ]
+      },
+      "fingerprint": "e55d5a74dd4b0647a152e98b93c5ee45"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/denmark-parliament-election-greenland-c6951fa94fc601efa1401318112a3a04",
+      "sourceName": "AP",
+      "title": "Danes, Faroe Islanders, and Greenlanders vote to elect 179 seats of the Folketing.",
+      "content": "Danes, Faroe Islanders, and Greenlanders vote to elect 179 seats of the Folketing. Danish prime minister Mette Frederiksen seeks a third term in office during the aftermath of the Greenland crisis.",
+      "publishedAt": "2026-03-24T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 24",
+        "section": "Politics and elections",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": [
+          "https://www.reuters.com/world/europe/danes-vote-an-election-clouded-by-trumps-greenland-desires-2026-03-24"
+        ]
+      },
+      "fingerprint": "134a9a3178921fc916a1072e8383514d"
+    },
+    {
+      "sourceUrl": "https://www.newindianexpress.com/amp/story/nation/2026/Mar/25/ed-attaches-rs-1700-crore-dubai-assets-in-mahadev-betting-app-case-villas-in-burj-khalifa-seized",
+      "sourceName": "The New Indian Express",
+      "title": "The Indian enforcement directorate says that it has attached {{INRConvert|1700|c|lk=on}} in Dubai, United Arab Emirates, and has seized villas in the Burj Khalifa as part of the M…",
+      "content": "The Indian enforcement directorate says that it has attached {{INRConvert|1700|c|lk=on}} in Dubai, United Arab Emirates, and has seized villas in the Burj Khalifa as part of the Mahadev online betting app money laundering investigation.",
+      "publishedAt": "2026-03-25T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 25",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "newindianexpress.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "4d41d06681664ffa22850b9d0184f420"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/afghanistan-pakistan-temporary-oause-fighting-ended-19fcf231eb89de69acd0a831144ca7c8",
+      "sourceName": "AP",
+      "title": "A ceasefire between Afghanistan and Pakistan collapses with resumed cross-border shelling killing two people in Kunar Province, Afghanistan, while Afghan forces claim to have dest…",
+      "content": "A ceasefire between Afghanistan and Pakistan collapses with resumed cross-border shelling killing two people in Kunar Province, Afghanistan, while Afghan forces claim to have destroyed three Pakistani military outposts along the border. Both sides accuse each other of breaking the ceasefire first.",
+      "publishedAt": "2026-03-25T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 25",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "dbf1d6b0fc230376df0121cedb849d6b"
+    },
+    {
+      "sourceUrl": "https://gulfnews.com/business/retail/dubai-gold-surges-after-15-day-drop-prices-jump-overnight-1.500485538",
+      "sourceName": "Gulf News",
+      "title": "Gold prices in Dubai, United Arab Emirates, rise after a 15-day drop amidst potential diplomacy to end the Iran war.",
+      "content": "Gold prices in Dubai, United Arab Emirates, rise after a 15-day drop amidst potential diplomacy to end the Iran war.",
+      "publishedAt": "2026-03-25T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 25",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "gulfnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "b093a7ab1a6d97113127b53435e5110a"
+    },
+    {
+      "sourceUrl": "https://edition.cnn.com/2026/03/26/europe/euthanasia-spain-noelia-castillo-latam-intl",
+      "sourceName": "CNN",
+      "title": "A 25-year-old Spanish woman from Barcelona, Catalonia, undergoes euthanasia after her request was approved by authorities and upheld through multiple legal challenges despite oppo…",
+      "content": "A 25-year-old Spanish woman from Barcelona, Catalonia, undergoes euthanasia after her request was approved by authorities and upheld through multiple legal challenges despite opposition from her family.",
+      "publishedAt": "2026-03-26T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 26",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "edition.cnn.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "948f8e79c66d7b5e6ccddc0885a87817"
+    },
+    {
+      "sourceUrl": "https://www.hindustantimes.com/india-news/andhra-bus-truck-accident-death-toll-injuries-vehicles-catch-fire-markapuram-101774565810198.html",
+      "sourceName": "Hindustan Times",
+      "title": "At least 14 people are killed and 27 others are injured when a private bus collides head-on with a tipper-truck in Prakasam district, Andhra Pradesh, India.",
+      "content": "At least 14 people are killed and 27 others are injured when a private bus collides head-on with a tipper-truck in Prakasam district, Andhra Pradesh, India.",
+      "publishedAt": "2026-03-26T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 26",
+        "section": "Disasters and accidents",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "hindustantimes.com",
+        "alternativeUrls": [
+          "https://timesofindia.indiatimes.com/city/vijayawada/at-least-10-dead-20-injured-after-private-bus-collides-with-lorry-bursts-into-flames-in-andhra-pradesh/articleshow/129814380.cms"
+        ]
+      },
+      "fingerprint": "d3de30f4edf0173d420933108fe23caa"
+    },
+    {
+      "sourceUrl": "https://www.abs-cbn.com/sports/othersports/2026/3/27/olympic-women-s-sport-to-be-limited-to-biological-females-0830",
+      "sourceName": "AFP via ABS-CBN News",
+      "title": "The International Olympic Committee announces that participation in women's events will be limited to athletes classified as female based on biological criteria, with eligibility…",
+      "content": "The International Olympic Committee announces that participation in women's events will be limited to athletes classified as female based on biological criteria, with eligibility determined through a one-time genetic test starting from the 2028 Olympic Games. The policy replaces previous rules that allowed individual sports federations to set their own criteria.",
+      "publishedAt": "2026-03-26T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 26",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "abs-cbn.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "0dceeb9e36172f787449a9a8eb98932f"
+    },
+    {
+      "sourceUrl": "https://kashmirconvener.com/nc-lawmakers-protest-outside-jk-legislative-assembly-express-solidarity-with-iran-amid-tensions",
+      "sourceName": "Kashmir Convener",
+      "title": "Lawmakers from the Jammu & Kashmir National Conference protest outside the legislative assembly of Jammu and Kashmir, India, in solidarity with Iran and against the assassination…",
+      "content": "Lawmakers from the Jammu & Kashmir National Conference protest outside the legislative assembly of Jammu and Kashmir, India, in solidarity with Iran and against the assassination of former supreme leader Ali Khamenei amidst the Iran war. Additionally, a major confrontation breaks out between INC lawmaker Irfan Hafiz Lone and BJP lawmaker Yudhvir Sethi during the protest.",
+      "publishedAt": "2026-03-27T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 27",
+        "section": "Politics and elections",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "kashmirconvener.com",
+        "alternativeUrls": [
+          "https://timesofindia.indiatimes.com/india/watch-massive-ruckus-in-jk-assembly-as-nc-mlas-protest-over-killing-of-irans-ali-khamenei/articleshow/129839452.cms"
+        ]
+      },
+      "fingerprint": "1fb582ec306599fb159f13782b17c426"
+    },
+    {
+      "sourceUrl": "https://abcnews.com/International/wireStory/school-stabbing-chile-leaves-1-dead-4-injured-131476134",
+      "sourceName": "ABC News",
+      "title": "One person is killed and four others are injured in a mass stabbing at a school in Calama, Antofagasta Region, Chile.",
+      "content": "One person is killed and four others are injured in a mass stabbing at a school in Calama, Antofagasta Region, Chile.",
+      "publishedAt": "2026-03-27T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 27",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "abcnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "f929dc8b674cf0484fa781f87909ebd2"
+    },
+    {
+      "sourceUrl": "https://www.rfi.fr/en/sports/20260327-japanese-star-sakamoto-signs-off-with-fourth-world-skating-gold",
+      "sourceName": "AFP via RFI",
+      "title": "In her last performance before retiring, Japan's Kaori Sakamoto wins the gold medal in the women's singles event of the 2026 Figure Skating Championships.",
+      "content": "In her last performance before retiring, Japan's Kaori Sakamoto wins the gold medal in the women's singles event of the 2026 Figure Skating Championships.",
+      "publishedAt": "2026-03-27T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 27",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "rfi.fr",
+        "alternativeUrls": []
+      },
+      "fingerprint": "2ab48229523e4b8b6c861cb3a6ed5be6"
+    },
+    {
+      "sourceUrl": "https://abc7news.com/post/israeli-airstrike-lebanon-kills-al-manar-tvs-ali-shoeib-mayadeen-fatima-ftouni-brother-mohammed/18796602",
+      "sourceName": "KGO-TV",
+      "title": "Three journalists are killed and several others injured in an Israeli airstrike in Jezzine District, South Governorate, Lebanon.",
+      "content": "Three journalists are killed and several others injured in an Israeli airstrike in Jezzine District, South Governorate, Lebanon.",
+      "publishedAt": "2026-03-28T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 28",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "abc7news.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "4bc6c8926eaba10ae645304743ce555e"
+    },
+    {
+      "sourceUrl": "https://www.hindustantimes.com/india-news/manipur-four-killed-in-factional-clash-between-naga-insurgent-groups-101774777680901.html",
+      "sourceName": "Hindustan Times",
+      "title": "Four people are killed and two others are injured during clashes between insurgent groups in Kamjong district, Manipur, India.",
+      "content": "Four people are killed and two others are injured during clashes between insurgent groups in Kamjong district, Manipur, India.",
+      "publishedAt": "2026-03-28T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 28",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "hindustantimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "c50c885db77fd6b0fb10511ccc144c4b"
+    },
+    {
+      "sourceUrl": "https://newsinfo.inquirer.net/2202983/5-cops-killed-in-maguindanao-del-sur-ambush",
+      "sourceName": "Philippine Daily Inquirer",
+      "title": "Five police officers are killed and three others are injured in an ambush by unidentified gunmen in Shariff Aguak, Maguindanao del Sur, Philippines.",
+      "content": "Five police officers are killed and three others are injured in an ambush by unidentified gunmen in Shariff Aguak, Maguindanao del Sur, Philippines.",
+      "publishedAt": "2026-03-28T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 28",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "newsinfo.inquirer.net",
+        "alternativeUrls": []
+      },
+      "fingerprint": "5c974451a4ba24fe1f586efceed5de66"
+    },
+    {
+      "sourceUrl": "https://www.rfi.fr/en/sports/20260329-youngest-f1-title-leader-antonelli-to-keep-raising-bar-after-japan-win",
+      "sourceName": "AFP via RFI",
+      "title": "In auto racing, Mercedes-Benz's Kimi Antonelli becomes the youngest driver to lead the World Championship at 19 years and 216 days old after winning the Japanese Grand Prix.",
+      "content": "In auto racing, Mercedes-Benz's Kimi Antonelli becomes the youngest driver to lead the World Championship at 19 years and 216 days old after winning the Japanese Grand Prix.",
+      "publishedAt": "2026-03-29T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 29",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "rfi.fr",
+        "alternativeUrls": []
+      },
+      "fingerprint": "9f9748cc44ed583a7ae9f103b34a8376"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/haiti-gang-warfare-vigilantes-2555264c9c0e29fce2f78708ea0e5345",
+      "sourceName": "AP",
+      "title": "At least 16 people are killed and 10 others are injured by the Gran Grif gang in Petite-Rivière-de-l'Artibonite, Haiti, during a gun fight with a vigilante group.",
+      "content": "At least 16 people are killed and 10 others are injured by the Gran Grif gang in Petite-Rivière-de-l'Artibonite, Haiti, during a gun fight with a vigilante group. Human rights activists allege that more than 30 people were killed and dozens were missing.",
+      "publishedAt": "2026-03-29T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 29",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": [
+          "https://abcnews.com/International/wireStory/activists-haiti-30-people-dead-after-gang-attacks-131544611"
+        ]
+      },
+      "fingerprint": "528256fe4760f61f4af76b0fae128b95"
+    },
+    {
+      "sourceUrl": "https://www.bbc.com/news/articles/czd74q2nqp0o",
+      "sourceName": "BBC",
+      "title": "Avi Lewis is elected leader of Canada's New Democratic Party.",
+      "content": "Avi Lewis is elected leader of Canada's New Democratic Party.",
+      "publishedAt": "2026-03-29T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 29",
+        "section": "Politics and elections",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "bbc.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "a3f8ab86d06bd55cc0767f32fd04177a"
+    },
+    {
+      "sourceUrl": "https://www.theregister.com/2026/03/30/countdown_artemis_2",
+      "sourceName": "The Register",
+      "title": "NASA begins the countdown for the launch of Artemis II, set to be the first crewed mission to the Moon since Apollo 17 in 1972, with liftoff scheduled for 1 April.",
+      "content": "NASA begins the countdown for the launch of Artemis II, set to be the first crewed mission to the Moon since Apollo 17 in 1972, with liftoff scheduled for 1 April.",
+      "publishedAt": "2026-03-30T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 30",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "theregister.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "b746e214d09dca79510223f7e8e8d502"
+    },
+    {
+      "sourceUrl": "https://www.sciencealert.com/vaping-likely-causes-cancer-major-study-finds",
+      "sourceName": "ScienceAlert",
+      "title": "A study published in the Carcinogenesis journal shows that nicotine vaping can cause lung or oral cancer.",
+      "content": "A study published in the Carcinogenesis journal shows that nicotine vaping can cause lung or oral cancer.",
+      "publishedAt": "2026-03-30T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 30",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "sciencealert.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "cf630eb8d25a53c17cd4fad6a681409a"
+    },
+    {
+      "sourceUrl": "https://www.bbc.co.uk/news/articles/c9vlm2ggrwlo",
+      "sourceName": "BBC News",
+      "title": "The United Kingdom's Financial Conduct Authority rules that around 12 million people are entitled to financial compensation after being mis-sold motor finance agreements between 2…",
+      "content": "The United Kingdom's Financial Conduct Authority rules that around 12 million people are entitled to financial compensation after being mis-sold motor finance agreements between 2014 and 2024. The compensation scheme will see each motorist awarded around £829, costing car finance lenders a total of £9.1bn.",
+      "publishedAt": "2026-03-30T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 30",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "bbc.co.uk",
+        "alternativeUrls": []
+      },
+      "fingerprint": "65026416c5d365a6dd17a6e84d647c95"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/gas-prices-4-gallon-iran-war-de8b7ccea254a1585cab86f336db57a6",
+      "sourceName": "AP",
+      "title": "The American Automobile Association reports that the United States national average gas price has reached $4.02 a gallon, the highest since 2022 following Russia's invasion of Ukr…",
+      "content": "The American Automobile Association reports that the United States national average gas price has reached $4.02 a gallon, the highest since 2022 following Russia's invasion of Ukraine.",
+      "publishedAt": "2026-03-31T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 31",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "90ec614c8ff288ca3802f65044442664"
+    },
+    {
+      "sourceUrl": "https://www.france24.com/en/live-news/20260331-pakistan-cricketer-naseem-fined-record-71-500-for-minister-criticism",
+      "sourceName": "AFP via France 24",
+      "title": "Pakistani cricketer Naseem Shah receives a record fine of Rs.",
+      "content": "Pakistani cricketer Naseem Shah receives a record fine of Rs. 20 million (US$71,500) for a social media post criticizing Punjab chief minister Maryam Nawaz, while other disciplinary cases arise in the Pakistan Super League, including a fine for Shaheen Shah Afridi and a ball-tampering charge against Fakhar Zaman.",
+      "publishedAt": "2026-03-31T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 31",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "france24.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "d1f0e1cb49bdd4c5bc9c70a4b1762e07"
+    },
+    {
+      "sourceUrl": "https://bnonews.com/index.php/2026/04/7-dismembered-bodies-found-dumped-on-road-in-southern-mexico",
+      "sourceName": "BNO News",
+      "title": "Seven dismembered bodies are found on a road in Cualac, Guerrero, Mexico.",
+      "content": "Seven dismembered bodies are found on a road in Cualac, Guerrero, Mexico.",
+      "publishedAt": "2026-03-31T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 31",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "bnonews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "8737dbf34711746e18cc1aaddbc45489"
+    },
+    {
+      "sourceUrl": "https://www.space.com/space-exploration/artemis/nasa-launches-4-astronauts-to-the-moon-on-historic-artemis-2-voyage-a-lunar-leap-for-the-21st-century",
+      "sourceName": "Space.com",
+      "title": "NASA launches Artemis II from Kennedy Space Center in Florida, United States, carrying astronauts Reid Wiseman, Victor Glover, and Christina Koch, along with Canadian astronaut Je…",
+      "content": "NASA launches Artemis II from Kennedy Space Center in Florida, United States, carrying astronauts Reid Wiseman, Victor Glover, and Christina Koch, along with Canadian astronaut Jeremy Hansen, for a flyby of the Moon.",
+      "publishedAt": "2026-04-01T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 1",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "space.com",
+        "alternativeUrls": [
+          "https://www.bbc.co.uk/news/live/c4g4ygw0r02t"
+        ]
+      },
+      "fingerprint": "c1b2a24a41354854c260ec375fd846e8"
+    },
+    {
+      "sourceUrl": "https://www.channelnewsasia.com/asia/malaysia-civil-servants-work-home-iran-war-6032981",
+      "sourceName": "AFP via CNA",
+      "title": "Malaysia announces a remote work policy for government officials and employees of state-owned enterprises starting April 15 to reduce fuel consumption amid rising energy costs lin…",
+      "content": "Malaysia announces a remote work policy for government officials and employees of state-owned enterprises starting April 15 to reduce fuel consumption amid rising energy costs linked to the Iran war. The government also reduces subsidized fuel quotas while maintaining market-based pricing for unsubsidized fuel.",
+      "publishedAt": "2026-04-01T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 1",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "channelnewsasia.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "0eb03ebd29eb2b9d2ade91ddb30d221f"
+    },
+    {
+      "sourceUrl": "https://www.abc.net.au/news/2026-04-01/dezi-freeman-identification-victoria-police-shooting/106520654",
+      "sourceName": "ABC News",
+      "title": "Victoria Police fatally shoot Dezi Freeman, a self-proclaimed sovereign citizen and fugitive following a seven month manhunt after he killed two police officers and seriously inju…",
+      "content": "Victoria Police fatally shoot Dezi Freeman, a self-proclaimed sovereign citizen and fugitive following a seven month manhunt after he killed two police officers and seriously injured another in a shooting in Porepunkah, Victoria, Australia. It was the largest police operation in Australian history.",
+      "publishedAt": "2026-04-01T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 March 30",
+        "section": "Law and crime",
+        "citationCount": 3,
+        "publisherHostMatch": true,
+        "publisherHost": "abc.net.au",
+        "alternativeUrls": [
+          "https://www.theguardian.com/australia-news/2026/apr/01/dezi-freeman-porepunkah-killer-police-shooting-sympathy-community-ntwnfb",
+          "https://www.reuters.com/world/asia-pacific/fugitive-accused-killing-two-australian-police-officers-shot-dead-2026-03-29"
+        ]
+      },
+      "fingerprint": "242ed9b41872c0c3ee779e49a0e25392"
+    },
+    {
+      "sourceUrl": "https://aje.news/1jg6hu?update=4457236",
+      "sourceName": "Al Jazeera",
+      "title": "The B1 highway bridge linking Tehran and Karaj, which was inaugurated earlier this year, is hit by Israeli–U.S.",
+      "content": "The B1 highway bridge linking Tehran and Karaj, which was inaugurated earlier this year, is hit by Israeli–U.S. airstrikes. Eight people are killed and 95 others are injured.",
+      "publishedAt": "2026-04-02T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 2",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": [
+          "https://www.timesofisrael.com/liveblog_entry/middle-easts-highest-bridge-linking-tehran-to-karaj-hit-by-airstrikes"
+        ]
+      },
+      "fingerprint": "b188429cf11c3202f038c83a77ce4130"
+    },
+    {
+      "sourceUrl": "https://www.ftlsomalia.com/somalia-launches-first-national-ship-registry-since-1991",
+      "sourceName": "FTL Somalia",
+      "title": "The Somali Ministry of Ports and Maritime Transport announces that Somalia has registered the Guney (IMO 8230417) ship under the Somali flag, its first national-flagged vessel sin…",
+      "content": "The Somali Ministry of Ports and Maritime Transport announces that Somalia has registered the Guney (IMO 8230417) ship under the Somali flag, its first national-flagged vessel since 1991.",
+      "publishedAt": "2026-04-02T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 2",
+        "section": "Business and economy",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "ftlsomalia.com",
+        "alternativeUrls": [
+          "https://www.aa.com.tr/en/africa/somalia-registers-ship-under-national-flag-after-over-3-decades/3888956"
+        ]
+      },
+      "fingerprint": "781d3ec981690fe112e3a8116662c5cf"
+    },
+    {
+      "sourceUrl": "https://www.aljazeera.com/news/2026/4/2/four-children-killed-in-school-stabbing-attack-in-uganda",
+      "sourceName": "Al Jazeera",
+      "title": "Four children are killed in a mass stabbing at a school in Kampala, Uganda.",
+      "content": "Four children are killed in a mass stabbing at a school in Kampala, Uganda. The suspected perpetrator, an adult man, is arrested.",
+      "publishedAt": "2026-04-02T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 2",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aljazeera.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "11713ff0f43dbc5bc230b9d3d720ccb5"
+    },
+    {
+      "sourceUrl": "https://aje.news/2j1442?update=4459148",
+      "sourceName": "Al Jazeera",
+      "title": "Two U.S.",
+      "content": "Two U.S. military helicopters are hit with small arms fire while conducting a search and rescue operation for the downed F-15E pilots.",
+      "publishedAt": "2026-04-03T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 3",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 3,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": [
+          "https://www.bbc.co.uk/news/live/cgj0gn36px8t",
+          "https://nypost.com/2026/04/03/world-news/2-us-helicopters-hit-in-search-and-rescue-efforts-in-iran-report"
+        ]
+      },
+      "fingerprint": "d7e73581c03f1feafb4b97137e23b28c"
+    },
+    {
+      "sourceUrl": "https://globalnation.inquirer.net/316792/pakistan-announces-free-public-transport-as-energy-crisis-bites",
+      "sourceName": "AFP via Philippine Daily Inquirer",
+      "title": "Pakistan introduces free public transport in Islamabad and Punjab for one month and provides targeted subsidies in other regions to offset the impact of recent fuel price increase…",
+      "content": "Pakistan introduces free public transport in Islamabad and Punjab for one month and provides targeted subsidies in other regions to offset the impact of recent fuel price increases.",
+      "publishedAt": "2026-04-03T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 3",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "globalnation.inquirer.net",
+        "alternativeUrls": []
+      },
+      "fingerprint": "6dd9addacea622e53a7d9702268121b3"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/myanmar-president-min-aung-hlaing-military-c263b2d6175b82c5868e24496c975ff8",
+      "sourceName": "AP",
+      "title": "Myanmar's military ruler, General Min Aung Hlaing, is elected president by the Electoral College.",
+      "content": "Myanmar's military ruler, General Min Aung Hlaing, is elected president by the Electoral College. Min secures 429 votes, against 126 for Nyo Saw and 29 for Nan Ni Ni Aye, who become first and second vice presidents, respectively.",
+      "publishedAt": "2026-04-03T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 3",
+        "section": "Politics and elections",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": [
+          "https://english.news.cn/20260403/3e711779db184062bfb35ba421604efb/c.html"
+        ]
+      },
+      "fingerprint": "f34f7f8af7921e3247fa30f10e4eba25"
+    },
+    {
+      "sourceUrl": "https://timesofindia.indiatimes.com/city/lucknow/suspected-isis-operative-arrested-from-kushinagar-in-joint-operation/amp_articleshow/130026220.cms",
+      "sourceName": "The Times of India",
+      "title": "A joint operation between the Delhi and Uttar Pradesh police units arrests ISIS recruiter Rizwan in Kushinagar, Uttar Pradesh, India.",
+      "content": "A joint operation between the Delhi and Uttar Pradesh police units arrests ISIS recruiter Rizwan in Kushinagar, Uttar Pradesh, India.",
+      "publishedAt": "2026-04-04T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 4",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "timesofindia.indiatimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "f775fcce6a4b8a0369cbfa09bd1844a0"
+    },
+    {
+      "sourceUrl": "https://www.indiatoday.in/india/story/madhya-pradesh-four-storey-hotel-collapses-in-anuppur-kotma-several-feared-trapped-injured-2891643-2026-04-04",
+      "sourceName": "India Today",
+      "title": "Three people are killed and at least 10 others are reportedly trapped after a four-story hotel collapses in Anuppur, Madhya Pradesh, India.",
+      "content": "Three people are killed and at least 10 others are reportedly trapped after a four-story hotel collapses in Anuppur, Madhya Pradesh, India.",
+      "publishedAt": "2026-04-04T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 4",
+        "section": "Disasters and accidents",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "indiatoday.in",
+        "alternativeUrls": [
+          "https://www.hindustantimes.com/india-news/lodge-collapse-in-mps-anuppur-kills-three-so-far-several-feared-trapped-chilling-cctv-clip-shows-building-cave-in-101775377072684.html"
+        ]
+      },
+      "fingerprint": "c0272233b729beeb8164e08762920d99"
+    },
+    {
+      "sourceUrl": "https://www.nytimes.com/athletic/7161395/2026/04/04/buffalo-sabres-playoffs-2026-clinch",
+      "sourceName": "The Athletic via The New York Times",
+      "title": "In ice hockey, the NHL's Buffalo Sabres clinch the Stanley Cup playoffs for the first time since the 2010–11 season, ending their 14-year Stanley Cup playoff drought.",
+      "content": "In ice hockey, the NHL's Buffalo Sabres clinch the Stanley Cup playoffs for the first time since the 2010–11 season, ending their 14-year Stanley Cup playoff drought.",
+      "publishedAt": "2026-04-04T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 4",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "nytimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1a35268774e5c1a3b76a5359509fbbf4"
+    },
+    {
+      "sourceUrl": "https://aa.com.tr/en/asia-pacific/bangladesh-says-suspected-measles-outbreak-killed-over-110-children/3893999",
+      "sourceName": "AA",
+      "title": "Bangladesh launches an emergency MMR vaccine campaign after new health data shows that at least 130 children have been reported dead from measles in the last six weeks.",
+      "content": "Bangladesh launches an emergency MMR vaccine campaign after new health data shows that at least 130 children have been reported dead from measles in the last six weeks.",
+      "publishedAt": "2026-04-05T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 5",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aa.com.tr",
+        "alternativeUrls": []
+      },
+      "fingerprint": "3ae8815e56abb1b5363298996929b950"
+    },
+    {
+      "sourceUrl": "https://www.reuters.com/business/media-telecom/satellite-firm-planet-labs-indefinitely-withhold-iran-war-images-2026-04-05",
+      "sourceName": "Reuters",
+      "title": "Planet Labs suspends public release of satellite imagery of Iran and surrounding conflict areas at the request of the U.S.",
+      "content": "Planet Labs suspends public release of satellite imagery of Iran and surrounding conflict areas at the request of the U.S. government, shifting to restricted, case-by-case distribution for selected uses. The policy applies retroactively to images from March 9 and follows earlier delays imposed to limit potential military use of commercial imagery.",
+      "publishedAt": "2026-04-05T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 4",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "reuters.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1b00197747d43dcbbc655f80a2401bed"
+    },
+    {
+      "sourceUrl": "https://aje.news/vtvz59?update=4463111",
+      "sourceName": "Al Jazeera",
+      "title": "Iranian media claims an American Lockheed C-130 Hercules was shot down in Isfahan, Iran, while on a search and rescue operation for a missing U.S.",
+      "content": "Iranian media claims an American Lockheed C-130 Hercules was shot down in Isfahan, Iran, while on a search and rescue operation for a missing U.S. airman.",
+      "publishedAt": "2026-04-05T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 5",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": []
+      },
+      "fingerprint": "fa0a01a485402eff65a2c261e2164ad7"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/artemis-moon-nasa-lunar-flyby-fac19b4b1676af2717adafa992f32be4",
+      "sourceName": "AP",
+      "title": "NASA's Artemis II spacecraft carrying four astronauts breaks the record for furthest distance humans have ever travelled from Earth surpassing the previous 248,655 miles (400,171…",
+      "content": "NASA's Artemis II spacecraft carrying four astronauts breaks the record for furthest distance humans have ever travelled from Earth surpassing the previous 248,655 miles (400,171 kilometers) record set by Apollo 13 in April 1970.",
+      "publishedAt": "2026-04-06T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 6",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "92dd5b57a5589b8fc1a5e5bbb3f19e58"
+    },
+    {
+      "sourceUrl": "https://www.espn.com/mens-college-basketball/story/_/id/48416755/michigan-holds-uconn-win-second-ncaa-hoops-title",
+      "sourceName": "ESPN",
+      "title": "In college basketball, the Michigan Wolverines men's basketball team beats UConn, 69–63, to win the national championship.",
+      "content": "In college basketball, the Michigan Wolverines men's basketball team beats UConn, 69–63, to win the national championship. Michigan also becomes the first team to beat UConn past the Sweet 16 or later since Michigan State in the 2009 tournament.",
+      "publishedAt": "2026-04-06T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 6",
+        "section": "Sports",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "espn.com",
+        "alternativeUrls": [
+          "https://sport.timesofmalta.com/2026/04/07/wolverines-claw-huskies-to-win-us-college-title"
+        ]
+      },
+      "fingerprint": "4a1fbc4dec4ffd69d5818fa8f0dea719"
+    },
+    {
+      "sourceUrl": "https://www.philstar.com/campus/sports/2026/04/06/2519047/ucla-routs-south-carolina-win-us-womens-ncaa-basketball-crown",
+      "sourceName": "AFP via The Philippine Star",
+      "title": "In college basketball, the UCLA Bruins defeat the South Carolina Gamecocks 79-51 to win the 2026 NCAA Division I women's basketball championship game.",
+      "content": "In college basketball, the UCLA Bruins defeat the South Carolina Gamecocks 79-51 to win the 2026 NCAA Division I women's basketball championship game.",
+      "publishedAt": "2026-04-06T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 5",
+        "section": "Sports",
+        "citationCount": 2,
+        "publisherHostMatch": false,
+        "publisherHost": "philstar.com",
+        "alternativeUrls": [
+          "https://www.nbclosangeles.com/news/sports/ncaab/ucla-south-carolina-womens-basketball-score/3871529"
+        ]
+      },
+      "fingerprint": "2dca81586f7831100772f89fa287ae72"
+    },
+    {
+      "sourceUrl": "https://www.euronews.com/business/2026/04/07/japan-enacts-largest-state-budget-in-history-worth-664-billion",
+      "sourceName": "Euronews",
+      "title": "The Japanese House of Councillors enacts the country's largest state budget in history worth ¥122.3 trillion (€664 billion).",
+      "content": "The Japanese House of Councillors enacts the country's largest state budget in history worth ¥122.3 trillion (€664 billion).",
+      "publishedAt": "2026-04-07T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 7",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "euronews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "e6731d92c4e345c924b41442a928c553"
+    },
+    {
+      "sourceUrl": "https://panafricanvisions.com/2026/04/kiir-removes-speaker-jemma-nunu-kumba-in-major-south-sudan-political-shake-up",
+      "sourceName": "Pan African Visions",
+      "title": "South Sudan president Salva Kiir Mayardit sacks National Legislative Assembly speaker Jemma Nunu Kumba and her deputy Parmena Awerial Aluong after his ruling party backed a no-con…",
+      "content": "South Sudan president Salva Kiir Mayardit sacks National Legislative Assembly speaker Jemma Nunu Kumba and her deputy Parmena Awerial Aluong after his ruling party backed a no-confidence vote accusing them of corruption and mismanagement.",
+      "publishedAt": "2026-04-07T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 7",
+        "section": "Law and crime",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "panafricanvisions.com",
+        "alternativeUrls": [
+          "https://www.reuters.com/world/africa/south-sudans-kiir-sacks-parliament-speaker-deputy-2026-04-07"
+        ]
+      },
+      "fingerprint": "ebd5b6a7ef5e666501d772414fa3d8ce"
+    },
+    {
+      "sourceUrl": "https://abcnews.com/International/wireStory/afghanistan-peace-talks-held-china-end-fighting-pakistan-131801434",
+      "sourceName": "ABC News",
+      "title": "The Afghan foreign ministry says that talks between the Taliban–led government of Afghanistan and Pakistan in Ürümqi, China, to end the conflict have been \"useful\".",
+      "content": "The Afghan foreign ministry says that talks between the Taliban–led government of Afghanistan and Pakistan in Ürümqi, China, to end the conflict have been \"useful\".",
+      "publishedAt": "2026-04-07T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 7",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "abcnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "ea385fd58049d6e6cb247bd8041bf45b"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/stock-markets-trump-iran-ceasefire-oil-2fc5ac7823bea71984b3578ec36aacee",
+      "sourceName": "AP",
+      "title": "Oil prices plunge below US$95 and the Dow Jones Industrial Average surges past 1,000 after the ceasefire announcement.",
+      "content": "Oil prices plunge below US$95 and the Dow Jones Industrial Average surges past 1,000 after the ceasefire announcement.",
+      "publishedAt": "2026-04-08T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 8",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "2fb893bb69b721fbdcbc7383d9589b29"
+    },
+    {
+      "sourceUrl": "https://uk.news.yahoo.com/nearly-200-arrests-turkey-attack-191450196.html",
+      "sourceName": "AFP via Yahoo News",
+      "title": "Turkish police arrest 198 suspects across 34 provinces in operations targeting the Islamic State following a fatal shootout outside the Israeli consulate in Istanbul on April 7.",
+      "content": "Turkish police arrest 198 suspects across 34 provinces in operations targeting the Islamic State following a fatal shootout outside the Israeli consulate in Istanbul on April 7. Several suspects are placed in pre-trial detention as part of the investigation.",
+      "publishedAt": "2026-04-08T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 8",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "uk.news.yahoo.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "51453564fc25301fa5944aefe8c05d74"
+    },
+    {
+      "sourceUrl": "https://aje.news/jf7llm?update=4473051",
+      "sourceName": "Al Jazeera",
+      "title": "Thailand confirms the three crewmen on a vessel that was attacked in the Strait of Hormuz in March have died.",
+      "content": "Thailand confirms the three crewmen on a vessel that was attacked in the Strait of Hormuz in March have died.",
+      "publishedAt": "2026-04-08T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 8",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1a8b7154d74a86ae9ebb424544715af4"
+    },
+    {
+      "sourceUrl": "https://en.yna.co.kr/view/AEN20260409000351315",
+      "sourceName": "Yonhap News Agency",
+      "title": "The Korean Central News Agency reports that North Korea has tested various military technologies throughout the week, including a surface-to-surface tactical ballistic missile ide…",
+      "content": "The Korean Central News Agency reports that North Korea has tested various military technologies throughout the week, including a surface-to-surface tactical ballistic missile identified as Hwasongpho-11 Ka.",
+      "publishedAt": "2026-04-09T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 9",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "en.yna.co.kr",
+        "alternativeUrls": []
+      },
+      "fingerprint": "94e2df3e1258afb63b4c3593f8089e15"
+    },
+    {
+      "sourceUrl": "https://www.nbcnews.com/science/science-news/chimpanzee-study-infighting-violent-attacks-rcna267179",
+      "sourceName": "NBC News",
+      "title": "A study published in the Science journal finds that 28 chimpanzees, including 19 infants, have been killed during an ongoing chimpanzee war in Kibale National Park, Uganda.",
+      "content": "A study published in the Science journal finds that 28 chimpanzees, including 19 infants, have been killed during an ongoing chimpanzee war in Kibale National Park, Uganda.",
+      "publishedAt": "2026-04-09T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 9",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "nbcnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "aa9e82c8b8f1066464c4d4996a97a694"
+    },
+    {
+      "sourceUrl": "https://isaraerospace.com/newsroom-first-test-flight",
+      "sourceName": "isaraerospace.com",
+      "title": "Isar Aerospace's \"Onward and Upward\" mission, which had been due to launch from Andøya Space port in Andøya, Norway, is postponed for a third time due to a possible leak.",
+      "content": "Isar Aerospace's \"Onward and Upward\" mission, which had been due to launch from Andøya Space port in Andøya, Norway, is postponed for a third time due to a possible leak.",
+      "publishedAt": "2026-04-09T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 9",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "isaraerospace.com",
+        "alternativeUrls": [
+          "https://www.nrk.no/nordland/tredje-forsok-pa-rakettoppskyting-fra-andoya_-na-skaper-vinden-usikkerhet-1.17840625"
+        ]
+      },
+      "fingerprint": "49603da63360bb68892fbd454b8ab8e6"
+    },
+    {
+      "sourceUrl": "https://timesofindia.indiatimes.com/india/boat-carrying-devotees-capsizes-in-mathura-six-bodies-recovered-rescue-ops-on/articleshow/130168736.cms",
+      "sourceName": "The Times of India",
+      "title": "At least ten people are killed, 13 others are injured, and several are reported missing when a boat carrying a group of devotees capsizes in the Yamuna river in Mathura, Uttar Pra…",
+      "content": "At least ten people are killed, 13 others are injured, and several are reported missing when a boat carrying a group of devotees capsizes in the Yamuna river in Mathura, Uttar Pradesh, India.",
+      "publishedAt": "2026-04-10T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 10",
+        "section": "Disasters and accidents",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "timesofindia.indiatimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "6288a7b0890d462d5fe8eb31c1237acf"
+    },
+    {
+      "sourceUrl": "https://www.theguardian.com/science/2026/apr/10/artemis-ii-landing-return-moon-mission",
+      "sourceName": "The Guardian",
+      "title": "NASA's Artemis II spacecraft completes its mission and splashes down in the northern Pacific Ocean near San Diego, California, U.S.",
+      "content": "NASA's Artemis II spacecraft completes its mission and splashes down in the northern Pacific Ocean near San Diego, California, U.S.",
+      "publishedAt": "2026-04-10T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 10",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "theguardian.com",
+        "alternativeUrls": [
+          "https://www.space.com/space-exploration/artemis/artemis-2-astronauts-return-to-earth-ending-historic-moon-mission"
+        ]
+      },
+      "fingerprint": "7537c51a53358cf4d1796cddde9b4a61"
+    },
+    {
+      "sourceUrl": "https://www.aljazeera.com/news/2026/4/9/djibouti-elections-whos-running-against-guelleh-and-whats-at-stake",
+      "sourceName": "Al Jazeera",
+      "title": "Djiboutians vote to elect a president to serve for the next five years.",
+      "content": "Djiboutians vote to elect a president to serve for the next five years. Incumbent president Ismaïl Omar Guelleh is running for a sixth term.",
+      "publishedAt": "2026-04-10T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 10",
+        "section": "Politics and elections",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "aljazeera.com",
+        "alternativeUrls": [
+          "https://www.reuters.com/world/africa/djiboutis-guelleh-expected-win-sixth-term-after-age-limits-lifted-2026-04-10"
+        ]
+      },
+      "fingerprint": "e520a9fb2b024de1065dd658746aa60d"
+    },
+    {
+      "sourceUrl": "https://www.hindustantimes.com/cities/mumbai-news/1st-indian-vessel-crosses-hormuz-strait-after-us-iran-ceasefire-101775935854648-amp.html",
+      "sourceName": "Hindustan Times",
+      "title": "India-flagged LPG gas tanker Jag Vikram crosses the Strait of Hormuz, becoming the first Indian vessel to cross the Strait of Hormuz since the ceasefire.",
+      "content": "India-flagged LPG gas tanker Jag Vikram crosses the Strait of Hormuz, becoming the first Indian vessel to cross the Strait of Hormuz since the ceasefire. It is expected to arrive in Mumbai on April 15.",
+      "publishedAt": "2026-04-11T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 11",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "hindustantimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "73b0a5edf27be7a7a3a59750ac63b79e"
+    },
+    {
+      "sourceUrl": "https://www.hindustantimes.com/india-news/13-dead-30-injured-in-major-collision-involving-bus-truck-in-bihar-katihar-101775925779975.html",
+      "sourceName": "Hindustan Times",
+      "title": "At least 13 people are killed and 30 others are injured when a bus crashes into two trucks in Katihar district, Bihar, India.",
+      "content": "At least 13 people are killed and 30 others are injured when a bus crashes into two trucks in Katihar district, Bihar, India.",
+      "publishedAt": "2026-04-11T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 11",
+        "section": "Disasters and accidents",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "hindustantimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "16019cedb493918a59b9929299759458"
+    },
+    {
+      "sourceUrl": "https://www.bbc.co.uk/sport/horse-racing/articles/cgme42z1gjro",
+      "sourceName": "BBC News",
+      "title": "In horse racing, I Am Maximus, ridden by Irish jockey Paul Townend, wins this year's Grand National at Aintree Racecourse, England, becoming the second horse since Red Rum to win…",
+      "content": "In horse racing, I Am Maximus, ridden by Irish jockey Paul Townend, wins this year's Grand National at Aintree Racecourse, England, becoming the second horse since Red Rum to win the Grand National twice.",
+      "publishedAt": "2026-04-11T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 11",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "bbc.co.uk",
+        "alternativeUrls": []
+      },
+      "fingerprint": "579b3a435a8d8b96f605bb2a7603799a"
+    },
+    {
+      "sourceUrl": "https://www.theguardian.com/sport/live/2026/apr/12/golf-the-masters-2026-final-round-live",
+      "sourceName": "The Guardian",
+      "title": "In golf, Rory McIlroy wins back-to-back titles at the Masters Tournament.",
+      "content": "In golf, Rory McIlroy wins back-to-back titles at the Masters Tournament.",
+      "publishedAt": "2026-04-12T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 12",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "theguardian.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "ef02a4973677bc31b75b809da42bbd83"
+    },
+    {
+      "sourceUrl": "https://aje.news/x545rk?update=4484682",
+      "sourceName": "Al Jazeera",
+      "title": "U.S.",
+      "content": "U.S. vice president JD Vance, who led the American delegation in the ceasefire talks, says that the two sides have not reached a deal to end the war, with disagreement over nuclear weapon development, and that the U.S. made its \"final and best offer\" and stated \"We'll see if the Iranians accept it\".",
+      "publishedAt": "2026-04-12T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 12",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": [
+          "https://www.nbcnews.com/world/iran/live-blog/live-updates-trump-iran-hormuz-israel-lebanon-ceasefire-talks-pakistan-rcna285140/rcrd107713?canonicalCard=true"
+        ]
+      },
+      "fingerprint": "06117d80cb49302a6d77279af566e732"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/peru-presidential-election-crime-fujimori-aliaga-980a5ee78d1fed794dc6c9b90f9a1ce4",
+      "sourceName": "AP",
+      "title": "Peruvians vote to elect 130 members of the Chamber of Deputies and 60 members of a newly created senate, while also determining the top two presidential candidates that will advan…",
+      "content": "Peruvians vote to elect 130 members of the Chamber of Deputies and 60 members of a newly created senate, while also determining the top two presidential candidates that will advance to a run-off election.",
+      "publishedAt": "2026-04-12T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 12",
+        "section": "Politics and elections",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "09aeb4f14e67ea1c6898a0caae09fe01"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/colombia-hippos-escobar-culling-cf98a01c0f5a8b29ec255a75302f0f97",
+      "sourceName": "AP",
+      "title": "Colombian environment minister Irene Vélez Torres approves the cull of dozens of wild hippos brought to the country by drug lord Pablo Escobar in the 1980s with Torres saying up t…",
+      "content": "Colombian environment minister Irene Vélez Torres approves the cull of dozens of wild hippos brought to the country by drug lord Pablo Escobar in the 1980s with Torres saying up to 80 will be killed out of an estimated population of about 200, citing the need to protect local villagers and native species.",
+      "publishedAt": "2026-04-13T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 13",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "bdaabbf74b848a47dcfe3804ed7ad1dd"
+    },
+    {
+      "sourceUrl": "https://indianexpress.com/article/cities/mumbai/thane-road-accident-cement-truck-eco-van-11-dead-10634308",
+      "sourceName": "The Indian Express",
+      "title": "Eleven people are killed after a cement mixer truck collided with a van in Thane district, India.",
+      "content": "Eleven people are killed after a cement mixer truck collided with a van in Thane district, India.",
+      "publishedAt": "2026-04-13T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 13",
+        "section": "Disasters and accidents",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "indianexpress.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1c73f2dd9b13b5110097df8974fa148f"
+    },
+    {
+      "sourceUrl": "https://aje.news/czjcze?update=4488691",
+      "sourceName": "Al Jazeera",
+      "title": "In a notice to seafarers, the U.S.",
+      "content": "In a notice to seafarers, the U.S. Central Command announces that a blockade of Iranian ports is now in effect, with all unauthorized vessels in the Gulf of Oman and the Arabian Sea east of the Strait of Hormuz subject to interdiction.",
+      "publishedAt": "2026-04-13T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 13",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": []
+      },
+      "fingerprint": "26da082a835a529978d9a135cd1276b3"
+    },
+    {
+      "sourceUrl": "https://www.dailysabah.com/life/environment/japan-reports-record-low-greenhouse-gas-emissions",
+      "sourceName": "AFP via Daily Sabah",
+      "title": "Japan records its lowest-ever net greenhouse gas emissions in fiscal year 2024, falling 1.9% to 994 million tonnes due to reduced energy use and increased reliance on nuclear and…",
+      "content": "Japan records its lowest-ever net greenhouse gas emissions in fiscal year 2024, falling 1.9% to 994 million tonnes due to reduced energy use and increased reliance on nuclear and renewable energy sources.",
+      "publishedAt": "2026-04-14T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 14",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "dailysabah.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "f2f5fbf536ff599e842344edb2ace326"
+    },
+    {
+      "sourceUrl": "https://www.hindustantimes.com/india-news/11-killed-in-cement-mixer-car-crash-on-kalyan-murbad-road-in-maharashtra-thane-mumbai-101776074776703.html",
+      "sourceName": "Hindustan Times",
+      "title": "Eleven people are killed and another is injured when a van collides with a cement mixer in Thane district, Maharashtra, India.",
+      "content": "Eleven people are killed and another is injured when a van collides with a cement mixer in Thane district, Maharashtra, India.",
+      "publishedAt": "2026-04-14T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 14",
+        "section": "Disasters and accidents",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "hindustantimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "c5dd20c06087008b4e42a2b0758ee826"
+    },
+    {
+      "sourceUrl": "https://www.ndtv.com/india-news/operational-failure-led-to-chhattisgarhs-vedanta-boiler-blast-that-killed-20-11368683",
+      "sourceName": "NDTV",
+      "title": "At least 20 people are killed and 36 others are severely burnt in an explosion at a privately-owned power station in Sakti district, Chhattisgarh, India.",
+      "content": "At least 20 people are killed and 36 others are severely burnt in an explosion at a privately-owned power station in Sakti district, Chhattisgarh, India.",
+      "publishedAt": "2026-04-14T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 14",
+        "section": "Disasters and accidents",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "ndtv.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "bff6d9d63f257db91b8b9825ede65496"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/gabon-bilie-arrested-nguema-junta-coup-bongo-89efbe037e5b484ed4bb65e2a48d67fd",
+      "sourceName": "AP",
+      "title": "Gabonese intelligence agents arrest former prime minister and opposition figure Alain Claude Bilie By Nze at his residence over an alleged unpaid debt linked to a 2008 public even…",
+      "content": "Gabonese intelligence agents arrest former prime minister and opposition figure Alain Claude Bilie By Nze at his residence over an alleged unpaid debt linked to a 2008 public event.",
+      "publishedAt": "2026-04-15T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 15",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "17a078efb9985fde177d8a687cdb11f1"
+    },
+    {
+      "sourceUrl": "https://aje.news/lxeq57?update=4494170",
+      "sourceName": "Al Jazeera",
+      "title": "Iran's military headquarters threatens to close the Red Sea in addition to the strait if the U.S.",
+      "content": "Iran's military headquarters threatens to close the Red Sea in addition to the strait if the U.S. naval blockade continues.",
+      "publishedAt": "2026-04-15T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 15",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": []
+      },
+      "fingerprint": "7bc8be5a80ee5494c086510e86ff4a09"
+    },
+    {
+      "sourceUrl": "https://gulfnews.com/world/mena/2-ofws-shot-dead-by-employer-in-beirut-hostage-incident-1.500513793",
+      "sourceName": "Gulf News",
+      "title": "Two Filipino household workers are shot dead by their employer during a hostage incident at a residence in Beirut, Lebanon, and police arrest the suspect.",
+      "content": "Two Filipino household workers are shot dead by their employer during a hostage incident at a residence in Beirut, Lebanon, and police arrest the suspect.",
+      "publishedAt": "2026-04-15T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 15",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "gulfnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "12a0db049908bf23380487c8b6042b57"
+    },
+    {
+      "sourceUrl": "https://aje.news/060cxq?update=4497301",
+      "sourceName": "Al Jazeera",
+      "title": "United States defense secretary Pete Hegseth says that the U.S.",
+      "content": "United States defense secretary Pete Hegseth says that the U.S. is prepared to resume combat operations if Iran does not agree to a permanent deal.",
+      "publishedAt": "2026-04-16T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 16",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": []
+      },
+      "fingerprint": "cc753fcc7e4a25a86fa1aa26a7f7226c"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/philippines-flood-control-corruption-scandal-d9d498175e883974312cacf62585ea8b",
+      "sourceName": "AP",
+      "title": "Philippine president Bongbong Marcos says that Czech authorities have arrested former legislator Zaldy Co in Prague after he entered the country without proper documentation, foll…",
+      "content": "Philippine president Bongbong Marcos says that Czech authorities have arrested former legislator Zaldy Co in Prague after he entered the country without proper documentation, following his designation as a fugitive in connection with graft and malversation charges linked to a flood control project.",
+      "publishedAt": "2026-04-16T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 16",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "0e2a793f4e685cdf43a1b68f5f2d0d4e"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/us-nicaragua-sanctions-ortega-sons-treasury-a9d9721bd331135462dbd810af8ed778",
+      "sourceName": "AP",
+      "title": "The Trump administration imposes sanctions against two sons of Nicaragua co-presidents Daniel Ortega and Rosario Murillo along with other officials tied to the gold industry in th…",
+      "content": "The Trump administration imposes sanctions against two sons of Nicaragua co-presidents Daniel Ortega and Rosario Murillo along with other officials tied to the gold industry in the country.",
+      "publishedAt": "2026-04-16T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 16",
+        "section": "International relations",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "b31df63f1809563fb9bf0d0d183535aa"
+    },
+    {
+      "sourceUrl": "https://www.iosconews.com/news/nation/article_8c7ec4bb-c615-532a-8d2e-51f244511b6b.html",
+      "sourceName": "AFP via Iosco County News-Herald",
+      "title": "France announces that its social security system will reimburse the cost of reusable menstrual products for individuals under 26 and those with low income.",
+      "content": "France announces that its social security system will reimburse the cost of reusable menstrual products for individuals under 26 and those with low income.",
+      "publishedAt": "2026-04-17T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 17",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "iosconews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "d5f7e8dbf70a2e7c432a4e591297e969"
+    },
+    {
+      "sourceUrl": "https://www.news18.com/india/seven-burnt-alive-in-car-bus-crash-in-karnatakas-yadgir-ws-el-10038533.html",
+      "sourceName": "News18",
+      "title": "Nine people are killed and several others are injured after a car collided head-on with a private bus in Yadgir, Karnataka, India.",
+      "content": "Nine people are killed and several others are injured after a car collided head-on with a private bus in Yadgir, Karnataka, India.",
+      "publishedAt": "2026-04-17T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 17",
+        "section": "Disasters and accidents",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "news18.com",
+        "alternativeUrls": [
+          "https://www.ndtv.com/india-news/9-of-family-killed-as-car-catches-fire-after-collision-with-bus-in-karnatakas-surpur-taluk-11371435"
+        ]
+      },
+      "fingerprint": "e8feb147f702f87d0bdbd957948ce4ed"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/daniel-kinahan-ireland-crime-gang-arrest-dubai-209c1131f51e88d950a2a4affd4ce2e8",
+      "sourceName": "AP",
+      "title": "Irish media reports that drug kingpin Daniel Kinahan is arrested by police in Dubai, United Arab Emirates.",
+      "content": "Irish media reports that drug kingpin Daniel Kinahan is arrested by police in Dubai, United Arab Emirates.",
+      "publishedAt": "2026-04-17T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 17",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "c296802385d11e48067bce76b0d385ae"
+    },
+    {
+      "sourceUrl": "https://aje.news/4h6pbo?update=4502571",
+      "sourceName": "Al Jazeera",
+      "title": "India's external affairs ministry summons the ambassador of Iran after an Indian-flagged tanker was attacked in the Strait of Hormuz.",
+      "content": "India's external affairs ministry summons the ambassador of Iran after an Indian-flagged tanker was attacked in the Strait of Hormuz.",
+      "publishedAt": "2026-04-18T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 18",
+        "section": "International relations",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": []
+      },
+      "fingerprint": "a36a1816c3eabd40bc464645965e3124"
+    },
+    {
+      "sourceUrl": "https://ianslive.in/two-indian-men-shot-dead-outside-gurdwara-in-italy--20260419151415",
+      "sourceName": "IANS",
+      "title": "Two Indian citizens are killed in a shooting outside a Sikh temple in Covo, Province of Bergamo, Italy.",
+      "content": "Two Indian citizens are killed in a shooting outside a Sikh temple in Covo, Province of Bergamo, Italy.",
+      "publishedAt": "2026-04-18T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 18",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "ianslive.in",
+        "alternativeUrls": []
+      },
+      "fingerprint": "649486033e84f94b9811dcb1410537a7"
+    },
+    {
+      "sourceUrl": "https://en.dailypakistan.com.pk/18-Apr-2026/rawalpindi-sees-another-shutdown-as-markets-halls-closed-indefinitely-ahead-of-us-iran-talks",
+      "sourceName": "Daily Pakistan",
+      "title": "Rawalpindi shuts down cafés, restaurants, gyms, markets, and marriage halls in preparation of possible Iran–U.S.",
+      "content": "Rawalpindi shuts down cafés, restaurants, gyms, markets, and marriage halls in preparation of possible Iran–U.S. talks.",
+      "publishedAt": "2026-04-18T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 18",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "en.dailypakistan.com.pk",
+        "alternativeUrls": []
+      },
+      "fingerprint": "79b22b6ac820b2e13a9d7ed12619ce5e"
+    },
+    {
+      "sourceUrl": "https://www.foxnews.com/tech/chinese-robot-breaks-human-world-record-beijing-half-marathon",
+      "sourceName": "Fox News",
+      "title": "A humanoid robot developed by Chinese company Honor completes a half marathon in Beijing involving both robots and human runners in 50 minutes and 26 seconds, faster than the stan…",
+      "content": "A humanoid robot developed by Chinese company Honor completes a half marathon in Beijing involving both robots and human runners in 50 minutes and 26 seconds, faster than the standing human world record.",
+      "publishedAt": "2026-04-19T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 19",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "foxnews.com",
+        "alternativeUrls": [
+          "https://www.rte.ie/news/newslens/2026/0419/1569030-china-robots"
+        ]
+      },
+      "fingerprint": "d2317afe85446692c3991f1df9850099"
+    },
+    {
+      "sourceUrl": "https://www.bbc.com/news/articles/cp867zy9j6ro",
+      "sourceName": "BBC News",
+      "title": "At least 25 people are killed and 13 others are injured in an explosion at a fireworks factory in Virudhunagar, Tamil Nadu, India.",
+      "content": "At least 25 people are killed and 13 others are injured in an explosion at a fireworks factory in Virudhunagar, Tamil Nadu, India.",
+      "publishedAt": "2026-04-19T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 19",
+        "section": "Disasters and accidents",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "bbc.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "70e82d3ec88ba32564f2182e83388036"
+    },
+    {
+      "sourceUrl": "https://www.deccanherald.com/india/karnataka/mysuru/mysuru-eight-people-drown-in-cauvery-in-separate-incidents-3973817",
+      "sourceName": "Deccan Herald",
+      "title": "Eight people are killed, including two children, and three others are injured in two separate drowning incidents in the Kaveri river in Mysore district, Karnataka, India.",
+      "content": "Eight people are killed, including two children, and three others are injured in two separate drowning incidents in the Kaveri river in Mysore district, Karnataka, India.",
+      "publishedAt": "2026-04-19T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 19",
+        "section": "Disasters and accidents",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "deccanherald.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "b9f45b4361e91534a6b8e6783fa9feef"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/rat-poison-baby-food-hipp-austria-e709858e1a0698d2337c264e66498ced",
+      "sourceName": "AP",
+      "title": "Several Central European countries, including Austria, Slovakia and the Czech Republic, begin pulling baby food produced by Hipp Holding from supermarket shelves after rat poison…",
+      "content": "Several Central European countries, including Austria, Slovakia and the Czech Republic, begin pulling baby food produced by Hipp Holding from supermarket shelves after rat poison was detected in some jars over the weekend.",
+      "publishedAt": "2026-04-20T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 20",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1f4319d90bc2e731b07d21c262f135f9"
+    },
+    {
+      "sourceUrl": "https://www.france24.com/en/live-news/20260420-blue-origin-launches-rocket-with-used-booster-for-first-time",
+      "sourceName": "AFP via France 24",
+      "title": "American company Blue Origin successfully launches its New Glenn rocket using a reused booster, which it recovers after liftoff, but the communications satellite it carried for AS…",
+      "content": "American company Blue Origin successfully launches its New Glenn rocket using a reused booster, which it recovers after liftoff, but the communications satellite it carried for AST SpaceMobile is placed in an incorrect orbit.",
+      "publishedAt": "2026-04-20T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 19",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "france24.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "5e047b84f41d0b6b46a24a0e4d97f442"
+    },
+    {
+      "sourceUrl": "https://www.hindustantimes.com/india-news/sharp-curve-loss-of-control-100-ft-plunge-what-caused-jammu-and-kashmir-udhampur-bus-crash-that-left-20-dead-101776671666044.html",
+      "sourceName": "Hindustan Times",
+      "title": "At least 21 people are killed and 45 others are injured when a passenger bus rolls into a gorge in Udhampur district, Jammu and Kashmir, India.",
+      "content": "At least 21 people are killed and 45 others are injured when a passenger bus rolls into a gorge in Udhampur district, Jammu and Kashmir, India.",
+      "publishedAt": "2026-04-20T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 20",
+        "section": "Disasters and accidents",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "hindustantimes.com",
+        "alternativeUrls": [
+          "https://www.aljazeera.com/news/2026/4/20/at-least-21-killed-as-bus-skids-off-kashmir-road-into-gorge"
+        ]
+      },
+      "fingerprint": "780a88c1d9d36fe21937703dc43ab24d"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/uk-smoking-ban-vape-vaping-cigarettes-ade338fc91f6a7dc73d4996acb64ca5d",
+      "sourceName": "AP",
+      "title": "The British parliament passes the Tobacco and Vapes Bill formally banning anyone in England born after December 31, 2008, from buying cigarettes and other tobacco products in an e…",
+      "content": "The British parliament passes the Tobacco and Vapes Bill formally banning anyone in England born after December 31, 2008, from buying cigarettes and other tobacco products in an effort to create a \"smoke-free generation\". The age controls will enter force on January 1, 2027.",
+      "publishedAt": "2026-04-21T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 21",
+        "section": "Politics and elections",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "69150815c486ee1eb501074719f13e85"
+    },
+    {
+      "sourceUrl": "https://www.indiatoday.in/india/story/major-explosion-rocks-fireworks-storage-unit-in-keralas-thrissur-dead-injured-2899586-2026-04-21",
+      "sourceName": "India Today",
+      "title": "Thirteen people are killed and 23 injured after an explosion at a fireworks manufacturing unit in Thrissur, India.",
+      "content": "Thirteen people are killed and 23 injured after an explosion at a fireworks manufacturing unit in Thrissur, India.",
+      "publishedAt": "2026-04-21T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 21",
+        "section": "Disasters and accidents",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "indiatoday.in",
+        "alternativeUrls": [
+          "https://indianexpress.com/article/india/thrissur-pooram-fireworks-blast-deaths-injured-rescue-operations-10648706"
+        ]
+      },
+      "fingerprint": "699604e84b836e638482ad40e86d07a9"
+    },
+    {
+      "sourceUrl": "https://english.news.cn/20260421/5d25b307e04448bf96eb41ee2d794949/c.html",
+      "sourceName": "Xinhua",
+      "title": "In Romania, the Social Democratic Party withdraws support for prime minister Ilie Bolojan of the National Liberal Party, a move that could lead to the collapse of the coalition go…",
+      "content": "In Romania, the Social Democratic Party withdraws support for prime minister Ilie Bolojan of the National Liberal Party, a move that could lead to the collapse of the coalition government.",
+      "publishedAt": "2026-04-21T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 20",
+        "section": "Politics and elections",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "english.news.cn",
+        "alternativeUrls": []
+      },
+      "fingerprint": "5919d846b2d5a455cc8fbdc397941a47"
+    },
+    {
+      "sourceUrl": "https://www.manilatimes.net/2026/04/22/world/americas-emea/rover-finds-more-building-blocks-of-life-on-mars/2325021",
+      "sourceName": "AFP via The Manila Times",
+      "title": "NASA announces that the Curiosity rover has detected more than 20 organic molecules on Mars using a chemical analysis method involving tetramethylammonium hydroxide, conducted for…",
+      "content": "NASA announces that the Curiosity rover has detected more than 20 organic molecules on Mars using a chemical analysis method involving tetramethylammonium hydroxide, conducted for the first time on another planet, indicating the long-term preservation of compounds associated with prebiotic chemistry.",
+      "publishedAt": "2026-04-22T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 21",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "manilatimes.net",
+        "alternativeUrls": []
+      },
+      "fingerprint": "afe3ef9dffbe0950d450d613bc37abd2"
+    },
+    {
+      "sourceUrl": "https://www.deccanherald.com/india/uttar-pradesh/11-killed-in-multi-vehicle-crash-in-uttar-pradeshs-mirzapur-3977478",
+      "sourceName": "PTI via Deccan Herald",
+      "title": "Eleven people are killed, including children, in a multiple-vehicle collision in Mirzapur, Uttar Pradesh, India.",
+      "content": "Eleven people are killed, including children, in a multiple-vehicle collision in Mirzapur, Uttar Pradesh, India.",
+      "publishedAt": "2026-04-22T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 22",
+        "section": "Disasters and accidents",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "deccanherald.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "967332a302eebea0654534f1048e3011"
+    },
+    {
+      "sourceUrl": "https://www.reuters.com/business/aerospace-defense/peru-defense-minister-resigns-amid-postponement-f-16-aircraft-purchase-2026-04-22",
+      "sourceName": "Reuters",
+      "title": "Peruvian defence minister Carlos Díaz Dañino and foreign minister Hugo de Zela resign following president José María Balcázar's decision to postpone the purchase of F-16 fighter j…",
+      "content": "Peruvian defence minister Carlos Díaz Dañino and foreign minister Hugo de Zela resign following president José María Balcázar's decision to postpone the purchase of F-16 fighter jets from the United States.",
+      "publishedAt": "2026-04-22T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 22",
+        "section": "Politics and elections",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "reuters.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "16bc4e0ea12b1b88b22c3881bcca4ce3"
+    },
+    {
+      "sourceUrl": "https://www.channelstv.com/2026/04/23/tokyos-nikkei-index-hits-record-high",
+      "sourceName": "AFP via Channels TV",
+      "title": "Japan's Nikkei 225 stock market index surpasses 60,000 points for the first time in a historic high, while South Korea's KOSPI also reaches a record high amid gains in technology…",
+      "content": "Japan's Nikkei 225 stock market index surpasses 60,000 points for the first time in a historic high, while South Korea's KOSPI also reaches a record high amid gains in technology shares.",
+      "publishedAt": "2026-04-23T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 23",
+        "section": "Business and economy",
+        "citationCount": 2,
+        "publisherHostMatch": false,
+        "publisherHost": "channelstv.com",
+        "alternativeUrls": [
+          "https://asia.nikkei.com/business/markets/japan-s-nikkei-average-tops-60-000-intraday-for-1st-time"
+        ]
+      },
+      "fingerprint": "8c2e927d906203a6c64c5b85a9fbc0a5"
+    },
+    {
+      "sourceUrl": "https://aje.news/252c85?update=4516134",
+      "sourceName": "Al Jazeera",
+      "title": "The U.S.",
+      "content": "The U.S. Indo-Pacific Command conducts a boarding operation on the stateless tanker M/T Majestic in the Indian Ocean, alleged to be carrying US-sanctioned Iranian oil.",
+      "publishedAt": "2026-04-23T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 23",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "aje.news",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1eaec739e68c2e394b1f693d5ec1575b"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/germany-iran-crown-prince-reza-pahlavi-liquid-0c2412ac58bb8e1b538c5e4f12abe381",
+      "sourceName": "AP",
+      "title": "Exiled Iranian crown prince Reza Pahlavi is splashed with red liquid after leaving a federal press conference building in Berlin, Germany in which he criticized the ceasefire betw…",
+      "content": "Exiled Iranian crown prince Reza Pahlavi is splashed with red liquid after leaving a federal press conference building in Berlin, Germany in which he criticized the ceasefire between Iran and the U.S.",
+      "publishedAt": "2026-04-23T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 23",
+        "section": "Law and crime",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "730e491b3a71425ea5af2f1a87c15cd1"
+    },
+    {
+      "sourceUrl": "https://www.freemalaysiatoday.com/category/sports/2026/04/24/us-says-irans-players-welcome-at-world-cup-amid-italy-uproar",
+      "sourceName": "AFP via FMT",
+      "title": "U.S.",
+      "content": "U.S. secretary of state Marco Rubio states that Iran's national football team can participate in the upcoming FIFA World Cup, while indicating that entry restrictions may apply to non-athlete delegation members with alleged links to the Islamic Revolutionary Guard Corps.",
+      "publishedAt": "2026-04-24T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 23",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "freemalaysiatoday.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "0bd39f6d14642efbf55d47a99513920f"
+    },
+    {
+      "sourceUrl": "https://aa.com.tr/en/africa/suspected-adf-rebels-killed-over-80-people-last-month-in-eastern-dr-congo/3917461",
+      "sourceName": "AFP via AA",
+      "title": "The United Nations Office for the Coordination of Humanitarian Affairs reports that Allied Democratic Forces insurgents killed at least 87 civilians in separate attacks last month…",
+      "content": "The United Nations Office for the Coordination of Humanitarian Affairs reports that Allied Democratic Forces insurgents killed at least 87 civilians in separate attacks last month in Ituri Province, Democratic Republic of the Congo.",
+      "publishedAt": "2026-04-24T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 24",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "aa.com.tr",
+        "alternativeUrls": []
+      },
+      "fingerprint": "806cf8912fa54556980ae1bddec91c53"
+    },
+    {
+      "sourceUrl": "https://www.cbsnews.com/news/iran-war-lng-supply-iea-report-gas-markets-impact",
+      "sourceName": "CBS News",
+      "title": "The International Energy Agency estimates that the damage to liquefied natural gas (LNG) facilities in Qatar will strain the natural gas market for at least two years, and along w…",
+      "content": "The International Energy Agency estimates that the damage to liquefied natural gas (LNG) facilities in Qatar will strain the natural gas market for at least two years, and along with the Strait of Hormuz closure, will cause the loss of 120 billion cubic meters of LNG supply by 2030.",
+      "publishedAt": "2026-04-24T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 24",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "cbsnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "ea522ebe312300e14fbe39319fbe8a1f"
+    },
+    {
+      "sourceUrl": "https://www.straitstimes.com/asia/se-asia/under-blackout-threat-wikimedia-reaches-compromise-with-indonesia",
+      "sourceName": "AFP via The Straits Times",
+      "title": "The Wikimedia Foundation reaches an agreement with the Indonesian communications ministry to comply with the country's electronic system registration rules after discussions addre…",
+      "content": "The Wikimedia Foundation reaches an agreement with the Indonesian communications ministry to comply with the country's electronic system registration rules after discussions addressed concerns over content removal and data disclosure requirements, averting a potential block of Wikipedia in the country.",
+      "publishedAt": "2026-04-25T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 25",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "straitstimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "85f2a4aff3cbcfc5261629b204762f89"
+    },
+    {
+      "sourceUrl": "https://www.theweek.in/wire-updates/international/2026/04/25/gunfire-heard-near-malis-main-international-airport-in-capital-ap-reporter-and-residents-say.amp.html",
+      "sourceName": "AFP via The Week",
+      "title": "Residents and a reporter from the Associated Press says that gunfire has been heard near the Modibo Keita International Airport.",
+      "content": "Residents and a reporter from the Associated Press says that gunfire has been heard near the Modibo Keita International Airport.",
+      "publishedAt": "2026-04-25T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 25",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "theweek.in",
+        "alternativeUrls": []
+      },
+      "fingerprint": "11244cc138cbd864f2886983a3d59f33"
+    },
+    {
+      "sourceUrl": "https://www.arabnews.com/node/2630619/middle-east",
+      "sourceName": "AFP via Arab News",
+      "title": "The election of 403 local authorities takes place in Palestine.",
+      "content": "The election of 403 local authorities takes place in Palestine.",
+      "publishedAt": "2026-04-25T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 25",
+        "section": "Politics and elections",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "arabnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "8ada9701a59189c52343216358bbbd94"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/marathon-record-sawe-london-under-two-hours-8481a99809f19e0dd2cafca36bd3676a",
+      "sourceName": "AP",
+      "title": "Sabastian Sawe and Yomif Kejelcha become the first people to run a marathon in under two hours, with Sawe setting a new world record of 1:59:30.",
+      "content": "Sabastian Sawe and Yomif Kejelcha become the first people to run a marathon in under two hours, with Sawe setting a new world record of 1:59:30. Tigst Assefa also sets a new world record for a women-only marathon at 2:15:41.",
+      "publishedAt": "2026-04-26T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 26",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "a65e9f24afe7fd53e3d9188aafa8fb5b"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/mali-attack-tuareg-separatists-jnim-a945998cb00044e8c52db0362baaed10",
+      "sourceName": "AP",
+      "title": "Malian troops and Russian mercenaries withdraw from Kidal after yesterday’s attacks.",
+      "content": "Malian troops and Russian mercenaries withdraw from Kidal after yesterday’s attacks.",
+      "publishedAt": "2026-04-26T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 26",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "de7f594bca08acdacbc8098e9968846f"
+    },
+    {
+      "sourceUrl": "https://www.seneweb.com/en/news/Afrique/mali-reprise-des-vols-a-laeroport-modibo-keita-de-senou-apres-les-violentes-attaques-terroristes-dans-le-pays_n_490766.html",
+      "sourceName": "Seneweb",
+      "title": "Flights resume at the Modibo Keita International Airport in Bamako following yesterday's attacks.",
+      "content": "Flights resume at the Modibo Keita International Airport in Bamako following yesterday's attacks.",
+      "publishedAt": "2026-04-26T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "INDIA",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 26",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "seneweb.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "ef09adf818c8da7e4b72d1eb1c355edf"
+    },
+    {
+      "sourceUrl": "https://www.manilatimes.net/2026/04/27/world/asia-oceania/australian-beaches-close-as-sharks-feed-on-whale-carcass/2328841",
+      "sourceName": "AFP via The Manila Times",
+      "title": "The National Parks and Wildlife Service and Surf Life Saving close several beaches in the Royal National Park, New South Wales, Australia, after sharks gather around a washed-up w…",
+      "content": "The National Parks and Wildlife Service and Surf Life Saving close several beaches in the Royal National Park, New South Wales, Australia, after sharks gather around a washed-up whale carcass, increasing shark activity.",
+      "publishedAt": "2026-04-27T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 26",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "manilatimes.net",
+        "alternativeUrls": []
+      },
+      "fingerprint": "803d3f35e42ddbdf2f2af8f1c4efb334"
+    },
+    {
+      "sourceUrl": "https://www.bbc.co.uk/news/articles/cg4047qnpk2o",
+      "sourceName": "BBC News",
+      "title": "American fashion retailer Claire's closes all of its 154 stores in Ireland and the United Kingdom with the loss of 1,300 jobs after collapsing into administration for a second tim…",
+      "content": "American fashion retailer Claire's closes all of its 154 stores in Ireland and the United Kingdom with the loss of 1,300 jobs after collapsing into administration for a second time in a year.",
+      "publishedAt": "2026-04-27T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "BUSINESS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 27",
+        "section": "Business and economy",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "bbc.co.uk",
+        "alternativeUrls": []
+      },
+      "fingerprint": "6082f184126baf1f821ed534d99ac9ff"
+    },
+    {
+      "sourceUrl": "https://tvmnews.mt/en/news/pm-calls-general-election-for-30-may-2026",
+      "sourceName": "TVM+ 1",
+      "title": "Maltese president Myriam Spiteri Debono dissolves parliament on the advice of prime minister Robert Abela, after the latter calls for general elections on 30 May.",
+      "content": "Maltese president Myriam Spiteri Debono dissolves parliament on the advice of prime minister Robert Abela, after the latter calls for general elections on 30 May.",
+      "publishedAt": "2026-04-27T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "POLITICS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 27",
+        "section": "Politics and elections",
+        "citationCount": 2,
+        "publisherHostMatch": false,
+        "publisherHost": "tvmnews.mt",
+        "alternativeUrls": [
+          "https://tvmnews.mt/en/news/parliament-dissolved-as-president-issues-proclamation-on-pms-advice"
+        ]
+      },
+      "fingerprint": "4fdabc5450e994a8b1cbbb974dd6bf51"
+    },
+    {
+      "sourceUrl": "https://www.manilatimes.net/2026/04/28/sports/nelly-korda-wins-lpga-chevron-championship/2329064",
+      "sourceName": "AFP via The Manila Times",
+      "title": "In golf, Nelly Korda wins the Chevron Championship at Memorial Park in Houston, Texas, United States, by five strokes to secure her third major title and regain the world number o…",
+      "content": "In golf, Nelly Korda wins the Chevron Championship at Memorial Park in Houston, Texas, United States, by five strokes to secure her third major title and regain the world number one ranking.",
+      "publishedAt": "2026-04-28T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SPORTS",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 26",
+        "section": "Sports",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "manilatimes.net",
+        "alternativeUrls": []
+      },
+      "fingerprint": "0d74417840fdf4ca1a31993d1b9149ff"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/russia-ukraine-war-drone-attacks-oil-06edbc9666fe0681fa0930affc475e9b",
+      "sourceName": "AP",
+      "title": "Ukraine reports intercepting more than 33,000 Russian drones in March, the highest monthly total since the start of the full-scale invasion.",
+      "content": "Ukraine reports intercepting more than 33,000 Russian drones in March, the highest monthly total since the start of the full-scale invasion.",
+      "publishedAt": "2026-04-28T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "WORLD",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 28",
+        "section": "Armed conflicts and attacks",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "16cd05063ff90f16a1e88d34a70c158e"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/germany-denmark-timmy-humpback-whale-north-sea-cbc279b8e77acecca8161eb375af3455",
+      "sourceName": "AP",
+      "title": "A barge carrying Timmy, a humpback whale that has been stranded off Germany's coast in the Baltic Sea for several weeks, departs for the North Sea where Timmy is set to be freed.",
+      "content": "A barge carrying Timmy, a humpback whale that has been stranded off Germany's coast in the Baltic Sea for several weeks, departs for the North Sea where Timmy is set to be freed. Mecklenburg-Vorpommern environment minister Till Backhaus says the whale is showing signs of good health.",
+      "publishedAt": "2026-04-29T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 29",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "23318afb9c3c8bca866fe37070cdc4af"
+    },
+    {
+      "sourceUrl": "https://en.dailypakistan.com.pk/30-Apr-2026/pakistan-navy-welcomes-first-china-designed-hangor-class-submarine",
+      "sourceName": "Daily Pakistan",
+      "title": "The Pakistan Navy commissions the first Hangor-class submarine, the PNS/M Hangor, at a ceremony in Sanya, China.",
+      "content": "The Pakistan Navy commissions the first Hangor-class submarine, the PNS/M Hangor, at a ceremony in Sanya, China.",
+      "publishedAt": "2026-04-30T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 30",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "en.dailypakistan.com.pk",
+        "alternativeUrls": []
+      },
+      "fingerprint": "9ba7dd121965c214cb552a211d3a9751"
+    },
+    {
+      "sourceUrl": "https://ukranews.com/en/news/1149163-cloudflare-recognizes-russian-messenger-max-as-a-spyware-app",
+      "sourceName": "Ukrainian News",
+      "title": "American company Cloudflare states that Russian messenger app Max is a spyware app.",
+      "content": "American company Cloudflare states that Russian messenger app Max is a spyware app.",
+      "publishedAt": "2026-04-30T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 April 30",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "ukranews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "5efeb1ee1d3f8692444b6487d69de52a"
+    },
+    {
+      "sourceUrl": "https://news.sky.com/story/three-dead-as-virus-breaks-out-on-atlantic-cruise-ship-13503266",
+      "sourceName": "Sky News",
+      "title": "Three people are killed in a hantavirus outbreak on the cruise ship MV Hondius off the coast of West Africa.",
+      "content": "Three people are killed in a hantavirus outbreak on the cruise ship MV Hondius off the coast of West Africa.",
+      "publishedAt": "2026-05-03T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 3",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "news.sky.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "9e45d31a27b7d0815e90c5a7421507aa"
+    },
+    {
+      "sourceUrl": "https://www.dw.com/en/germany-biontech-shutting-down-covid-vaccine-production-entirely-1860-jobs-at-risk/a-77055320",
+      "sourceName": "DW",
+      "title": "German biotechnology company BioNTech announces it will halt production of its COVID-19 vaccine due to drastic restructuring plans, leaving sole production of the vaccine to its p…",
+      "content": "German biotechnology company BioNTech announces it will halt production of its COVID-19 vaccine due to drastic restructuring plans, leaving sole production of the vaccine to its partner Pfizer.",
+      "publishedAt": "2026-05-05T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 5",
+        "section": "Health and environment",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "dw.com",
+        "alternativeUrls": [
+          "https://www.wsj.com/business/earnings/biontech-to-close-sites-cut-quarter-of-workforce-in-savings-push-56201ed1"
+        ]
+      },
+      "fingerprint": "ef12d46e59eb1fa73d277f1219d7ae5a"
+    },
+    {
+      "sourceUrl": "https://abcnews.com/Health/3-evacuated-off-cruise-ship-suspected-hantavirus-cluster/story?id=132699628",
+      "sourceName": "ABC News",
+      "title": "Three passengers infected with hantavirus pulmonary syndrome from the Andes virus are evacuated off the {{Ship|MV|Hondius||6}} cruise ship while it is stationed off the coast of C…",
+      "content": "Three passengers infected with hantavirus pulmonary syndrome from the Andes virus are evacuated off the {{Ship|MV|Hondius||6}} cruise ship while it is stationed off the coast of Cape Verde to receive treatment in the Netherlands. At least 145 people remain on board, including two suspected asymptomatic cases.",
+      "publishedAt": "2026-05-06T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 6",
+        "section": "Health and environment",
+        "citationCount": 3,
+        "publisherHostMatch": true,
+        "publisherHost": "abcnews.com",
+        "alternativeUrls": [
+          "https://www.nbcnews.com/health/health-news/hantavirus-cruise-ship-evacuation-new-case-andes-strain-canary-islands-rcna343816",
+          "https://www.foxnews.com/travel/cruise-ship-passenger-describes-uncertainty-after-3-deaths-amid-hantavirus-probe"
+        ]
+      },
+      "fingerprint": "b9e791733c668c5e5d59e5e93f29c030"
+    },
+    {
+      "sourceUrl": "https://www.reuters.com/world/europe/canarians-worry-arrival-hantavirus-cruise-ship-will-bring-repeat-covid-2026-05-06",
+      "sourceName": "Reuters",
+      "title": "Spanish authorities allow the ship to dock at the Canary Islands as several passengers are Spanish citizens.",
+      "content": "Spanish authorities allow the ship to dock at the Canary Islands as several passengers are Spanish citizens.",
+      "publishedAt": "2026-05-06T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 6",
+        "section": "Health and environment",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "reuters.com",
+        "alternativeUrls": [
+          "https://www.bbc.com/news/live/cy592qeq071t"
+        ]
+      },
+      "fingerprint": "8c8b22e269f6219163d54a77081c31e5"
+    },
+    {
+      "sourceUrl": "https://sudantribune.com/article/313635",
+      "sourceName": "Sudan Tribune",
+      "title": "Two children are reported to have died from tuberculosis at displacement camps in Tawila, North Darfur, Sudan.",
+      "content": "Two children are reported to have died from tuberculosis at displacement camps in Tawila, North Darfur, Sudan.",
+      "publishedAt": "2026-05-07T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 7",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "sudantribune.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1ae101c535e37f7290f897e8565e4c96"
+    },
+    {
+      "sourceUrl": "https://www.independent.co.uk/news/world/americas/us-politics/ufo-files-release-trump-live-updates-b2973063.html",
+      "sourceName": "The Independent",
+      "title": "The United States Department of Defense begins releasing classified files, images and videos relating to unidentified flying objects.",
+      "content": "The United States Department of Defense begins releasing classified files, images and videos relating to unidentified flying objects.",
+      "publishedAt": "2026-05-08T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 8",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "independent.co.uk",
+        "alternativeUrls": []
+      },
+      "fingerprint": "d7962215972be2c33115ee24b8482a55"
+    },
+    {
+      "sourceUrl": "https://abcnews.com/International/115-people-sickened-norovirus-outbreak-cruise-ship-cdc/story?id=132788971",
+      "sourceName": "ABC News",
+      "title": "The U.S.",
+      "content": "The U.S. Centers for Disease Control and Prevention reports that 115 people on the cruise ship Caribbean Princess have been infected by a norovirus outbreak.",
+      "publishedAt": "2026-05-08T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 8",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "abcnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "7d7839d62e3b7c54bbbc3c8679f3ad2f"
+    },
+    {
+      "sourceUrl": "https://www.straitstimes.com/world/who-says-6-hantavirus-cases-confirmed-so-far-adds-that-risk-to-global-population-is-low",
+      "sourceName": "AFP and Reuters via The Straits Times",
+      "title": "The World Health Organization reports six cases of the Andes strain of hantavirus in connection with MV Hondius.",
+      "content": "The World Health Organization reports six cases of the Andes strain of hantavirus in connection with MV Hondius.",
+      "publishedAt": "2026-05-08T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 8",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "straitstimes.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "6cd1259f2ce71d0e2b617ed8f7e6a6a1"
+    },
+    {
+      "sourceUrl": "https://www.bbc.co.uk/news/articles/cvgzv77ldpdo",
+      "sourceName": "BBC News",
+      "title": "British Army medics are parachuted from an RAF A400M onto the remote Atlantic island of Tristan da Cunha to deliver vital supplies to a British national with suspected hantavirus.",
+      "content": "British Army medics are parachuted from an RAF A400M onto the remote Atlantic island of Tristan da Cunha to deliver vital supplies to a British national with suspected hantavirus.",
+      "publishedAt": "2026-05-09T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "ENVIRONMENT",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 9",
+        "section": "Health and environment",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "bbc.co.uk",
+        "alternativeUrls": []
+      },
+      "fingerprint": "b0e4ac84505d4f2cfe695fca0647ad7a"
+    },
+    {
+      "sourceUrl": "https://www.npr.org/2026/05/14/nx-s1-5819740/dinosaur-thailand-sauropod-giant-asia-paleontology",
+      "sourceName": "NPR",
+      "title": "Researchers from Thailand publish the discovery of the Nagatitan chaiyaphumensis in Chaiyaphum province, the largest dinosaur species ever discovered in Southeast Asia.",
+      "content": "Researchers from Thailand publish the discovery of the Nagatitan chaiyaphumensis in Chaiyaphum province, the largest dinosaur species ever discovered in Southeast Asia.",
+      "publishedAt": "2026-05-14T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 14",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "npr.org",
+        "alternativeUrls": []
+      },
+      "fingerprint": "ec530f1390a050121d0fdfab7791c630"
+    },
+    {
+      "sourceUrl": "https://www.reuters.com/world/middle-east/irans-president-orders-reopening-international-internet-access-state-media-2026-05-25",
+      "sourceName": "Reuters",
+      "title": "Iranian president Masoud Pezeshkian orders the Internet in Iran to be restored, bringing an end to a 87-day blackout in the wake of the Iran war that started three months ago.",
+      "content": "Iranian president Masoud Pezeshkian orders the Internet in Iran to be restored, bringing an end to a 87-day blackout in the wake of the Iran war that started three months ago.",
+      "publishedAt": "2026-05-25T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 25",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "reuters.com",
+        "alternativeUrls": [
+          "https://www.newarab.com/news/iran-approves-restoration-internet-after-months-long-blackout"
+        ]
+      },
+      "fingerprint": "fcdf2546005e09d234062ed3fb10c4ec"
+    },
+    {
+      "sourceUrl": "https://www.middleeasteye.net/live-blog/live-blog-update/kazakhstan-open-storing-irans-enriched-uranium-nuclear-deal",
+      "sourceName": "Middle East Eye",
+      "title": "International Atomic Energy Agency director Rafael Grossi says that Kazakhstan is open to taking custody of Iran's enriched uranium if a deal is reached on their nuclear program.",
+      "content": "International Atomic Energy Agency director Rafael Grossi says that Kazakhstan is open to taking custody of Iran's enriched uranium if a deal is reached on their nuclear program.",
+      "publishedAt": "2026-05-29T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 May 29",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "middleeasteye.net",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1330588ac629284a21c55b787745dcab"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/north-korea-kim-nuclear-uranium-8b8cb67751916637e0db62d6bc0147a2",
+      "sourceName": "AP",
+      "title": "North Korea unveils a new facility plant that would produce nuclear weapon fuel.",
+      "content": "North Korea unveils a new facility plant that would produce nuclear weapon fuel.",
+      "publishedAt": "2026-06-04T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 4",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "4d0741736f3fb3408c63530ac97a7179"
+    },
+    {
+      "sourceUrl": "https://www.pbs.org/newshour/nation/energy-department-says-advanced-nuclear-reactor-first-to-reach-critical-milestone",
+      "sourceName": "PBS",
+      "title": "The United States Department of Energy announces that a nuclear microreactor developed by a private company has reached \"criticality\" for the first time under a program to develop…",
+      "content": "The United States Department of Energy announces that a nuclear microreactor developed by a private company has reached \"criticality\" for the first time under a program to develop the U.S. nuclear industry by the second Trump administration.",
+      "publishedAt": "2026-06-05T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 5",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "pbs.org",
+        "alternativeUrls": []
+      },
+      "fingerprint": "2f2c89acdc389d608a63dcead535e1f1"
+    },
+    {
+      "sourceUrl": "https://www.nbcnews.com/science/space/nasa-artemis-iii-astronauts-announced-mission-rcna347223",
+      "sourceName": "NBC News",
+      "title": "NASA announces that its astronauts Randy Bresnik, Frank Rubio, and Andre Douglas, and ESA astronaut Luca Parmitano will crew the Artemis III mission in late 2027.",
+      "content": "NASA announces that its astronauts Randy Bresnik, Frank Rubio, and Andre Douglas, and ESA astronaut Luca Parmitano will crew the Artemis III mission in late 2027. The mission's goal is to evaluate rendezvous and docking operations with SpaceX's Starship HLS and Blue Origin's Blue Moon spacecraft.",
+      "publishedAt": "2026-06-09T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 9",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "nbcnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "16152329c143c845784ea9dbb7cf9f56"
+    },
+    {
+      "sourceUrl": "https://www.theglobeandmail.com/canada/science/article-canada-rocket-launch-nova-scotia",
+      "sourceName": "The Globe and Mail",
+      "title": "Maritime Launch Services test-launches its first Barracuda hypersonic rocket from Canso, Nova Scotia, Canada, but falls short of reaching the Karman Line.",
+      "content": "Maritime Launch Services test-launches its first Barracuda hypersonic rocket from Canso, Nova Scotia, Canada, but falls short of reaching the Karman Line.",
+      "publishedAt": "2026-06-10T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 10",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "theglobeandmail.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "7eaac0dc285f97cba005412772eba555"
+    },
+    {
+      "sourceUrl": "https://www.theguardian.com/environment/2026/jun/10/deepest-most-extensive-whale-graveyard-discovered-indian-ocean",
+      "sourceName": "The Guardian",
+      "title": "Chinese scientists discover the largest known whale graveyard in the Indian Ocean, identifying nearly 500 whale skeletons spanning millions of years and documenting deep-sea ecosy…",
+      "content": "Chinese scientists discover the largest known whale graveyard in the Indian Ocean, identifying nearly 500 whale skeletons spanning millions of years and documenting deep-sea ecosystems associated with the remains. A new species, Pterocetus diamantinae named after the location, was also discovered.",
+      "publishedAt": "2026-06-10T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 10",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "theguardian.com",
+        "alternativeUrls": [
+          "https://www.france24.com/en/live-news/20260610-world-s-largest-whale-graveyard-discovered-by-chinese-sub"
+        ]
+      },
+      "fingerprint": "9c485b0547d380d93582c487f4493aec"
+    },
+    {
+      "sourceUrl": "https://www.cnbc.com/2026/06/12/anthropic-disables-access-to-fable-5-and-mythos-5-to-comply-with-government-directive.html",
+      "sourceName": "CNBC",
+      "title": "The U.S.",
+      "content": "The U.S. Department of Commerce orders artificial intelligence company Anthropic to ban non-Americans from accessing its large language models Claude Mythos and Fable 5.",
+      "publishedAt": "2026-06-12T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 12",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "cnbc.com",
+        "alternativeUrls": [
+          "https://www.bbc.com/news/articles/c932g3v3e13o"
+        ]
+      },
+      "fingerprint": "187c7747afa04c7ba6632bcfef1bbb87"
+    },
+    {
+      "sourceUrl": "https://www.space.com/astronomy/exoplanets/james-webb-space-telescope-discovers-extreme-exoplanet-being-roasted-by-its-home-star",
+      "sourceName": "Space.com",
+      "title": "The NASA's James Webb Space Telescope discovers that the Hot Jupiter exoplanet HD 80606 b is being roasted by its home star.",
+      "content": "The NASA's James Webb Space Telescope discovers that the Hot Jupiter exoplanet HD 80606 b is being roasted by its home star. The research findings were presented at the 248th American Astronomical Society in Pasedena, California, U.S.",
+      "publishedAt": "2026-06-16T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 16",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "space.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "ddac0150c1e846c1dd3b3eea037e9417"
+    },
+    {
+      "sourceUrl": "https://www.cbsnews.com/news/parasite-zombie-fungus-malaysia-borneo-discovery",
+      "sourceName": "AFP via CBS News",
+      "title": "Malaysian researchers identify Pleurocordyceps cornusynnemata, a new fungal species in Borneo that parasitizes Ophiocordyceps fungi infecting ants.",
+      "content": "Malaysian researchers identify Pleurocordyceps cornusynnemata, a new fungal species in Borneo that parasitizes Ophiocordyceps fungi infecting ants. Scientists also report the discovery of a previously undocumented spider-infecting fungus.",
+      "publishedAt": "2026-06-19T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 19",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "cbsnews.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "c1bbf7a4c53338e1e7091d77d0296b57"
+    },
+    {
+      "sourceUrl": "https://www.reuters.com/technology/norway-imposes-near-ban-ai-elementary-school-2026-06-19",
+      "sourceName": "Reuters",
+      "title": "Norwegian prime minister Jonas Gahr Støre announces new school guidelines that generally prohibit the use of generative AI by primary school pupils and restrict its use for older…",
+      "content": "Norwegian prime minister Jonas Gahr Støre announces new school guidelines that generally prohibit the use of generative AI by primary school pupils and restrict its use for older students. The policy takes effect in the next academic year.",
+      "publishedAt": "2026-06-19T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 19",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "reuters.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "eb44464ab9b8f47f2cc1464181d9d760"
+    },
+    {
+      "sourceUrl": "https://www.the-independent.com/bulletin/news/dinosaur-bone-antarctica-paul-barrett-mark-evans-b3005159.html",
+      "sourceName": "The Independent",
+      "title": "Palaeontologists identify a fossil vertebra collected on James Ross Island in 1985 as the earliest-known dinosaur bone collected in Antarctica, which was identified to be a tail b…",
+      "content": "Palaeontologists identify a fossil vertebra collected on James Ross Island in 1985 as the earliest-known dinosaur bone collected in Antarctica, which was identified to be a tail bone from a titanosaur.",
+      "publishedAt": "2026-06-29T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 29",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "the-independent.com",
+        "alternativeUrls": [
+          "https://www.bbc.com/news/articles/cdep67jnn9zo"
+        ]
+      },
+      "fingerprint": "6e154421c0c46ef98f69ac216704a448"
+    },
+    {
+      "sourceUrl": "https://apnews.com/article/ford-recall-lincoln-navigator-expedition-nhtsa-12757a92112e7cf242616f3b97590288",
+      "sourceName": "AP",
+      "title": "Ford issues a recall order of over 741,000 vehicles, mainly F-150, Explorer, Expedition, Lincoln Aviator, and Navigator models, in the U.S.",
+      "content": "Ford issues a recall order of over 741,000 vehicles, mainly F-150, Explorer, Expedition, Lincoln Aviator, and Navigator models, in the U.S. due to a transmission issue that may damage the park system.",
+      "publishedAt": "2026-06-30T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 June 30",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "apnews.com",
+        "alternativeUrls": [
+          "https://www.reuters.com/legal/litigation/ford-recall-over-741000-us-vehicles-due-park-system-issue-nhtsa-says-2026-06-30"
+        ]
+      },
+      "fingerprint": "a40ecd11ac1ae23058b94a9ebb245f60"
+    },
+    {
+      "sourceUrl": "https://www3.nhk.or.jp/nhkworld/en/news/20260705_01",
+      "sourceName": "NHK",
+      "title": "JAXA satellite Hayabusa2 conducts a flyby of the asteroid 98943 Torifune.",
+      "content": "JAXA satellite Hayabusa2 conducts a flyby of the asteroid 98943 Torifune.",
+      "publishedAt": "2026-07-05T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 5",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "www3.nhk.or.jp",
+        "alternativeUrls": []
+      },
+      "fingerprint": "07a3e631841ed634ba3322acce9afc57"
+    },
+    {
+      "sourceUrl": "https://9to5google.com/2026/07/02/samsung-messages-july-shut-down-reminder",
+      "sourceName": "9to5Google",
+      "title": "Samsung Electronics announces that Samsung Messages is being discontinued in the US on July 6 and directs users who have Android 12 or above to switch to Google Messages.",
+      "content": "Samsung Electronics announces that Samsung Messages is being discontinued in the US on July 6 and directs users who have Android 12 or above to switch to Google Messages.",
+      "publishedAt": "2026-07-06T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 6",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "9to5google.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "bb8960a4a7217eb16741ed28ea067b21"
+    },
+    {
+      "sourceUrl": "https://www.axios.com/2026/06/26/openai-gpt-sol-terra-luna-trump",
+      "sourceName": "Axios",
+      "title": "OpenAI releases the large language model tool GPT-5.6, with significant advancements in cybersecurity.",
+      "content": "OpenAI releases the large language model tool GPT-5.6, with significant advancements in cybersecurity.",
+      "publishedAt": "2026-07-09T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 9",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "axios.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "74c5a1c2fe290ed81014e819225b06a7"
+    },
+    {
+      "sourceUrl": "https://www.scmp.com/news/china/science/article/3360069/china-recovers-long-march-10b-reusable-rocket-maiden-launch",
+      "sourceName": "South China Morning Post",
+      "title": "China becomes the second country to achieve the controlled recovery of an orbital-class rocket booster, after successfully launching the Long March 10B.",
+      "content": "China becomes the second country to achieve the controlled recovery of an orbital-class rocket booster, after successfully launching the Long March 10B.",
+      "publishedAt": "2026-07-10T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 10",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "scmp.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "1ee51c935a7249a893fcacd55b8dec2e"
+    },
+    {
+      "sourceUrl": "https://www.nature.com/articles/d41586-026-02173-5",
+      "sourceName": "Nature",
+      "title": "Astronomers announce that an erythrulose molecule was detected inside a cloud of gas and dust near the center of the Milky Way.",
+      "content": "Astronomers announce that an erythrulose molecule was detected inside a cloud of gas and dust near the center of the Milky Way. It is the first evidence of sugar in interstellar space.",
+      "publishedAt": "2026-07-13T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 13",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "nature.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "2a527334b429e7456bac4df118f465c0"
+    },
+    {
+      "sourceUrl": "https://abcnews.com/amp/Technology/wireStory/faint-new-planet-revealed-young-star-after-decade-134776523",
+      "sourceName": "ABC News",
+      "title": "Astronomers directly image the exoplanet Beta Pictoris d next to its star, located 63 light-years away, using NASA's James Webb Space Telescope and European Southern Observatory's…",
+      "content": "Astronomers directly image the exoplanet Beta Pictoris d next to its star, located 63 light-years away, using NASA's James Webb Space Telescope and European Southern Observatory's Very Large Telescope. It is also reported to be fainter than its sibling Beta Pictoris b. The discovery is published in the The Astrophysical Journal.",
+      "publishedAt": "2026-07-15T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "SCIENCE",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 15",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "abcnews.com",
+        "alternativeUrls": [
+          "https://www.space.com/astronomy/exoplanets/found-you-astronomers-spot-faintest-exoplanet-ever-seen-from-earth-after-a-decade-of-hide-and-seek"
+        ]
+      },
+      "fingerprint": "9d7c91aa0466cb2980a6a4e581775a71"
+    },
+    {
+      "sourceUrl": "https://www.yahoo.com/news/science/articles/52-died-17-survived-pan-144450925.html",
+      "sourceName": "The Dallas Express via Yahoo News",
+      "title": "The wreckage of Pan Am Flight 526A, a Douglas DC-4 that crashed into the sea off Puerto Rico in 1952, killing 52 people, is located by a veteran aviation search team.",
+      "content": "The wreckage of Pan Am Flight 526A, a Douglas DC-4 that crashed into the sea off Puerto Rico in 1952, killing 52 people, is located by a veteran aviation search team.",
+      "publishedAt": "2026-07-21T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 21",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "yahoo.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "08f40c55be5053ae39a3e327f601f110"
+    },
+    {
+      "sourceUrl": "https://www.lemonde.fr/en/international/article/2026/07/23/fields-medal-awarded-to-four-young-mathematicians_6755774_4.html",
+      "sourceName": "AFP via Le Monde",
+      "title": "The International Mathematical Union awards the 2026 Fields Medals to Yu Deng, John Pardon, Jacob Tsimerman, and Hong Wang at the International Congress of Mathematicians in Phila…",
+      "content": "The International Mathematical Union awards the 2026 Fields Medals to Yu Deng, John Pardon, Jacob Tsimerman, and Hong Wang at the International Congress of Mathematicians in Philadelphia, Pennsylvania, United States. Wang becomes the third woman to receive the prize after Maryam Mirzakhani in 2014 and Maryna Viazovska in 2022.",
+      "publishedAt": "2026-07-23T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 23",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": false,
+        "publisherHost": "lemonde.fr",
+        "alternativeUrls": []
+      },
+      "fingerprint": "43fd48f3f33271faf32d5e6535015b8f"
+    },
+    {
+      "sourceUrl": "https://www.cnn.com/2026/07/24/science/live-news/spacex-starship-flight-13-launch",
+      "sourceName": "CNN",
+      "title": "The SpaceX Starship test flight 13, the first to successfully deploy operational Starlink satellites, successfully lands in the Indian Ocean intact.",
+      "content": "The SpaceX Starship test flight 13, the first to successfully deploy operational Starlink satellites, successfully lands in the Indian Ocean intact.",
+      "publishedAt": "2026-07-24T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 24",
+        "section": "Science and technology",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "cnn.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "76e16bf813e3c01ff7142f52022f60cf"
+    },
+    {
+      "sourceUrl": "https://www.aljazeera.com/news/2026/7/30/us-authorities-probe-cyberattack-on-water-systems-in-minnesota",
+      "sourceName": "Al Jazeera",
+      "title": "The Minnesota IT Services reports a cyberattack across 30 municipal community water systems across the state, with American authorities accusing Iran of being behind the cyberatta…",
+      "content": "The Minnesota IT Services reports a cyberattack across 30 municipal community water systems across the state, with American authorities accusing Iran of being behind the cyberattack.",
+      "publishedAt": "2026-07-30T00:00:00.000Z",
+      "publishedAtSource": "source-page-date",
+      "category": "TECHNOLOGY",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 July 30",
+        "section": "Science and technology",
+        "citationCount": 2,
+        "publisherHostMatch": true,
+        "publisherHost": "aljazeera.com",
+        "alternativeUrls": [
+          "https://www.nytimes.com/2026/07/30/us/politics/minnesota-water-cyberattack-iran.html"
+        ]
+      },
+      "fingerprint": "3e92f1a318386f6a06a9b73c22769ab6"
+    },
+    {
+      "sourceUrl": "https://www.reuters.com/business/media-telecom/michael-j-fox-honored-emmys-parkinsons-advocacy-2026-09-15",
+      "sourceName": "Reuters",
+      "title": "Canadian–American actor Michael J.",
+      "content": "Canadian–American actor Michael J. Fox wins the Bob Hope Humanitarian Award for his contributions to research and advocacy on Parkinson's disease.",
+      "publishedAt": "2026-09-15T00:00:00.000Z",
+      "publishedAtSource": "publisher-url",
+      "category": "HEALTH",
+      "language": "en",
+      "discovery": {
+        "provider": "wikipedia-current-events",
+        "page": "Portal:Current events/2026 September 14",
+        "section": "Arts and culture",
+        "citationCount": 1,
+        "publisherHostMatch": true,
+        "publisherHost": "reuters.com",
+        "alternativeUrls": []
+      },
+      "fingerprint": "bb66b888b996c83ede8a21e0fad1359e"
+    }
+  ]
+}

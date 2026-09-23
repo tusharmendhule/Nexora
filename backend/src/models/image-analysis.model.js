@@ -8,7 +8,6 @@ const imageAnalysisSchema = new mongoose.Schema(
       ref: 'ContentJob',
       required: false,
       default: null,
-      index: true,
     },
 
     // Reference to the post
@@ -17,14 +16,12 @@ const imageAnalysisSchema = new mongoose.Schema(
       ref: 'Post',
       required: false,
       default: null,
-      index: true,
     },
 
     // Job tracking for async analysis
     jobId: {
       type: String,
       required: false,
-      index: true,
     },
 
     // Processing status
@@ -101,6 +98,21 @@ const imageAnalysisSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Probability the image was AI-generated (from the trained image model).
+    // null when no AI-image detector is configured — never assumed.
+    aiGeneratedProbability: {
+      type: Number,
+      default: null,
+      min: 0,
+      max: 1,
+    },
+
+    // Which model produced aiGeneratedProbability (traceability).
+    aiDetectionModel: {
+      type: String,
+      default: null,
+    },
+
     // Overall confidence in the analysis
     confidence: {
       type: Number,
@@ -131,6 +143,7 @@ const imageAnalysisSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    suppressReservedKeysWarning: true,
   }
 );
 

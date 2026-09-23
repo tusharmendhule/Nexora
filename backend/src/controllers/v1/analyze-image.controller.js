@@ -23,6 +23,11 @@ const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
 const AI_SERVICE_TIMEOUT = 120000; // 2 min for image processing
 const BACKGROUND_TIMEOUT = 180000; // 3 min — hard limit for background job
 
+// Probability at/above which an image is reported as AI-generated. Mirrors
+// media-verification.service's threshold; the value is a real model output,
+// this only maps it to a boolean label.
+const AI_GENERATED_THRESHOLD = 0.5;
+
 // In-flight job tracking (memory — survives request but not server restart)
 const _inflight = new Map();
 
@@ -138,6 +143,9 @@ async function processImageInBackground(jobId, analysisId, mediaUrl, postId) {
       faceDetectionCount: ai.faceDetectionCount,
       hasFace: ai.hasFace,
       preprocessing: ai.preprocessing || {},
+      aiGeneratedProbability:
+        typeof ai.aiGeneratedProbability === 'number' ? ai.aiGeneratedProbability : null,
+      aiDetectionModel: ai.aiDetectionModel || null,
       confidence: ai.confidence,
       modelVersion: ai.modelVersion,
       processingTimeMs,
@@ -148,30 +156,30 @@ async function processImageInBackground(jobId, analysisId, mediaUrl, postId) {
       })),
     });
 
-    // Create TrustScore through the rule engine (documented Nexora formula)
-    // if postId is provided. Media alone cannot verify factual claims, so
-    // factualVerification/sourceCredibility stay neutral (0.5) — never
-    // assumed true or false.
+    // Full media verification + TrustScore (documented Nexora formula) when a
+    // post is provided: OCR → claims → Google Fact Check → source credibility.
+    // AI-generated detection stays separate from factuality.
     if (postId) {
       try {
-        const trustScoreService = require('../../services/trust-score.service');
-        await trustScoreService.computeAndStoreTrustScore(
+        const mediaVerificationService = require('../../services/media-verification.service');
+        await mediaVerificationService.verifyAndScoreMedia({
           postId,
-          {
-            authenticityScore: 1 - ai.manipulationProbability,
-            factualVerificationScore: 0.5,
-            sourceCredibilityScore: 0.5,
-            modelConfidenceScore: confidenceFactor,
-            contentType: 'image',
-            manipulationProbability: Math.max(
-              ai.manipulationProbability || 0,
-              ai.faceManipulationProbability || 0
-            ),
-            modelVersion: ai.modelVersion || 'nexora-image-v1.0.0',
-          }
-        );
+          contentType: 'IMAGE',
+          mediaUrl,
+          caption: null,
+          authenticityScore: 1 - ai.manipulationProbability,
+          modelConfidenceScore: confidenceFactor,
+          manipulationProbability: Math.max(
+            ai.manipulationProbability || 0,
+            ai.faceManipulationProbability || 0
+          ),
+          aiGeneratedProbability:
+            typeof ai.aiGeneratedProbability === 'number' ? ai.aiGeneratedProbability : null,
+          aiDetectionModel: ai.aiDetectionModel || null,
+          modelVersion: ai.modelVersion || 'nexora-image-v1.0.0',
+        });
       } catch (tsErr) {
-        console.error('[ImageAnalysis] TrustScore creation failed:', tsErr.message);
+        console.error('[ImageAnalysis] Media verification/TrustScore failed:', tsErr.message);
       }
     }
 
@@ -429,6 +437,12 @@ exports.analyzeImageDirect = async (req, res, next) => {
       textureAnomaly: ai.textureAnomaly,
       faceDetectionCount: ai.faceDetectionCount,
       hasFace: ai.hasFace,
+      // Persist the real AI-image detector output so the analysis can be
+      // labelled AI-generated (or not). null when no detector is configured
+      // — never assumed or fabricated.
+      aiGeneratedProbability:
+        typeof ai.aiGeneratedProbability === 'number' ? ai.aiGeneratedProbability : null,
+      aiDetectionModel: ai.aiDetectionModel || null,
       confidence: ai.confidence,
       modelVersion: ai.modelVersion,
       processingTimeMs: ai.processingTimeMs,
@@ -499,6 +513,14 @@ function formatAnalysisResult(analysis) {
     textureAnomaly: analysis.textureAnomaly,
     faceDetectionCount: analysis.faceDetectionCount,
     hasFace: analysis.hasFace,
+    aiGeneratedProbability: analysis.aiGeneratedProbability,
+    aiDetectionModel: analysis.aiDetectionModel,
+    // Explicit AI-generated label. null when the detector produced no
+    // probability (never assumed "not AI").
+    aiGenerated:
+      typeof analysis.aiGeneratedProbability === 'number'
+        ? analysis.aiGeneratedProbability >= AI_GENERATED_THRESHOLD
+        : null,
     confidence: analysis.confidence,
     modelVersion: analysis.modelVersion,
     processingTimeMs: analysis.processingTimeMs,

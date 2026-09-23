@@ -10,6 +10,7 @@
 
 const axios = require('axios');
 const ImageAnalysis = require('../models/image-analysis.model');
+const { describeAiServiceError } = require('../utils/ai-service-error');
 
 // ─── Configuration ────────────────────────────────────────────────
 
@@ -49,117 +50,140 @@ async function analyzeImage(job) {
     };
   }
 
-  // Call the Python AI service
-  let aiResponse;
+  // ── Authenticity model (Python AI service) ─────────────────────────
+  // If the model service is unavailable we do NOT fail the post and we do
+  // NOT invent probabilities: the authenticity signal is recorded as
+  // unavailable (spec §31) and the real claim / fact-check path still runs.
+  let ai = null;
+  let authenticityError = null;
   try {
-    aiResponse = await axios.post(
+    const aiResponse = await axios.post(
       `${AI_SERVICE_URL}/analyze/image`,
       { mediaUrl, postId: post._id.toString() },
       { timeout: AI_SERVICE_TIMEOUT }
     );
+    ai = aiResponse.data;
   } catch (err) {
-    if (err.code === 'ECONNREFUSED') {
-      throw new Error(
-        'AI service is not available. Start the Python service on ' +
-          AI_SERVICE_URL
-      );
-    }
-    if (err.code === 'ECONNABORTED' || err.code === 'ETIMEDOUT') {
-      throw new Error(
-        'AI image service request timed out. Image processing may be too slow.'
-      );
-    }
-    if (err.response && err.response.data) {
-      throw new Error(
-        `AI service error: ${err.response.data.detail || err.response.statusText}`
-      );
-    }
-    throw new Error(`AI service request failed: ${err.message}`);
+    authenticityError = describeAiServiceError(err, 'image');
+    console.error(`[ImageAnalysis] ${authenticityError.message}`);
   }
 
-  const ai = aiResponse.data;
+  let results;
+  let modelVersion = null;
+  let authenticityScore = null;
+  let modelConfidenceScore = null;
+  let manipulationProbability = 0;
+  let aiGeneratedProbability = null;
+  let aiDetectionModel = null;
+  let needsReview = true;
 
-  // Build composite trust score for image content
-  const manipulationFactor = 1 - ai.manipulationProbability;
-  const faceManipFactor = 1 - ai.faceManipulationProbability;
-  const confidenceFactor = ai.confidence;
+  if (ai) {
+    // Build composite trust score for image content
+    const manipulationFactor = 1 - ai.manipulationProbability;
+    const faceManipFactor = 1 - ai.faceManipulationProbability;
+    const confidenceFactor = ai.confidence;
 
-  const finalScore = Math.round(
-    (manipulationFactor * 0.40 +
-      faceManipFactor * 0.25 +
-      confidenceFactor * 0.35) *
-      100
-  );
-
-  const results = {
-    manipulationProbability: ai.manipulationProbability,
-    faceManipulationProbability: ai.faceManipulationProbability,
-    frequencyAnomaly: ai.frequencyAnomaly,
-    colorAnomaly: ai.colorAnomaly,
-    textureAnomaly: ai.textureAnomaly,
-    faceDetectionCount: ai.faceDetectionCount,
-    hasFace: ai.hasFace,
-    confidence: ai.confidence,
-    finalScore: Math.max(0, Math.min(100, finalScore)),
-  };
-
-  // Store analysis in MongoDB
-  await ImageAnalysis.create({
-    contentJob: job._id,
-    post: job.post,
-    mediaUrl,
-    preprocessing: ai.preprocessing || {},
-    manipulationProbability: ai.manipulationProbability,
-    faceManipulationProbability: ai.faceManipulationProbability,
-    frequencyAnomaly: ai.frequencyAnomaly,
-    colorAnomaly: ai.colorAnomaly,
-    textureAnomaly: ai.textureAnomaly,
-    faceDetectionCount: ai.faceDetectionCount,
-    hasFace: ai.hasFace,
-    confidence: ai.confidence,
-    modelVersion: ai.modelVersion,
-    processingTimeMs: ai.processingTimeMs,
-    finalScore: Math.max(0, Math.min(100, finalScore)),
-    errors: (ai.errors || []).map((e) => ({
-      stage: e.stage,
-      message: e.message,
-    })),
-  });
-
-  // Create TrustScore through the rule engine (documented Nexora formula).
-  // Media alone cannot verify factual claims, so factualVerification and
-  // sourceCredibility stay neutral (0.5) — never assumed true or false.
-  try {
-    const trustScoreService = require('./trust-score.service');
-    await trustScoreService.computeAndStoreTrustScore(
-      job.post,
-      {
-        authenticityScore: 1 - ai.manipulationProbability,
-        factualVerificationScore: 0.5, // no factual claims verified for images
-        sourceCredibilityScore: 0.5,   // no source evidence for images
-        modelConfidenceScore: ai.confidence,
-        contentType: 'image',
-        manipulationProbability: Math.max(
-          ai.manipulationProbability || 0,
-          ai.faceManipulationProbability || 0
-        ),
-        modelVersion: ai.modelVersion || 'nexora-image-v1.0.0',
-      }
+    const finalScore = Math.round(
+      (manipulationFactor * 0.40 +
+        faceManipFactor * 0.25 +
+        confidenceFactor * 0.35) *
+        100
     );
-  } catch (tsErr) {
-    console.error('[ImageAnalysis] Failed to create TrustScore:', tsErr.message);
+
+    results = {
+      manipulationProbability: ai.manipulationProbability,
+      faceManipulationProbability: ai.faceManipulationProbability,
+      frequencyAnomaly: ai.frequencyAnomaly,
+      colorAnomaly: ai.colorAnomaly,
+      textureAnomaly: ai.textureAnomaly,
+      faceDetectionCount: ai.faceDetectionCount,
+      hasFace: ai.hasFace,
+      confidence: ai.confidence,
+      finalScore: Math.max(0, Math.min(100, finalScore)),
+      // Real AI-image detector output (null when no detector is configured).
+      aiGeneratedProbability:
+        typeof ai.aiGeneratedProbability === 'number' ? ai.aiGeneratedProbability : null,
+      aiDetectionModel: ai.aiDetectionModel || null,
+      authenticityUnavailable: false,
+    };
+
+    // Store analysis in MongoDB
+    await ImageAnalysis.create({
+      contentJob: job._id,
+      post: job.post,
+      mediaUrl,
+      preprocessing: ai.preprocessing || {},
+      manipulationProbability: ai.manipulationProbability,
+      faceManipulationProbability: ai.faceManipulationProbability,
+      frequencyAnomaly: ai.frequencyAnomaly,
+      colorAnomaly: ai.colorAnomaly,
+      textureAnomaly: ai.textureAnomaly,
+      faceDetectionCount: ai.faceDetectionCount,
+      hasFace: ai.hasFace,
+      aiGeneratedProbability: results.aiGeneratedProbability,
+      aiDetectionModel: results.aiDetectionModel,
+      confidence: ai.confidence,
+      modelVersion: ai.modelVersion,
+      processingTimeMs: ai.processingTimeMs,
+      finalScore: Math.max(0, Math.min(100, finalScore)),
+      errors: (ai.errors || []).map((e) => ({
+        stage: e.stage,
+        message: e.message,
+      })),
+    });
+
+    modelVersion = ai.modelVersion;
+    authenticityScore = 1 - ai.manipulationProbability;
+    modelConfidenceScore = ai.confidence;
+    manipulationProbability = Math.max(
+      ai.manipulationProbability || 0,
+      ai.faceManipulationProbability || 0
+    );
+    aiGeneratedProbability = results.aiGeneratedProbability;
+    aiDetectionModel = results.aiDetectionModel;
+    needsReview =
+      ai.manipulationProbability > 0.6 ||
+      ai.faceManipulationProbability > 0.7 ||
+      ai.confidence < 0.3;
+  } else {
+    results = {
+      authenticityUnavailable: true,
+      error: authenticityError,
+      message:
+        'Image authenticity model unavailable — no manipulation probabilities ' +
+        'were produced. Claim extraction and fact checking still run.',
+    };
   }
 
-  // Determine if review is required
-  const needsReview =
-    ai.manipulationProbability > 0.6 ||
-    ai.faceManipulationProbability > 0.7 ||
-    ai.confidence < 0.3;
+  // Full media verification: OCR + claims → Google Fact Check → source
+  // credibility → Trust Score (backend calculation). AI-generated detection
+  // stays separate from factuality (spec §8/§9/§22).
+  let mediaVerification = null;
+  try {
+    const mediaVerificationService = require('./media-verification.service');
+    mediaVerification = await mediaVerificationService.verifyAndScoreMedia({
+      postId: job.post,
+      contentType: 'IMAGE',
+      mediaUrl,
+      caption: post.text || null,
+      authenticityScore,
+      modelConfidenceScore,
+      manipulationProbability,
+      aiGeneratedProbability,
+      aiDetectionModel,
+      contentJobId: job._id,
+      modelVersion: modelVersion || 'nexora-image-v1.0.0',
+      authenticityUnavailable: !ai,
+    });
+  } catch (tsErr) {
+    console.error('[ImageAnalysis] Media verification/TrustScore failed:', tsErr.message);
+  }
 
   return {
     status: needsReview ? 'REVIEW_REQUIRED' : 'COMPLETED',
     results,
-    modelVersion: ai.modelVersion,
+    modelVersion,
+    mediaVerification,
   };
 }
 

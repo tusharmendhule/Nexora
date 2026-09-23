@@ -36,9 +36,21 @@ from pydantic import BaseModel, Field, field_validator
 
 MODEL_VERSION = "nexora-text-v1.2.0"
 MISINFO_MODEL = "facebook/bart-large-mnli"
-NER_MODEL = "dbmdz/bert-large-cased-finetuned-conll03-english"
-AI_DETECT_MODEL = "gpt2"
+# NER model is env-overridable so a low-memory host can pick a lighter model
+# (e.g. NEXORA_NER_MODEL=dslim/bert-base-NER, ~430MB vs ~1.3GB).
+NER_MODEL = os.environ.get("NEXORA_NER_MODEL") or "dbmdz/bert-large-cased-finetuned-conll03-english"
+AI_DETECT_MODEL = os.environ.get("NEXORA_AITEXT_MODEL") or "gpt2"
 DEVICE = -1  # CPU; set to 0 for CUDA if available
+
+# Optional opt-outs for memory-constrained hosts. Skipping a model is reported
+# honestly as an unavailable signal — it is never replaced with a fake value.
+SKIP_NER = os.environ.get("NEXORA_SKIP_NER") == "1"
+SKIP_AITEXT = os.environ.get("NEXORA_SKIP_AITEXT") == "1"
+SKIP_MISINFO = os.environ.get("NEXORA_SKIP_MISINFO") == "1"
+# The zero-shot model (BART-large, ~1.6GB) is only needed when no fine-tuned
+# misinformation model is configured. Skipping it keeps the footprint small on
+# low-memory hosts; claim-type classification then uses its heuristic fallback.
+SKIP_ZEROSHOT = os.environ.get("NEXORA_SKIP_ZEROSHOT") == "1"
 
 # Optional fine-tuned misinformation classifier produced by
 # training/train.py. Point NEXORA_MISINFO_MODEL at the model directory;
@@ -49,12 +61,26 @@ FINETUNED_MISINFO_MODEL = os.environ.get("NEXORA_MISINFO_MODEL") or None
 # Optional fine-tuned models produced by training/train.py (task dispatcher).
 # Each is loaded lazily; when unset (or unloadable) the service falls back
 # to its built-in analysis and reports the fallback — never fabricated.
-FINETUNED_IMAGE_MODEL = os.environ.get("NEXORA_IMAGE_MODEL") or None       # GenImage: AI-image detector
+# NEXORA_IMAGE_MODEL: AI-image detector. Defaults to a real, publicly
+# available Hugging Face detector so AI-generated image detection is an actual
+# model inference instead of an unavailable signal. Point it at a
+# Nexora-trained GenImage model directory to override, or set it to
+# "none"/"off" to disable the detector entirely.
+_DEFAULT_AI_IMAGE_MODEL = "umm-maybe/AI-image-detector"
+_IMAGE_MODEL_ENV = os.environ.get("NEXORA_IMAGE_MODEL")
+if _IMAGE_MODEL_ENV is None:
+    FINETUNED_IMAGE_MODEL = _DEFAULT_AI_IMAGE_MODEL
+elif _IMAGE_MODEL_ENV.strip().lower() in ("", "none", "off", "0", "false"):
+    FINETUNED_IMAGE_MODEL = None
+else:
+    FINETUNED_IMAGE_MODEL = _IMAGE_MODEL_ENV.strip()
 FINETUNED_AUDIO_MODEL = os.environ.get("NEXORA_AUDIO_MODEL") or None       # ASVspoof: synthetic speech
 FINETUNED_VIDEO_MODEL = os.environ.get("NEXORA_VIDEO_MODEL") or None       # FaceForensics++: manipulation
 FINETUNED_CLAIM_MODEL = os.environ.get("NEXORA_CLAIM_MODEL") or None       # FEVER: claim verification
 
 logger = logging.getLogger("nexora-ai")
+logger_image = logging.getLogger("nexora-image")
+logger_audio = logging.getLogger("nexora-audio")
 logging.basicConfig(level=logging.INFO)
 
 # -- Lazy-loaded model singletons -------------------------------------------
@@ -76,6 +102,8 @@ _model_failures = set()
 
 
 def _load_zero_shot():
+    if SKIP_ZEROSHOT:
+        raise RuntimeError("Zero-shot model is disabled (NEXORA_SKIP_ZEROSHOT=1)")
     if _models["zero_shot"] is None and "zero_shot" not in _model_failures:
         try:
             from transformers import pipeline
@@ -122,7 +150,11 @@ def _load_finetuned_misinfo():
             device=DEVICE,
             top_k=None,  # return full probability distribution
         )
-        info = {"labels": labels, "pipe": pipe}
+        info = {
+            "labels": labels,
+            "pipe": pipe,
+            "indexToLabel": _index_to_label_from_map(label_map_path),
+        }
         _models["finetuned_misinfo"] = info
         logger.info("Fine-tuned misinformation model loaded (labels=%s).", labels)
         return info
@@ -151,7 +183,6 @@ def _load_finetuned_image_model():
             AutoImageProcessor,
             AutoModelForImageClassification,
         )
-        logger_image = logging.getLogger("nexora-image")
         logger_image.info("Loading fine-tuned AI-image detector: %s", FINETUNED_IMAGE_MODEL)
         processor = AutoImageProcessor.from_pretrained(FINETUNED_IMAGE_MODEL)
         model = AutoModelForImageClassification.from_pretrained(FINETUNED_IMAGE_MODEL)
@@ -181,7 +212,6 @@ def _load_finetuned_audio_model():
             AutoFeatureExtractor,
             AutoModelForAudioClassification,
         )
-        logger_audio = logging.getLogger("nexora-audio")
         logger_audio.info("Loading fine-tuned synthetic-speech detector: %s", FINETUNED_AUDIO_MODEL)
         extractor = AutoFeatureExtractor.from_pretrained(FINETUNED_AUDIO_MODEL)
         model = AutoModelForAudioClassification.from_pretrained(FINETUNED_AUDIO_MODEL)
@@ -211,8 +241,8 @@ def _load_finetuned_video_model():
             AutoImageProcessor,
             AutoModelForImageClassification,
         )
-        logger_video = logging.getLogger("nexora-video")
-        logger_video.info("Loading fine-tuned video manipulation detector: %s", FINETUNED_VIDEO_MODEL)
+        logger_video_loader = logging.getLogger("nexora-video")
+        logger_video_loader.info("Loading fine-tuned video manipulation detector: %s", FINETUNED_VIDEO_MODEL)
         processor = AutoImageProcessor.from_pretrained(FINETUNED_VIDEO_MODEL)
         model = AutoModelForImageClassification.from_pretrained(FINETUNED_VIDEO_MODEL)
         model.eval()
@@ -255,7 +285,11 @@ def _load_finetuned_claim_model():
             device=DEVICE,
             top_k=None,
         )
-        info = {"labels": labels, "pipe": pipe}
+        info = {
+            "labels": labels,
+            "pipe": pipe,
+            "indexToLabel": _index_to_label_from_map(label_map_path),
+        }
         _models["finetuned_claim"] = info
         logger.info("Fine-tuned claim model loaded (labels=%s).", labels)
         return info
@@ -299,6 +333,8 @@ def active_model_labels() -> dict:
 
 
 def _load_ner():
+    if SKIP_NER:
+        return None
     if _models["ner"] is None and "ner" not in _model_failures:
         try:
             from transformers import pipeline
@@ -318,6 +354,8 @@ def _load_ner():
 
 
 def _load_ai_detect():
+    if SKIP_AITEXT:
+        raise RuntimeError("AI-text detection is disabled (NEXORA_SKIP_AITEXT=1)")
     if _models["ai_detect_tokenizer"] is None and "ai_detect" not in _model_failures:
         try:
             from transformers import GPT2LMHeadModel, GPT2TokenizerFast
@@ -343,23 +381,33 @@ def _load_ai_detect():
 # -- Lifespan: pre-load models on startup -----------------------------------
 
 
+def _preload_models_background():
+    """Warm the models. Runs off the event loop so startup is never blocked."""
+    logger.info("Pre-loading AI models (background)...")
+    loaders = (
+        ("zero-shot", _load_zero_shot),
+        ("ner", _load_ner),
+        ("ai-detection", _load_ai_detect),
+    )
+    for name, loader in loaders:
+        try:
+            loader()
+        except Exception as exc:
+            logger.warning("Could not pre-load %s model: %s", name, exc)
+    logger.info("Model pre-load complete.")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Pre-load models so first request is not slow."""
-    logger.info("Pre-loading AI models...")
-    try:
-        _load_zero_shot()
-    except Exception as exc:
-        logger.warning("Could not pre-load zero-shot model: %s", exc)
-    try:
-        _load_ner()
-    except Exception as exc:
-        logger.warning("Could not pre-load NER model: %s", exc)
-    try:
-        _load_ai_detect()
-    except Exception as exc:
-        logger.warning("Could not pre-load AI-detect model: %s", exc)
-    logger.info("Model pre-load complete.")
+    """Start serving immediately and warm models in a background thread.
+
+    A slow, offline or unavailable model must never block the health endpoint
+    or prevent the service from accepting requests. Model loading stays lazy
+    too, so the service reports accurately which models are actually loaded.
+    """
+    import threading
+
+    threading.Thread(target=_preload_models_background, daemon=True).start()
     yield
     logger.info("AI service shutting down.")
 
@@ -452,6 +500,43 @@ NEGATIVE_LABELS = {
 }
 
 
+def _index_to_label_from_map(label_map_path: str) -> dict:
+    """Read label_map.json (label -> index) and invert it to index -> label.
+
+    Fine-tuned Nexora models store {"FALSE": 0, "NOT_FALSE": 1}. Hugging Face
+    pipelines report "LABEL_0", "LABEL_1", ... so we must remap by index to
+    recover the real class names. Without this the probabilities could never
+    match the semantic label sets and would be silently capped.
+    """
+    if not label_map_path or not os.path.exists(label_map_path):
+        return {}
+    try:
+        with open(label_map_path, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+        return {int(v): k for k, v in raw.items()}
+    except Exception:
+        return {}
+
+
+def _remap_labels(probs: dict, index_to_label: dict) -> dict:
+    """Remap pipeline "LABEL_n" outputs to the real class names."""
+    if not probs or not index_to_label:
+        return probs
+    remapped = {}
+    for label, score in probs.items():
+        key = str(label)
+        if key.startswith("LABEL_"):
+            try:
+                idx = int(key.split("_", 1)[1])
+            except (IndexError, ValueError):
+                remapped[key] = score
+                continue
+            remapped[index_to_label.get(idx, key)] = score
+        else:
+            remapped[key] = score
+    return remapped
+
+
 # -- Preprocessing -----------------------------------------------------------
 
 
@@ -508,6 +593,9 @@ async def classify_misinformation(text: str) -> float:
     (training/train.py); otherwise falls back to zero-shot classification.
     The result is a real model output — never a fabricated number.
     """
+    if SKIP_MISINFO:
+        raise RuntimeError("Misinformation classification is disabled (NEXORA_SKIP_MISINFO=1)")
+
     truncated = text[:4000]
 
     finetuned = _load_finetuned_misinfo()
@@ -522,6 +610,9 @@ async def classify_misinformation(text: str) -> float:
                 probs = {item["label"]: item["score"] for item in result}
             else:
                 probs = {}
+            # Recover real class names from "LABEL_n" indices so the semantic
+            # label sets below can actually match.
+            probs = _remap_labels(probs, finetuned.get("indexToLabel"))
             negative = [
                 p for label, p in probs.items() if label in NEGATIVE_LABELS
             ]
@@ -1040,6 +1131,7 @@ async def _classify_claims(
                     probs = {item["label"]: item["score"] for item in result}
                 else:
                     probs = {}
+                probs = _remap_labels(probs, finetuned_claim.get("indexToLabel"))
                 if probs:
                     top_label = max(probs, key=probs.get)
                     claim["claimVerification"] = {
@@ -2092,7 +2184,7 @@ class AudioSegment(BaseModel):
     spectralAnomaly: float
 
 
-class PreprocessingInfo(BaseModel):
+class AudioPreprocessingInfo(BaseModel):
     sampleRate: int
     duration: float
     channels: int
@@ -2105,7 +2197,7 @@ class AudioAnalysisResponse(BaseModel):
     success: bool = True
     jobId: Optional[str] = None
     postId: str
-    preprocessing: PreprocessingInfo
+    preprocessing: AudioPreprocessingInfo
     syntheticSpeechProbability: float
     manipulationProbability: float
     spectralFeatures: SpectralFeatures
@@ -2772,7 +2864,7 @@ async def analyze_audio(request: AudioAnalysisRequest):
         return AudioAnalysisResponse(
             success=len(errors) == 0,
             postId=request.postId,
-            preprocessing=PreprocessingInfo(**metadata),
+            preprocessing=AudioPreprocessingInfo(**metadata),
             syntheticSpeechProbability=synthetic_prob,
             manipulationProbability=manipulation_prob,
             spectralFeatures=SpectralFeatures(**spectral_features),
@@ -2908,15 +3000,73 @@ def _load_label_map_for(model_dir):
     return {int(v): k for k, v in raw.items()}
 
 
-def _load_image_label_map():
-    """Read label_map.json from the fine-tuned image model dir (index -> label)."""
+# Class names that mean "this image was machine generated" across the real
+# detectors Nexora can be pointed at: Nexora-trained GenImage models
+# (AI_GENERATED) and public Hugging Face detectors (e.g. umm-maybe/
+# AI-image-detector, Organika/sdxl-detector -> "artificial").
+AI_IMAGE_LABELS = {
+    "ai_generated",
+    "ai-generated",
+    "aigenerated",
+    "artificial",
+    "synthetic",
+    "fake",
+    "generated",
+    "deepfake",
+    "sdxl",
+    "gan",
+}
+
+
+def _load_image_label_map(model=None):
+    """Resolve index -> class name for the configured AI-image detector.
+
+    Preference order:
+      1. label_map.json shipped with a Nexora-trained model (authoritative)
+      2. the detector's own config.id2label (public Hugging Face detectors)
+
+    Returns {} when neither is available, so the caller reports the signal as
+    unavailable instead of guessing a class name.
+    """
     import json as _json
+
     label_map_path = os.path.join(FINETUNED_IMAGE_MODEL or "", "label_map.json")
-    if not os.path.exists(label_map_path):
-        return {0: "0", 1: "1"}
-    with open(label_map_path, "r", encoding="utf-8") as f:
-        raw = _json.load(f)
-    return {int(v): k for k, v in raw.items()}
+    if os.path.exists(label_map_path):
+        try:
+            with open(label_map_path, "r", encoding="utf-8") as f:
+                raw = _json.load(f)
+            return {int(v): k for k, v in raw.items()}
+        except Exception as exc:
+            logger_image.warning("Could not read image label_map.json: %s", exc)
+
+    id2label = getattr(getattr(model, "config", None), "id2label", None)
+    if isinstance(id2label, dict) and id2label:
+        try:
+            return {int(k): str(v) for k, v in id2label.items()}
+        except (TypeError, ValueError):
+            return {}
+    return {}
+
+
+def _pick_ai_generated_probability(label_probs):
+    """Return the AI-generated probability from a detector's own class names.
+
+    Handles both Nexora-trained labels ("AI_GENERATED") and public detector
+    labels ("artificial", "fake", "synthetic", ...). Returns None when no
+    class name is recognisable — the caller must never invent a value.
+    """
+    if not label_probs:
+        return None
+    for label, prob in label_probs.items():
+        normalized = (
+            str(label).strip().lower().replace("-", "_").replace(" ", "_")
+        )
+        if normalized in AI_IMAGE_LABELS or any(
+            token in normalized
+            for token in ("artificial", "ai_generated", "synthetic", "deepfake", "fake")
+        ):
+            return round(float(prob), 4)
+    return None
 
 
 def _read_model_label(model_dir):
@@ -2975,12 +3125,21 @@ def analyze_single_image(file_path: str) -> dict:
                     pixel_values=enc["pixel_values"]
                 ).logits
                 probs = _torch.softmax(logits, dim=-1)[0].tolist()
-            index_to_label = _load_image_label_map()
+            index_to_label = _load_image_label_map(finetuned_image["model"])
             label_probs = {
-                index_to_label[i]: round(float(p), 4) for i, p in enumerate(probs)
+                index_to_label.get(i, f"LABEL_{i}"): round(float(p), 4)
+                for i, p in enumerate(probs)
             }
-            ai_generated = label_probs.get("AI_GENERATED")
-            ai_detection_model = _read_model_label(FINETUNED_IMAGE_MODEL)
+            ai_generated = _pick_ai_generated_probability(label_probs)
+            if ai_generated is not None:
+                ai_detection_model = _read_model_label(FINETUNED_IMAGE_MODEL)
+            else:
+                logger_image.warning(
+                    "Image detector %s returned unrecognised classes %s; "
+                    "reporting the AI-generated signal as unavailable.",
+                    FINETUNED_IMAGE_MODEL,
+                    list(label_probs.keys()),
+                )
         except Exception as exc:
             logger_image.error("Fine-tuned image detector failed: %s", exc)
 

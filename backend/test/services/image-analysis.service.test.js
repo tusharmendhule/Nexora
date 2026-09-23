@@ -255,7 +255,10 @@ describe('Image Analysis Service', () => {
       expect(result.results.message).toContain('No image URL');
     });
 
-    it('should throw when AI service is not available', async () => {
+    // Spec §31: an unavailable model must NOT fail the post and must NOT
+    // invent probabilities — the authenticity signal is marked unavailable and
+    // the real claim / fact-check path still runs.
+    it('should degrade honestly when the AI service is not available', async () => {
       Post._add({
         _id: 'post_6',
         user: 'user_6',
@@ -269,12 +272,21 @@ describe('Image Analysis Service', () => {
 
       const job = { _id: 'job_6', post: 'post_6', contentReference: {} };
 
-      await expect(imageAnalysisService.analyzeImage(job)).rejects.toThrow(
-        'AI service is not available'
-      );
+      const result = await imageAnalysisService.analyzeImage(job);
+
+      expect(result.status).toBe('REVIEW_REQUIRED');
+      expect(result.results.authenticityUnavailable).toBe(true);
+      expect(result.results.error.code).toBe('ai_service_unavailable');
+      // No invented probabilities
+      expect(result.results.manipulationProbability).toBeUndefined();
+      expect(result.results.finalScore).toBeUndefined();
+      expect(result.modelVersion).toBeNull();
+      // The trust score path still ran (neutral authenticity)
+      expect(result.mediaVerification).toBeTruthy();
+      expect(result.mediaVerification.resolvedAuthenticityScore).toBe(0.5);
     });
 
-    it('should throw when AI service times out', async () => {
+    it('should degrade honestly when the AI service times out', async () => {
       Post._add({
         _id: 'post_7',
         user: 'user_7',
@@ -288,12 +300,14 @@ describe('Image Analysis Service', () => {
 
       const job = { _id: 'job_7', post: 'post_7', contentReference: {} };
 
-      await expect(imageAnalysisService.analyzeImage(job)).rejects.toThrow(
-        'timed out'
-      );
+      const result = await imageAnalysisService.analyzeImage(job);
+
+      expect(result.status).toBe('REVIEW_REQUIRED');
+      expect(result.results.error.code).toBe('ai_service_timeout');
+      expect(result.results.finalScore).toBeUndefined();
     });
 
-    it('should throw when AI service returns an error', async () => {
+    it('should degrade honestly when the AI service returns an error', async () => {
       Post._add({
         _id: 'post_8',
         user: 'user_8',
@@ -309,9 +323,11 @@ describe('Image Analysis Service', () => {
 
       const job = { _id: 'job_8', post: 'post_8', contentReference: {} };
 
-      await expect(imageAnalysisService.analyzeImage(job)).rejects.toThrow(
-        'AI service error'
-      );
+      const result = await imageAnalysisService.analyzeImage(job);
+
+      expect(result.status).toBe('REVIEW_REQUIRED');
+      expect(result.results.error.code).toBe('ai_service_error');
+      expect(result.results.error.message).toContain('Invalid image format');
     });
 
     it(' should handle AI service errors list in results', async () => {

@@ -63,8 +63,7 @@ const messageSchema = new mongoose.Schema({
   },
   // Idempotency key to prevent duplicate messages
   idempotencyKey: {
-    type: String,
-    sparse: true
+    type: String
   },
   createdAt: {
     type: Date,

@@ -57,6 +57,8 @@ const {
   getExtractionByPostId: getClaimExtractionByPostId,
 } = require('../../controllers/v1/claim-entity.controller');
 
+const { getAiCapabilities } = require('../../controllers/v1/ai-capabilities.controller');
+
 // ─── Direct Text Analysis ─────────────────────────────────────────────
 
 // POST /api/v1/content/analyze-text
@@ -187,5 +189,9 @@ router.get(
 // GET /api/v1/content/queue/status
 // Queue health (admin)
 router.get('/queue/status', protect, getQueueStatus);
+
+// GET /api/v1/content/ai-capabilities
+// Reports which AI providers/models are actually configured (no fabrication)
+router.get('/ai-capabilities', protect, getAiCapabilities);
 
 module.exports = router;
