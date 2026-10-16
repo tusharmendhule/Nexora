@@ -1,0 +1,164 @@
+◇ injected env (20) from .env // tip: ⌘ enable debugging { debug: true }
+Auth OK (login 200)
+
+=== A1 (known-true) ===
+  create: 201 postId=6ad1ebb0bbe0276c19b12321
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR A1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== A2 (known-true) ===
+  create: 201 postId=6ad1ebbabbe0276c19b12471
+  pipeline: COMPLETED
+  pipeline trust: 69 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR A2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== A3 (known-true) ===
+  create: 201 postId=6ad1ebc3bbe0276c19b125b6
+  pipeline: COMPLETED
+  pipeline trust: 50 → Red
+  verify: 200 provider=NONE/CLAIM_EXTRACTION trust=50→Orange
+  final persisted: Orange (50) | feed badge: Orange
+  ERROR A3: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== A4 (known-true) ===
+  create: 201 postId=6ad1ebd6bbe0276c19b12731
+  pipeline: COMPLETED
+  pipeline trust: 69 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR A4: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== B1 (evidence-false) ===
+  create: 201 postId=6ad1ebdfbbe0276c19b12876
+  pipeline: COMPLETED
+  pipeline trust: 67 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR B1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== B2 (evidence-false) ===
+  create: 201 postId=6ad1ebe9bbe0276c19b129bb
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR B2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== B3 (mixed-false-dominant) ===
+  create: 201 postId=6ad1ebf2bbe0276c19b12b1c
+  pipeline: COMPLETED
+  pipeline trust: 69 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR B3: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== B4 (manipulated-claim) ===
+  create: 201 postId=6ad1ebfbbbe0276c19b12c6c
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR B4: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== C1 (mixed) ===
+  create: 201 postId=6ad1ec04bbe0276c19b12db1
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR C1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== C2 (mixed) ===
+  create: 201 postId=6ad1ec0ebbe0276c19b12ef3
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR C2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== C3 (mixed) ===
+  create: 201 postId=6ad1ec17bbe0276c19b13038
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR C3: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== D1 (no-evidence) ===
+  create: 201 postId=6ad1ec21bbe0276c19b1317d
+  pipeline: COMPLETED
+  pipeline trust: 69 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR D1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== D2 (no-evidence) ===
+  create: 201 postId=6ad1ec2abbe0276c19b132c2
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR D2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== D3 (no-evidence) ===
+  create: 201 postId=6ad1ec33bbe0276c19b13407
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR D3: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== D4 (false-no-review) ===
+  create: 201 postId=6ad1ec44bbe0276c19b13551
+  pipeline: COMPLETED
+  pipeline trust: 67 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR D4: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== E1 (ai-generated-supported) ===
+  create: 201 postId=6ad1ec55bbe0276c19b1369b
+  pipeline: COMPLETED
+  pipeline trust: 48 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR E1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== E2 (ai-generated-unsupported) ===
+  create: 201 postId=6ad1ec5ebbe0276c19b137c0
+  pipeline: COMPLETED
+  pipeline trust: 69 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR E2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== F1 (opinion) ===
+  create: 201 postId=6ad1ec68bbe0276c19b13905
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR F1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== F2 (satire) ===
+  create: 201 postId=6ad1ec71bbe0276c19b13a4a
+  pipeline: COMPLETED
+  pipeline trust: 69 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR F2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+=== G2 (misleading-context) ===
+  create: 201 postId=6ad1ec7bbbe0276c19b13b9a
+  pipeline: COMPLETED
+  pipeline trust: 68 → Orange
+  verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+  final persisted: Orange (41) | feed badge: Orange
+  ERROR G2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+
+DONE. 20 rows → live-results/live20-summary.json

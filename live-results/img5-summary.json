@@ -1,0 +1,57 @@
+[
+  {
+    "band": "Green",
+    "postId": "6ad2026cbbe0276c19b152b5",
+    "image": "Wikimedia: Grocery Store Aisle, Vermont (real photo)",
+    "text": "In 2025, U.S. grocery prices hit a record high for a family of four with an average monthly cost of $1,030.",
+    "score": 90,
+    "label": "Green",
+    "isOverride": false,
+    "explanation": "Rule 5 (VERIFIED_AND_AUTHENTIC): Evidence supports the claim and no significant manipulation or misinformation indicators were detected (score 90), so it is labeled GREEN.",
+    "mediaUrl": "http://127.0.0.1:8099/green-grocery.jpg"
+  },
+  {
+    "band": "Blue",
+    "postId": "6ad201e3bbe0276c19b15161",
+    "image": "Wikimedia: DALL-E 2 generated photo (genuine AI image)",
+    "text": "In 2025, U.S. grocery prices hit a record high for a family of four with an average monthly cost of $1,030.",
+    "score": 72,
+    "label": "Blue",
+    "isOverride": false,
+    "explanation": "Rule 4 (AI_GENERATED_BUT_VERIFIED): AI-generated content indicators were detected, but the underlying claim was supported by available fact-check evidence (score 72), so it is labeled BLUE.",
+    "mediaUrl": "http://127.0.0.1:8099/blue-dalle.jpg"
+  },
+  {
+    "band": "Purple",
+    "postId": "6ad1ffa1bbe0276c19b14866",
+    "image": "Wikimedia: antique wooden spoon (MHNT museum photo)",
+    "text": "Satire: Local man claims this antique wooden spoon cures all ailments; scientists baffled. (Humor piece in the style of The Onion.)",
+    "score": 41,
+    "label": "Purple",
+    "isOverride": true,
+    "explanation": "Rule 3 (OPINION_SATIRE_EDITED): Analysis indicates this is opinion, satire, or substantially edited content rather than ordinary factual reporting (content type \"satire\"), so it is labeled PURPLE.",
+    "mediaUrl": "http://127.0.0.1:8099/purple-spoon.jpg"
+  },
+  {
+    "band": "Orange",
+    "postId": "6ad1ffa1bbe0276c19b1488c",
+    "image": "Wikimedia: oolong tea leaves steeping in a zhong",
+    "text": "Oolong tea leaves steeping in a traditional zhong. The optimal steeping temperature for oolong tea is 90 degrees Celsius.",
+    "score": 50,
+    "label": "Orange",
+    "isOverride": false,
+    "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 50, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+    "mediaUrl": "http://127.0.0.1:8099/orange-tea.jpg"
+  },
+  {
+    "band": "Red",
+    "postId": "6ad1ffa1bbe0276c19b148c7",
+    "image": "Wikimedia: 5G Cell Tower in Johannesburg (real photo)",
+    "text": "5G towers cause the spread of coronavirus disease. Photo: a 5G cell tower in Johannesburg.",
+    "score": 35,
+    "label": "Red",
+    "isOverride": true,
+    "explanation": "Rule 1 (CONFIRMED_FALSE_FACT_CHECK): An external fact-check identified this claim as false, so the content is labeled RED.",
+    "mediaUrl": "http://127.0.0.1:8099/red-5g-tower.jpg"
+  }
+]

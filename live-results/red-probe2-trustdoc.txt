@@ -1,0 +1,1 @@
+{"label":"Red","score":35,"isOverride":true,"factCheckData":{"aggregateStatus":"VERIFIED_FALSE","claimCount":1,"reviewCount":2,"publisherNames":["Alt News","Alt News"]},"explanation":"Rule 1 (CONFIRMED_FALSE_FACT_CHECK): An external fact-check identified this claim as false, so the content is labeled RED."}

@@ -1,0 +1,290 @@
+{
+  "startedAt": "2026-10-16T10:42:39.632Z",
+  "posts": [
+    {
+      "band": "Green",
+      "image": "green-grocery.jpg",
+      "text": "In 2025, U.S. grocery prices hit a record high for a family of four with an average monthly cost of $1,030. Photo: a grocery store aisle in Vermont.",
+      "verify": false,
+      "postId": "6ad1ffa0bbe0276c19b14848",
+      "createStatus": 201,
+      "pipelineStatus": "COMPLETED",
+      "pipelineTrust": {
+        "score": 48,
+        "label": "Orange",
+        "a": 0.5,
+        "f": 0.5,
+        "s": 0.5,
+        "k": 0.3,
+        "isOverride": false,
+        "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 48, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+      },
+      "final": {
+        "persistedScore": 48,
+        "persistedLabel": "Orange",
+        "isOverrideApplied": false,
+        "detailLabel": "Orange",
+        "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 48, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "factCheckData": {
+          "aggregateStatus": null,
+          "claimCount": 0,
+          "publisherNames": [],
+          "reviewCount": 0
+        },
+        "media": [
+          {
+            "url": "http://127.0.0.1:8099/green-grocery.jpg",
+            "type": "image",
+            "altText": "",
+            "_id": "6ad1ffa0bbe0276c19b14849"
+          }
+        ]
+      }
+    },
+    {
+      "band": "Blue",
+      "image": "blue-dalle.jpg",
+      "text": "AI-generated image (DALL-E 2). In 2025, U.S. grocery prices hit a record high for a family of four with an average monthly cost of $1,030.",
+      "verify": false,
+      "postId": "6ad1ffa1bbe0276c19b1484b",
+      "createStatus": 201,
+      "pipelineStatus": "COMPLETED",
+      "pipelineTrust": {
+        "score": 48,
+        "label": "Orange",
+        "a": 0.5,
+        "f": 0.5,
+        "s": 0.5,
+        "k": 0.3,
+        "isOverride": false,
+        "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 48, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+      },
+      "final": {
+        "persistedScore": 48,
+        "persistedLabel": "Orange",
+        "isOverrideApplied": false,
+        "detailLabel": "Orange",
+        "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 48, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "factCheckData": {
+          "aggregateStatus": null,
+          "claimCount": 0,
+          "publisherNames": [],
+          "reviewCount": 0
+        },
+        "media": [
+          {
+            "url": "http://127.0.0.1:8099/blue-dalle.jpg",
+            "type": "image",
+            "altText": "",
+            "_id": "6ad1ffa1bbe0276c19b1484c"
+          }
+        ]
+      }
+    },
+    {
+      "band": "Purple",
+      "image": "purple-spoon.jpg",
+      "text": "Satire: Local man claims this antique wooden spoon cures all ailments; scientists baffled. (Humor piece in the style of The Onion.)",
+      "verify": true,
+      "rescore": {
+        "contentType": "satire"
+      },
+      "postId": "6ad1ffa1bbe0276c19b14866",
+      "createStatus": 201,
+      "pipelineStatus": "COMPLETED",
+      "pipelineTrust": {
+        "score": 48,
+        "label": "Orange",
+        "a": 0.5,
+        "f": 0.5,
+        "s": 0.5,
+        "k": 0.3,
+        "isOverride": false,
+        "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 48, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+      },
+      "verifyResponse": {
+        "http": 200,
+        "claims": [
+          "Satire: Local man claims this antique wooden spoon cures all ailments; scientists baffled."
+        ],
+        "factCheck": [
+          {
+            "status": "NO_EVIDENCE",
+            "reviews": []
+          }
+        ],
+        "score": 41,
+        "label": "Orange",
+        "components": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        }
+      },
+      "rescoreBody": {
+        "authenticityScore": 0.3,
+        "factualVerificationScore": 0.5,
+        "sourceCredibilityScore": 0.5,
+        "modelConfidenceScore": 0.3,
+        "contentType": "satire"
+      },
+      "rescoreResult": {
+        "score": 41,
+        "label": "Purple",
+        "explanation": "Rule 3 (OPINION_SATIRE_EDITED): Analysis indicates this is opinion, satire, or substantially edited content rather than ordinary factual reporting (content type \"satire\"), so it is labeled PURPLE."
+      },
+      "final": {
+        "persistedScore": 41,
+        "persistedLabel": "Purple",
+        "isOverrideApplied": true,
+        "detailLabel": "Purple",
+        "explanation": "Rule 3 (OPINION_SATIRE_EDITED): Analysis indicates this is opinion, satire, or substantially edited content rather than ordinary factual reporting (content type \"satire\"), so it is labeled PURPLE.",
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "media": [
+          {
+            "url": "http://127.0.0.1:8099/purple-spoon.jpg",
+            "type": "image",
+            "altText": "",
+            "_id": "6ad1ffa1bbe0276c19b14867"
+          }
+        ]
+      }
+    },
+    {
+      "band": "Orange",
+      "image": "orange-tea.jpg",
+      "text": "Oolong tea leaves steeping in a traditional zhong. The optimal steeping temperature for oolong tea is 90 degrees Celsius.",
+      "verify": true,
+      "postId": "6ad1ffa1bbe0276c19b1488c",
+      "createStatus": 201,
+      "pipelineStatus": "COMPLETED",
+      "pipelineTrust": {
+        "score": 48,
+        "label": "Orange",
+        "a": 0.5,
+        "f": 0.5,
+        "s": 0.5,
+        "k": 0.3,
+        "isOverride": false,
+        "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 48, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+      },
+      "verifyResponse": {
+        "http": 200,
+        "claims": [],
+        "factCheck": [],
+        "score": 50,
+        "label": "Orange",
+        "components": {
+          "authenticity": 0.5,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.5
+        }
+      },
+      "final": {
+        "persistedScore": 50,
+        "persistedLabel": "Orange",
+        "isOverrideApplied": false,
+        "detailLabel": "Orange",
+        "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 50, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "factCheckData": {},
+        "media": [
+          {
+            "url": "http://127.0.0.1:8099/orange-tea.jpg",
+            "type": "image",
+            "altText": "",
+            "_id": "6ad1ffa1bbe0276c19b1488d"
+          }
+        ]
+      }
+    },
+    {
+      "band": "Red",
+      "image": "red-5g-tower.jpg",
+      "text": "5G towers cause the spread of coronavirus disease. Photo: a 5G cell tower in Johannesburg.",
+      "verify": true,
+      "postId": "6ad1ffa1bbe0276c19b148c7",
+      "createStatus": 201,
+      "pipelineStatus": "COMPLETED",
+      "pipelineTrust": {
+        "score": 48,
+        "label": "Orange",
+        "a": 0.5,
+        "f": 0.5,
+        "s": 0.5,
+        "k": 0.3,
+        "isOverride": false,
+        "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 48, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+      },
+      "verifyResponse": {
+        "http": 200,
+        "claims": [
+          "5G towers cause the spread of coronavirus disease.",
+          "Photo: a 5G cell tower in Johannesburg."
+        ],
+        "factCheck": [
+          {
+            "status": "VERIFIED_FALSE",
+            "reviews": [
+              {
+                "publisher": "Alt News",
+                "rating": "False",
+                "relevance": 0.3125,
+                "url": "https://www.altnews.in/no-5g-radiation-has-not-caused-the-second-wave-of-covid-19-in-india/"
+              },
+              {
+                "publisher": "Alt News",
+                "rating": "False",
+                "relevance": 0.3125,
+                "url": "https://www.altnews.in/no-5g-radiation-has-not-caused-the-second-wave-of-covid-19-in-india/"
+              }
+            ]
+          },
+          {
+            "status": "NO_EVIDENCE",
+            "reviews": []
+          }
+        ],
+        "score": 35,
+        "label": "Red",
+        "components": {
+          "authenticity": 0.5,
+          "factualVerification": 0,
+          "sourceCredibility": 0.6,
+          "modelConfidence": 0.5
+        }
+      },
+      "final": {
+        "persistedScore": 35,
+        "persistedLabel": "Red",
+        "isOverrideApplied": true,
+        "detailLabel": "Red",
+        "explanation": "Rule 1 (CONFIRMED_FALSE_FACT_CHECK): An external fact-check identified this claim as false, so the content is labeled RED.",
+        "factCheckData": {
+          "aggregateStatus": "VERIFIED_FALSE",
+          "claimCount": 2,
+          "reviewCount": 2,
+          "publisherNames": [
+            "Alt News",
+            "Alt News"
+          ]
+        },
+        "media": [
+          {
+            "url": "http://127.0.0.1:8099/red-5g-tower.jpg",
+            "type": "image",
+            "altText": "",
+            "_id": "6ad1ffa1bbe0276c19b148c8"
+          }
+        ]
+      }
+    }
+  ],
+  "finishedAt": "2026-10-16T10:43:04.199Z"
+}

@@ -1,0 +1,21 @@
+CREATE Green: 201 6ad1ffa0bbe0276c19b14848
+CREATE Blue: 201 6ad1ffa1bbe0276c19b1484b
+CREATE Purple: 201 6ad1ffa1bbe0276c19b14866
+CREATE Orange: 201 6ad1ffa1bbe0276c19b1488c
+CREATE Red: 201 6ad1ffa1bbe0276c19b148c7
+PIPELINE Green: COMPLETED → 48 Orange [a=0.5 f=0.5 s=0.5 k=0.3]
+PIPELINE Blue: COMPLETED → 48 Orange [a=0.5 f=0.5 s=0.5 k=0.3]
+PIPELINE Purple: COMPLETED → 48 Orange [a=0.5 f=0.5 s=0.5 k=0.3]
+PIPELINE Orange: COMPLETED → 48 Orange [a=0.5 f=0.5 s=0.5 k=0.3]
+PIPELINE Red: COMPLETED → 48 Orange [a=0.5 f=0.5 s=0.5 k=0.3]
+VERIFY Purple: 41 Orange fc=["NO_EVIDENCE"]
+VERIFY Orange: 50 Orange fc=[]
+VERIFY Red: 35 Red fc=["VERIFIED_FALSE","NO_EVIDENCE"]
+RESCORE Purple: {"authenticityScore":0.3,"factualVerificationScore":0.5,"sourceCredibilityScore":0.5,"modelConfidenceScore":0.3,"contentType":"satire"} → 41 Purple
+FINAL Green: persisted 48 Orange | media http://127.0.0.1:8099/green-grocery.jpg
+FINAL Blue: persisted 48 Orange | media http://127.0.0.1:8099/blue-dalle.jpg
+FINAL Purple: persisted 41 Purple | media http://127.0.0.1:8099/purple-spoon.jpg
+FINAL Orange: persisted 50 Orange | media http://127.0.0.1:8099/orange-tea.jpg
+FINAL Red: persisted 35 Red | media http://127.0.0.1:8099/red-5g-tower.jpg
+
+Wrote live-results/img5-results.json

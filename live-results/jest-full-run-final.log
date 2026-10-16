@@ -1,0 +1,3239 @@
+  console.error
+    ❌ FATAL: JWT_SECRET is not set in the environment. Auth endpoints will fail.
+
+    [0m [90m 3 |[39m [90m// ── Fail fast at startup if JWT_SECRET is missing ──────[39m
+     [90m 4 |[39m [36mif[39m ([33m![39mprocess[33m.[39menv[33m.[39m[33mJWT_SECRET[39m) {
+    [31m[1m>[22m[39m[90m 5 |[39m   console[33m.[39merror([32m'❌ FATAL: JWT_SECRET is not set in the environment. Auth endpoints will fail.'[39m)[33m;[39m
+     [90m   |[39m           [31m[1m^[22m[39m
+     [90m 6 |[39m   console[33m.[39merror([32m'   Add JWT_SECRET=<random-32+ chars> to your backend/.env file.'[39m)[33m;[39m
+     [90m 7 |[39m }
+     [90m 8 |[39m[0m
+
+      at Object.error (src/utils/generateToken.js:5:11)
+      at Object.require (src/services/auth.service.js:5:27)
+      at Object.require (test/integration/integration.test.js:210:27)
+
+  console.error
+       Add JWT_SECRET=<random-32+ chars> to your backend/.env file.
+
+    [0m [90m 4 |[39m [36mif[39m ([33m![39mprocess[33m.[39menv[33m.[39m[33mJWT_SECRET[39m) {
+     [90m 5 |[39m   console[33m.[39merror([32m'❌ FATAL: JWT_SECRET is not set in the environment. Auth endpoints will fail.'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 6 |[39m   console[33m.[39merror([32m'   Add JWT_SECRET=<random-32+ chars> to your backend/.env file.'[39m)[33m;[39m
+     [90m   |[39m           [31m[1m^[22m[39m
+     [90m 7 |[39m }
+     [90m 8 |[39m
+     [90m 9 |[39m [90m/**[39m[0m
+
+      at Object.error (src/utils/generateToken.js:6:11)
+      at Object.require (src/services/auth.service.js:5:27)
+      at Object.require (test/integration/integration.test.js:210:27)
+
+  console.error
+    Error: {
+      message: 'Something went wrong internally',
+      stack: 'Error: Something went wrong internally\n' +
+        '    at Object.<anonymous> (C:\\PROJECTS\\Nexora\\backend\\test\\security\\security.test.js:116:19)\n' +
+        '    at Promise.finally.completed (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1834:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1774:10)\n' +
+        '    at _callCircusTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1167:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n' +
+        '    at _runTestInContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1103:3)\n' +
+        '    at runTestWithContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:996:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1008:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at run (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:789:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:2300:21)\n' +
+        '    at jestAdapter (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\runner.js:111:19)\n' +
+        '    at runTestInternal (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:247:16)\n' +
+        '    at runTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:315:7)\n' +
+        '    at Object.worker (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:479:12)',
+      path: '/test',
+      method: 'GET'
+    }
+
+    [0m [90m 51 |[39m   [90m// Log error in development[39m
+     [90m 52 |[39m   [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 53 |[39m     console[33m.[39merror([32m'Error:'[39m[33m,[39m {
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 54 |[39m       message[33m:[39m err[33m.[39mmessage[33m,[39m
+     [90m 55 |[39m       stack[33m:[39m err[33m.[39mstack[33m,[39m
+     [90m 56 |[39m       path[33m:[39m req[33m.[39moriginalUrl[33m,[39m[0m
+
+      at error (src/middleware/error.middleware.js:53:13)
+      at Object.errorHandler (test/security/security.test.js:118:7)
+
+  console.error
+    Error: {
+      message: 'Database connection failed at host 10.0.0.5',
+      stack: 'Error: Database connection failed at host 10.0.0.5\n' +
+        '    at Object.<anonymous> (C:\\PROJECTS\\Nexora\\backend\\test\\security\\security.test.js:125:19)\n' +
+        '    at Promise.finally.completed (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1834:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1774:10)\n' +
+        '    at _callCircusTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1167:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n' +
+        '    at _runTestInContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1103:3)\n' +
+        '    at runTestWithContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:996:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1008:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at run (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:789:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:2300:21)\n' +
+        '    at jestAdapter (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\runner.js:111:19)\n' +
+        '    at runTestInternal (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:247:16)\n' +
+        '    at runTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:315:7)\n' +
+        '    at Object.worker (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:479:12)',
+      path: '/test',
+      method: 'GET'
+    }
+
+    [0m [90m 51 |[39m   [90m// Log error in development[39m
+     [90m 52 |[39m   [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 53 |[39m     console[33m.[39merror([32m'Error:'[39m[33m,[39m {
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 54 |[39m       message[33m:[39m err[33m.[39mmessage[33m,[39m
+     [90m 55 |[39m       stack[33m:[39m err[33m.[39mstack[33m,[39m
+     [90m 56 |[39m       path[33m:[39m req[33m.[39moriginalUrl[33m,[39m[0m
+
+      at error (src/middleware/error.middleware.js:53:13)
+      at Object.errorHandler (test/security/security.test.js:128:7)
+
+  console.error
+    Error: {
+      message: 'Invalid email format',
+      stack: 'Error: Invalid email format\n' +
+        '    at Object.<anonymous> (C:\\PROJECTS\\Nexora\\backend\\test\\security\\security.test.js:136:19)\n' +
+        '    at Promise.finally.completed (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1834:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1774:10)\n' +
+        '    at _callCircusTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1167:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n' +
+        '    at _runTestInContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1103:3)\n' +
+        '    at runTestWithContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:996:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1008:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at run (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:789:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:2300:21)\n' +
+        '    at jestAdapter (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\runner.js:111:19)\n' +
+        '    at runTestInternal (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:247:16)\n' +
+        '    at runTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:315:7)\n' +
+        '    at Object.worker (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:479:12)',
+      path: '/test',
+      method: 'GET'
+    }
+
+    [0m [90m 51 |[39m   [90m// Log error in development[39m
+     [90m 52 |[39m   [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 53 |[39m     console[33m.[39merror([32m'Error:'[39m[33m,[39m {
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 54 |[39m       message[33m:[39m err[33m.[39mmessage[33m,[39m
+     [90m 55 |[39m       stack[33m:[39m err[33m.[39mstack[33m,[39m
+     [90m 56 |[39m       path[33m:[39m req[33m.[39moriginalUrl[33m,[39m[0m
+
+      at error (src/middleware/error.middleware.js:53:13)
+      at Object.errorHandler (test/security/security.test.js:138:7)
+
+  console.error
+    Error: {
+      message: 'Validation failed',
+      stack: 'ValidationError: Validation failed\n' +
+        '    at Object.<anonymous> (C:\\PROJECTS\\Nexora\\backend\\test\\security\\security.test.js:144:19)\n' +
+        '    at Promise.finally.completed (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1834:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1774:10)\n' +
+        '    at _callCircusTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1167:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n' +
+        '    at _runTestInContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1103:3)\n' +
+        '    at runTestWithContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:996:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1008:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at run (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:789:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:2300:21)\n' +
+        '    at jestAdapter (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\runner.js:111:19)\n' +
+        '    at runTestInternal (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:247:16)\n' +
+        '    at runTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:315:7)\n' +
+        '    at Object.worker (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:479:12)',
+      path: '/test',
+      method: 'GET'
+    }
+
+    [0m [90m 51 |[39m   [90m// Log error in development[39m
+     [90m 52 |[39m   [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 53 |[39m     console[33m.[39merror([32m'Error:'[39m[33m,[39m {
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 54 |[39m       message[33m:[39m err[33m.[39mmessage[33m,[39m
+     [90m 55 |[39m       stack[33m:[39m err[33m.[39mstack[33m,[39m
+     [90m 56 |[39m       path[33m:[39m req[33m.[39moriginalUrl[33m,[39m[0m
+
+      at error (src/middleware/error.middleware.js:53:13)
+      at Object.errorHandler (test/security/security.test.js:148:7)
+
+  console.error
+    Error: {
+      message: 'jwt malformed',
+      stack: 'JsonWebTokenError: jwt malformed\n' +
+        '    at Object.<anonymous> (C:\\PROJECTS\\Nexora\\backend\\test\\security\\security.test.js:155:19)\n' +
+        '    at Promise.finally.completed (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1834:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1774:10)\n' +
+        '    at _callCircusTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1167:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n' +
+        '    at _runTestInContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1103:3)\n' +
+        '    at runTestWithContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:996:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1008:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at run (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:789:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:2300:21)\n' +
+        '    at jestAdapter (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\runner.js:111:19)\n' +
+        '    at runTestInternal (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:247:16)\n' +
+        '    at runTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:315:7)\n' +
+        '    at Object.worker (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:479:12)',
+      path: '/test',
+      method: 'GET'
+    }
+
+    [0m [90m 51 |[39m   [90m// Log error in development[39m
+     [90m 52 |[39m   [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 53 |[39m     console[33m.[39merror([32m'Error:'[39m[33m,[39m {
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 54 |[39m       message[33m:[39m err[33m.[39mmessage[33m,[39m
+     [90m 55 |[39m       stack[33m:[39m err[33m.[39mstack[33m,[39m
+     [90m 56 |[39m       path[33m:[39m req[33m.[39moriginalUrl[33m,[39m[0m
+
+      at error (src/middleware/error.middleware.js:53:13)
+      at Object.errorHandler (test/security/security.test.js:158:7)
+
+  console.error
+    Error: {
+      message: 'jwt expired',
+      stack: 'TokenExpiredError: jwt expired\n' +
+        '    at Object.<anonymous> (C:\\PROJECTS\\Nexora\\backend\\test\\security\\security.test.js:165:19)\n' +
+        '    at Promise.finally.completed (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1834:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1774:10)\n' +
+        '    at _callCircusTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1167:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n' +
+        '    at _runTestInContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1103:3)\n' +
+        '    at runTestWithContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:996:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1008:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at run (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:789:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:2300:21)\n' +
+        '    at jestAdapter (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\runner.js:111:19)\n' +
+        '    at runTestInternal (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:247:16)\n' +
+        '    at runTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:315:7)\n' +
+        '    at Object.worker (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:479:12)',
+      path: '/test',
+      method: 'GET'
+    }
+
+    [0m [90m 51 |[39m   [90m// Log error in development[39m
+     [90m 52 |[39m   [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 53 |[39m     console[33m.[39merror([32m'Error:'[39m[33m,[39m {
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 54 |[39m       message[33m:[39m err[33m.[39mmessage[33m,[39m
+     [90m 55 |[39m       stack[33m:[39m err[33m.[39mstack[33m,[39m
+     [90m 56 |[39m       path[33m:[39m req[33m.[39moriginalUrl[33m,[39m[0m
+
+      at error (src/middleware/error.middleware.js:53:13)
+      at Object.errorHandler (test/security/security.test.js:168:7)
+
+  console.error
+    Error: {
+      message: 'Cast to ObjectId failed',
+      stack: 'CastError: Cast to ObjectId failed\n' +
+        '    at Object.<anonymous> (C:\\PROJECTS\\Nexora\\backend\\test\\security\\security.test.js:174:19)\n' +
+        '    at Promise.finally.completed (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1834:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1774:10)\n' +
+        '    at _callCircusTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1167:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n' +
+        '    at _runTestInContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1103:3)\n' +
+        '    at runTestWithContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:996:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1008:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at run (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:789:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:2300:21)\n' +
+        '    at jestAdapter (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\runner.js:111:19)\n' +
+        '    at runTestInternal (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:247:16)\n' +
+        '    at runTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:315:7)\n' +
+        '    at Object.worker (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:479:12)',
+      path: '/test',
+      method: 'GET'
+    }
+
+    [0m [90m 51 |[39m   [90m// Log error in development[39m
+     [90m 52 |[39m   [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 53 |[39m     console[33m.[39merror([32m'Error:'[39m[33m,[39m {
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 54 |[39m       message[33m:[39m err[33m.[39mmessage[33m,[39m
+     [90m 55 |[39m       stack[33m:[39m err[33m.[39mstack[33m,[39m
+     [90m 56 |[39m       path[33m:[39m req[33m.[39moriginalUrl[33m,[39m[0m
+
+      at error (src/middleware/error.middleware.js:53:13)
+      at Object.errorHandler (test/security/security.test.js:179:7)
+
+  console.error
+    Error: {
+      message: 'Resource not found',
+      stack: 'Error: Resource not found\n' +
+        '    at Object.<anonymous> (C:\\PROJECTS\\Nexora\\backend\\test\\security\\security.test.js:185:19)\n' +
+        '    at Promise.finally.completed (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1834:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1774:10)\n' +
+        '    at _callCircusTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1167:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n' +
+        '    at _runTestInContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1103:3)\n' +
+        '    at runTestWithContext (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:996:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1008:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at _runTestsForDescribeBlockOnce (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:1003:11)\n' +
+        '    at _runTestsForDescribeBlock (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:824:5)\n' +
+        '    at run (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:789:3)\n' +
+        '    at runAndTransformResultsToJestFormat (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\jestAdapterInit.js:2300:21)\n' +
+        '    at jestAdapter (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-circus\\build\\runner.js:111:19)\n' +
+        '    at runTestInternal (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:247:16)\n' +
+        '    at runTest (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:315:7)\n' +
+        '    at Object.worker (C:\\PROJECTS\\Nexora\\backend\\node_modules\\jest-runner\\build\\testWorker.js:479:12)',
+      path: '/test',
+      method: 'GET'
+    }
+
+    [0m [90m 51 |[39m   [90m// Log error in development[39m
+     [90m 52 |[39m   [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m) {
+    [31m[1m>[22m[39m[90m 53 |[39m     console[33m.[39merror([32m'Error:'[39m[33m,[39m {
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 54 |[39m       message[33m:[39m err[33m.[39mmessage[33m,[39m
+     [90m 55 |[39m       stack[33m:[39m err[33m.[39mstack[33m,[39m
+     [90m 56 |[39m       path[33m:[39m req[33m.[39moriginalUrl[33m,[39m[0m
+
+      at error (src/middleware/error.middleware.js:53:13)
+      at Object.errorHandler (test/security/security.test.js:187:7)
+
+  console.log
+    
+    ═══ Trust Label Classification Metrics ═══
+
+      at Object.log (test/ai/ai-evaluation.test.js:175:15)
+
+  console.log
+    Total samples: 23
+
+      at Object.log (test/ai/ai-evaluation.test.js:176:15)
+
+  console.log
+    Correct: 23/23
+
+      at Object.log (test/ai/ai-evaluation.test.js:177:15)
+
+  console.log
+    Accuracy: 100.00%
+
+      at Object.log (test/ai/ai-evaluation.test.js:178:15)
+
+PASS test/services/comment.service.test.js
+  Comment Service
+    create
+      √ should create a comment and increment post commentsCount (9 ms)
+      √ should increment from existing comment count (4 ms)
+      √ should create a reply with parentCommentId (2 ms)
+      √ should trim whitespace from comment text (1 ms)
+      √ should throw if post does not exist (40 ms)
+      √ should throw if text is empty (15 ms)
+      √ should throw if text is whitespace only (6 ms)
+      √ should throw if text is null (1 ms)
+      √ should throw if text is undefined (6 ms)
+    getByPost
+      √ should return paginated comments for a post (3 ms)
+      √ should return empty array for post with no comments (10 ms)
+      √ should include replies nested under parent comments (1 ms)
+      √ should handle pagination correctly (3 ms)
+      √ should return empty for page beyond total (1 ms)
+    delete
+      √ should delete a comment by owner (2 ms)
+      √ should allow MODERATOR to delete any comment
+      √ should allow ADMIN to delete any comment
+      √ should reject delete by non-owner non-privileged user (1 ms)
+      √ should throw for non-existent comment (1 ms)
+      √ should delete replies and decrement count by total (parent + replies)
+      √ should not decrement below zero
+      √ should handle post not found gracefully when updating count (1 ms)
+      √ should only count direct replies, not nested replies of replies (1 ms)
+    validation
+      √ should reject empty comment text (1 ms)
+      √ should reject whitespace-only comment text (1 ms)
+      √ should reject invalid post ID (1 ms)
+      √ should reject deletion by unauthorized user (1 ms)
+      √ should accept valid comment text (1 ms)
+      √ should accept single character comment
+
+  console.log
+    Macro Precision: 100.00%
+
+      at Object.log (test/ai/ai-evaluation.test.js:179:15)
+
+  console.log
+    Macro Recall: 100.00%
+
+      at Object.log (test/ai/ai-evaluation.test.js:180:15)
+
+  console.log
+    Macro F1: 100.00%
+
+      at Object.log (test/ai/ai-evaluation.test.js:181:15)
+
+  console.log
+      Green: P=100.0% R=100.0% F1=100.0% (TP=5 FP=0 FN=0)
+
+      at Object.log (test/ai/ai-evaluation.test.js:186:19)
+
+  console.log
+      Blue: P=100.0% R=100.0% F1=100.0% (TP=2 FP=0 FN=0)
+
+      at Object.log (test/ai/ai-evaluation.test.js:186:19)
+
+  console.log
+      Orange: P=100.0% R=100.0% F1=100.0% (TP=5 FP=0 FN=0)
+
+      at Object.log (test/ai/ai-evaluation.test.js:186:19)
+
+  console.log
+      Red: P=100.0% R=100.0% F1=100.0% (TP=9 FP=0 FN=0)
+
+      at Object.log (test/ai/ai-evaluation.test.js:186:19)
+
+  console.log
+      Purple: P=100.0% R=100.0% F1=100.0% (TP=2 FP=0 FN=0)
+
+      at Object.log (test/ai/ai-evaluation.test.js:186:19)
+
+  console.log
+    
+    ═══ ROC-AUC (HIGH TRUST detection) ═══
+
+      at Object.log (test/ai/ai-evaluation.test.js:245:15)
+
+PASS test/services/notification.service.test.js
+  Notification Service
+    create
+      √ should create a notification with correct fields (38 ms)
+      √ should not notify user about their own actions (1 ms)
+      √ should return null for missing required fields
+      √ should return null for invalid notification type
+      √ should handle null sender (system notification) (1 ms)
+    Social Notifications
+      √ should create NEW_FOLLOWER notification (3 ms)
+      √ should not notify when following yourself (9 ms)
+      √ should create POST_LIKED notification (3 ms)
+      √ should not notify when liking your own post (5 ms)
+      √ should create POST_COMMENTED notification with preview (2 ms)
+      √ should truncate long comment previews (6 ms)
+      √ should create MOMENT_REPLIED notification with reply text (2 ms)
+      √ should not notify when replying to your own moment (1 ms)
+      √ should create NEW_MESSAGE notification (24 ms)
+      √ should not notify when messaging yourself (1 ms)
+    Read Operations
+      √ should get notifications for a user (6 ms)
+      √ should filter unread only (1 ms)
+      √ should get unread count (1 ms)
+      √ should mark a notification as read
+      √ should mark all notifications as read (1 ms)
+      √ should delete all notifications for a user (1 ms)
+    Event Types
+      √ should return all event types (1 ms)
+    Convenience Methods
+      √ should create moderation notification (1 ms)
+      √ should create report resolution notification
+      √ should create verification notification (1 ms)
+      √ should create account security notification (1 ms)
+
+  console.log
+    ROC-AUC: 0.8778
+
+      at Object.log (test/ai/ai-evaluation.test.js:246:15)
+
+  console.log
+    
+    ═══ ROC-AUC (LOW TRUST detection) ═══
+
+      at Object.log (test/ai/ai-evaluation.test.js:263:15)
+
+  console.log
+    ROC-AUC: 0.7460
+
+      at Object.log (test/ai/ai-evaluation.test.js:264:15)
+
+  console.log
+    
+    ═══ Moderation Decision Metrics ═══
+
+      at Object.log (test/ai/ai-evaluation.test.js:295:15)
+
+  console.log
+    Total samples: 23
+
+      at Object.log (test/ai/ai-evaluation.test.js:296:15)
+
+  console.log
+    Correct: 3/23
+
+      at Object.log (test/ai/ai-evaluation.test.js:297:15)
+
+  console.log
+    Accuracy: 13.04%
+
+      at Object.log (test/ai/ai-evaluation.test.js:298:15)
+
+  console.log
+    Macro F1: 7.69%
+
+      at Object.log (test/ai/ai-evaluation.test.js:299:15)
+
+  console.log
+      PUBLISH: P=0.0% R=0.0% F1=0.0%
+
+      at Object.log (test/ai/ai-evaluation.test.js:304:19)
+
+  console.log
+      REJECT: P=0.0% R=0.0% F1=0.0%
+
+      at Object.log (test/ai/ai-evaluation.test.js:304:19)
+
+  console.log
+      REVIEW_REQUIRED: P=13.0% R=100.0% F1=23.1%
+
+      at Object.log (test/ai/ai-evaluation.test.js:304:19)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_123 | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [Pipeline] Starting pipeline test-pipeline-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+PASS test/ai/ai-evaluation.test.js
+  AI Evaluation — Trust Score System
+    Trust Label Classification Metrics
+      √ should compute accuracy, precision, recall, F1 for trust labels (152 ms)
+      √ should achieve perfect accuracy for CONFIRMED_FALSE rule (1 ms)
+      √ should achieve perfect accuracy for MANIPULATION rule (1 ms)
+      √ should achieve perfect accuracy for OPINION/SATIRE rule (1 ms)
+    ROC-AUC for Trust Score
+      √ should compute ROC-AUC for HIGH TRUST detection (6 ms)
+      √ should compute ROC-AUC for LOW TRUST detection (15 ms)
+    Moderation Decision Metrics
+      √ should compute accuracy for moderation decisions (17 ms)
+    Deterministic Consistency
+      √ should produce identical results across multiple runs (13 ms)
+      √ should have consistent weight distribution (1 ms)
+    Edge Case Robustness
+      √ should handle all-zero inputs gracefully (1 ms)
+      √ should handle all-one inputs gracefully
+      √ should clamp out-of-range inputs (1 ms)
+      √ should handle mixed extreme values
+
+  console.log
+    [AgeVerification] age_verify.verified | user=user_123 | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.log
+    [AgeVerification] age_verify.verified | user=user_123 | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_123 | status=already_verified | provider=-
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [Pipeline] Pipeline test-pipeline-uuid completed in 147ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.log
+    [AgeVerification] age_verify.failed | user=user_456 | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.failed | user=user_456 | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.review_required | user=user_789 | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.provider_unavailable | user=user_123 | status=- | provider=-
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.retry | user=user_123 | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.provider_unavailable | user=user_123 | status=- | provider=-
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "approve_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.approvePost (src/services/moderation.service.js:223:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:378:19)
+
+  console.error
+    [AgeVerification] ERROR age_verify.provider_error | user=user_123 | err=Provider down
+
+    [0m [90m 107 |[39m     console[33m.[39merror([33mJSON[39m[33m.[39mstringify({ module[33m:[39m [32m'age_verification'[39m[33m,[39m [33m...[39mentry }))[33m;[39m
+     [90m 108 |[39m   } [36melse[39m {
+    [31m[1m>[22m[39m[90m 109 |[39m     console[33m.[39merror(
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 110 |[39m       [32m`[AgeVerification] ERROR ${event} | user=${entry.userId} | err=${entry.error}`[39m
+     [90m 111 |[39m     )[33m;[39m
+     [90m 112 |[39m   }[0m
+
+      at error (src/services/age-verification/age-verification-logger.js:109:13)
+      at AgeVerificationService.logAgeVerificationError [as getStatus] (src/services/age-verification/age-verification.service.js:197:9)
+      at Object.<anonymous> (test/services/age-verification.service.test.js:423:22)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_123 | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.error
+    [AgeVerification] ERROR age_verify.provider_error | user=user_123 | err=Network timeout
+
+    [0m [90m 107 |[39m     console[33m.[39merror([33mJSON[39m[33m.[39mstringify({ module[33m:[39m [32m'age_verification'[39m[33m,[39m [33m...[39mentry }))[33m;[39m
+     [90m 108 |[39m   } [36melse[39m {
+    [31m[1m>[22m[39m[90m 109 |[39m     console[33m.[39merror(
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 110 |[39m       [32m`[AgeVerification] ERROR ${event} | user=${entry.userId} | err=${entry.error}`[39m
+     [90m 111 |[39m     )[33m;[39m
+     [90m 112 |[39m   }[0m
+
+      at error (src/services/age-verification/age-verification-logger.js:109:13)
+      at AgeVerificationService.logAgeVerificationError [as initiate] (src/services/age-verification/age-verification.service.js:151:7)
+      at Object.<anonymous> (test/services/age-verification.service.test.js:439:7)
+
+  console.log
+    [AgeVerification] age_verify.retry | user=user_retry | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:432:22)
+
+  console.log
+    [AgeVerification] age_verify.retry | user=user_pending | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [Pipeline] Starting pipeline test-pipeline-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "reject_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.rejectPost (src/services/moderation.service.js:290:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:424:19)
+
+  console.log
+    [Pipeline] Pipeline test-pipeline-uuid completed in 15ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.error
+    [AgeVerification] ERROR age_verify.provider_error | user=user_null | err=Cannot read properties of null (reading 'status')
+
+    [0m [90m 107 |[39m     console[33m.[39merror([33mJSON[39m[33m.[39mstringify({ module[33m:[39m [32m'age_verification'[39m[33m,[39m [33m...[39mentry }))[33m;[39m
+     [90m 108 |[39m   } [36melse[39m {
+    [31m[1m>[22m[39m[90m 109 |[39m     console[33m.[39merror(
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 110 |[39m       [32m`[AgeVerification] ERROR ${event} | user=${entry.userId} | err=${entry.error}`[39m
+     [90m 111 |[39m     )[33m;[39m
+     [90m 112 |[39m   }[0m
+
+      at error (src/services/age-verification/age-verification-logger.js:109:13)
+      at AgeVerificationService.logAgeVerificationError [as getStatus] (src/services/age-verification/age-verification.service.js:197:9)
+      at Object.<anonymous> (test/services/age-verification.service.test.js:619:22)
+
+  console.error
+    [AgeVerification] ERROR age_verify.provider_error | user=user_err | err=Connection refused
+
+    [0m [90m 107 |[39m     console[33m.[39merror([33mJSON[39m[33m.[39mstringify({ module[33m:[39m [32m'age_verification'[39m[33m,[39m [33m...[39mentry }))[33m;[39m
+     [90m 108 |[39m   } [36melse[39m {
+    [31m[1m>[22m[39m[90m 109 |[39m     console[33m.[39merror(
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 110 |[39m       [32m`[AgeVerification] ERROR ${event} | user=${entry.userId} | err=${entry.error}`[39m
+     [90m 111 |[39m     )[33m;[39m
+     [90m 112 |[39m   }[0m
+
+      at error (src/services/age-verification/age-verification-logger.js:109:13)
+      at AgeVerificationService.logAgeVerificationError [as getStatus] (src/services/age-verification/age-verification.service.js:197:9)
+      at Object.<anonymous> (test/services/age-verification.service.test.js:654:22)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:463:7)
+
+  console.log
+    [TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: ANALYZING
+
+      at log (src/services/verification-orchestrator.service.js:256:17)
+
+  console.log
+    [AgeVerification] age_verify.verified | user=user_no_cat | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "admin_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "override_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.overrideLabel (src/services/moderation.service.js:362:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:457:19)
+
+  console.log
+    [Pipeline] Starting pipeline test-pipeline-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.log
+    [TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: SUCCESS
+
+      at log (src/services/verification-orchestrator.service.js:275:17)
+
+  console.log
+    [AgeVerification] age_verify.provider_unavailable | user=user_new | status=- | provider=-
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_fresh | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.log
+    [Pipeline] Pipeline test-pipeline-uuid completed in 8ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.log
+    [AgeVerification] age_verify.verified | user=user_fresh | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "admin_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "override_Green" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.overrideLabel (src/services/moderation.service.js:362:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:489:21)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_prov | status=- | provider=custom_provider
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:484:7)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_name | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [Pipeline] Starting pipeline test-pipeline-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.log
+    [TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: ANALYZING
+
+      at log (src/services/verification-orchestrator.service.js:256:17)
+
+  console.log
+    [TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: SUCCESS
+
+      at log (src/services/verification-orchestrator.service.js:275:17)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "admin_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "override_Blue" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.overrideLabel (src/services/moderation.service.js:362:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:489:21)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.log
+    [Pipeline] Pipeline test-pipeline-uuid completed in 7ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:504:7)
+
+  console.log
+    [Pipeline] Starting pipeline test-pipeline-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "admin_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "override_Purple" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.overrideLabel (src/services/moderation.service.js:362:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:489:21)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.log
+    [TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: ANALYZING
+
+      at log (src/services/verification-orchestrator.service.js:256:17)
+
+  console.log
+    [TrustAnalysis] Provider: GOOGLE_FACT_CHECK Status: SUCCESS
+
+      at log (src/services/verification-orchestrator.service.js:275:17)
+
+  console.log
+    [Pipeline] Pipeline test-pipeline-uuid completed in 7ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.log
+    [AgeVerification] age_verify.expired | user=user_expired | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+PASS test/integration/integration.test.js
+  Integration Tests
+    Firebase token verification flow
+      √ should complete full register → login flow via Firebase (248 ms)
+      √ should reject login after account deletion from MongoDB (1 ms)
+    Post lifecycle integration
+      √ should create a post and verify it can be retrieved (666 ms)
+      √ should enforce ownership on post update (7 ms)
+      √ should enforce ownership on post delete (1 ms)
+      √ should allow MODERATOR to delete any post
+    Trust score integration
+      √ should compute trust score and assign correct label (14 ms)
+      √ should enforce rule priority: confirmed false overrides everything (1 ms)
+      √ should assign BLUE for disclosed AI with score >= 70 (2 ms)
+    Evidence normalization integration
+      √ should normalize and aggregate evidence from multiple sources (35 ms)
+      √ should handle conflicting evidence gracefully
+      √ should return insufficient when no evidence provided (1 ms)
+    Content router integration
+      √ should classify content type from post data (37 ms)
+      √ should map content types to correct pipelines (1 ms)
+      √ should default to TEXT when no media or link
+    Notification service integration
+      √ should have all notification methods available (1 ms)
+      √ should call notifyVerificationComplete without throwing
+    Moderation decision integration
+      √ should evaluate correct decision for high-trust content (16 ms)
+      √ should evaluate correct decision for low-trust content (1 ms)
+      √ should require review when pipeline stages fail
+      √ should handle moderator override
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "admin_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "override_Orange" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.overrideLabel (src/services/moderation.service.js:362:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:489:21)
+
+PASS test/services/orchestrator-edge-cases.test.js
+  Verification Orchestrator Edge Cases
+    NO_EVIDENCE handling
+      √ should set authenticityScore and modelConfidenceScore to 0.3 when Google Fact Check returns NO_EVIDENCE (143 ms)
+      √ should NOT trigger fallback when Google Fact Check returns NO_EVIDENCE (4 ms)
+    Google Fact Check API key missing
+      √ should return UNKNOWN status when API key is not configured (19 ms)
+
+  console.log
+    [AgeVerification] age_verify.retry | user=user_retry_err | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:524:7)
+
+  console.error
+    [AgeVerification] ERROR age_verify.provider_error | user=user_retry_err | err=Network error
+
+    [0m [90m 107 |[39m     console[33m.[39merror([33mJSON[39m[33m.[39mstringify({ module[33m:[39m [32m'age_verification'[39m[33m,[39m [33m...[39mentry }))[33m;[39m
+     [90m 108 |[39m   } [36melse[39m {
+    [31m[1m>[22m[39m[90m 109 |[39m     console[33m.[39merror(
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 110 |[39m       [32m`[AgeVerification] ERROR ${event} | user=${entry.userId} | err=${entry.error}`[39m
+     [90m 111 |[39m     )[33m;[39m
+     [90m 112 |[39m   }[0m
+
+      at error (src/services/age-verification/age-verification-logger.js:109:13)
+      at AgeVerificationService.logAgeVerificationError [as retry] (src/services/age-verification/age-verification.service.js:314:7)
+      at Object.<anonymous> (test/services/age-verification.service.test.js:1145:7)
+
+  console.log
+    [Pipeline] Starting pipeline test-pipeline-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "admin_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "override_Red" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.overrideLabel (src/services/moderation.service.js:362:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:489:21)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_instant | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.log
+    [Pipeline] Pipeline test-pipeline-uuid completed in 8ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.log
+    [AgeVerification] age_verify.verified | user=user_instant | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_instant_fail | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:544:7)
+
+  console.log
+    [AgeVerification] age_verify.failed | user=user_instant_fail | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.initiated | user=user_interactive | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [Pipeline] Starting pipeline test-image-uuid for post post_001 (IMAGE)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.log
+    [AgeVerification] age_verify.retry | user=user_retry_instant | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [AgeVerification] age_verify.verified | user=user_retry_instant | status=- | provider=mock
+
+      at log (src/services/age-verification/age-verification-logger.js:83:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "remove_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.removeContent (src/services/moderation.service.js:600:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:525:19)
+
+  console.log
+    [Pipeline] Pipeline test-image-uuid completed in 9ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:656:7)
+
+PASS test/services/age-verification.service.test.js
+  Age Verification Service (Module 18)
+    Successful verification
+      √ should initiate verification and create a PENDING record (188 ms)
+      √ should process a successful provider result and update user (15 ms)
+      √ should set expiry date 1 year from now on successful verification (5 ms)
+      √ should return existing verified status if already verified (3 ms)
+      √ should verify isVerified returns true for valid verified record (1 ms)
+      √ should return correct age category (1 ms)
+    Failed verification
+      √ should process a FAILED provider result and update user (5 ms)
+      √ should not set ageCategory on failed verification (5 ms)
+      √ should process REQUIRES_REVIEW status (3 ms)
+      √ should mark isVerified as false for failed record (8 ms)
+      √ should return null ageCategory for unverified user
+    Provider unavailable
+      √ should throw when provider is unavailable during initiate (3 ms)
+      √ should throw when provider is unavailable during retry (6 ms)
+      √ should still allow getStatus when provider is unavailable (9 ms)
+      √ should handle provider.initiate throwing an error (10 ms)
+    Retry logic
+      √ should allow retry after failed verification (2 ms)
+      √ should reject retry when max attempts exceeded (1 ms)
+      √ should reject retry when verification is already verified (1 ms)
+      √ should reject retry when status is REQUIRES_REVIEW (1 ms)
+      √ should throw when no verification record exists for retry
+      √ should allow retry from PENDING status (2 ms)
+      √ should report canRetry correctly based on attempt count (1 ms)
+      √ should report canRetry as false when max attempts reached (1 ms)
+    Invalid response handling
+      √ should handle provider returning unknown status gracefully (1 ms)
+      √ should handle provider returning null response (13 ms)
+      √ should handle missing userId parameter (1 ms)
+      √ should handle missing userId in getStatus (1 ms)
+      √ should handle missing userId in retry (1 ms)
+      √ should handle provider.checkStatus throwing an error (4 ms)
+      √ should handle VERIFIED status with null ageCategory (4 ms)
+    Account creation after verification
+      √ should not block registration when age verification initiation fails (2 ms)
+      √ should allow isVerified to return false for new users
+      √ should allow getAgeCategory to return null for new users (1 ms)
+      √ should process initiate and verify a new user successfully (6 ms)
+    Provider abstraction
+      √ should use the provider returned by the factory (6 ms)
+      √ should store provider name in the verification record (3 ms)
+    Privacy-conscious logging
+      √ should export all required logging events (1 ms)
+      √ should mask user IDs in production (1 ms)
+      √ should show full user IDs in development
+      √ should handle null user ID gracefully (1 ms)
+    Age gate middleware
+      √ should block access when no verification exists (1 ms)
+      √ should allow access when verified and not expired
+      √ should block access when verification is expired (1 ms)
+      √ should block access when status is PENDING (1 ms)
+      √ should block access when status is FAILED (1 ms)
+      √ should block access when status is REQUIRES_REVIEW
+      √ should return 401 when user is not authenticated
+    requireAdult middleware
+      √ should allow ADULT users (1 ms)
+      √ should block TEEN users (1 ms)
+      √ should block users without age verification info (8 ms)
+    Edge cases
+      √ should return NOT_STARTED for users with no verification (1 ms)
+      √ should handle expired verification in getStatus (5 ms)
+      √ should handle provider returning PENDING on checkStatus (1 ms)
+      √ should not re-initiate when existing PENDING verification is still pending (1 ms)
+      √ should handle isVerified with null userId
+      √ should handle getAgeCategory with null userId
+      √ should handle retry from provider.initiate throwing error (17 ms)
+    Model constants
+      √ should have all four verification statuses (1 ms)
+      √ should have all four age categories (1 ms)
+      √ should have exactly 4 verification statuses (1 ms)
+      √ should have exactly 4 age categories
+    Immediate provider result
+      √ should settle a VERIFIED result returned inline from initiate() (11 ms)
+      √ should settle a FAILED result returned inline from initiate() (6 ms)
+      √ should keep PENDING when initiate() returns no terminal status (3 ms)
+      √ should settle a VERIFIED result returned inline from retry() (5 ms)
+
+PASS test/services/link-analysis.service.test.js
+  link-analysis: source credibility
+    √ scores news agencies of record at the top tier (8 ms)
+    √ scores established outlets below the agencies but above unrecognised (1 ms)
+    √ resolves a subdomain to its publisher (1 ms)
+    √ never credits a lookalike domain (1 ms)
+    √ recognises official and academic origins by rule (2 ms)
+    √ downgrades link shorteners and suspicious patterns
+    √ scores an unrecognised publisher neutrally rather than fabricating a value (1 ms)
+    √ produces real variation across real publishers (1 ms)
+  link-analysis: misinformation probability
+    √ uses the confidence-weighted mean of the model per-claim assessments (1 ms)
+    √ treats a claim with no confidence as unit weight (1 ms)
+    √ ignores the model path when the model produced nothing (1 ms)
+    √ does not assume a baseline probability when no indicator is present (1 ms)
+    √ still raises the score for genuine misinformation indicators
+    √ penalises an untrustworthy publisher independently of the copy (8 ms)
+    √ always returns a value within 0..1
+
+  console.log
+    [Pipeline] Starting pipeline test-video-uuid for post post_001 (VIDEO)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "restore_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.restoreContent (src/services/moderation.service.js:668:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:542:19)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.error
+    [Gemini] Image analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 756 |[39m     [36mreturn[39m { status[33m:[39m [32m'COMPLETED'[39m[33m,[39m result }[33m;[39m
+     [90m 757 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 758 |[39m     console[33m.[39merror([32m'[Gemini] Image analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 759 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 760 |[39m     [36mif[39m (lockKey) {
+     [90m 761 |[39m       releaseLock(lockKey[33m,[39m [33mGeminiAnalysisStatus[39m[33m.[39m[33mFAILED[39m[33m,[39m { error[33m:[39m errorMessage[33m,[39m provider[33m:[39m [32m'GEMINI'[39m })[33m;[39m[0m
+
+      at Object.error [as analyzeImageWithGemini] (src/services/gemini-analysis.service.js:758:13)
+      at analyzeImageWithGemini (src/services/media-claims.service.js:77:38)
+      at extractFromImage (src/services/media-claims.service.js:392:14)
+      at Object.extractMediaClaims (src/services/media-claims.service.js:452:28)
+      at Object.verifyMediaContent [as verifyAndScoreMedia] (src/services/media-verification.service.js:91:49)
+      at Object.verifyAndScoreMedia [as analyzeImage] (src/services/image-analysis.service.js:164:56)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:137:22)
+
+  console.log
+    [Pipeline] Pipeline test-video-uuid completed in 18ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:748:7)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_reporter_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "resolve_rep_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.resolveReport (src/services/moderation.service.js:740:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:561:19)
+
+  console.log
+    [Pipeline] Starting pipeline test-audio-uuid for post post_001 (AUDIO)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.log
+    [Pipeline] Pipeline test-audio-uuid completed in 19ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_reporter_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "dismiss_rep_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.dismissReport (src/services/moderation.service.js:805:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:604:19)
+
+  console.error
+    [Gemini] Image analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 756 |[39m     [36mreturn[39m { status[33m:[39m [32m'COMPLETED'[39m[33m,[39m result }[33m;[39m
+     [90m 757 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 758 |[39m     console[33m.[39merror([32m'[Gemini] Image analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 759 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 760 |[39m     [36mif[39m (lockKey) {
+     [90m 761 |[39m       releaseLock(lockKey[33m,[39m [33mGeminiAnalysisStatus[39m[33m.[39m[33mFAILED[39m[33m,[39m { error[33m:[39m errorMessage[33m,[39m provider[33m:[39m [32m'GEMINI'[39m })[33m;[39m[0m
+
+      at Object.error [as analyzeImageWithGemini] (src/services/gemini-analysis.service.js:758:13)
+      at analyzeImageWithGemini (src/services/media-claims.service.js:77:38)
+      at extractFromImage (src/services/media-claims.service.js:392:14)
+      at Object.extractMediaClaims (src/services/media-claims.service.js:452:28)
+      at Object.verifyMediaContent [as verifyAndScoreMedia] (src/services/media-verification.service.js:91:49)
+      at Object.verifyAndScoreMedia [as analyzeImage] (src/services/image-analysis.service.js:164:56)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:187:22)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "audit_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.approvePost (src/services/moderation.service.js:223:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:624:7)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:830:7)
+
+  console.log
+    [Pipeline] Starting pipeline test-link-uuid for post post_001 (LINK)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "audit_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.rejectPost (src/services/moderation.service.js:290:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:627:7)
+
+  console.log
+    [Pipeline] Pipeline test-link-uuid completed in 4ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.error
+    [Gemini] Image analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 756 |[39m     [36mreturn[39m { status[33m:[39m [32m'COMPLETED'[39m[33m,[39m result }[33m;[39m
+     [90m 757 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 758 |[39m     console[33m.[39merror([32m'[Gemini] Image analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 759 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 760 |[39m     [36mif[39m (lockKey) {
+     [90m 761 |[39m       releaseLock(lockKey[33m,[39m [33mGeminiAnalysisStatus[39m[33m.[39m[33mFAILED[39m[33m,[39m { error[33m:[39m errorMessage[33m,[39m provider[33m:[39m [32m'GEMINI'[39m })[33m;[39m[0m
+
+      at Object.error [as analyzeImageWithGemini] (src/services/gemini-analysis.service.js:758:13)
+      at analyzeImageWithGemini (src/services/media-claims.service.js:77:38)
+      at extractFromImage (src/services/media-claims.service.js:392:14)
+      at Object.extractMediaClaims (src/services/media-claims.service.js:452:28)
+      at Object.verifyMediaContent [as verifyAndScoreMedia] (src/services/media-verification.service.js:91:49)
+      at Object.verifyAndScoreMedia [as analyzeImage] (src/services/image-analysis.service.js:164:56)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:222:22)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "audit_fields" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.approvePost (src/services/moderation.service.js:223:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:637:19)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:936:7)
+
+  console.error
+    [ImageAnalysis] Python AI service is not reachable at http://127.0.0.1:8000. The image authenticity model did not run, so that signal is unavailable. Start the service to enable it.
+
+    [0m [90m 66 |[39m   } [36mcatch[39m (err) {
+     [90m 67 |[39m     authenticityError [33m=[39m describeAiServiceError(err[33m,[39m [32m'image'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 68 |[39m     console[33m.[39merror([32m`[ImageAnalysis] ${authenticityError.message}`[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 69 |[39m   }
+     [90m 70 |[39m
+     [90m 71 |[39m   [36mlet[39m results[33m;[39m[0m
+
+      at Object.error [as analyzeImage] (src/services/image-analysis.service.js:68:13)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:275:22)
+
+  console.log
+    [Pipeline] Starting pipeline test-error-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "trim_1" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.approvePost (src/services/moderation.service.js:223:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:856:19)
+
+  console.error
+    [Gemini] Image analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 756 |[39m     [36mreturn[39m { status[33m:[39m [32m'COMPLETED'[39m[33m,[39m result }[33m;[39m
+     [90m 757 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 758 |[39m     console[33m.[39merror([32m'[Gemini] Image analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 759 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 760 |[39m     [36mif[39m (lockKey) {
+     [90m 761 |[39m       releaseLock(lockKey[33m,[39m [33mGeminiAnalysisStatus[39m[33m.[39m[33mFAILED[39m[33m,[39m { error[33m:[39m errorMessage[33m,[39m provider[33m:[39m [32m'GEMINI'[39m })[33m;[39m[0m
+
+      at Object.error [as analyzeImageWithGemini] (src/services/gemini-analysis.service.js:758:13)
+      at analyzeImageWithGemini (src/services/media-claims.service.js:77:38)
+      at extractFromImage (src/services/media-claims.service.js:392:14)
+      at Object.extractMediaClaims (src/services/media-claims.service.js:452:28)
+      at Object.verifyMediaContent [as verifyAndScoreMedia] (src/services/media-verification.service.js:91:49)
+      at Object.verifyAndScoreMedia [as analyzeImage] (src/services/image-analysis.service.js:164:56)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:275:22)
+
+  console.error
+    [ImageAnalysis] Python AI service timed out during image analysis. The authenticity model did not complete, so that signal is unavailable.
+
+    [0m [90m 66 |[39m   } [36mcatch[39m (err) {
+     [90m 67 |[39m     authenticityError [33m=[39m describeAiServiceError(err[33m,[39m [32m'image'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 68 |[39m     console[33m.[39merror([32m`[ImageAnalysis] ${authenticityError.message}`[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 69 |[39m   }
+     [90m 70 |[39m
+     [90m 71 |[39m   [36mlet[39m results[33m;[39m[0m
+
+      at Object.error [as analyzeImage] (src/services/image-analysis.service.js:68:13)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:303:22)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_author_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "already_approved" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.approvePost (src/services/moderation.service.js:223:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:868:19)
+
+  console.error
+    [Gemini] Image analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 756 |[39m     [36mreturn[39m { status[33m:[39m [32m'COMPLETED'[39m[33m,[39m result }[33m;[39m
+     [90m 757 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 758 |[39m     console[33m.[39merror([32m'[Gemini] Image analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 759 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 760 |[39m     [36mif[39m (lockKey) {
+     [90m 761 |[39m       releaseLock(lockKey[33m,[39m [33mGeminiAnalysisStatus[39m[33m.[39m[33mFAILED[39m[33m,[39m { error[33m:[39m errorMessage[33m,[39m provider[33m:[39m [32m'GEMINI'[39m })[33m;[39m[0m
+
+      at Object.error [as analyzeImageWithGemini] (src/services/gemini-analysis.service.js:758:13)
+      at analyzeImageWithGemini (src/services/media-claims.service.js:77:38)
+      at extractFromImage (src/services/media-claims.service.js:392:14)
+      at Object.extractMediaClaims (src/services/media-claims.service.js:452:28)
+      at Object.verifyMediaContent [as verifyAndScoreMedia] (src/services/media-verification.service.js:91:49)
+      at Object.verifyAndScoreMedia [as analyzeImage] (src/services/image-analysis.service.js:164:56)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:303:22)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_reporter_1" (type string) at path "recipient", sender: Cast to ObjectId failed for value "mod_1" (type string) at path "sender", targetId: Cast to ObjectId failed for value "resolve_no_post" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at ModerationService.resolveReport (src/services/moderation.service.js:740:7)
+      at Object.<anonymous> (test/services/moderation.service.test.js:881:19)
+
+PASS test/services/moderation.service.test.js
+  Moderation Service (Module 20)
+    View flagged posts
+      √ should return posts needing review (9 ms)
+      √ should support pagination (1 ms)
+    Inspect post details
+      √ should return full context for a post (3 ms)
+      √ should handle post not found (51 ms)
+      √ should handle missing trust score gracefully (2 ms)
+    Approve content
+      √ should approve a post and create audit log (157 ms)
+      √ should require a reason (3 ms)
+      √ should throw for non-existent post (1 ms)
+    Reject content
+      √ should reject a post and create audit log (35 ms)
+      √ should require a reason (1 ms)
+    Override label
+      √ should override label and create audit log (9 ms)
+      √ should reject invalid label (2 ms)
+      √ should accept all valid labels (65 ms)
+    Flag for review
+      √ should flag a post and create audit log (3 ms)
+    Remove content
+      √ should remove content and create audit log (40 ms)
+    Restore content
+      √ should restore content and create audit log (31 ms)
+    Resolve report
+      √ should resolve a report and create audit log (14 ms)
+      √ should require a reason (1 ms)
+      √ should throw for non-existent report (1 ms)
+    Dismiss report
+      √ should dismiss a report and create audit log (18 ms)
+    Audit logging
+      √ should create an audit log for every action (19 ms)
+      √ should include all required fields in audit log (7 ms)
+      √ should get logs for a specific post (1 ms)
+      √ should get all logs with filtering (1 ms)
+    Unauthorized access
+      √ should block USER role from moderation endpoints
+      √ should allow MODERATOR role (1 ms)
+      √ should allow ADMIN role
+      √ should block unauthenticated requests
+      √ should restrict label override to ADMIN only (1 ms)
+      √ should allow ADMIN for label override
+    Moderation stats
+      √ should return stats object (1 ms)
+      √ should aggregate action counts correctly
+    Controller validation
+      √ should reject approvePost with empty reason (2 ms)
+      √ should reject rejectPost with empty reason
+      √ should reject overrideLabel without label (1 ms)
+      √ should reject resolveReport with empty reason
+    Moderation actions
+      √ should export all 8 moderation actions
+      √ should include all required actions (1 ms)
+    Edge cases
+      √ should trim whitespace from reason (9 ms)
+      √ should handle approve on already-approved post (8 ms)
+      √ should handle report resolution without postId (9 ms)
+      √ should handle getLogsForPost with no logs (1 ms)
+
+  console.error
+    [ImageAnalysis] AI service error during image analysis: Invalid image format
+
+    [0m [90m 66 |[39m   } [36mcatch[39m (err) {
+     [90m 67 |[39m     authenticityError [33m=[39m describeAiServiceError(err[33m,[39m [32m'image'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 68 |[39m     console[33m.[39merror([32m`[ImageAnalysis] ${authenticityError.message}`[39m)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 69 |[39m   }
+     [90m 70 |[39m
+     [90m 71 |[39m   [36mlet[39m results[33m;[39m[0m
+
+      at Object.error [as analyzeImage] (src/services/image-analysis.service.js:68:13)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:326:22)
+
+  console.error
+    [Gemini] Image analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 756 |[39m     [36mreturn[39m { status[33m:[39m [32m'COMPLETED'[39m[33m,[39m result }[33m;[39m
+     [90m 757 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 758 |[39m     console[33m.[39merror([32m'[Gemini] Image analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 759 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 760 |[39m     [36mif[39m (lockKey) {
+     [90m 761 |[39m       releaseLock(lockKey[33m,[39m [33mGeminiAnalysisStatus[39m[33m.[39m[33mFAILED[39m[33m,[39m { error[33m:[39m errorMessage[33m,[39m provider[33m:[39m [32m'GEMINI'[39m })[33m;[39m[0m
+
+      at Object.error [as analyzeImageWithGemini] (src/services/gemini-analysis.service.js:758:13)
+      at analyzeImageWithGemini (src/services/media-claims.service.js:77:38)
+      at extractFromImage (src/services/media-claims.service.js:392:14)
+      at Object.extractMediaClaims (src/services/media-claims.service.js:452:28)
+      at Object.verifyMediaContent [as verifyAndScoreMedia] (src/services/media-verification.service.js:91:49)
+      at Object.verifyAndScoreMedia [as analyzeImage] (src/services/image-analysis.service.js:164:56)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:326:22)
+
+  console.error
+    [Gemini] Image analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 756 |[39m     [36mreturn[39m { status[33m:[39m [32m'COMPLETED'[39m[33m,[39m result }[33m;[39m
+     [90m 757 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 758 |[39m     console[33m.[39merror([32m'[Gemini] Image analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 759 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 760 |[39m     [36mif[39m (lockKey) {
+     [90m 761 |[39m       releaseLock(lockKey[33m,[39m [33mGeminiAnalysisStatus[39m[33m.[39m[33mFAILED[39m[33m,[39m { error[33m:[39m errorMessage[33m,[39m provider[33m:[39m [32m'GEMINI'[39m })[33m;[39m[0m
+
+      at Object.error [as analyzeImageWithGemini] (src/services/gemini-analysis.service.js:758:13)
+      at analyzeImageWithGemini (src/services/media-claims.service.js:77:38)
+      at extractFromImage (src/services/media-claims.service.js:392:14)
+      at Object.extractMediaClaims (src/services/media-claims.service.js:452:28)
+      at Object.verifyMediaContent [as verifyAndScoreMedia] (src/services/media-verification.service.js:91:49)
+      at Object.verifyAndScoreMedia [as analyzeImage] (src/services/image-analysis.service.js:164:56)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:360:22)
+
+  console.error
+    [Gemini] Image analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 756 |[39m     [36mreturn[39m { status[33m:[39m [32m'COMPLETED'[39m[33m,[39m result }[33m;[39m
+     [90m 757 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 758 |[39m     console[33m.[39merror([32m'[Gemini] Image analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 759 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 760 |[39m     [36mif[39m (lockKey) {
+     [90m 761 |[39m       releaseLock(lockKey[33m,[39m [33mGeminiAnalysisStatus[39m[33m.[39m[33mFAILED[39m[33m,[39m { error[33m:[39m errorMessage[33m,[39m provider[33m:[39m [32m'GEMINI'[39m })[33m;[39m[0m
+
+      at Object.error [as analyzeImageWithGemini] (src/services/gemini-analysis.service.js:758:13)
+      at analyzeImageWithGemini (src/services/media-claims.service.js:77:38)
+      at extractFromImage (src/services/media-claims.service.js:392:14)
+      at Object.extractMediaClaims (src/services/media-claims.service.js:452:28)
+      at Object.verifyMediaContent [as verifyAndScoreMedia] (src/services/media-verification.service.js:91:49)
+      at Object.verifyAndScoreMedia [as analyzeImage] (src/services/image-analysis.service.js:164:56)
+      at Object.<anonymous> (test/services/image-analysis.service.test.js:397:7)
+
+PASS test/services/image-analysis.service.test.js
+  Image Analysis Service
+    analyzeImage
+      √ should analyze a low-manipulation image successfully (973 ms)
+      √ should analyze a high-manipulation image and flag for review (26 ms)
+      √ should handle image with no faces (20 ms)
+    Error handling
+      √ should return FAILED when post not found (1 ms)
+      √ should return COMPLETED with message when no image URL found (1 ms)
+      √ should degrade honestly when the AI service is not available (18 ms)
+      √ should degrade honestly when the AI service times out (19 ms)
+      √ should degrade honestly when the AI service returns an error (29 ms)
+      √  should handle AI service errors list in results (14 ms)
+    Trust score integration
+      √ should create TrustScore document for successful analysis (10 ms)
+    getAnalysisForPost
+      √ should return analysis results for a post (1 ms)
+
+PASS test/services/fact-check-relevance.test.js
+  Fact-Check Relevance
+    tokenize
+      √ should lowercase and extract alphanumeric tokens (4 ms)
+      √ should return empty array for empty input
+    computeRelevance
+      √ should return 1.0 for identical claims (1 ms)
+      √ should return a high score for closely related claims (7 ms)
+      √ should return a low score for unrelated claims
+      √ should return 0 for empty inputs (1 ms)
+    MIN_RELEVANCE
+      √ should be a positive threshold below 0.5 (1 ms)
+
+  console.warn
+    [Pipeline] Claim extraction unavailable: Claim extraction failed
+
+    [0m [90m 552 |[39m
+     [90m 553 |[39m   [90m// Both providers unavailable — skip honestly, never invent claims.[39m
+    [31m[1m>[22m[39m[90m 554 |[39m   console[33m.[39mwarn([32m`[Pipeline] Claim extraction unavailable: ${pythonFailure}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 555 |[39m   [36mawait[39m skipStage(
+     [90m 556 |[39m     pipeline[33m.[39mpipelineId[33m,[39m
+     [90m 557 |[39m     [32m'CLAIM_EXTRACTION'[39m[33m,[39m[0m
+
+      at warn (src/services/pipeline-orchestrator.service.js:554:11)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1287:21)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:978:22)
+
+  console.log
+    [Pipeline] Pipeline test-error-uuid completed in 177ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:978:22)
+
+  console.log
+    [Pipeline] Starting pipeline test-trust-fail-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.warn
+    [Pipeline] Claim extraction unavailable: Python NLP service produced no claims
+
+    [0m [90m 552 |[39m
+     [90m 553 |[39m   [90m// Both providers unavailable — skip honestly, never invent claims.[39m
+    [31m[1m>[22m[39m[90m 554 |[39m   console[33m.[39mwarn([32m`[Pipeline] Claim extraction unavailable: ${pythonFailure}`[39m)[33m;[39m
+     [90m     |[39m           [31m[1m^[22m[39m
+     [90m 555 |[39m   [36mawait[39m skipStage(
+     [90m 556 |[39m     pipeline[33m.[39mpipelineId[33m,[39m
+     [90m 557 |[39m     [32m'CLAIM_EXTRACTION'[39m[33m,[39m[0m
+
+      at warn (src/services/pipeline-orchestrator.service.js:554:11)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1287:21)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:1029:22)
+
+PASS test/services/historical-import.service.test.js
+  Historical import — record preparation
+    √ keeps valid in-window records (5 ms)
+    √ rejects out-of-window and placeholder records (1 ms)
+    √ de-duplicates repeated sources inside one dataset (7 ms)
+    √ survives a malformed dataset without throwing (2 ms)
+  Historical import — post construction
+    √ maps provenance onto the existing Post schema fields (2 ms)
+    √ never fabricates a trust score, label or verification outcome (1 ms)
+    √ stores the real publication date, not the import time
+    √ quotes the real source and keeps its URL in the post text (1 ms)
+    √ routes real content through the TEXT pipeline when asked (1 ms)
+    √ forces the historical date onto the document when timestamps overwrite it (1 ms)
+  Historical import — import and verification
+    √ runs the real verification pipeline for each inserted post (3 ms)
+    √ counts trust labels from engine output, never assigns them itself (2 ms)
+    √ counts a Google Fact Check verdict as a match
+    √ treats "no match" as no evidence, never as verified (1 ms)
+    √ records a fallback provider separately from Google (1 ms)
+    √ counts a skipped fact-check separately (1 ms)
+    √ a failing record is recorded and does not abort the rest (1 ms)
+    √ a thrown error on one record does not corrupt the batch (2 ms)
+    √ dry run writes nothing (1 ms)
+    √ tracks the real date range of the imported records
+  Historical import — idempotency
+    √ imports 150 records, then imports 0 on a second run (16 ms)
+    √ finds an existing post by normalized source URL
+    √ re-verifies existing posts only when explicitly asked (1 ms)
+  Historical import — seed accounts and engagement
+    √ seed accounts are named so they cannot be mistaken for people (1 ms)
+    √ seed accounts are created once and reused afterwards (220 ms)
+    √ seeded engagement is idempotent and keeps post counters consistent (3 ms)
+  Historical import — reporting
+    √ reports the numbers from the run, not placeholders (2 ms)
+    √ reflects a different run faithfully (nothing is hardcoded to 150) (1 ms)
+    √ includes every trust label bucket and the fact-check counts (2 ms)
+    √ surfaces recorded errors in the report (1 ms)
+    √ discovery report states the shortfall instead of implying completeness (1 ms)
+
+  console.error
+    [Pipeline] Trust score computation failed: Trust score computation failed
+
+    [0m [90m 1073 |[39m     [36mreturn[39m result[33m;[39m
+     [90m 1074 |[39m   } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 1075 |[39m     console[33m.[39merror([32m`[Pipeline] Trust score computation failed: ${err.message}`[39m)[33m;[39m
+     [90m      |[39m             [31m[1m^[22m[39m
+     [90m 1076 |[39m     [36mthrow[39m err[33m;[39m [90m// Trust score is critical[39m
+     [90m 1077 |[39m   }
+     [90m 1078 |[39m }[0m
+
+      at error (src/services/pipeline-orchestrator.service.js:1075:13)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1334:26)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:1029:22)
+
+  console.error
+    [Pipeline] Trust score failed: Trust score computation failed
+
+    [0m [90m 1342 |[39m       stageResults[33m.[39mtrustScore [33m=[39m trustScoreResult[33m;[39m
+     [90m 1343 |[39m     } [36mcatch[39m (err) {
+    [31m[1m>[22m[39m[90m 1344 |[39m       console[33m.[39merror([32m`[Pipeline] Trust score failed: ${err.message}`[39m)[33m;[39m
+     [90m      |[39m               [31m[1m^[22m[39m
+     [90m 1345 |[39m       [36mawait[39m _finalizePipeline(pipeline[33m.[39mpipelineId[33m,[39m post[33m,[39m [32m'FAILED'[39m[33m,[39m startTime[33m,[39m err)[33m;[39m
+     [90m 1346 |[39m       [36mreturn[39m { pipelineId[33m:[39m pipeline[33m.[39mpipelineId[33m,[39m status[33m:[39m [32m'FAILED'[39m[33m,[39m error[33m:[39m err[33m.[39mmessage }[33m;[39m
+     [90m 1347 |[39m     }[0m
+
+      at error (src/services/pipeline-orchestrator.service.js:1344:15)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:1029:22)
+
+PASS test/services/fact-check-rating-classification.test.js
+  fact-check: classifyRating
+    canonical single-word verdicts
+      √ classifies "True" as positive (2 ms)
+      √ classifies "Mostly True" as positive (1 ms)
+      √ classifies "Correct" as positive (16 ms)
+      √ classifies "Accurate" as positive
+      √ classifies "False" as negative
+      √ classifies "Incorrect" as negative
+      √ classifies "Pants on fire" as negative
+      √ classifies "Misleading" as negative
+      √ classifies "Debunked" as negative
+    narrative verdicts (Full Fact / Africa Check / PA Media style)
+      √ does not read "Incorrect" as a positive rating (1 ms)
+      √ classifies "This is incorrect..." as negative (1 ms)
+      √ classifies "This is not correct..." as negative
+      √ classifies a "missing context" narrative as mixed, not positive (1 ms)
+      √ still classifies an endorsement with a caveat as positive (1 ms)
+    robustness
+      √ returns unknown for missing or empty ratings (1 ms)
+      √ is case-insensitive and tolerates surrounding whitespace
+      √ never classifies a negative narrative as positive (1 ms)
+
+  console.log
+    [Pipeline] Starting pipeline test-publish-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.log
+    [Pipeline] Pipeline test-publish-uuid completed in 7ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:1224:7)
+
+  console.log
+    [Pipeline] Starting pipeline test-review-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+PASS test/security/security.test.js
+  Security Hardening
+    Security Headers
+      √ should set X-Content-Type-Options to nosniff (9 ms)
+      √ should set X-Frame-Options to DENY
+      √ should set X-XSS-Protection header (1 ms)
+      √ should set Referrer-Policy header
+      √ should set Cache-Control to prevent caching (1 ms)
+      √ should set Permissions-Policy header (1 ms)
+      √ should remove X-Powered-By header (1 ms)
+      √ should set HSTS on HTTPS requests
+      √ should set HSTS when X-Forwarded-Proto is https (1 ms)
+      √ should NOT set HSTS on plain HTTP requests
+    Error Handler — No Information Leakage
+      √ should NOT expose stack traces to clients for 500 errors (112 ms)
+      √ should return generic message for non-operational 500 errors (9 ms)
+      √ should expose error.message for operational (client) errors (16 ms)
+      √ should handle validation errors without leaking internals (9 ms)
+      √ should handle JWT errors with generic message (10 ms)
+      √ should handle expired token errors (5 ms)
+      √ should handle CastError (invalid ObjectId) (7 ms)
+      √ should return proper error response format (5 ms)
+    Rate Limiting
+      √ should create a rate limiter with correct defaults
+      √ should allow requests within the limit (2 ms)
+      √ should block requests after max is exceeded (5 ms)
+      √ should set Retry-After header when rate limited (1 ms)
+      √ should use custom error messages
+    NoSQL Injection Prevention
+      √ should escape regex special characters
+      √ should handle empty search string
+      √ should handle non-string input (1 ms)
+      √ should escape MongoDB operator-like patterns
+      √ should escape regex look-alike injection (1 ms)
+    Input Validation
+      √ should validate correct ObjectId format
+      √ should reject invalid ObjectId format (1 ms)
+      √ should reject missing ObjectId
+      √ should reject ObjectId with wrong length (1 ms)
+      √ should sanitize input to remove HTML tags (1 ms)
+      √ should remove event handlers from input
+      √ should remove javascript: protocol from input
+      √ should trim string body fields (1 ms)
+    API Security — ApiError
+      √ should be operational by default
+      √ should include details when provided (1 ms)
+      √ should not expose secrets in default error messages (1 ms)
+      √ should have correct error properties
+    CORS Configuration
+      √ should restrict origins when CORS_ORIGIN env is set (1 ms)
+      √ should support comma-separated origins (1 ms)
+      √ should default to localhost origins when env not set
+    Audit Log Service
+      √ should export required methods (672 ms)
+      √ audit-log model should be defined
+    Content Size Limits
+      √ upload middleware should export expected functions (335 ms)
+      √ upload middleware should have allowed MIME types
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+  console.log
+    [Pipeline] Pipeline test-review-uuid completed in 21ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+PASS test/services/google-media-services.test.js
+  Google Cloud media services
+    credential gate
+      √ reports not configured when no credentials are present (14 ms)
+      √ reports not configured when the credentials path does not exist (1 ms)
+    Video Intelligence service
+      √ returns available:false with reason not_configured (never fabricated output) (132 ms)
+      √ converts protobuf durations to seconds (6 ms)
+      √ merges segment/shot/frame labels by highest confidence (1 ms)
+      √ normalizes the speech transcript of the audio track (14 ms)
+      √ reports an empty transcript as unavailable
+      √ classifies API errors into machine-readable codes
+    Speech-to-Text service
+      √ returns available:false with reason not_configured (9 ms)
+      √ maps file extensions to supported encodings (1 ms)
+      √ normalizes a recognition response with words and confidence (1 ms)
+      √ returns an empty transcript for an empty response
+    Source credibility service
+      √ returns neutral + unavailable when there is no evidence (8 ms)
+      √ derives credibility from real fact-check publisher evidence (2 ms)
+      √ accepts flattened stored review shapes (1 ms)
+      √ flags the source itself being a fact-check publisher
+      √ hostnameOf is safe for invalid URLs (1 ms)
+    Media verification rule typing
+      √ maps opinion/satire media with no factual claims to the PURPLE rule (420 ms)
+      √ keeps the media content type when factual claims were found
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:1252:7)
+
+  console.log
+    [Pipeline] Starting pipeline test-state-uuid for post post_001 (TEXT)
+
+      at log (src/services/pipeline-orchestrator.service.js:1238:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check (PRIMARY)
+
+      at log (src/services/pipeline-orchestrator.service.js:694:13)
+
+  console.log
+    [TrustAnalysis] Pipeline FACT_VERIFICATION: Google Fact Check SUCCESS
+
+      at log (src/services/pipeline-orchestrator.service.js:701:13)
+
+PASS test/e2e/full-flow.test.js
+  End-to-End Flow: Registration → Publication → Moderation
+    √ should complete the full flow for a high-trust post (81 ms)
+    √ should handle low-trust post requiring moderation (2 ms)
+    √ should handle opinion/satire content correctly (1 ms)
+    √ should handle disclosed AI content correctly (1 ms)
+    √ should handle confirmed false content correctly (1 ms)
+    √ should complete evidence → trust score → decision pipeline (1 ms)
+    √ should handle pipeline failure → review required
+
+  console.log
+    [Pipeline] Pipeline test-state-uuid completed in 6ms — status: VERIFIED
+
+      at log (src/services/pipeline-orchestrator.service.js:1381:13)
+
+PASS test/services/like.service.test.js
+  Like Service
+    toggle — like a post
+      √ should create a like and increment likesCount (8 ms)
+      √ should increment from existing count (6 ms)
+    toggle — unlike a post
+      √ should remove a like and decrement likesCount (1 ms)
+      √ should not decrement below zero (1 ms)
+    duplicate prevention
+      √ should not create duplicate likes (unique index) (1 ms)
+    post validation
+      √ should throw if post does not exist (22 ms)
+    remove
+      √ should remove a like and return correct count (1 ms)
+      √ should throw if like does not exist (1 ms)
+    hasLiked
+      √ should return true if user has liked the post (1 ms)
+      √ should return false if user has not liked the post
+    getCount
+      √ should return the like count for a post (1 ms)
+      √ should return 0 for non-existent post (1 ms)
+
+  console.error
+    [NotificationService] Failed to create notification: Notification validation failed: recipient: Cast to ObjectId failed for value "user_001" (type string) at path "recipient", targetId: Cast to ObjectId failed for value "post_001" (type string) at path "targetId"
+
+    [0m [90m 74 |[39m     } [36mcatch[39m (err) {
+     [90m 75 |[39m       [90m// Notification creation is non-critical[39m
+    [31m[1m>[22m[39m[90m 76 |[39m       console[33m.[39merror([32m'[NotificationService] Failed to create notification:'[39m[33m,[39m err[33m.[39mmessage)[33m;[39m
+     [90m    |[39m               [31m[1m^[22m[39m
+     [90m 77 |[39m       [36mreturn[39m [36mnull[39m[33m;[39m
+     [90m 78 |[39m     }
+     [90m 79 |[39m   }[0m
+
+      at NotificationService.error [as create] (src/services/notification.service.js:76:15)
+      at executePipeline (src/services/pipeline-orchestrator.service.js:1396:7)
+      at Object.<anonymous> (test/services/pipeline-orchestrator.service.test.js:1331:7)
+
+PASS test/services/pipeline-orchestrator.service.test.js
+  Pipeline Orchestrator (Module 17)
+    Pipeline stage definitions
+      √ should define 12 pipeline stages (7 ms)
+      √ should have stages in correct order (1 ms)
+      √ should have critical stages defined
+    buildStageList
+      √ should include all stages for TEXT content (1 ms)
+      √ should skip entity extraction but keep claim/fact-check stages for IMAGE (1 ms)
+      √ should skip entity extraction but keep claim/fact-check stages for VIDEO
+      √ should skip entity extraction but keep claim/fact-check stages for AUDIO
+      √ should include all stages for LINK content (1 ms)
+    TEXT content type — full pipeline flow
+      √ should execute the complete pipeline for text content (210 ms)
+      √ should call text analysis for TEXT content (27 ms)
+      √ should call claim extraction for TEXT content (17 ms)
+      √ should call fact verification for TEXT content (16 ms)
+      √ should compute trust score for TEXT content (30 ms)
+      √ should make moderation decision for TEXT content (21 ms)
+    IMAGE content type — media claims are fact-checked
+      √ should run image analysis and fact-check the media/caption claims for IMAGE (27 ms)
+    VIDEO content type
+      √ should call video analysis for VIDEO content (40 ms)
+    AUDIO content type
+      √ should call audio analysis for AUDIO content (37 ms)
+    LINK content type
+      √ should call link analysis for LINK content (13 ms)
+    Error handling and graceful degradation
+      √ should handle post not found gracefully (1 ms)
+      √ should handle claim extraction failure gracefully (186 ms)
+      √ should handle trust score failure by failing the pipeline (71 ms)
+    Stage lifecycle
+      √ should track stage timing (startedAt, completedAt, durationMs) (2 ms)
+      √ should track retry count on failure (1 ms)
+      √ should mark stage as FAILED after max retries (1 ms)
+      √ should mark stage as SKIPPED with reason (1 ms)
+    Pipeline initialization
+      √ should create a pipeline with correct stages for TEXT (5 ms)
+      √ should create a pipeline with fewer stages for IMAGE (1 ms)
+    Moderation decision integration
+      √ should set post to PUBLISHED when decision is PUBLISH (16 ms)
+      √ should set post to REVIEW_REQUIRED when decision requires review (31 ms)
+    Pipeline statistics
+      √ should return aggregate stats (2 ms)
+    Post state transitions
+      √ should transition post to PENDING_VERIFICATION on pipeline init (1 ms)
+      √ should transition post to VERIFYING during pipeline execution (17 ms)
+    SKIPPABLE_FOR_TYPE mapping
+      √ should skip CONTENT_UPLOAD for all content types (1 ms)
+      √ should have all 5 content types defined (1 ms)
+
+  console.log
+    [AgeVerification] Provider initialized: mock
+
+      at log (src/services/age-verification/age-verification-provider.factory.js:140:11)
+
+  console.log
+    [AgeVerification] Provider initialized: mock
+
+      at log (src/services/age-verification/age-verification-provider.factory.js:140:11)
+
+  console.log
+    [AgeVerification] Provider initialized: mock
+
+      at log (src/services/age-verification/age-verification-provider.factory.js:140:11)
+
+  console.warn
+    [AgeVerification] TEST MODE mock provider enabled explicitly (AGE_VERIFICATION_TEST_MODE=true). This must never be used for real users.
+
+    [0m [90m 115 |[39m     })[33m;[39m
+     [90m 116 |[39m     [36mif[39m (isProduction()) {
+    [31m[1m>[22m[39m[90m 117 |[39m       console[33m.[39mwarn(
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 118 |[39m         [32m'[AgeVerification] TEST MODE mock provider enabled explicitly '[39m [33m+[39m
+     [90m 119 |[39m           [32m'(AGE_VERIFICATION_TEST_MODE=true). This must never be used for real users.'[39m
+     [90m 120 |[39m       )[33m;[39m[0m
+
+      at warn (src/services/age-verification/age-verification-provider.factory.js:117:15)
+      at Object.getProvider (test/services/age-verification-provider.factory.test.js:88:30)
+
+  console.log
+    [AgeVerification] Provider initialized: mock
+
+      at log (src/services/age-verification/age-verification-provider.factory.js:140:11)
+
+PASS test/services/account.service.test.js
+  Account Management Service
+    updatePhone
+      √ should store a valid phone number (2 ms)
+      √ should reject an invalid phone number (10 ms)
+      √ should throw for non-existent user (1 ms)
+    updateEmail
+      √ should change email for local user with correct password (2 ms)
+      √ should reject an invalid email format (1 ms)
+      √ should reject wrong current password (1 ms)
+      √ should reject duplicate email (1 ms)
+      √ should reject email changes for Firebase accounts (1 ms)
+    getAccountHistory
+      √ should return the user's account history records (1 ms)
+    deactivateAccount
+      √ should mark the account as deactivated (1 ms)
+      √ should throw for non-existent user (1 ms)
+    reactivateAccount
+      √ should reactivate a deactivated account (1 ms)
+      √ should reject reactivating an active account
+    deleteAccount
+      √ should delete the user and their related data (252 ms)
+      √ should throw for non-existent user
+    exportData
+      √ should include the user's profile, posts, and settings (3 ms)
+
+PASS test/services/age-verification-provider.factory.test.js
+  AgeVerificationProvider factory
+    development / test environments
+      √ defaults to the mock provider when none is configured (22 ms)
+      √ allows an explicit mock provider outside production (2 ms)
+      √ throws on an unknown provider name instead of falling back to mock (1 ms)
+      √ caches and reuses a single provider instance per process (3 ms)
+    production environment
+      √ refuses to run without a configured provider (1 ms)
+      √ refuses the mock provider without an explicit test-mode opt-in (1 ms)
+      √ allows the mock provider only with an explicit AGE_VERIFICATION_TEST_MODE=true (6 ms)
+      √ still rejects unknown providers in production (1 ms)
+    assertProviderConfigured()
+      √ passes for the development default
+      √ throws when production has no provider configured (6 ms)
+      √ throws when production uses mock without test mode (3 ms)
+      √ passes when production explicitly opts into test mode (1 ms)
+
+PASS test/services/post.service.test.js
+  Post Service
+    create
+      √ should create a post with text only (2 ms)
+      √ should create a post with media (1 ms)
+      √ should create a post with string media URLs
+      √ should default verification status to PENDING_VERIFICATION
+      √ should default moderation status to pending (1 ms)
+      √ should auto-detect content type from media
+      √ should handle empty text with no media
+    getAll
+      √ should return paginated posts (2 ms)
+      √ should attach trust score details when available (1 ms)
+      √ should handle empty feed (1 ms)
+    getById
+      √ should return a post by ID (6 ms)
+      √ should attach trust score detail if available (2 ms)
+      √ should throw for non-existent post (26 ms)
+    update
+      √ should update post text by owner (1 ms)
+      √ should reject update by non-owner (1 ms)
+      √ should throw for non-existent post (1 ms)
+      √ should only update allowed fields
+    delete
+      √ should delete post by owner (1 ms)
+      √ should allow MODERATOR to delete any post (1 ms)
+      √ should allow ADMIN to delete any post
+      √ should reject delete by non-owner non-privileged user
+      √ should throw for non-existent post (1 ms)
+
+PASS test/controllers/audio-analysis.controller.test.js
+  Audio Analysis Controller
+    Validation
+      √ should reject empty request body (3 ms)
+      √ should reject non-string mediaUrl
+      √ should reject non-HTTP mediaUrl
+      √ should reject missing postId (6 ms)
+      √ should reject empty postId
+    Valid audio analysis
+      √ should return successful analysis result (2 ms)
+      √ should call AI service with correct parameters (1 ms)
+      √ should compute finalScore from probabilities
+      √ should store results in MongoDB (8 ms)
+    Unsupported format error handling
+      √ should handle AI service 422 error for invalid audio format (2 ms)
+    Corrupted audio error handling
+      √ should handle AI service 422 error for corrupted audio (1 ms)
+      √ should handle AI service 500 error for processing failure
+    AI service unavailability
+      √ should return 503 when AI service is not running (1 ms)
+      √ should return 504 when AI service times out (2 ms)
+    Duplicate detection
+      √ should return cached result if analysis already exists (1 ms)
+    getAnalysisByPostId
+      √ should return 404 for non-existent postId (1 ms)
+      √ should return analysis results for valid postId (1 ms)
+      √ should reject invalid postId format (1 ms)
+
+PASS test/services/user-review-request.test.js
+  ModerationService.requestUserReview
+    √ should create a REVIEW_REQUESTED log with an analysis snapshot (4 ms)
+    √ should handle a post with no AI analysis yet (null snapshot) (1 ms)
+    √ should throw for a non-existent post (9 ms)
+    √ should throw when reason is missing (3 ms)
+    √ should throw when requester is missing (1 ms)
+
+  console.log
+      Trust Score cold start: 0.5150ms
+
+      at Object.log (test/system/performance.test.js:71:15)
+
+  console.log
+      Trust Score computation: 0.0073ms (best of 20)
+
+      at Object.log (test/system/performance.test.js:102:15)
+
+PASS test/services/fact-check-cache.test.js
+  factCheckClaim — cache read path
+    √ returns the cached FALSE verdict instead of NO_EVIDENCE (12 ms)
+    √ still reports NO_EVIDENCE for a cached empty result (1 ms)
+    √ applies the relevance filter to cached reviews (1 ms)
+  factCheckClaim — cache write path
+    √ caches every matched claim so a later read sees the full consensus (4 ms)
+    √ caches an empty result set when the API finds nothing (3 ms)
+
+  console.error
+    [Gemini] Analysis failed: GEMINI_API_KEY is not configured
+
+    [0m [90m 362 |[39m
+     [90m 363 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 364 |[39m     console[33m.[39merror([32m'[Gemini] Analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 365 |[39m
+     [90m 366 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 367 |[39m[0m
+
+      at error (src/services/gemini-analysis.service.js:364:13)
+      at Object.analyzeWithGemini (test/services/gemini-analysis.test.js:53:28)
+
+PASS test/services/trust-score.service.test.js
+  Trust Score Service
+    Weighted formula computation
+      √ should compute the correct score for all-1.0 inputs (100) (4 ms)
+      √ should compute the correct score for all-0.0 inputs (0) (1 ms)
+      √ should apply weights correctly: 0.35*A + 0.35*F + 0.20*S + 0.10*K (1 ms)
+      √ should weight authenticity and factualVerification equally (35% each) (1 ms)
+      √ should weight sourceCredibility at 20% (1 ms)
+      √ should weight modelConfidence at 10% (1 ms)
+      √ should verify the weights sum to 1.0
+      √ should round the final score to the nearest integer
+      √ should handle asymmetric component scores (1 ms)
+    Rule 1: Confirmed false fact-check forces RED
+      √ should force RED when isConfirmedFalse is true, regardless of score (1 ms)
+      √ should force RED even with high scores (1 ms)
+      √ should not apply when isConfirmedFalse is false (1 ms)
+      √ should include Rule 1 in reasoning
+      √ should override default isConfirmedFalse (false) when explicitly true (1 ms)
+    Rule 2: High manipulation probability forces RED
+      √ should force RED when manipulationProbability >= 0.7 (1 ms)
+      √ should force RED when manipulationProbability is 1.0
+      √ should not force RED when manipulationProbability < 0.7 (1 ms)
+      √ should not apply when manipulationProbability is 0
+      √ should include Rule 2 in reasoning when triggered (1 ms)
+      √ should have lower priority than Rule 1 (confirmed false)
+    Rule 3: Opinion/satire/edited content forces PURPLE
+      √ should force PURPLE for "opinion" content type (1 ms)
+      √ should force PURPLE for "satire" content type (1 ms)
+      √ should force PURPLE for "edited" content type
+      √ should force PURPLE for "editorial" content type
+      √ should force PURPLE for "parody" content type (1 ms)
+      √ should be case-insensitive for content type (1 ms)
+      √ should not apply for "text" content type
+      √ should not apply for empty content type (1 ms)
+      √ should not apply when contentType is not provided
+      √ should include Rule 3 in reasoning when triggered (1 ms)
+      √ should have lower priority than Rules 1 and 2 (1 ms)
+    Rule 4: Disclosed AI-generated + factually supported + score >= 70 → BLUE
+      √ should assign BLUE when isDisclosedAI is true and score >= 70
+      √ should not assign BLUE when isDisclosedAI is false (1 ms)
+      √ should not assign BLUE when score < 70
+      √ should assign BLUE at exactly score 70 (1 ms)
+      √ should have lower priority than Rules 1, 2, and 3
+      √ should include Rule 4 in reasoning when triggered (1 ms)
+    Rule 5: High-trust content (score >= 80) → GREEN
+      √ should assign GREEN when score >= 80 and no override applies (1 ms)
+      √ should assign GREEN for score > 80
+      √ should not assign GREEN when score < 80
+      √ should not assign GREEN when Rule 4 (BLUE) applies instead (1 ms)
+      √ should include Rule 5 in reasoning when triggered
+    Rule 6: Uncertain/partially verified → ORANGE
+      √ should assign ORANGE when score is between 40 and 79 (1 ms)
+      √ should assign ORANGE at exactly score 40
+      √ should not assign ORANGE when score >= 80 (1 ms)
+      √ should not assign ORANGE when score < 40
+      √ should include Rule 6 in reasoning when triggered (1 ms)
+      √ should mention conflicting evidence in reasoning when present
+      √ should mention negative evidence in reasoning when present (3 ms)
+    Rule 7: Low trust (score < 40) → RED
+      √ should assign RED when score < 40 (1 ms)
+      √ should assign RED for score 0
+      √ should not assign RED when score >= 40 (1 ms)
+      √ should include Rule 7 in reasoning when triggered
+    Boundary conditions
+      √ should assign ORANGE at score 39 (just below 40 threshold) (1 ms)
+      √ should assign ORANGE at score 79 (just below 80 threshold) (1 ms)
+      √ should assign GREEN at score 80 (exact threshold) (1 ms)
+      √ should assign BLUE at score 70 with disclosed AI
+      √ should assign ORANGE at score 69 with disclosed AI (below 70) (1 ms)
+      √ should handle score 100 with all overrides off
+    Input validation and clamping
+      √ should throw when input is null (21 ms)
+      √ should throw when input is undefined (2 ms)
+      √ should throw when authenticityScore is missing (1 ms)
+      √ should throw when factualVerificationScore is missing (1 ms)
+      √ should throw when sourceCredibilityScore is missing (1 ms)
+      √ should throw when modelConfidenceScore is missing (1 ms)
+      √ should throw when a score is not a number (1 ms)
+      √ should clamp scores above 1.0 to 1.0
+      √ should clamp scores below 0.0 to 0.0 (1 ms)
+      √ should handle NaN inputs by clamping to 0
+      √ should handle Infinity inputs by clamping to 1
+      √ should clamp -Infinity to 0
+    Reasoning output transparency
+      √ should always produce a reasoning array (1 ms)
+      √ should produce a single reasoning entry for GREEN (no override)
+      √ should produce reasoning for ORANGE with conflicting evidence (1 ms)
+      √ should join reasoning into a newline-separated string for explanation (9 ms)
+    Model and rule versioning
+      √ should include modelVersion in the result
+      √ should include ruleVersion in the result (2 ms)
+      √ should have consistent version strings across all calls
+      √ MODEL_VERSION should be a valid semver-like string (1 ms)
+      √ RULE_VERSION should be a valid semver-like string
+    computeRawScore
+      √ should compute the same score as computeTrustScore.trustScore
+    Component scores in output
+      √ should return all four component scores
+      √ should preserve clamped values in component scores
+    Rule priority and interaction
+      √ should prioritize Rule 1 over all other rules
+      √ should prioritize Rule 2 over Rules 3-7
+      √ should prioritize Rule 3 over Rules 4-7
+      √ should prioritize Rule 4 over Rules 5-7 (1 ms)
+      √ should prioritize Rule 5 over Rules 6-7
+      √ should prioritize Rule 6 over Rule 7 (1 ms)
+    computeAndStoreTrustScore
+      √ should throw when postId is missing (1 ms)
+      √ should call TrustScore.findOneAndUpdate with correct data (1 ms)
+      √ should upsert (create if not exists)
+      √ should include evidenceRefs in the stored document
+      √ should store the explanation as joined reasoning (1 ms)
+      √ should store multi-line explanation when evidence adds extra reasoning (1 ms)
+      √ should store isOverrideApplied correctly
+    getTrustScoreByPost
+      √ should call TrustScore.findOne with the correct postId (1 ms)
+    Edge cases
+      √ should handle all optional fields not provided (1 ms)
+      √ should handle very small positive scores
+      √ should handle mixed extreme values (1 ms)
+      √ should handle empty string contentType as no-op for Rule 3
+      √ should handle undefined evidence gracefully (1 ms)
+      √ should handle empty evidence array
+      √ should produce identical results for the same inputs
+    Constants
+      √ should have WEIGHTS that sum to 1.0 (1 ms)
+      √ should have all Label values defined
+      √ should have exactly 5 labels (1 ms)
+      √ should have THRESHOLDS with logical ordering
+      √ should have OPINION_CONTENT_TYPES as an array (1 ms)
+      √ should include "satire" and "opinion" in OPINION_CONTENT_TYPES
+    Return shape
+      √ should return all required fields (2 ms)
+      √ should have componentScores as an object with 4 fields (1 ms)
+      √ should have trustScore as a number between 0 and 100 (1 ms)
+      √ should have label as one of the 5 valid labels
+
+  console.log
+      1000 trust scores: 15.88ms (0.0159ms avg)
+
+      at Object.log (test/system/performance.test.js:120:15)
+
+PASS test/services/audit.service.test.js
+  Audit Service (Module 21)
+    Core audit log creation
+      √ should create an audit log with all required fields (4 ms)
+      √ should reject invalid eventType (51 ms)
+      √ should reject invalid category (1 ms)
+      √ should reject invalid outcome (1 ms)
+      √ should reject missing description (1 ms)
+      √ should truncate long descriptions
+    Auth event logging
+      √ should log successful login (1 ms)
+      √ should log failed login with reason (1 ms)
+      √ should log registration
+      √ should log logout (4 ms)
+    Moderation event logging
+      √ should log post approval (2 ms)
+      √ should log label override with ADMIN actor type (1 ms)
+      √ should log post rejection (1 ms)
+    Report event logging
+      √ should log report creation (1 ms)
+      √ should log report resolution
+      √ should log report dismissal (1 ms)
+    Account event logging
+      √ should log profile update (1 ms)
+      √ should log username change
+      √ should log avatar change (1 ms)
+    Admin event logging
+      √ should log role change (10 ms)
+      √ should log user disable (2 ms)
+      √ should log user enable
+    AI processing event logging
+      √ should log pipeline failure (2 ms)
+      √ should log AI analysis failure (1 ms)
+      √ should log pipeline completion
+    Verification event logging
+      √ should log age verification initiation (2 ms)
+      √ should log age verification success (1 ms)
+      √ should log age verification failure (1 ms)
+    Privacy protection
+      √ should sanitize metadata to remove sensitive fields
+      √ should anonymize IPv4 addresses
+      √ should anonymize IPv6 addresses (1 ms)
+      √ should truncate long user agent strings
+      √ should not store raw media URLs (1 ms)
+    Immutability guards
+      √ should create audit logs successfully (1 ms)
+      √ should reject save on existing documents (3 ms)
+      √ should include checksum for integrity verification (1 ms)
+    Querying and filtering
+      √ should query logs with pagination (1 ms)
+      √ should filter by category (1 ms)
+      √ should filter by event type (1 ms)
+      √ should get logs for a specific user (1 ms)
+      √ should get logs for a specific post (1 ms)
+    Security summary
+      √ should return security summary stats (1 ms)
+      √ should aggregate counts correctly (1 ms)
+    Event types API
+      √ should return all event categories (1 ms)
+      √ should return all event types (1 ms)
+      √ should return all outcomes (1 ms)
+    Authorization checks
+      √ should block USER role from audit endpoints (1 ms)
+      √ should allow ADMIN role for audit endpoints
+      √ should block MODERATOR role from audit endpoints (1 ms)
+      √ should block unauthenticated requests (1 ms)
+    Controller validation
+      √ should handle getLogs with default params (1 ms)
+      √ should handle getLogs with query params
+      √ should handle getLogsForUser (1 ms)
+      √ should handle getLogsForPost (1 ms)
+      √ should handle getSecuritySummary (1 ms)
+      √ should handle getEventTypes (1 ms)
+    Edge cases
+      √ should handle null metadata gracefully (1 ms)
+      √ should handle null request gracefully
+      √ should handle error objects in events (3 ms)
+      √ should truncate long error messages
+      √ should handle correlation IDs
+      √ should generate consistent checksums for same data (1 ms)
+
+  console.log
+      Trust Score with rules: 0.1427ms
+
+      at Object.log (test/system/performance.test.js:137:15)
+
+  console.error
+    [Gemini] Analysis failed: Failed to parse Gemini response as JSON
+
+    [0m [90m 362 |[39m
+     [90m 363 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 364 |[39m     console[33m.[39merror([32m'[Gemini] Analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 365 |[39m
+     [90m 366 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 367 |[39m[0m
+
+      at error (src/services/gemini-analysis.service.js:364:13)
+      at Object.<anonymous> (test/services/gemini-analysis.test.js:113:22)
+
+  console.log
+      Moderation decision: 0.3056ms
+
+      at Object.log (test/system/performance.test.js:157:15)
+
+PASS test/services/post-search.service.test.js
+  Post Search Service
+    Text Search
+      √ should search posts by text content (4 ms)
+      √ should search posts case-insensitively (2 ms)
+      √ should return empty for no matches (1 ms)
+    Hashtag Search
+      √ should search posts by hashtags (1 ms)
+    Tag Search
+      √ should search posts by tags (1 ms)
+    Empty Queries
+      √ should return empty for null query (1 ms)
+      √ should return empty for empty string query (1 ms)
+      √ should return empty for whitespace-only query (1 ms)
+    Filtering
+      √ should not return private posts (1 ms)
+      √ should not return archived posts (2 ms)
+    Pagination
+      √ should support pagination (2 ms)
+      √ should return correct pagination info (1 ms)
+    Regex Safety
+      √ should handle special regex characters in query (1 ms)
+      √ should handle single character query (1 ms)
+    Default Options
+      √ should use default page and limit (1 ms)
+      √ should respect custom page and limit (1 ms)
+
+  console.error
+    [Gemini] Analysis failed: Network error
+
+    [0m [90m 362 |[39m
+     [90m 363 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 364 |[39m     console[33m.[39merror([32m'[Gemini] Analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 365 |[39m
+     [90m 366 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 367 |[39m[0m
+
+      at error (src/services/gemini-analysis.service.js:364:13)
+      at Object.<anonymous> (test/services/gemini-analysis.test.js:123:22)
+
+  console.log
+      1000 moderation decisions: 3.51ms
+
+      at Object.log (test/system/performance.test.js:175:15)
+
+  console.log
+      Evidence normalization: 3.82ms
+
+      at Object.log (test/system/performance.test.js:204:15)
+
+  console.log
+      AI detector normalization: 0.3406ms
+
+      at Object.log (test/system/performance.test.js:216:15)
+
+PASS test/services/report.service.test.js
+  Report Service
+    create
+      √ should create a post report with valid data (2 ms)
+      √ should create a user report (1 ms)
+      √ should create a comment report (1 ms)
+      √ should trim description to max 1000 chars (1 ms)
+      √ should default description to empty string
+    validation
+      √ should reject invalid reason (23 ms)
+      √ should reject invalid targetType (1 ms)
+      √ should reject when target does not exist (1 ms)
+      √ should accept all valid reasons (3 ms)
+    duplicate prevention
+      √ should prevent duplicate reports from same user on same target (1 ms)
+      √ should allow different users to report the same target (1 ms)
+      √ should allow same user to report different targets (1 ms)
+    self-report prevention
+      √ should prevent users from reporting their own posts (1 ms)
+      √ should prevent users from reporting their own user profile
+    getAll
+      √ should return paginated reports (2 ms)
+      √ should filter by status (1 ms)
+      √ should reject invalid status filter (1 ms)
+      √ should reject invalid reason filter (2 ms)
+    getByReporter
+      √ should return reports by a specific reporter (1 ms)
+    getByTarget
+      √ should return reports for a specific target (1 ms)
+    updateStatus
+      √ should update report status
+      √ should set resolvedAt when resolving
+      √ should reject invalid status (1 ms)
+      √ should throw for non-existent report (1 ms)
+      √ should clear resolution info when moving back to OPEN
+    getStats
+      √ should return report statistics
+    getById
+      √ should return a report by ID
+      √ should return null for non-existent report (2 ms)
+
+  console.error
+    [Gemini] Analysis failed: undefined
+
+    [0m [90m 362 |[39m
+     [90m 363 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 364 |[39m     console[33m.[39merror([32m'[Gemini] Analysis failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 365 |[39m
+     [90m 366 |[39m     [36mconst[39m errorMessage [33m=[39m error[33m.[39mresponse[33m?[39m[33m.[39mdata[33m?[39m[33m.[39merror[33m?[39m[33m.[39mmessage [33m||[39m error[33m.[39mmessage[33m;[39m
+     [90m 367 |[39m[0m
+
+      at error (src/services/gemini-analysis.service.js:364:13)
+      at Object.<anonymous> (test/services/gemini-analysis.test.js:134:22)
+
+  console.log
+      Fact-check normalization: 0.0906ms
+
+      at Object.log (test/system/performance.test.js:232:15)
+
+  console.error
+    [Gemini] Explanation generation failed: API error
+
+    [0m [90m 556 |[39m     [36mreturn[39m explanation [33m||[39m [32m'Unable to generate explanation.'[39m[33m;[39m
+     [90m 557 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 558 |[39m     console[33m.[39merror([32m'[Gemini] Explanation generation failed:'[39m[33m,[39m error[33m.[39mmessage)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 559 |[39m     [36mreturn[39m [32m'Explanation generation failed. Please see the analysis details for more information.'[39m[33m;[39m
+     [90m 560 |[39m   }
+     [90m 561 |[39m }[0m
+
+      at error (src/services/gemini-analysis.service.js:558:13)
+      at Object.<anonymous> (test/services/gemini-analysis.test.js:260:27)
+
+PASS test/services/gemini-analysis.test.js
+  Gemini Analysis Service
+    analyzeWithGemini
+      √ should return error when GEMINI_API_KEY is not configured (42 ms)
+      √ should successfully analyze content with Gemini (1 ms)
+      √ should handle non-JSON response gracefully (8 ms)
+      √ should handle Gemini API failure (8 ms)
+      √ should handle rate limiting (11 ms)
+      √ should prevent duplicate analysis for the same post (1 ms)
+    extractClaimsWithGemini
+      √ should extract claims from text (1 ms)
+      √ should handle API failures gracefully
+    generateExplanation
+      √ should generate explanation from evidence (1 ms)
+      √ should handle explanation generation failure gracefully (8 ms)
+    Provider Lock Mechanism
+      √ should acquire and release locks (1 ms)
+      √ should handle stale locks (1 ms)
+    Analysis Status Enum
+      √ should have all required statuses
+
+  console.log
+      Evidence aggregation (10 items): 0.0552ms
+
+      at Object.log (test/system/performance.test.js:249:15)
+
+  console.log
+      Content classification: 0.1536ms
+
+      at Object.log (test/system/performance.test.js:262:15)
+
+  console.log
+      Pipeline mapping: 0.0585ms
+
+      at Object.log (test/system/performance.test.js:271:15)
+
+  console.log
+      Full pipeline: 0.30ms
+
+      at Object.log (test/system/performance.test.js:316:15)
+
+  console.log
+      100 full pipelines: 1.50ms (0.02ms avg)
+
+      at Object.log (test/system/performance.test.js:345:15)
+
+  console.log
+      Failure rate (random valid): 0.00%
+
+      at Object.log (test/system/performance.test.js:370:15)
+
+  console.log
+      Failure rate (boundary values): 0.00%
+
+      at Object.log (test/system/performance.test.js:393:15)
+
+PASS test/services/user.service.test.js
+  User Service
+    getById
+      √ should return user by ID (12 ms)
+      √ should throw for non-existent user (24 ms)
+    getByUsername
+      √ should return user by username (2 ms)
+      √ should throw for non-existent username (1 ms)
+    updateProfile
+      √ should update allowed fields (1 ms)
+      √ should reject duplicate username (1 ms)
+      √ should filter out disallowed fields (2 ms)
+      √ should throw for non-existent user (1 ms)
+    updateAvatar
+      √ should update avatar URL (1 ms)
+      √ should throw for non-existent user (1 ms)
+    search
+      √ should return empty array for empty query (1 ms)
+      √ should return empty array for whitespace-only query (1 ms)
+      √ should escape regex special characters in search (1 ms)
+      √ should respect limit parameter
+
+  console.log
+      Failure rate (rule triggers): 0.00%
+
+      at Object.log (test/system/performance.test.js:425:15)
+
+PASS test/services/authorization.middleware.test.js
+  Authorization Middleware
+    requireRole
+      √ should allow user with matching role (1 ms)
+      √ should allow user with one of multiple roles
+      √ should reject user with non-matching role (1 ms)
+      √ should reject unauthenticated request (no user) (1 ms)
+      √ should work with single role argument
+      √ should include role names in error message (1 ms)
+    authorizeOwner
+      √ should allow when user owns the resource (1 ms)
+      √ should reject when user does not own the resource
+      √ should reject when userId is missing (1 ms)
+      √ should reject when ownerId is missing
+      √ should compare string representations of IDs (1 ms)
+      √ should use req.resourceOwner as fallback when getOwnerId is not a function
+
+PASS test/services/claim-classifier.service.test.js
+  Claim Classifier Service
+    normalizeClaimType
+      √ maps Python NLP claim types to normalized types (5 ms)
+      √ returns UNKNOWN for missing or unrecognized types (1 ms)
+      √ recognizes already-normalized values case-insensitively (1 ms)
+    classifyClaimText
+      √ detects questions, opinions, moral claims, predictions and adverts (1 ms)
+      √ leaves ordinary assertions unclassified (defaults to fact-checkable) (1 ms)
+    normalizeClaimText
+      √ strips URLs, timestamps, hashtags and ASR artifacts (2 ms)
+      √ collapses duplicated phrases and strips trailing punctuation (1 ms)
+      √ removes filler words from transcripts
+      √ always preserves the original claim (1 ms)
+      √ handles empty or non-string input safely
+    shouldFactCheckClaim
+      √ allows factual claims (1 ms)
+      √ rejects opinion, satire and prediction claims (1 ms)
+      √ rejects claims that are too short to verify
+      √ honors an explicit canVerify=false signal from the model
+      √ requires an explicit factual claim when the post is opinion/satire (1 ms)
+    selectFactCheckableClaims
+      √ partitions claims and preserves originals on both sides (1 ms)
+      √ handles empty input (1 ms)
+
+PASS test/services/moderation-decision.service.test.js
+  Moderation Decision Service (Module 16)
+    Auto-publish (score >= 60)
+      √ should PUBLISH when trust score >= 60 and label is not Red (2 ms)
+      √ should PUBLISH at exact threshold (60) (1 ms)
+      √ should PUBLISH for score 100
+    Auto-reject (score < 20)
+      √ should REJECT when trust score < 20 (1 ms)
+      √ should REJECT at score 0
+      √ should REJECT at score 19 (1 ms)
+    Review required (score 20-59)
+      √ should REVIEW when score is between 20 and 39
+      √ should REVIEW at score 20 (exact lower bound)
+      √ should REVIEW at score 39 (1 ms)
+      √ should PUBLISH with warning for score 40-59
+    Confirmed false override
+      √ should REJECT when isOverrideApplied and label is Red and reasoning mentions confirmed false (1 ms)
+      √ should not reject on Red override without confirmed false reasoning
+    High manipulation probability
+      √ should REJECT when authenticity score implies manipulation >= 0.7
+      √ should not reject when manipulation < 0.7 (1 ms)
+    Pipeline failure handling
+      √ should REVIEW when critical stages failed
+      √ should REVIEW when any stage requires review (1 ms)
+    No trust score
+      √ should REVIEW when no trust score is computed
+      √ should REVIEW when trust score is missing (1 ms)
+    Apply decision to post
+      √ should set PUBLISHED status on publish decision
+      √ should set REJECTED status on reject decision
+      √ should set REVIEW_REQUIRED status on review decision
+      √ should set FLAGGED status on escalate decision (1 ms)
+      √ should throw when post not found (24 ms)
+    Auto-moderation disabled
+      √ should ESCALATE when auto-moderation is disabled (1 ms)
+    Red label override conflict
+      √ should REVIEW when score >= 60 but label is Red from override (not confirmed false)
+      √ should REJECT when high manipulation overrides high score
+    Constants
+      √ should have correct thresholds (3 ms)
+      √ should have all decision types
+      √ should have valid version string (1 ms)
+      √ should have rules defined (1 ms)
+    Decision return shape
+      √ should return all required fields (1 ms)
+      √ should have timestamp as Date
+
+PASS test/services/message.service.test.js
+  Messaging System
+    Conversation Creation
+      √ should create a new conversation between two users (11 ms)
+      √ should prevent duplicate conversations (2 ms)
+      √ should return null for non-existent conversation
+    Message Sending
+      √ should create a message with correct fields (2 ms)
+      √ should trim message text (1 ms)
+      √ should set default status to sent (1 ms)
+      √ should store idempotency key
+    Idempotency
+      √ should detect duplicate message by idempotency key (1 ms)
+      √ should return null for non-existent idempotency key
+    Message Retrieval
+      √ should fetch messages between two users (1 ms)
+      √ should return empty for no messages
+    Mark as Read
+      √ should mark messages as read (1 ms)
+      √ should update conversation unread count (1 ms)
+    Conversation Updates
+      √ should update last message and timestamp (1 ms)
+      √ should increment unread count for recipient (1 ms)
+    Authorization
+      √ should only allow sender to delete their own message (2 ms)
+      √ should mark deleted messages for soft delete (1 ms)
+    Message Status
+      √ should support sent status
+      √ should support delivered status (1 ms)
+      √ should support read status (1 ms)
+    Edge Cases
+      √ should handle empty message list (4 ms)
+      √ should handle conversation with no participants (1 ms)
+      √ should handle multiple unread count updates (1 ms)
+      √ should handle marking all messages as read when none are unread
+
+PASS test/services/account-status.middleware.test.js
+  Auth middleware — account status enforcement
+    √ should allow an active account through (4 ms)
+    √ should reject a deleted account with 401 (1 ms)
+    √ should reject a suspended account with 403 (1 ms)
+    √ should reject a restricted account with 403 (1 ms)
+    √ should block a deactivated account from normal API paths (9 ms)
+    √ should allow a deactivated account to reactivate (2 ms)
+    √ should allow a deactivated account to view own profile (GET only) (1 ms)
+
+PASS test/services/evidence-normalization.service.test.js
+  Evidence Normalization Service
+    Agreeing evidence
+      √ should aggregate multiple positive evidence items into "supports" (4 ms)
+      √ should classify fact-check VERIFIED_TRUE as positive evidence (1 ms)
+      √ should classify low misinfo probability as positive evidence (1 ms)
+      √ should aggregate all-negative evidence into "refutes" (1 ms)
+      √ should compute weighted confidence based on source reliability (1 ms)
+    Conflicting evidence
+      √ should aggregate mixed positive and negative into "mixed" (2 ms)
+      √ should classify MIXED fact-check status as conflicting (1 ms)
+      √ should handle medium misinfo probability as mixed (1 ms)
+      √ should aggregate conflicting evidence into "mixed"
+    No evidence
+      √ should return "insufficient" when no sources are provided
+      √ should return "insufficient" for NO_EVIDENCE fact-check status (1 ms)
+      √ should return "insufficient" when only insufficient evidence exists (1 ms)
+      √ should NOT convert missing evidence into a positive result
+      √ should return "insufficient" for UNKNOWN fact-check status (1 ms)
+    High-confidence false result
+      √ should produce strong "refutes" verdict with high confidence (1 ms)
+      √ should classify VERIFIED_FALSE as negative evidence
+      √ should classify high misinfo probability as negative evidence
+      √ should compute high weighted confidence for strong negative consensus (1 ms)
+    Low-confidence result
+      √ should produce low weighted confidence for unreliable sources
+      √ should classify low confidence model output as insufficient (1 ms)
+      √ should classify very low confidence (< 0.2) as insufficient regardless of verdict
+      √ should produce low confidence for unverified claims (2 ms)
+      √ should handle a mix of low-confidence sources gracefully (1 ms)
+    Individual normalizers
+      √ should normalize AI detector with high misinfo as negative (1 ms)
+      √ should normalize fact-check with NO_EVIDENCE as insufficient
+      √ should normalize source analysis with high credibility as positive (1 ms)
+      √ should normalize claim extraction with failed status as insufficient
+      √ should normalize content metadata with deepfake detection
+    Extensibility (custom providers)
+      √ should allow registering a custom normalizer (1 ms)
+      √ should reject non-function normalizer (18 ms)
+      √ should use custom normalizer during normalization (5 ms)
+    Edge cases
+      √ should throw when claim is missing (1 ms)
+      √ should throw when postId is missing (1 ms)
+      √ should handle empty claim string (3 ms)
+      √ should clamp confidence values to 0-1 range
+      √ should handle null inputs gracefully
+    Store and retrieve
+      √ should store normalized evidence via normalizeAndStoreEvidence (2 ms)
+      √ should return evidence items sorted by most recent (2 ms)
+
+PASS test/services/historical-source.service.test.js
+  Historical source — URL and date validation
+    √ accepts real publisher URLs (3 ms)
+    √ rejects placeholder or malformed source URL: https://example.com/fake-story (1 ms)
+    √ rejects placeholder or malformed source URL: https://www.fake-news.com/article
+    √ rejects placeholder or malformed source URL: https://test-news.com/2026/01/01/story (1 ms)
+    √ rejects placeholder or malformed source URL: http://localhost:3000/post
+    √ rejects placeholder or malformed source URL: not-a-url (1 ms)
+    √ rejects placeholder or malformed source URL:  (1 ms)
+    √ rejects placeholder or malformed source URL: ftp://reuters.com/story
+    √ normalizes tracking parameters, fragments and trailing slashes (1 ms)
+    √ treats the same article with different tracking params as one source
+    √ recovers the publication date the publisher encoded in its URL (1 ms)
+  Historical source — wikitext parsing
+    √ extracts dated items with their section and citations (2 ms)
+    √ strips wiki markup and bullet markers from the prose (1 ms)
+    √ ignores bullets that carry no citation
+    √ records publisher/host agreement as provenance
+    √ builds a record from a real citation, keeping the real URL (2 ms)
+    √ falls back to the source page date when the URL carries no date (1 ms)
+    √ ignores a URL date far from the source page date (1 ms)
+    √ derives categories from the source section headings (1 ms)
+    √ classifies India-focused reporting as its own bucket
+  Historical source — record validation
+    √ accepts a well-formed in-window record (3 ms)
+    √ accepts records exactly on the window boundaries (1 ms)
+    √ rejects a record dated before the window (1 ms)
+    √ rejects a record dated after the window
+    √ rejects a record missing a valid sourceUrl (1 ms)
+    √ rejects a record missing a valid sourceName
+    √ rejects a record missing a valid title
+    √ rejects a record missing a valid content (1 ms)
+    √ rejects a record missing a valid category
+    √ rejects a record missing a valid language (1 ms)
+    √ rejects a record missing a valid publishedAt
+  Historical source — deduplication
+    √ removes records sharing a normalized URL (1 ms)
+    √ is deterministic — fingerprints are stable across calls
+    √ dedupe is idempotent — re-running changes nothing (1 ms)
+  Historical source — selection and window handling
+    √ honours category targets when the overall target can be met from them (4 ms)
+    √ redistributes unused category budget instead of leaving the dataset short (2 ms)
+    √ respects the per-day ceiling to keep the feed spread out (1 ms)
+    √ spreads selection across categories rather than draining the first (2 ms)
+    √ reports a shortfall instead of inventing records when material is thin (1 ms)
+    √ enumerates every day of the requested window inclusively (1 ms)
+    √ builds the source page title for a date (1 ms)
+    √ inverted or malformed windows produce no dates rather than throwing
+  Historical source — day cache
+    √ round-trips a day payload (4 ms)
+    √ a missing entry reports a miss so the day is fetched (1 ms)
+    √ a corrupt entry is treated as a miss rather than crashing the fetch (3 ms)
+    √ caching is disabled when no cache directory is configured (1 ms)
+
+  console.error
+    ❌ FATAL: JWT_SECRET is not set in the environment. Auth endpoints will fail.
+
+    [0m [90m 3 |[39m [90m// ── Fail fast at startup if JWT_SECRET is missing ──────[39m
+     [90m 4 |[39m [36mif[39m ([33m![39mprocess[33m.[39menv[33m.[39m[33mJWT_SECRET[39m) {
+    [31m[1m>[22m[39m[90m 5 |[39m   console[33m.[39merror([32m'❌ FATAL: JWT_SECRET is not set in the environment. Auth endpoints will fail.'[39m)[33m;[39m
+     [90m   |[39m           [31m[1m^[22m[39m
+     [90m 6 |[39m   console[33m.[39merror([32m'   Add JWT_SECRET=<random-32+ chars> to your backend/.env file.'[39m)[33m;[39m
+     [90m 7 |[39m }
+     [90m 8 |[39m[0m
+
+      at Object.error (src/utils/generateToken.js:5:11)
+      at Object.require (src/services/auth.service.js:5:27)
+      at Object.require (test/services/auth.service.test.js:97:21)
+
+  console.error
+       Add JWT_SECRET=<random-32+ chars> to your backend/.env file.
+
+    [0m [90m 4 |[39m [36mif[39m ([33m![39mprocess[33m.[39menv[33m.[39m[33mJWT_SECRET[39m) {
+     [90m 5 |[39m   console[33m.[39merror([32m'❌ FATAL: JWT_SECRET is not set in the environment. Auth endpoints will fail.'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 6 |[39m   console[33m.[39merror([32m'   Add JWT_SECRET=<random-32+ chars> to your backend/.env file.'[39m)[33m;[39m
+     [90m   |[39m           [31m[1m^[22m[39m
+     [90m 7 |[39m }
+     [90m 8 |[39m
+     [90m 9 |[39m [90m/**[39m[0m
+
+      at Object.error (src/utils/generateToken.js:6:11)
+      at Object.require (src/services/auth.service.js:5:27)
+      at Object.require (test/services/auth.service.test.js:97:21)
+
+PASS test/services/auth.service.test.js
+  Auth Service
+    register
+      √ should register a new user with valid data (1 ms)
+      √ should reject registration with expired Firebase token (1 ms)
+      √ should reject registration with invalid Firebase token
+      √ should reject duplicate Firebase UID
+      √ should reject duplicate username (1 ms)
+      √ should normalize username to lowercase
+      √ should trim whitespace from name
+      √ should store the Google photo as the avatar when provided (1 ms)
+      √ should ignore non-http avatar values
+    login
+      √ should login an existing user (1 ms)
+      √ should reject login with expired token
+      √ should reject login with invalid token
+      √ should reject login for user not in MongoDB (1 ms)
+      √ should reject login for disabled Firebase account
+      √ should reject login for disabled MongoDB account
+      √ should allow login even if Firebase getUser fails (1 ms)
+      √ should backfill the Google photo for accounts without an avatar
+      √ should not overwrite an avatar the user already set
+    lookupEmail
+      √ should return email directly if input looks like an email (1 ms)
+      √ should normalize email to lowercase
+      √ should look up email by username
+      √ should throw for non-existent username
+      √ should trim whitespace from identifier (1 ms)
+    getMe
+      √ should return the authenticated user profile
+      √ should throw for non-existent user
+      √ should exclude password from returned user (1 ms)
+
+  console.log
+      Memory delta after 10K computations (post-GC): -0.3372 MB
+
+      at Object.log (test/system/performance.test.js:466:15)
+
+PASS test/system/performance.test.js
+  System Performance
+    Trust Score computation latency
+      √ should compute trust score on first invocation in under 25ms (71 ms)
+      √ should compute trust score in under 1ms (5 ms)
+      √ should compute 1000 trust scores in under 100ms (26 ms)
+      √ should compute trust score with rules in under 1ms (3 ms)
+    Moderation decision latency
+      √ should evaluate decision in under 1ms (3 ms)
+      √ should evaluate 1000 decisions in under 50ms (6 ms)
+    Evidence normalization latency
+      √ should normalize evidence in under 10ms (6 ms)
+      √ should normalize AI detector results in under 1ms (4 ms)
+      √ should normalize fact-check results in under 1ms (15 ms)
+      √ should aggregate evidence in under 1ms (5 ms)
+    Content classification latency
+      √ should classify content type in under 1ms (3 ms)
+      √ should map pipeline in under 1ms (3 ms)
+    Full pipeline latency (trust score → decision)
+      √ should complete full pipeline in under 5ms (2 ms)
+      √ should process 100 full pipelines in under 500ms (4 ms)
+    Failure rate under edge cases
+      √ should have 0% failure rate for valid inputs (25 ms)
+      √ should have 0% failure rate for boundary values (3 ms)
+      √ should have 0% failure rate for all rule triggers (4 ms)
+    Memory efficiency
+      √ should not leak memory over repeated computations (83 ms)
+
+Test Suites: 38 passed, 38 total
+Tests:       944 passed, 944 total
+Snapshots:   0 total
+Time:        3.132 s, estimated 12 s
+Ran all test suites.

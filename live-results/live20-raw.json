@@ -1,0 +1,5389 @@
+{
+  "startedAt": "2026-10-16T09:17:36.117Z",
+  "posts": [
+    {
+      "id": "A1",
+      "category": "known-true",
+      "text": "Scientists confirm that drinking water is essential for human survival. H2O is necessary for all known forms of life.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ebb0bbe0276c19b12321",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 161
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 205
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 651
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 2035
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 201
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 288
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 222
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 269
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 179
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 337
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 270
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Scientists confirm that drinking water is essential for human survival.",
+                "claimType": "factual claim",
+                "subject": "Scientists",
+                "predicate": "confirm",
+                "object": null,
+                "misinformationProbability": 0,
+                "confidence": 0.35,
+                "textHash": "26cecfb7bc073d481396651403651350",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              },
+              {
+                "text": "H2O is necessary for all known forms of life.",
+                "claimType": "factual claim",
+                "subject": null,
+                "predicate": null,
+                "object": null,
+                "misinformationProbability": 0,
+                "confidence": 0.35,
+                "textHash": "5946ec2910fedaa6e449fc9ef20289be",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Scientists confirm that drinking water is essential for human survival.",
+                "claimId": "26cecfb7bc073d481396651403651350",
+                "postId": "6ad1ebb0bbe0276c19b12321",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 48
+              },
+              {
+                "claimText": "H2O is necessary for all known forms of life.",
+                "claimId": "5946ec2910fedaa6e449fc9ef20289be",
+                "postId": "6ad1ebb0bbe0276c19b12321",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 62
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ebb0bbe0276c19b12321",
+              "contentJob": null,
+              "claim": "Scientists confirm that drinking water is essential for human survival. H2O is necessary for all known forms of life.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Scientists confirm that drinking water is essential for human survival. H2O is necessary for all known forms of life.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:17:44.138Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Scientists confirm that drinking water is essential for human survival. H2O is necessary for all known forms of life.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:17:44.138Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Scientists confirm that drinking water is essential for human survival. H2O is necessary for all known forms of life.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:17:44.138Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Scientists confirm that drinking water is essential for human survival. H2O is necessary for all known forms of life.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:17:44.138Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 1,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 582
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 2,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "A2",
+      "category": "known-true",
+      "text": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ebbabbe0276c19b12471",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 168
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 201
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 475
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 517
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 196
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 258
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 237
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 256
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 198
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 309
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 273
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 69,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+                "claimType": "factual claim",
+                "subject": "The Earth",
+                "predicate": "revolves",
+                "object": null,
+                "misinformationProbability": 0,
+                "confidence": 0.55,
+                "textHash": "b64dc5db15a4dbb7273cb754d4b751f3",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+                "claimId": "b64dc5db15a4dbb7273cb754d4b751f3",
+                "postId": "6ad1ebbabbe0276c19b12471",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 85
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ebbabbe0276c19b12471",
+              "contentJob": null,
+              "claim": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:17:53.744Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:17:53.744Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:17:53.744Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:17:53.744Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 520
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "A3",
+      "category": "known-true",
+      "text": "Peer-reviewed studies show that vaccines are safe and effective.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ebc3bbe0276c19b125b6",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 159
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 172
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 530
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 4924
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 166
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1367
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 280
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 245
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 180
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 282
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 327
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 50,
+        "label": "Red",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "NONE",
+            "providerStatus": "CLAIM_EXTRACTION",
+            "claims": [],
+            "factCheckResults": null,
+            "evidenceItems": {
+              "post": "6ad1ebc3bbe0276c19b125b6",
+              "contentJob": null,
+              "claim": "Peer-reviewed studies show that vaccines are safe and effective.",
+              "evidenceItems": [
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Peer-reviewed studies show that vaccines are safe and effective.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:13.099Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Peer-reviewed studies show that vaccines are safe and effective.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:18:13.099Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Peer-reviewed studies show that vaccines are safe and effective.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:13.099Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 1
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 3,
+              "evidenceQuality": 0.6666666666666666,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 50,
+              "componentScores": {
+                "authenticity": 0.5,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.5
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 50, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 3878
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 50,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 50,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 50, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.5,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.5
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 50,
+        "persistedComponents": {
+          "authenticity": 0.5,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.5
+        },
+        "factCheckData": {},
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 50, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "A4",
+      "category": "known-true",
+      "text": "Historical records confirm that the Roman Empire fell in 476 CE.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ebd6bbe0276c19b12731",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 156
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 160
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 514
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1015
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 193
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 342
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 251
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 239
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 186
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 348
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 309
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 69,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Historical records confirm that the Roman Empire fell in 476 CE.",
+                "claimType": "factual claim",
+                "subject": "the Roman Empire",
+                "predicate": "fell",
+                "object": null,
+                "misinformationProbability": 0,
+                "confidence": 0.7,
+                "textHash": "d573b803519f41e2455dcc79cc46196b",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Historical records confirm that the Roman Empire fell in 476 CE.",
+                "claimId": "d573b803519f41e2455dcc79cc46196b",
+                "postId": "6ad1ebd6bbe0276c19b12731",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 76
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ebd6bbe0276c19b12731",
+              "contentJob": null,
+              "claim": "Historical records confirm that the Roman Empire fell in 476 CE.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Historical records confirm that the Roman Empire fell in 476 CE.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:18:22.332Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Historical records confirm that the Roman Empire fell in 476 CE.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:22.332Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Historical records confirm that the Roman Empire fell in 476 CE.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:18:22.332Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Historical records confirm that the Roman Empire fell in 476 CE.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:22.332Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 478
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "B1",
+      "category": "evidence-false",
+      "text": "Drinking bleach prevents COVID-19.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ebdfbbe0276c19b12876",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 225
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 189
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 568
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1088
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 173
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 229
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 248
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 227
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 222
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 277
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 312
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 67,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Drinking bleach prevents COVID-19.",
+                "claimType": "factual claim",
+                "subject": "Drinking bleach",
+                "predicate": "prevents",
+                "object": "COVID-19",
+                "misinformationProbability": 0,
+                "confidence": 0.55,
+                "textHash": "9be275279d8a6a16180c2d2535a08a6c",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Drinking bleach prevents COVID-19.",
+                "claimId": "9be275279d8a6a16180c2d2535a08a6c",
+                "postId": "6ad1ebdfbbe0276c19b12876",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 50
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ebdfbbe0276c19b12876",
+              "contentJob": null,
+              "claim": "Drinking bleach prevents COVID-19.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Drinking bleach prevents COVID-19.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:18:31.455Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Drinking bleach prevents COVID-19.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:31.455Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Drinking bleach prevents COVID-19.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:18:31.455Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Drinking bleach prevents COVID-19.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:31.455Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 437
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "B2",
+      "category": "evidence-false",
+      "text": "5G towers spread coronavirus disease.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ebe9bbe0276c19b129bb",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 150
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 187
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 496
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1038
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 171
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 317
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 259
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 219
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 214
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 290
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 327
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "5G towers spread coronavirus disease.",
+                "claimType": "factual claim",
+                "subject": "5 G towers",
+                "predicate": "spread",
+                "object": "coronavirus disease",
+                "misinformationProbability": 0,
+                "confidence": 0.6,
+                "textHash": "a3bccf34e351b5ec6b3c04b192c42d57",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "5G towers spread coronavirus disease.",
+                "claimId": "a3bccf34e351b5ec6b3c04b192c42d57",
+                "postId": "6ad1ebe9bbe0276c19b129bb",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 84
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ebe9bbe0276c19b129bb",
+              "contentJob": null,
+              "claim": "5G towers spread coronavirus disease.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "5G towers spread coronavirus disease.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:18:40.767Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "5G towers spread coronavirus disease.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:40.767Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "5G towers spread coronavirus disease.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:18:40.767Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "5G towers spread coronavirus disease.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:40.767Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 448
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "B3",
+      "category": "mixed-false-dominant",
+      "text": "Vitamin C cures cancer completely, while also boosting the immune system.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ebf2bbe0276c19b12b1c",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 200
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 187
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 592
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1200
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 214
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 229
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 230
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 232
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 178
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 281
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 289
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 69,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Vitamin C cures cancer completely, while also boosting the immune system.",
+                "claimType": "factual claim",
+                "subject": "Vitamin C",
+                "predicate": "cures",
+                "object": "cancer",
+                "misinformationProbability": 0,
+                "confidence": 0.45,
+                "textHash": "813033b964300d918e6f1e62c6772cca",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Vitamin C cures cancer completely, while also boosting the immune system.",
+                "claimId": "813033b964300d918e6f1e62c6772cca",
+                "postId": "6ad1ebf2bbe0276c19b12b1c",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 56
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ebf2bbe0276c19b12b1c",
+              "contentJob": null,
+              "claim": "Vitamin C cures cancer completely, while also boosting the immune system.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Vitamin C cures cancer completely, while also boosting the immune system.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:18:50.094Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Vitamin C cures cancer completely, while also boosting the immune system.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:50.094Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Vitamin C cures cancer completely, while also boosting the immune system.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:18:50.094Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Vitamin C cures cancer completely, while also boosting the immune system.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:50.094Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 459
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "B4",
+      "category": "manipulated-claim",
+      "text": "Edited video proves the politician said something they never said.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ebfbbbe0276c19b12c6c",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 173
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 147
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 679
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1277
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 169
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 206
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 257
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 231
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 212
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 296
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 650
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Edited video proves the politician said something they never said.",
+                "claimType": "factual claim",
+                "subject": "they",
+                "predicate": "said",
+                "object": "something they never said",
+                "misinformationProbability": 0,
+                "confidence": 0.35,
+                "textHash": "27c7c5856f57b2955e856671950dc4e4",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Edited video proves the politician said something they never said.",
+                "claimId": "27c7c5856f57b2955e856671950dc4e4",
+                "postId": "6ad1ebfbbbe0276c19b12c6c",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 55
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ebfbbbe0276c19b12c6c",
+              "contentJob": null,
+              "claim": "Edited video proves the politician said something they never said.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Edited video proves the politician said something they never said.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:18:59.228Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Edited video proves the politician said something they never said.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:59.228Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Edited video proves the politician said something they never said.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:18:59.228Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Edited video proves the politician said something they never said.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:18:59.228Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 420
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "C1",
+      "category": "mixed",
+      "text": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec04bbe0276c19b12db1",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 229
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 175
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 527
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 427
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 186
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "SKIPPED",
+            "error": null,
+            "durationMs": null
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 250
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 219
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 190
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 283
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 294
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+                "claimType": "prediction",
+                "subject": "they",
+                "predicate": "give",
+                "object": "night vision",
+                "misinformationProbability": 0,
+                "confidence": 0.35,
+                "textHash": "4b74063c5a78a66becc3e18ff8531fe6",
+                "factCheckStatus": "not_applicable",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+                "claimId": "4b74063c5a78a66becc3e18ff8531fe6",
+                "postId": "6ad1ec04bbe0276c19b12db1",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "api",
+                "matchCount": 0,
+                "processingTimeMs": 769
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec04bbe0276c19b12db1",
+              "contentJob": null,
+              "claim": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:19:08.975Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:08.975Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:19:08.975Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:08.975Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 1122
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "C2",
+      "category": "mixed",
+      "text": "Study shows correlation between ice cream sales and drowning.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec0ebbe0276c19b12ef3",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 156
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 614
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 503
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 983
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 164
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 238
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 242
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 229
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 171
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 349
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 408
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Study shows correlation between ice cream sales and drowning.",
+                "claimType": "factual claim",
+                "subject": "Study",
+                "predicate": "shows",
+                "object": "correlation between ice cream sales and drowning",
+                "misinformationProbability": 0,
+                "confidence": 0.55,
+                "textHash": "a42f0abe7b40047d5adadf5330cfaa37",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Study shows correlation between ice cream sales and drowning.",
+                "claimId": "a42f0abe7b40047d5adadf5330cfaa37",
+                "postId": "6ad1ec0ebbe0276c19b12ef3",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 52
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec0ebbe0276c19b12ef3",
+              "contentJob": null,
+              "claim": "Study shows correlation between ice cream sales and drowning.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Study shows correlation between ice cream sales and drowning.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:19:18.154Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Study shows correlation between ice cream sales and drowning.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:18.154Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Study shows correlation between ice cream sales and drowning.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:19:18.154Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Study shows correlation between ice cream sales and drowning.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:18.154Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 448
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "C3",
+      "category": "mixed",
+      "text": "New study suggests link between X biomarker and Y disease progression.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec17bbe0276c19b13038",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 160
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 206
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 620
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1237
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 212
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 235
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 276
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 265
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 201
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 289
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 278
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "New study suggests link between X biomarker and Y disease progression.",
+                "claimType": "factual claim",
+                "subject": "New study",
+                "predicate": "suggests",
+                "object": "link between X biomarker and Y disease progression",
+                "misinformationProbability": 0,
+                "confidence": 0.35,
+                "textHash": "e20ba6069ab731bbe4f80aea4b82b463",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "New study suggests link between X biomarker and Y disease progression.",
+                "claimId": "e20ba6069ab731bbe4f80aea4b82b463",
+                "postId": "6ad1ec17bbe0276c19b13038",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 55
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec17bbe0276c19b13038",
+              "contentJob": null,
+              "claim": "New study suggests link between X biomarker and Y disease progression.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "New study suggests link between X biomarker and Y disease progression.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:19:27.403Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "New study suggests link between X biomarker and Y disease progression.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:27.403Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "New study suggests link between X biomarker and Y disease progression.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:19:27.403Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "New study suggests link between X biomarker and Y disease progression.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:27.403Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 515
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "D1",
+      "category": "no-evidence",
+      "text": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec21bbe0276c19b1317d",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 194
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 176
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 534
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 940
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 218
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 272
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 246
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 241
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 183
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 314
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 272
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 69,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+                "claimType": "factual claim",
+                "subject": null,
+                "predicate": null,
+                "object": null,
+                "misinformationProbability": 0,
+                "confidence": 0.6,
+                "textHash": "8c3809d8b7d487e6e96b30f53b1818ac",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+                "claimId": "8c3809d8b7d487e6e96b30f53b1818ac",
+                "postId": "6ad1ec21bbe0276c19b1317d",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 49
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec21bbe0276c19b1317d",
+              "contentJob": null,
+              "claim": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:19:36.655Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:36.655Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:19:36.655Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:36.655Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 466
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "D2",
+      "category": "no-evidence",
+      "text": "The traditional method of pottery firing in region X uses temperature Y.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec2abbe0276c19b132c2",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 149
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 169
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 520
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1051
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 283
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 218
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 252
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 230
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 187
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 296
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 333
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "The traditional method of pottery firing in region X uses temperature Y.",
+                "claimType": "factual claim",
+                "subject": "The traditional method of pottery firing in region X",
+                "predicate": "uses",
+                "object": "temperature Y.",
+                "misinformationProbability": 0,
+                "confidence": 0.45,
+                "textHash": "eae38a3a6d2a50248d181b748c35534d",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "The traditional method of pottery firing in region X uses temperature Y.",
+                "claimId": "eae38a3a6d2a50248d181b748c35534d",
+                "postId": "6ad1ec2abbe0276c19b132c2",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 88
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec2abbe0276c19b132c2",
+              "contentJob": null,
+              "claim": "The traditional method of pottery firing in region X uses temperature Y.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "The traditional method of pottery firing in region X uses temperature Y.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:19:45.838Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "The traditional method of pottery firing in region X uses temperature Y.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:45.838Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "The traditional method of pottery firing in region X uses temperature Y.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:19:45.838Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "The traditional method of pottery firing in region X uses temperature Y.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:19:45.838Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 497
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "D3",
+      "category": "no-evidence",
+      "text": "The optimal steeping time for matcha tea is 30 seconds.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec33bbe0276c19b13407",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 179
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 166
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 594
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "SKIPPED",
+            "error": null,
+            "durationMs": null
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "SKIPPED",
+            "error": null,
+            "durationMs": null
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "SKIPPED",
+            "error": null,
+            "durationMs": null
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 241
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 259
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 156
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 272
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 256
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "The optimal steeping time for matcha tea is 30 seconds.",
+                "textHash": "88ef474e8b8b27841ae6806aa57ba988",
+                "subject": "the optimal steeping time for matcha tea",
+                "predicate": "is",
+                "object": "30 seconds",
+                "canVerify": true,
+                "source": "GEMINI"
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "The optimal steeping time for matcha tea is 30 seconds.",
+                "claimId": "88ef474e8b8b27841ae6806aa57ba988",
+                "postId": "6ad1ec33bbe0276c19b13407",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "api",
+                "matchCount": 0,
+                "processingTimeMs": 793
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec33bbe0276c19b13407",
+              "contentJob": null,
+              "claim": "The optimal steeping time for matcha tea is 30 seconds.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "The optimal steeping time for matcha tea is 30 seconds.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:20:03.060Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "The optimal steeping time for matcha tea is 30 seconds.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:03.060Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "The optimal steeping time for matcha tea is 30 seconds.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:20:03.060Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "The optimal steeping time for matcha tea is 30 seconds.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:03.060Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 5217
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "D4",
+      "category": "false-no-review",
+      "text": "Drinking warm lemon water cures diabetes within seven days.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec44bbe0276c19b13551",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 177
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 185
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 537
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "SKIPPED",
+            "error": null,
+            "durationMs": null
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "SKIPPED",
+            "error": null,
+            "durationMs": null
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "SKIPPED",
+            "error": null,
+            "durationMs": null
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 203
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 226
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 162
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 270
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 308
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 67,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Drinking warm lemon water cures diabetes within seven days.",
+                "textHash": "d1307efe0b6ad7d412c179d5f59d4a3e",
+                "subject": "Drinking warm lemon water",
+                "predicate": "cures diabetes within",
+                "object": "seven days",
+                "canVerify": true,
+                "source": "GEMINI"
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Drinking warm lemon water cures diabetes within seven days.",
+                "claimId": "d1307efe0b6ad7d412c179d5f59d4a3e",
+                "postId": "6ad1ec44bbe0276c19b13551",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "api",
+                "matchCount": 0,
+                "processingTimeMs": 844
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec44bbe0276c19b13551",
+              "contentJob": null,
+              "claim": "Drinking warm lemon water cures diabetes within seven days.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Drinking warm lemon water cures diabetes within seven days.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:20:19.492Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Drinking warm lemon water cures diabetes within seven days.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:19.492Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Drinking warm lemon water cures diabetes within seven days.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:20:19.492Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Drinking warm lemon water cures diabetes within seven days.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:19.492Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 4457
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "E1",
+      "category": "ai-generated-supported",
+      "text": "AI-generated illustration (DALL-E 2). Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+      "contentType": "image",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec55bbe0276c19b1369b",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 178
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 173
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 930
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1111
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "SKIPPED",
+            "error": null,
+            "durationMs": null
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 241
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 220
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 219
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 275
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 359
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 48,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+                "claimType": "statistical claim",
+                "subject": "daily walking of 30 minutes",
+                "predicate": "reduces",
+                "object": "risk of heart disease",
+                "misinformationProbability": 0,
+                "confidence": 1,
+                "textHash": "7c1c920824b4062d74a6d2fb31297452",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+                "claimId": "7c1c920824b4062d74a6d2fb31297452",
+                "postId": "6ad1ec55bbe0276c19b1369b",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 54
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec55bbe0276c19b1369b",
+              "contentJob": null,
+              "claim": "AI-generated illustration (DALL-E 2). Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "AI-generated illustration (DALL-E 2). Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:20:28.872Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "AI-generated illustration (DALL-E 2). Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:28.872Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "AI-generated illustration (DALL-E 2). Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:20:28.872Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "AI-generated illustration (DALL-E 2). Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:28.872Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "IMAGE",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 532
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "E2",
+      "category": "ai-generated-unsupported",
+      "text": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec5ebbe0276c19b137c0",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 153
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 161
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 546
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 960
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 237
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 220
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 259
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 265
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 174
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 353
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 337
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 69,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+                "claimType": "statistical claim",
+                "subject": "Algorithm",
+                "predicate": "predict",
+                "object": "stock market prices",
+                "misinformationProbability": 0,
+                "confidence": 0.85,
+                "textHash": "df4ca19ea59035acd5bfd2a3e410179c",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+                "claimId": "df4ca19ea59035acd5bfd2a3e410179c",
+                "postId": "6ad1ec5ebbe0276c19b137c0",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "api",
+                "matchCount": 0,
+                "processingTimeMs": 680
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec5ebbe0276c19b137c0",
+              "contentJob": null,
+              "claim": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:20:38.634Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:38.634Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:20:38.634Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:38.634Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 1132
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "F1",
+      "category": "opinion",
+      "text": "In my opinion, pineapple belongs on pizza. It is a matter of personal taste.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec68bbe0276c19b13905",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 159
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 181
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 659
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1055
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 170
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 218
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 246
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 289
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 165
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 290
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 280
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "In my opinion, pineapple belongs on pizza.",
+                "claimType": "factual claim",
+                "subject": "pineapple",
+                "predicate": "belongs",
+                "object": null,
+                "misinformationProbability": 0,
+                "confidence": 0.35,
+                "textHash": "6062b593419fda88288e07021b16619f",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "In my opinion, pineapple belongs on pizza.",
+                "claimId": "6062b593419fda88288e07021b16619f",
+                "postId": "6ad1ec68bbe0276c19b13905",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 59
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec68bbe0276c19b13905",
+              "contentJob": null,
+              "claim": "In my opinion, pineapple belongs on pizza. It is a matter of personal taste.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "In my opinion, pineapple belongs on pizza. It is a matter of personal taste.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:20:47.885Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "In my opinion, pineapple belongs on pizza. It is a matter of personal taste.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:47.885Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "In my opinion, pineapple belongs on pizza. It is a matter of personal taste.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:20:47.885Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "In my opinion, pineapple belongs on pizza. It is a matter of personal taste.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:47.885Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 469
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "F2",
+      "category": "satire",
+      "text": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec71bbe0276c19b13a4a",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 232
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 388
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 579
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1032
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 180
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 258
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 268
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 235
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 200
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 284
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 391
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 69,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+                "claimType": "factual claim",
+                "subject": "Local Man Claims Wooden Spoon Cures All Ailments , Scientists",
+                "predicate": "Baffled",
+                "object": null,
+                "misinformationProbability": 0,
+                "confidence": 0.35,
+                "textHash": "4b874356988bbf9e1aca52d33c50e24e",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+                "claimId": "4b874356988bbf9e1aca52d33c50e24e",
+                "postId": "6ad1ec71bbe0276c19b13a4a",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "api",
+                "matchCount": 0,
+                "processingTimeMs": 752
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec71bbe0276c19b13a4a",
+              "contentJob": null,
+              "claim": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:20:57.867Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:57.867Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:20:57.867Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:20:57.867Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 1155
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    },
+    {
+      "id": "G2",
+      "category": "misleading-context",
+      "text": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+      "contentType": "text",
+      "create": {
+        "status": 201,
+        "postId": "6ad1ec7bbbe0276c19b13b9a",
+        "message": "Post created successfully"
+      },
+      "pipeline": {
+        "status": "COMPLETED",
+        "httpStatus": 200,
+        "stages": [
+          {
+            "stage": "CONTENT_TYPE_ROUTING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 220
+          },
+          {
+            "stage": "PREPROCESSING",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 184
+          },
+          {
+            "stage": "AI_ANALYSIS",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 575
+          },
+          {
+            "stage": "CLAIM_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 1271
+          },
+          {
+            "stage": "ENTITY_EXTRACTION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 156
+          },
+          {
+            "stage": "FACT_VERIFICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 260
+          },
+          {
+            "stage": "EVIDENCE_NORMALIZATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 254
+          },
+          {
+            "stage": "TRUST_SCORE",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 279
+          },
+          {
+            "stage": "TRUST_LABEL",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 160
+          },
+          {
+            "stage": "MODERATION_DECISION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 310
+          },
+          {
+            "stage": "PUBLICATION",
+            "status": "COMPLETED",
+            "error": null,
+            "durationMs": 313
+          }
+        ]
+      },
+      "pipelineTrust": {
+        "score": 68,
+        "label": "Orange",
+        "analyzedAt": null
+      },
+      "verify": {
+        "httpStatus": 200,
+        "response": {
+          "success": true,
+          "verification": {
+            "providerUsed": "GOOGLE_FACT_CHECK",
+            "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+            "claims": [
+              {
+                "text": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+                "claimType": "factual claim",
+                "subject": "Study",
+                "predicate": "shows",
+                "object": "X",
+                "misinformationProbability": 0,
+                "confidence": 0.55,
+                "textHash": "9fd883937b5d55ae3456bf86c2161fbf",
+                "factCheckStatus": "unverified",
+                "factCheckResults": []
+              }
+            ],
+            "factCheckResults": [
+              {
+                "claimText": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+                "claimId": "9fd883937b5d55ae3456bf86c2161fbf",
+                "postId": "6ad1ec7bbbe0276c19b13b9a",
+                "status": "NO_EVIDENCE",
+                "reviews": [],
+                "classifiedRatings": [],
+                "apiError": null,
+                "errorCode": null,
+                "source": "cache",
+                "matchCount": 0,
+                "processingTimeMs": 47
+              }
+            ],
+            "evidenceItems": {
+              "post": "6ad1ec7bbbe0276c19b13b9a",
+              "contentJob": null,
+              "claim": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+              "evidenceItems": [
+                {
+                  "source": "Google Fact Check API",
+                  "sourceType": "fact_check_api",
+                  "claim": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+                  "verdict": "insufficient",
+                  "confidence": 0.3,
+                  "relevance": 0.9,
+                  "sourceReliability": 0.85,
+                  "timestamp": "2026-10-16T09:21:07.252Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "status": "NO_EVIDENCE",
+                    "reviewCount": 0,
+                    "publisherNames": []
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": null,
+                  "sourceType": "source_analysis",
+                  "claim": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+                  "verdict": "mixed",
+                  "confidence": 0.4,
+                  "relevance": 0.6,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:21:07.252Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "credibilityScore": 0.5,
+                    "domainReputation": null
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Model Confidence",
+                  "sourceType": "model_confidence",
+                  "claim": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+                  "verdict": "mixed",
+                  "confidence": 0.3,
+                  "relevance": 0.5,
+                  "sourceReliability": 0.75,
+                  "timestamp": "2026-10-16T09:21:07.252Z",
+                  "url": null,
+                  "evidenceCategory": "conflicting",
+                  "rawData": {
+                    "overallConfidence": 0.5,
+                    "modelVersion": "nexora-trust-v1.0.0",
+                    "processingTimeMs": 0
+                  },
+                  "normalizationVersion": "v1.0"
+                },
+                {
+                  "source": "Content Metadata",
+                  "sourceType": "content_metadata",
+                  "claim": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+                  "verdict": "unknown",
+                  "confidence": 0.4,
+                  "relevance": 0.4,
+                  "sourceReliability": 0.5,
+                  "timestamp": "2026-10-16T09:21:07.252Z",
+                  "url": null,
+                  "evidenceCategory": "insufficient",
+                  "rawData": {
+                    "contentType": "TEXT",
+                    "hasMedia": false,
+                    "mediaAnalysisResults": null
+                  },
+                  "normalizationVersion": "v1.0"
+                }
+              ],
+              "aggregateVerdict": "mixed",
+              "evidenceSummary": {
+                "positive": 0,
+                "negative": 0,
+                "conflicting": 2,
+                "insufficient": 2
+              },
+              "weightedConfidence": 0.2125,
+              "sourceCount": 4,
+              "evidenceQuality": 0.5,
+              "processingTimeMs": 0,
+              "normalizationVersion": "v1.0"
+            },
+            "trustScoreResult": {
+              "trustScore": 41,
+              "componentScores": {
+                "authenticity": 0.3,
+                "factualVerification": 0.5,
+                "sourceCredibility": 0.5,
+                "modelConfidence": 0.3
+              },
+              "reasoning": [
+                "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE."
+              ],
+              "modelVersion": "nexora-trust-v1.0.0",
+              "ruleVersion": "nexora-rules-v1.0.0",
+              "label": "Orange",
+              "isOverrideApplied": false
+            },
+            "verificationStatus": "COMPLETED",
+            "error": null,
+            "processingTimeMs": 446
+          }
+        }
+      },
+      "final": {
+        "postHttp": 200,
+        "trustHttp": 200,
+        "postTrustBadge": "Orange",
+        "postTrustScore": 41,
+        "postVerificationStatus": "VERIFIED",
+        "postTrustScoreDetail": {
+          "score": 41,
+          "label": "Orange",
+          "explanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+          "isOverrideApplied": false,
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "persistedLabel": "Orange",
+        "persistedScore": 41,
+        "persistedComponents": {
+          "authenticity": 0.3,
+          "factualVerification": 0.5,
+          "sourceCredibility": 0.5,
+          "modelConfidence": 0.3
+        },
+        "factCheckData": {
+          "aggregateStatus": "NO_EVIDENCE",
+          "claimCount": 1,
+          "reviewCount": 0,
+          "publisherNames": []
+        },
+        "persistedExplanation": "Rule 6 (PARTIALLY_VERIFIED): Available evidence is incomplete or conflicting (score 41, between 40 and 80), so this content should be treated with caution — labeled ORANGE.",
+        "isOverrideApplied": false,
+        "ruleVersion": "nexora-rules-v1.0.0"
+      },
+      "error": "object is not iterable (cannot read property Symbol(Symbol.iterator))"
+    }
+  ],
+  "finishedAt": "2026-10-16T09:21:08.825Z"
+}

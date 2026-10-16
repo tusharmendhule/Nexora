@@ -1,0 +1,899 @@
+[
+  {
+    "id": "A1",
+    "category": "known-true",
+    "postId": "6ad1ebb0bbe0276c19b12321",
+    "text": "Scientists confirm that drinking water is essential for human survival. H2O is necessary for all known forms of life.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "Scientists confirm that drinking water is essential for human survival.",
+      "H2O is necessary for all known forms of life."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Scientists confirm that drinking water is essential for human survival.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        },
+        {
+          "claimText": "H2O is necessary for all known forms of life.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "A2",
+    "category": "known-true",
+    "postId": "6ad1ebbabbe0276c19b12471",
+    "text": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 69,
+      "label": "Orange"
+    },
+    "claims": [
+      "The Earth revolves around the Sun, confirmed by astronomical observation."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "The Earth revolves around the Sun, confirmed by astronomical observation.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "A3",
+    "category": "known-true",
+    "postId": "6ad1ebc3bbe0276c19b125b6",
+    "text": "Peer-reviewed studies show that vaccines are safe and effective.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 50,
+      "label": "Red"
+    },
+    "claims": [],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "NONE",
+      "providerStatus": "CLAIM_EXTRACTION",
+      "verificationStatus": "COMPLETED",
+      "factCheck": []
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 50,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.5,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.5
+    },
+    "persistedScore": 50,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "A4",
+    "category": "known-true",
+    "postId": "6ad1ebd6bbe0276c19b12731",
+    "text": "Historical records confirm that the Roman Empire fell in 476 CE.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 69,
+      "label": "Orange"
+    },
+    "claims": [
+      "Historical records confirm that the Roman Empire fell in 476 CE."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Historical records confirm that the Roman Empire fell in 476 CE.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "B1",
+    "category": "evidence-false",
+    "postId": "6ad1ebdfbbe0276c19b12876",
+    "text": "Drinking bleach prevents COVID-19.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 67,
+      "label": "Orange"
+    },
+    "claims": [
+      "Drinking bleach prevents COVID-19."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Drinking bleach prevents COVID-19.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "B2",
+    "category": "evidence-false",
+    "postId": "6ad1ebe9bbe0276c19b129bb",
+    "text": "5G towers spread coronavirus disease.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "5G towers spread coronavirus disease."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "5G towers spread coronavirus disease.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "B3",
+    "category": "mixed-false-dominant",
+    "postId": "6ad1ebf2bbe0276c19b12b1c",
+    "text": "Vitamin C cures cancer completely, while also boosting the immune system.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 69,
+      "label": "Orange"
+    },
+    "claims": [
+      "Vitamin C cures cancer completely, while also boosting the immune system."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Vitamin C cures cancer completely, while also boosting the immune system.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "B4",
+    "category": "manipulated-claim",
+    "postId": "6ad1ebfbbbe0276c19b12c6c",
+    "text": "Edited video proves the politician said something they never said.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "Edited video proves the politician said something they never said."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Edited video proves the politician said something they never said.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "C1",
+    "category": "mixed",
+    "postId": "6ad1ec04bbe0276c19b12db1",
+    "text": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "Eating carrots improves vision, but they will not give you night vision in total darkness."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Eating carrots improves vision, but they will not give you night vision in total darkness.",
+          "status": "NO_EVIDENCE",
+          "source": "api",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "C2",
+    "category": "mixed",
+    "postId": "6ad1ec0ebbe0276c19b12ef3",
+    "text": "Study shows correlation between ice cream sales and drowning.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "Study shows correlation between ice cream sales and drowning."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Study shows correlation between ice cream sales and drowning.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "C3",
+    "category": "mixed",
+    "postId": "6ad1ec17bbe0276c19b13038",
+    "text": "New study suggests link between X biomarker and Y disease progression.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "New study suggests link between X biomarker and Y disease progression."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "New study suggests link between X biomarker and Y disease progression.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "D1",
+    "category": "no-evidence",
+    "postId": "6ad1ec21bbe0276c19b1317d",
+    "text": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 69,
+      "label": "Orange"
+    },
+    "claims": [
+      "The optimal temperature for brewing green tea is 80 degrees Celsius."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "The optimal temperature for brewing green tea is 80 degrees Celsius.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "D2",
+    "category": "no-evidence",
+    "postId": "6ad1ec2abbe0276c19b132c2",
+    "text": "The traditional method of pottery firing in region X uses temperature Y.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "The traditional method of pottery firing in region X uses temperature Y."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "The traditional method of pottery firing in region X uses temperature Y.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "D3",
+    "category": "no-evidence",
+    "postId": "6ad1ec33bbe0276c19b13407",
+    "text": "The optimal steeping time for matcha tea is 30 seconds.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "The optimal steeping time for matcha tea is 30 seconds."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "The optimal steeping time for matcha tea is 30 seconds.",
+          "status": "NO_EVIDENCE",
+          "source": "api",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "D4",
+    "category": "false-no-review",
+    "postId": "6ad1ec44bbe0276c19b13551",
+    "text": "Drinking warm lemon water cures diabetes within seven days.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 67,
+      "label": "Orange"
+    },
+    "claims": [
+      "Drinking warm lemon water cures diabetes within seven days."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Drinking warm lemon water cures diabetes within seven days.",
+          "status": "NO_EVIDENCE",
+          "source": "api",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "E1",
+    "category": "ai-generated-supported",
+    "postId": "6ad1ec55bbe0276c19b1369b",
+    "text": "AI-generated illustration (DALL-E 2). Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+    "contentType": "image",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 48,
+      "label": "Orange"
+    },
+    "claims": [
+      "Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Research indicates that daily walking of 30 minutes reduces risk of heart disease by 20%.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  },
+  {
+    "id": "E2",
+    "category": "ai-generated-unsupported",
+    "postId": "6ad1ec5ebbe0276c19b137c0",
+    "text": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 69,
+      "label": "Orange"
+    },
+    "claims": [
+      "AI-generated: Algorithm can predict stock market prices with 99% accuracy."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "AI-generated: Algorithm can predict stock market prices with 99% accuracy.",
+          "status": "NO_EVIDENCE",
+          "source": "api",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": "demo-ai-e2"
+  },
+  {
+    "id": "F1",
+    "category": "opinion",
+    "postId": "6ad1ec68bbe0276c19b13905",
+    "text": "In my opinion, pineapple belongs on pizza. It is a matter of personal taste.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "In my opinion, pineapple belongs on pizza."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "In my opinion, pineapple belongs on pizza.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Purple",
+    "persistedIsOverride": true,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": "demo-purple-f1"
+  },
+  {
+    "id": "F2",
+    "category": "satire",
+    "postId": "6ad1ec71bbe0276c19b13a4a",
+    "text": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 69,
+      "label": "Orange"
+    },
+    "claims": [
+      "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "The Onion: 'Local Man Claims Wooden Spoon Cures All Ailments, Scientists Baffled'.",
+          "status": "NO_EVIDENCE",
+          "source": "api",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Purple",
+    "persistedIsOverride": true,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": "demo-purple-f2"
+  },
+  {
+    "id": "G2",
+    "category": "misleading-context",
+    "postId": "6ad1ec7bbbe0276c19b13b9a",
+    "text": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+    "contentType": "text",
+    "pipelineStatus": "COMPLETED",
+    "pipelineTrust": {
+      "score": 68,
+      "label": "Orange"
+    },
+    "claims": [
+      "Study shows X, but leaves out important context Y, leading to misleading impression."
+    ],
+    "apiOutcome": {
+      "http": 200,
+      "providerUsed": "GOOGLE_FACT_CHECK",
+      "providerStatus": "GOOGLE_FACT_CHECK_COMPLETED",
+      "verificationStatus": "COMPLETED",
+      "factCheck": [
+        {
+          "claimText": "Study shows X, but leaves out important context Y, leading to misleading impression.",
+          "status": "NO_EVIDENCE",
+          "source": "cache",
+          "apiError": null
+        }
+      ],
+      "persistedAggregateStatus": "NO_EVIDENCE"
+    },
+    "evidenceUrls": [],
+    "verifyTrustScore": 41,
+    "verifyLabel": "Orange",
+    "verifyComponents": {
+      "authenticity": 0.3,
+      "factualVerification": 0.5,
+      "sourceCredibility": 0.5,
+      "modelConfidence": 0.3
+    },
+    "persistedScore": 41,
+    "persistedLabel": "Orange",
+    "persistedIsOverride": false,
+    "feedBadge": "Orange",
+    "postVerificationStatus": "VERIFIED",
+    "demoRescore": null
+  }
+]

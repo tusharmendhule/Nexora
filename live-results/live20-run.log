@@ -1,0 +1,161 @@
+2026-10-16T09:17:36.116Z Auth OK (login 200)
+2026-10-16T09:17:36.117Z 
+=== A1 (known-true) ===
+2026-10-16T09:17:36.371Z   create: 201 postId=6ad1ebb0bbe0276c19b12321
+2026-10-16T09:17:43.377Z   pipeline: COMPLETED
+2026-10-16T09:17:43.576Z   pipeline trust: 68 → Orange
+2026-10-16T09:17:44.368Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:17:46.152Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:17:46.153Z   ERROR A1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:17:46.155Z 
+=== A2 (known-true) ===
+2026-10-16T09:17:46.381Z   create: 201 postId=6ad1ebbabbe0276c19b12471
+2026-10-16T09:17:53.097Z   pipeline: COMPLETED
+2026-10-16T09:17:53.273Z   pipeline trust: 69 → Orange
+2026-10-16T09:17:54.038Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:17:55.439Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:17:55.439Z   ERROR A2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:17:55.440Z 
+=== A3 (known-true) ===
+2026-10-16T09:17:55.741Z   create: 201 postId=6ad1ebc3bbe0276c19b125b6
+2026-10-16T09:18:09.010Z   pipeline: COMPLETED
+2026-10-16T09:18:09.218Z   pipeline trust: 50 → Red
+2026-10-16T09:18:13.335Z   verify: 200 provider=NONE/CLAIM_EXTRACTION trust=50→Orange
+2026-10-16T09:18:14.662Z   final persisted: Orange (50) | feed badge: Orange
+2026-10-16T09:18:14.662Z   ERROR A3: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:18:14.663Z 
+=== A4 (known-true) ===
+2026-10-16T09:18:14.908Z   create: 201 postId=6ad1ebd6bbe0276c19b12731
+2026-10-16T09:18:21.664Z   pipeline: COMPLETED
+2026-10-16T09:18:21.853Z   pipeline trust: 69 → Orange
+2026-10-16T09:18:22.551Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:18:23.897Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:18:23.897Z   ERROR A4: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:18:23.899Z 
+=== B1 (evidence-false) ===
+2026-10-16T09:18:24.160Z   create: 201 postId=6ad1ebdfbbe0276c19b12876
+2026-10-16T09:18:30.847Z   pipeline: COMPLETED
+2026-10-16T09:18:31.017Z   pipeline trust: 67 → Orange
+2026-10-16T09:18:31.687Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:18:33.102Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:18:33.102Z   ERROR B1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:18:33.103Z 
+=== B2 (evidence-false) ===
+2026-10-16T09:18:33.336Z   create: 201 postId=6ad1ebe9bbe0276c19b129bb
+2026-10-16T09:18:40.045Z   pipeline: COMPLETED
+2026-10-16T09:18:40.277Z   pipeline trust: 68 → Orange
+2026-10-16T09:18:41.007Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:18:42.404Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:18:42.404Z   ERROR B2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:18:42.406Z 
+=== B3 (mixed-false-dominant) ===
+2026-10-16T09:18:42.678Z   create: 201 postId=6ad1ebf2bbe0276c19b12b1c
+2026-10-16T09:18:49.476Z   pipeline: COMPLETED
+2026-10-16T09:18:49.653Z   pipeline trust: 69 → Orange
+2026-10-16T09:18:50.328Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:18:51.698Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:18:51.699Z   ERROR B3: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:18:51.700Z 
+=== B4 (manipulated-claim) ===
+2026-10-16T09:18:51.936Z   create: 201 postId=6ad1ebfbbbe0276c19b12c6c
+2026-10-16T09:18:58.626Z   pipeline: COMPLETED
+2026-10-16T09:18:58.814Z   pipeline trust: 68 → Orange
+2026-10-16T09:18:59.447Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:19:00.854Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:19:00.854Z   ERROR B4: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:19:00.856Z 
+=== C1 (mixed) ===
+2026-10-16T09:19:01.069Z   create: 201 postId=6ad1ec04bbe0276c19b12db1
+2026-10-16T09:19:07.666Z   pipeline: COMPLETED
+2026-10-16T09:19:07.863Z   pipeline trust: 68 → Orange
+2026-10-16T09:19:09.208Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:19:10.577Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:19:10.577Z   ERROR C1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:19:10.579Z 
+=== C2 (mixed) ===
+2026-10-16T09:19:10.849Z   create: 201 postId=6ad1ec0ebbe0276c19b12ef3
+2026-10-16T09:19:17.533Z   pipeline: COMPLETED
+2026-10-16T09:19:17.710Z   pipeline trust: 68 → Orange
+2026-10-16T09:19:18.410Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:19:19.755Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:19:19.755Z   ERROR C2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:19:19.757Z 
+=== C3 (mixed) ===
+2026-10-16T09:19:20.036Z   create: 201 postId=6ad1ec17bbe0276c19b13038
+2026-10-16T09:19:26.711Z   pipeline: COMPLETED
+2026-10-16T09:19:26.891Z   pipeline trust: 68 → Orange
+2026-10-16T09:19:27.657Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:19:29.045Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:19:29.045Z   ERROR C3: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:19:29.047Z 
+=== D1 (no-evidence) ===
+2026-10-16T09:19:29.349Z   create: 201 postId=6ad1ec21bbe0276c19b1317d
+2026-10-16T09:19:36.068Z   pipeline: COMPLETED
+2026-10-16T09:19:36.230Z   pipeline trust: 69 → Orange
+2026-10-16T09:19:36.938Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:19:38.262Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:19:38.262Z   ERROR D1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:19:38.264Z 
+=== D2 (no-evidence) ===
+2026-10-16T09:19:38.496Z   create: 201 postId=6ad1ec2abbe0276c19b132c2
+2026-10-16T09:19:45.174Z   pipeline: COMPLETED
+2026-10-16T09:19:45.349Z   pipeline trust: 68 → Orange
+2026-10-16T09:19:46.066Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:19:47.474Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:19:47.474Z   ERROR D2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:19:47.476Z 
+=== D3 (no-evidence) ===
+2026-10-16T09:19:47.680Z   create: 201 postId=6ad1ec33bbe0276c19b13407
+2026-10-16T09:19:57.584Z   pipeline: COMPLETED
+2026-10-16T09:19:57.806Z   pipeline trust: 68 → Orange
+2026-10-16T09:20:03.330Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:20:04.764Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:20:04.764Z   ERROR D3: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:20:04.767Z 
+=== D4 (false-no-review) ===
+2026-10-16T09:20:04.999Z   create: 201 postId=6ad1ec44bbe0276c19b13551
+2026-10-16T09:20:14.942Z   pipeline: COMPLETED
+2026-10-16T09:20:15.098Z   pipeline trust: 67 → Orange
+2026-10-16T09:20:19.775Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:20:21.175Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:20:21.175Z   ERROR D4: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:20:21.177Z 
+=== E1 (ai-generated-supported) ===
+2026-10-16T09:20:21.483Z   create: 201 postId=6ad1ec55bbe0276c19b1369b
+2026-10-16T09:20:28.123Z   pipeline: COMPLETED
+2026-10-16T09:20:28.309Z   pipeline trust: 48 → Orange
+2026-10-16T09:20:29.124Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:20:30.428Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:20:30.429Z   ERROR E1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:20:30.430Z 
+=== E2 (ai-generated-unsupported) ===
+2026-10-16T09:20:30.652Z   create: 201 postId=6ad1ec5ebbe0276c19b137c0
+2026-10-16T09:20:37.285Z   pipeline: COMPLETED
+2026-10-16T09:20:37.490Z   pipeline trust: 69 → Orange
+2026-10-16T09:20:38.856Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:20:40.185Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:20:40.185Z   ERROR E2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:20:40.187Z 
+=== F1 (opinion) ===
+2026-10-16T09:20:40.480Z   create: 201 postId=6ad1ec68bbe0276c19b13905
+2026-10-16T09:20:47.175Z   pipeline: COMPLETED
+2026-10-16T09:20:47.409Z   pipeline trust: 68 → Orange
+2026-10-16T09:20:48.106Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:20:49.492Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:20:49.492Z   ERROR F1: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:20:49.494Z 
+=== F2 (satire) ===
+2026-10-16T09:20:49.741Z   create: 201 postId=6ad1ec71bbe0276c19b13a4a
+2026-10-16T09:20:56.501Z   pipeline: COMPLETED
+2026-10-16T09:20:56.729Z   pipeline trust: 69 → Orange
+2026-10-16T09:20:58.097Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:20:59.563Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:20:59.563Z   ERROR F2: object is not iterable (cannot read property Symbol(Symbol.iterator))
+2026-10-16T09:20:59.566Z 
+=== G2 (misleading-context) ===
+2026-10-16T09:20:59.845Z   create: 201 postId=6ad1ec7bbbe0276c19b13b9a
+2026-10-16T09:21:06.614Z   pipeline: COMPLETED
+2026-10-16T09:21:06.815Z   pipeline trust: 68 → Orange
+2026-10-16T09:21:07.480Z   verify: 200 provider=GOOGLE_FACT_CHECK/GOOGLE_FACT_CHECK_COMPLETED trust=41→Orange
+2026-10-16T09:21:08.823Z   final persisted: Orange (41) | feed badge: Orange
+2026-10-16T09:21:08.823Z   ERROR G2: object is not iterable (cannot read property Symbol(Symbol.iterator))

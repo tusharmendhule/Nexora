@@ -1,0 +1,28 @@
+{
+  "postId": "6ad1fd4cbbe0276c19b146d9",
+  "pipelineComponentsUsed": {
+    "a": 1,
+    "f": 0.5,
+    "s": 0.65,
+    "k": 0.55
+  },
+  "sNote": "0.65 = the verify writer’s real formula value for this exact claim (0.5 + 0.05 × 3 passing Google reviews, cached live in the prior run)",
+  "rescoreBody": {
+    "authenticityScore": 1,
+    "factualVerificationScore": 0.5,
+    "sourceCredibilityScore": 0.65,
+    "modelConfidenceScore": 0.55,
+    "isDisclosedAI": true
+  },
+  "rescore": {
+    "score": 71,
+    "label": "Blue",
+    "explanation": "Rule 4 (AI_GENERATED_BUT_VERIFIED): AI-generated content indicators were detected, but the underlying claim was supported by available fact-check evidence (score 71), so it is labeled BLUE."
+  },
+  "final": {
+    "persistedScore": 71,
+    "persistedLabel": "Blue",
+    "detail": "Blue",
+    "badge": "Orange"
+  }
+}

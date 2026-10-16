@@ -452,8 +452,21 @@ async function orchestrateVerification({ postId, text, contentType = 'TEXT', ski
       evidence: [],
     };
 
+    // Google Fact Check SUCCEEDED but found no matching review evidence for
+    // ANY claim. The real service returns one result PER CLAIM — with status
+    // NO_EVIDENCE when the API answered but had no matching ClaimReview — and
+    // returns an empty array only for an empty batch. Both mean "evidence
+    // sought but not found" — never "false".
+    const fcResults = factCheckResult?.results || [];
+    const noMatchingReviews =
+      factCheckSuccess &&
+      (fcResults.length === 0 ||
+        fcResults.every(
+          (r) => r.status === 'NO_EVIDENCE' && (!r.reviews || r.reviews.length === 0)
+        ));
+
     // ── Set scores based on Google Fact Check results (primary) ────
-    if (factCheckSuccess && factCheckResult?.results?.length > 0) {
+    if (factCheckSuccess && fcResults.length > 0 && !noMatchingReviews) {
       // Use real fact-check data for factual verification
       const factualScore = factCheckService.computeFactualVerificationScore(factCheckResult.results);
       trustScoreInput.factualVerificationScore = factualScore;
@@ -468,6 +481,20 @@ async function orchestrateVerification({ postId, text, contentType = 'TEXT', ski
         // Higher credibility if reputable publishers reviewed it
         trustScoreInput.sourceCredibilityScore = Math.min(0.9, 0.5 + reviews.length * 0.05);
       }
+    } else if (noMatchingReviews) {
+      // Google Fact Check succeeded but found no matching reviews.
+      // Explicitly set factualVerificationScore to 0.5 (neutral) and mark
+      // isConfirmedFalse as false — this is NOT a confirmed-false scenario.
+      // The trust score engine will now use the full formula with all component
+      // scores, rather than defaulting to ORANGE for every post.
+      // authenticity and modelConfidence are set to 0.3 to reflect
+      // "no verification evidence found" rather than "neutral evidence available"
+      // sourceCredibility stays at 0.5 neutral — no publisher reviews to derive from
+      trustScoreInput.factualVerificationScore = 0.5;
+      trustScoreInput.isConfirmedFalse = false;
+      trustScoreInput.authenticityScore = 0.3;  // no evidence → lower authenticity
+      trustScoreInput.sourceCredibilityScore = 0.5;
+      trustScoreInput.modelConfidenceScore = 0.3;  // no evidence → lower confidence
     }
 
     // ── Set scores based on fallback analysis (only if Google Fact Check failed) ──

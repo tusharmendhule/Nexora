@@ -1,0 +1,15 @@
+{
+  "postId": "6ad2026cbbe0276c19b152b5",
+  "bodyUsed": {
+    "authenticityScore": 1,
+    "factualVerificationScore": 1,
+    "sourceCredibilityScore": 0.6,
+    "modelConfidenceScore": 0.75
+  },
+  "sources": "a=1-misinfo from app /analyze/text on caption (0.0); f=1.0 from Google fact-check Snopes True rel 1.0; s=0.6 app-computed Snopes credibility; k=image analysis confidence",
+  "result": {
+    "score": 90,
+    "label": "Green",
+    "explanation": "Rule 5 (VERIFIED_AND_AUTHENTIC): Evidence supports the claim and no significant manipulation or misinformation indicators were detected (score 90), so it is labeled GREEN."
+  }
+}

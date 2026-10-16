@@ -1,0 +1,25 @@
+CREATE Green: 201 6ad1fbffbbe0276c19b14003
+CREATE Blue: 201 6ad1fbffbbe0276c19b14005
+CREATE Purple: 201 6ad1fbffbbe0276c19b14014
+CREATE Orange: 201 6ad1fc00bbe0276c19b1402e
+CREATE Red: 201 6ad1fc00bbe0276c19b1405e
+PIPELINE Green: COMPLETED → 87 Green
+PIPELINE Blue: COMPLETED → 68 Orange
+PIPELINE Purple: COMPLETED → 69 Orange
+PIPELINE Orange: COMPLETED → 68 Orange
+PIPELINE Red: COMPLETED → 51 Red
+VERIFY Blue: 53 Orange fc=["UNKNOWN","UNKNOWN"]
+VERIFY Purple: 41 Orange fc=["NO_EVIDENCE"]
+VERIFY Orange: 41 Orange fc=["NO_EVIDENCE"]
+VERIFY Red: 35 Red fc=["VERIFIED_FALSE"]
+RESCORE Purple: {"authenticityScore":1,"factualVerificationScore":0.5,"sourceCredibilityScore":0.5,"modelConfidenceScore":0.65,"contentType":"satire"} → 69 Purple | Rule 3 (OPINION_SATIRE_EDITED): Analysis indicates this is opinion, satire, or substantially edited content rather than ordinary factual reporting (content type "satire"), so it is labeled PURPLE.
+FINAL Green: persisted 87 Green | detail Green
+FINAL Blue: persisted 53 Orange | detail Orange
+FINAL Purple: persisted 69 Purple | detail Purple
+FINAL Orange: persisted 41 Orange | detail Orange
+FINAL Red: persisted 35 Red | detail Red
+FATAL ReferenceError: verify is not defined
+    at C:\PROJECTS\Nexora\live-results\live5-runner.js:149:225
+    at Array.map (<anonymous>)
+    at C:\PROJECTS\Nexora\live-results\live5-runner.js:149:21
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
