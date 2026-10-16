@@ -6,4 +6,5 @@ export PATH="/tmp/flutter/bin:$PATH"
 
 flutter --version
 flutter pub get
-flutter build web --no-wasm-dry-run
+flutter build web --no-wasm-dry-run \
+  --dart-define=API_BASE_URL=https://nexora-backend-tznf.onrender.com
