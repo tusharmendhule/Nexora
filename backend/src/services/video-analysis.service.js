@@ -178,6 +178,9 @@ async function analyzeVideo(job) {
       contentJobId: job._id,
       modelVersion: modelVersion || 'nexora-video-v1.0.0',
       authenticityUnavailable: !ai,
+      // The verification pipeline's TRUST_SCORE stage is the single writer of
+      // the post's score; this analysis only supplies signals to it.
+      persistTrustScore: false,
     });
   } catch (tsErr) {
     console.error('[VideoAnalysis] Media verification/TrustScore failed:', tsErr.message);

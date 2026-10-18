@@ -39,6 +39,13 @@ const RETRY_DELAY_MS = 1000;
 // and must not drive the result (spec: do not blindly accept API results).
 const MIN_RELEVANCE = 0.15;
 
+// A review whose fact-checked claim is the OPPOSITE of the user's claim must
+// be inverted before it is used ("No studies show X" rated False supports
+// "studies show X"). Inversion is a stronger inference than a plain match,
+// so it needs a stricter relevance floor; weak opposite-polarity matches are
+// dropped rather than translated into support for the user's claim.
+const MIN_INVERTED_RELEVANCE = 0.25;
+
 // ─── Verification Status Enum ─────────────────────────────────────────
 
 const VerificationStatus = Object.freeze({
@@ -206,6 +213,78 @@ function classifyRating(rating) {
   }
 
   return 'unknown';
+}
+
+// ─── Claim polarity ───────────────────────────────────────────────────
+
+// Cues that flip a claim's meaning. Deliberately conservative: only words
+// that negate the assertion itself, not hedges or quantities.
+const NEGATION_PATTERN = /\b(?:no|not|never|none|without|deny|denies|denied|debunk|debunks|debunked|disprove|disproves|disproven|refute|refutes|refuted|false|fake|myth|incorrect|inaccurate|untrue|unsupported|isn't|aren't|wasn't|weren't|doesn't|don't|didn't|can't|cannot|won't|hasn't|haven't|hadn't)\b/i;
+
+/**
+ * Return true when a claim is negated ("No studies show X", "X does not
+ * cause Y"). Used to compare the user's claim with the claim a publisher
+ * actually fact-checked.
+ */
+function isNegatedClaim(text) {
+  if (!text || typeof text !== 'string') return false;
+  return NEGATION_PATTERN.test(text);
+}
+
+/**
+ * Invert a rating category for an opposite-polarity claim. A "False" rating
+ * of "X does not cause Y" supports "X causes Y".
+ */
+function invertRatingCategory(category) {
+  if (category === 'positive') return 'negative';
+  if (category === 'negative') return 'positive';
+  return category;
+}
+
+/**
+ * Classify a single fact-check review against the user's claim.
+ *
+ * - Drops reviews that are not relevant enough.
+ * - Detects when the fact-checked claim is the negation of the user's claim
+ *   and inverts the publisher's rating, because a debunk of the opposite
+ *   statement is evidence FOR the user's claim (and vice versa).
+ *
+ * Without this, querying "peer-reviewed studies show vaccines are safe"
+ * matched a debunk of "No peer-reviewed studies show vaccines are safe" and
+ * the "False" rating was applied to the user's claim, labelling true,
+ * well-established information as false/misleading.
+ *
+ * @param {string} normalizedQuery - Normalized user claim
+ * @param {Object} review - Extracted ClaimReview data (rating + claimText)
+ * @returns {Object|null} Review with a resolved `category`, or null when it
+ *   should not count as evidence
+ */
+function classifyReviewAgainstClaim(normalizedQuery, review) {
+  if (!review) return null;
+
+  const claimText = review.claimText || '';
+  const relevance =
+    typeof review.relevanceScore === 'number'
+      ? review.relevanceScore
+      : computeRelevance(normalizedQuery, claimText);
+
+  if (relevance < MIN_RELEVANCE) return null;
+
+  const polarityInverted =
+    !!claimText && isNegatedClaim(normalizedQuery) !== isNegatedClaim(claimText);
+
+  if (polarityInverted && relevance < MIN_INVERTED_RELEVANCE) return null;
+
+  const baseCategory = classifyRating(review.textualRating);
+
+  return {
+    ...review,
+    relevanceScore: relevance,
+    polarityInverted,
+    category: polarityInverted
+      ? invertRatingCategory(baseCategory)
+      : baseCategory,
+  };
 }
 
 /**
@@ -470,13 +549,14 @@ async function factCheckClaim(claimText, options = {}) {
       .flatMap((entry) => (entry && entry.factCheckRatings) || [])
       .map(extractClaimReviewData)
       .filter(Boolean);
-    // Apply the same relevance filter as fresh API results.
-    const relevantReviews = reviews.filter(
-      (r) => r.relevanceScore == null || r.relevanceScore >= MIN_RELEVANCE
-    );
+    // Apply the same relevance + polarity rules as fresh API results.
+    const relevantReviews = reviews
+      .map((r) => classifyReviewAgainstClaim(normalized, r))
+      .filter(Boolean);
     const classifiedRatings = relevantReviews.map((r) => ({
       rating: r.textualRating,
-      category: classifyRating(r.textualRating),
+      category: r.category,
+      polarityInverted: r.polarityInverted,
     }));
     const status = determineVerificationStatus(classifiedRatings);
 
@@ -531,18 +611,21 @@ async function factCheckClaim(claimText, options = {}) {
     }
   }
 
-  // 5b. Keep only reviews sufficiently relevant to the user's claim. If
-  //     nothing is relevant, the claim is treated as having NO evidence —
-  //     never as "verified" by unrelated fact-checks.
-  const relevantReviews = allReviews.filter(
-    (r) => r.relevanceScore >= MIN_RELEVANCE
-  );
+  // 5b. Keep only reviews sufficiently relevant to the user's claim and
+  //     resolve claim polarity (a review of the opposite claim must be
+  //     inverted, not applied as-is). If nothing survives, the claim is
+  //     treated as having NO evidence — never as "verified" by unrelated
+  //     fact-checks.
+  const relevantReviews = allReviews
+    .map((r) => classifyReviewAgainstClaim(normalized, r))
+    .filter(Boolean);
   const droppedIrrelevantCount = allReviews.length - relevantReviews.length;
 
-  // 6. Classify ratings
+  // 6. Classify ratings (already polarity-resolved)
   const classifiedRatings = relevantReviews.map((r) => ({
     rating: r.textualRating,
-    category: classifyRating(r.textualRating),
+    category: r.category,
+    polarityInverted: r.polarityInverted,
   }));
 
   // 7. Determine status
@@ -837,6 +920,10 @@ module.exports = {
   factCheckClaim,
   factCheckClaims,
   MIN_RELEVANCE,
+  MIN_INVERTED_RELEVANCE,
+  isNegatedClaim,
+  invertRatingCategory,
+  classifyReviewAgainstClaim,
 
   // Trust score integration
   verificationStatusToScore,

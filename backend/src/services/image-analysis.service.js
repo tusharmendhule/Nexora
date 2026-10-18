@@ -174,6 +174,9 @@ async function analyzeImage(job) {
       contentJobId: job._id,
       modelVersion: modelVersion || 'nexora-image-v1.0.0',
       authenticityUnavailable: !ai,
+      // The verification pipeline's TRUST_SCORE stage is the single writer of
+      // the post's score; this analysis only supplies signals to it.
+      persistTrustScore: false,
     });
   } catch (tsErr) {
     console.error('[ImageAnalysis] Media verification/TrustScore failed:', tsErr.message);

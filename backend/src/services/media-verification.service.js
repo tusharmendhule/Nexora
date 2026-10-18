@@ -72,6 +72,11 @@ function resolveRuleContentType(contentType, extraction, selection, fallback) {
  * @param {string} [params.modelVersion]
  * @param {boolean} [params.authenticityUnavailable] - The authenticity model
  *        did not run; its signal is excluded from the score
+ * @param {boolean} [params.persistTrustScore] - Persist the computed Trust
+ *        Score. The full verification pipeline passes false because its own
+ *        TRUST_SCORE stage is the single writer for the post; computing and
+ *        storing a score here as well made the persisted label disagree with
+ *        the pipeline result (and changed colours between runs).
  * @returns {Object} Verification + trust score result
  */
 async function verifyAndScoreMedia({
@@ -87,6 +92,7 @@ async function verifyAndScoreMedia({
   contentJobId = null,
   modelVersion = null,
   authenticityUnavailable = false,
+  persistTrustScore = true,
 }) {
   const verification = await mediaClaimsService.verifyMediaContent({
     postId,
@@ -149,7 +155,7 @@ async function verifyAndScoreMedia({
         : 0.3;
 
   let trustScoreResult = null;
-  if (postId) {
+  if (postId && persistTrustScore) {
     trustScoreResult = await trustScoreService.computeAndStoreTrustScore(postId, {
       authenticityScore: resolvedAuthenticity,
       factualVerificationScore,
@@ -174,6 +180,7 @@ async function verifyAndScoreMedia({
     resolvedAuthenticityScore: resolvedAuthenticity,
     resolvedModelConfidenceScore: resolvedConfidence,
     authenticityUnavailable: !!authenticityUnavailable,
+    manipulationProbability: clamp(manipulationProbability || 0),
     isConfirmedFalse,
     sourceCredibility: sourceCredentialResult,
     aiGeneratedProbability: aiProb,

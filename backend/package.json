@@ -8,7 +8,8 @@
     "dev": "nodemon src/app.js",
     "test": "jest --verbose",
     "seed:historical": "node scripts/seedHistoricalPosts.js",
-    "seed:images": "node scripts/seed-genuine-image-posts.js"
+    "seed:images": "node scripts/seed-genuine-image-posts.js",
+    "seed:labels": "node scripts/seed-trust-label-posts.js"
   },
   "keywords": [],
   "author": "",

@@ -60,8 +60,10 @@ router.get('/', protect, async (req, res) => {
           analyzedAt: tsDetail.analyzedAt || null,
           factCheckData: tsDetail.factCheckData || null,
         };
-        // Override the post's default trustScore with the computed value
+        // Override the post's default trustScore/badge with the computed
+        // values so the badge and the detail can never disagree.
         obj.trustScore = tsDetail.score;
+        obj.trustBadge = tsDetail.label;
       }
       return obj;
     });
@@ -196,6 +198,7 @@ router.get('/saved', protect, async (req, res) => {
             factCheckData: tsDetail.factCheckData || null,
           };
           obj.post.trustScore = tsDetail.score;
+          obj.post.trustBadge = tsDetail.label;
         }
       }
       return obj;
@@ -244,6 +247,7 @@ router.get('/:id', protect, async (req, res) => {
           factCheckData: tsDetail.factCheckData || null,
         };
         obj.trustScore = tsDetail.score;
+        obj.trustBadge = tsDetail.label;
       }
 
       res.status(200).json({

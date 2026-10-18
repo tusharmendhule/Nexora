@@ -379,7 +379,12 @@ async function executeAIAnalysis(pipeline, post, contentType, job) {
       break;
 
     case 'LINK':
-      analysisResult = await linkAnalysisService.analyzeLink(job);
+      // The pipeline's TRUST_SCORE stage writes the post's score; link
+      // analysis only supplies its signals so the label cannot flip between
+      // two separately persisted computations.
+      analysisResult = await linkAnalysisService.analyzeLink(job, {
+        persistTrustScore: false,
+      });
       modelVersion = analysisResult.modelVersion;
       serviceId = 'link-analysis';
       break;
@@ -1008,6 +1013,21 @@ async function executeTrustScore(pipeline, post, contentType, aiResult, factChec
       }
       if (typeof mediaVerification.sourceCredibilityScore === 'number') {
         input.sourceCredibilityScore = mediaVerification.sourceCredibilityScore;
+      }
+      // Use the media path's resolved signals verbatim. Recomputing them from
+      // the raw detector output here gave a different authenticity/confidence
+      // than the same analysis had just produced (e.g. the authenticity model
+      // was unavailable → 0.3 confidence here vs the claim confidence used by
+      // media verification), so the label could change between the two
+      // computations for identical evidence.
+      if (typeof mediaVerification.resolvedAuthenticityScore === 'number') {
+        input.authenticityScore = mediaVerification.resolvedAuthenticityScore;
+      }
+      if (typeof mediaVerification.resolvedModelConfidenceScore === 'number') {
+        input.modelConfidenceScore = mediaVerification.resolvedModelConfidenceScore;
+      }
+      if (typeof mediaVerification.manipulationProbability === 'number') {
+        input.manipulationProbability = mediaVerification.manipulationProbability;
       }
       // AI-generated detection is separate from factuality (spec §9/§22).
       if (mediaVerification.isDisclosedAI) {

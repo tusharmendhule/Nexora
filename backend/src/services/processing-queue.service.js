@@ -35,8 +35,9 @@ async function processNextBatch() {
 
     for (const job of pendingJobs) {
       try {
-        // Mark as processing in the content-router model
-        await contentRouter.markProcessing(job.jobId);
+        // Claim the job atomically — another consumer may have taken it.
+        const claimed = await contentRouter.markProcessing(job.jobId);
+        if (!claimed) continue;
 
         // Load the post
         const Post = require('../models/post.model');
@@ -122,7 +123,8 @@ async function enqueueJob(job) {
   // Process immediately in the next tick (non-blocking)
   setImmediate(async () => {
     try {
-      await contentRouter.markProcessing(job.jobId);
+      const claimed = await contentRouter.markProcessing(job.jobId);
+      if (!claimed) return;
 
       // Load the post
       const Post = require('../models/post.model');

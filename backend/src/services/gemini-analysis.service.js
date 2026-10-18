@@ -71,7 +71,11 @@ function acquireLock(postId, provider) {
   if (existing) {
     if (Date.now() - existing.startedAt > LOCK_TIMEOUT_MS) {
       _analysisLocks.delete(postId);
-    } else {
+    } else if (existing.status === GeminiAnalysisStatus.ANALYZING) {
+      // Only an in-flight analysis blocks a new attempt. A lock that was
+      // already released (COMPLETED / FAILED) records the last run's result;
+      // treating it as still locked made every re-verification of the same
+      // post return 'locked' with zero claims instead of re-analysing.
       return false; // Already locked
     }
   }

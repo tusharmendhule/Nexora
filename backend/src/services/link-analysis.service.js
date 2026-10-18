@@ -986,9 +986,10 @@ function computeConfidence(
  * Run the full link analysis pipeline for a content job.
  *
  * @param {Object} job - ContentJob document
+ * @param {Object} [options] - { persistTrustScore }
  * @returns {Object} { status, results, modelVersion }
  */
-async function analyzeLink(job) {
+async function analyzeLink(job, options = {}) {
   const Post = require('../models/post.model');
   const post = await Post.findById(job.post);
   if (!post) {
@@ -1008,7 +1009,7 @@ async function analyzeLink(job) {
     };
   }
 
-  return _runAnalysisPipeline(url, job.post, job._id);
+  return _runAnalysisPipeline(url, job.post, job._id, options);
 }
 
 /**
@@ -1017,16 +1018,22 @@ async function analyzeLink(job) {
  * @param {string} url - The URL to analyze
  * @param {string|null} postId - Optional post ID
  * @param {string|null} contentJobId - Optional content job ID
+ * @param {Object} [options] - { persistTrustScore }
  * @returns {Object} { status, results, modelVersion, savedAnalysis }
  */
-async function analyzeLinkDirect(url, postId, contentJobId) {
-  return _runAnalysisPipeline(url, postId, contentJobId);
+async function analyzeLinkDirect(url, postId, contentJobId, options = {}) {
+  return _runAnalysisPipeline(url, postId, contentJobId, options);
 }
 
 /**
  * Internal: run the full pipeline.
+ *
+ * `persistTrustScore` defaults to true for standalone analysis. The full
+ * verification pipeline passes false because its TRUST_SCORE stage is the
+ * single writer — two writes made the badge flip between runs.
  */
-async function _runAnalysisPipeline(url, postId, contentJobId) {
+async function _runAnalysisPipeline(url, postId, contentJobId, options = {}) {
+  const { persistTrustScore = true } = options;
   const startTime = Date.now();
   const errors = [];
 
@@ -1220,7 +1227,7 @@ async function _runAnalysisPipeline(url, postId, contentJobId) {
   // if postId is provided. Real components: source credibility from the
   // domain analysis, factual verification from actual fact-check ratings
   // (neutral 0.5 when no ratings were found — never assumed true).
-  if (postId) {
+  if (postId && persistTrustScore) {
     try {
       const trustScoreService = require('./trust-score.service');
       await trustScoreService.computeAndStoreTrustScore(

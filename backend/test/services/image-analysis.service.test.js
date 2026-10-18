@@ -153,8 +153,11 @@ describe('Image Analysis Service', () => {
       // Should store results
       expect(ImageAnalysis.create).toHaveBeenCalledTimes(1);
 
-      // Should create TrustScore
-      expect(TrustScore.findOneAndUpdate).toHaveBeenCalledTimes(1);
+      // The pipeline's TRUST_SCORE stage is the single writer for the post;
+      // analysis only supplies its resolved signals.
+      expect(TrustScore.findOneAndUpdate).not.toHaveBeenCalled();
+      expect(result.mediaVerification).toBeTruthy();
+      expect(result.mediaVerification.trustScoreResult).toBeNull();
     });
 
     it('should analyze a high-manipulation image and flag for review', async () => {
@@ -367,7 +370,7 @@ describe('Image Analysis Service', () => {
   // ─── Trust Score Integration ───────────────────────────────────────
 
   describe('Trust score integration', () => {
-    it('should create TrustScore document for successful analysis', async () => {
+    it('should NOT persist a TrustScore — the pipeline is the single writer', async () => {
       Post._add({
         _id: 'post_10',
         user: 'user_10',
@@ -394,17 +397,14 @@ describe('Image Analysis Service', () => {
 
       const job = { _id: 'job_10', post: 'post_10', contentReference: {} };
 
-      await imageAnalysisService.analyzeImage(job);
+      const result = await imageAnalysisService.analyzeImage(job);
 
-      expect(TrustScore.findOneAndUpdate).toHaveBeenCalledTimes(1);
-      const tsCall = TrustScore.findOneAndUpdate.mock.calls[0];
-      expect(tsCall[0]).toEqual({ post: 'post_10' });
-      expect(tsCall[1]).toMatchObject({
-        post: 'post_10',
-        score: expect.any(Number),
-        label: expect.any(String),
-        modelVersion: 'nexora-image-v1.0.0',
-      });
+      expect(TrustScore.findOneAndUpdate).not.toHaveBeenCalled();
+      // The pipeline gets the real signals it needs to compute the score once.
+      expect(result.mediaVerification).toBeTruthy();
+      expect(result.mediaVerification.resolvedAuthenticityScore).toBeCloseTo(0.95, 5);
+      expect(result.mediaVerification.resolvedModelConfidenceScore).toBeCloseTo(0.85, 5);
+      expect(result.mediaVerification.trustScoreResult).toBeNull();
     });
   });
 

@@ -95,11 +95,16 @@ async function createJob(post) {
 // ─── Job lifecycle helpers ────────────────────────────────────────
 
 /**
- * Mark a job as PROCESSING.
+ * Claim a PENDING job and mark it as PROCESSING.
+ *
+ * The status is part of the filter so two consumers (the immediate
+ * enqueue path and the drain loop) can never process the same job twice —
+ * duplicate runs produced different labels for the same post.
+ * Returns null when the job was already claimed/completed.
  */
 async function markProcessing(jobId) {
   return ContentJob.findOneAndUpdate(
-    { jobId },
+    { jobId, status: 'PENDING' },
     { status: 'PROCESSING', startedAt: new Date() },
     { new: true }
   );

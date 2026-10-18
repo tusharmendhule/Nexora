@@ -668,6 +668,108 @@ describe('Pipeline Orchestrator (Module 17)', () => {
       // Trust score should still be computed
       expect(trustScoreService.computeAndStoreTrustScore).toHaveBeenCalled();
     });
+
+    it('uses the media verification\'s resolved signals for the final score', async () => {
+      const post = createMockPost({
+        contentType: 'image',
+        media: [{ url: 'https://example.com/img.jpg', type: 'image' }],
+      });
+      const job = createMockJob({ contentType: 'IMAGE' });
+
+      contentRouter.classifyContentType.mockReturnValue('IMAGE');
+      contentRouter.pipelineForContentType.mockReturnValue('image_authenticity');
+
+      const stagesForImage = buildStageList('IMAGE').map(stage => ({
+        stage,
+        status: 'PENDING',
+        retryCount: 0,
+        maxRetries: 3,
+        startedAt: null,
+        completedAt: null,
+        durationMs: null,
+        error: null,
+        result: null,
+        modelVersion: null,
+        serviceId: null,
+        lastRetryAt: null,
+      }));
+
+      PipelineStage.create.mockResolvedValue({
+        _id: 'pipeline_media_signals',
+        pipelineId: 'test-media-signals-uuid',
+        post: post._id,
+        contentType: 'IMAGE',
+        status: 'PENDING',
+        currentStage: 'CONTENT_UPLOAD',
+        stages: stagesForImage,
+        save: jest.fn().mockResolvedValue(true),
+      });
+
+      imageAnalysisService.analyzeImage.mockResolvedValue({
+        status: 'COMPLETED',
+        // The authenticity model did not run: the pipeline must use the
+        // media path's resolved neutral authenticity and claim confidence
+        // instead of inventing its own fallback values.
+        results: { authenticityUnavailable: true, confidence: 0.3 },
+        modelVersion: null,
+        mediaVerification: {
+          mediaClaims: { claims: [] },
+          claimSelection: { factCheckable: [], skipped: [] },
+          factCheck: null,
+          factualVerificationScore: 0.5,
+          sourceCredibilityScore: 0.81,
+          resolvedAuthenticityScore: 0.42,
+          resolvedModelConfidenceScore: 0.77,
+          manipulationProbability: 0.66,
+          isDisclosedAI: false,
+          isConfirmedFalse: false,
+          ruleContentType: 'image',
+          trustScoreResult: null,
+        },
+      });
+
+      claimEntityService.extractDirect.mockResolvedValue({
+        status: 'COMPLETED',
+        results: { claimCount: 1, entityCount: 0 },
+        modelVersion: 'nexora-claims-v1.0.0',
+        savedAnalysis: {
+          claims: [{ text: 'Drinking water is essential for human survival', textHash: 'x1' }],
+          entities: [],
+          confidence: 0.8,
+        },
+      });
+
+      evidenceNormalizationService.normalizeAndStoreEvidence.mockResolvedValue({
+        _id: 'ev_media_signals',
+        evidenceItems: [],
+      });
+
+      trustScoreService.computeAndStoreTrustScore.mockResolvedValue({
+        score: 61,
+        label: 'Orange',
+        explanation: 'uncertain',
+        isOverrideApplied: false,
+        authenticity: 0.42,
+        factualVerification: 0.5,
+        sourceCredibility: 0.81,
+        modelConfidence: 0.77,
+      });
+
+      moderationDecisionService.evaluateDecision.mockReturnValue({
+        action: 'PUBLISH',
+        reason: 'Score meets threshold',
+        ruleApplied: 'RULE_SCORE_PUBLISH',
+      });
+      moderationDecisionService.applyDecision.mockResolvedValue({});
+
+      await executePipeline(post, job);
+
+      const input = trustScoreService.computeAndStoreTrustScore.mock.calls[0][1];
+      expect(input.authenticityScore).toBe(0.42);
+      expect(input.modelConfidenceScore).toBe(0.77);
+      expect(input.manipulationProbability).toBe(0.66);
+      expect(input.sourceCredibilityScore).toBe(0.81);
+    });
   });
 
   // ── 5. VIDEO Pipeline ─────────────────────────────────────────
@@ -936,7 +1038,9 @@ describe('Pipeline Orchestrator (Module 17)', () => {
       await executePipeline(post, job);
 
       expect(linkAnalysisService.analyzeLink).toHaveBeenCalledTimes(1);
-      expect(linkAnalysisService.analyzeLink).toHaveBeenCalledWith(job);
+      expect(linkAnalysisService.analyzeLink).toHaveBeenCalledWith(job, {
+        persistTrustScore: false,
+      });
     });
   });
 
